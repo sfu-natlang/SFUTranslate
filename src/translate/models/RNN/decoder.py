@@ -13,7 +13,9 @@ class Attention(backend.nn.Module):
         attn = self.attn(backend.cat((decoder_input_tensor, decoder_hidden_layer), 1))
         attn_weights = backend.nn.functional.softmax(attn, dim=1)
         attn_applied = backend.bmm(attn_weights.unsqueeze(1), encoder_output_tensors.transpose(0, 1)).transpose(0, 1)
-        return attn_applied, attn_weights
+        output = backend.cat((decoder_input_tensor, attn_applied[0]), 1)
+        output = self.attn_combine(output).unsqueeze(0)
+        return output, attn_weights
 
 
 class DecoderRNN(backend.nn.Module):
@@ -43,10 +45,7 @@ class DecoderRNN(backend.nn.Module):
         embedded = self.embedding(input_tensor).view(1, batch_size, self.hidden_size)
         embedded = self.dropout(embedded)
 
-        attn_applied, attn_weights = self.attention(encoder_outputs, embedded[0], hidden_layer[0])
-
-        output = backend.cat((embedded[0], attn_applied[0]), 1)
-        output = self.attn_combine(output).unsqueeze(0)
+        output, attn_weights = self.attention(encoder_outputs, embedded[0], hidden_layer[0])
 
         output = backend.nn.functional.relu(output)
         output, hidden_layer = self.gru(output, hidden_layer)

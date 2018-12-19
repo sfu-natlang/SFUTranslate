@@ -48,8 +48,8 @@ def pad_transform_embedding_matrix(embedding_matrix, max_length):
 
 def get_padding_batch_loader(dataset_instance, batch_size):
     return DataLoader(dataset_instance, batch_size=batch_size,
-                      collate_fn=PadCollate(pad_index_e=dataset_instance.get_target_pad_token_id(),
-                                            pad_index_f=dataset_instance.get_source_pad_token_id())) # , shuffle=True)
+                      collate_fn=PadCollate(pad_index_e=dataset_instance.target_vocabulary.get_pad_word_index(),
+                                            pad_index_f=dataset_instance.source_vocabulary.get_pad_word_index()))
 
 
 class PadCollate:

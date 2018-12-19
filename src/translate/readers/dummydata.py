@@ -22,6 +22,7 @@ class DummyDataset(AbsDatasetReader):
             self.max_samples = 1
         tmp = [x for x in string.ascii_letters + string.punctuation + string.digits]
         vocab = [x + "," + y for x in tmp for y in tmp if x != y][:self.vocab_size]
+        self.source_vocabulary.set_types(vocab)
         self.target_vocabulary.set_types(vocab)
         if self.max_samples > 1:
             self.pairs = [self._get_next_pair() for _ in range(self.max_samples)]

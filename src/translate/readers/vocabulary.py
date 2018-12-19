@@ -19,6 +19,7 @@ class Vocab:
         self.i2w = words
         self.counter = counter
         self.ensure_words_exist([self.bos_word, self.eos_word, self.pad_word, self.unk_word])
+        self._fill_in_reverse_index_vocabulary()
 
     def __len__(self):
         return len(self.i2w)
@@ -56,12 +57,12 @@ class Vocab:
         assert self.i2w is not None
         del self.w2i
         self.w2i = {}
-        for ind, word in self.i2w:
+        for ind, word in enumerate(self.i2w):
             self.w2i[word] = ind
 
     def __getitem__(self, item):
         assert self.i2w is not None
-        assert type(item) == int or type == str
+        assert type(item) == int or type(item) == str
         if type(item) == int:
             return self.i2w[item]
         else:

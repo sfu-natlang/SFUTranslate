@@ -9,6 +9,7 @@ from translate.readers.datareader import AbsDatasetReader
 
 class SequenceToSequence(backend.nn.Module):
     def __init__(self, configs: ConfigLoader, train_dataset: AbsDatasetReader):
+        super(SequenceToSequence, self).__init__()
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
@@ -63,7 +64,7 @@ class SequenceToSequence(backend.nn.Module):
 
         use_teacher_forcing = True if random.random() < self.teacher_forcing_ratio else False
 
-        output = long_tensor(target_length, batch_size, 1).unsqueeze(-1)
+        output = long_tensor(target_length, batch_size, 1).squeeze(-1)
 
         for di in range(target_length):
             decoder_output, decoder_hidden, decoder_attention = \
