@@ -1,0 +1,11 @@
+reader:
+    dataset:
+        buffer_size: 1000
+        max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
+        granularity: '!!python/object/apply:translate.readers.constants.ReaderLevel [2]'
+    vocab:
+        bos_word: '<s>'
+        eos_word: '</s>'
+        pad_word: '<pad>'
+        unk_word: '<unk>'
+        bpe_separator: '@@'

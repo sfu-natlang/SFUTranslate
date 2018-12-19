@@ -13,7 +13,7 @@ def find(yaml_element, searching_key):
                 yield i
 
 
-class ConfigReader:
+class ConfigLoader:
     def __init__(self, config_file):
         """
         The class to receive the address of the config file and retrieve the values in it.
@@ -23,19 +23,25 @@ class ConfigReader:
         """
         self._config_data = load(config_file.open().read())
 
-    def __getitem__(self, key):
+    def get(self, key, default_value=None, must_exist=False):
         """
         :param key: a dot-separated key identifier representing the nested parent keys in the config file
                 (the key must be a string)
+        :param default_value: the value to be returned if the requested key does not exist
+        :param must_exist: if True ignores the default_value and if cannot find the key raises Exception
         :return: the value of the requested key, WARNING: always the first occurrence of the key will get returned
         """
         assert type(key) == str
         if not key or key.isspace():
-            return None
+            return default_value
+        if must_exist:
+            default_value = None
         nested_keys = key.split(".")
         current_node = self._config_data
         for n_key in nested_keys:
-            current_node = next(find(current_node, n_key), None)
-            if current_node is None:
+            current_node = next(find(current_node, n_key), default_value)
+            if current_node == default_value:
                 break
+        if must_exist and current_node is None:
+            raise ValueError("The configuration value {} must exist in your configuration file!".format(key))
         return current_node
