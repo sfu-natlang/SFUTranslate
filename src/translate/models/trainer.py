@@ -46,13 +46,13 @@ if __name__ == '__main__':
         iter_ = 0
         itr_handler = tqdm(get_padding_batch_loader(train, model.batch_size),
                            desc="[E {}/{}]-[B {}]-[L {}]-#Batches Processed".format(
-                               epoch + 1, epochs, model.batch_size, 0.0), total=len(train), ncols=100)
+                               epoch + 1, epochs, model.batch_size, 0.0), total=len(train)/model.batch_size, ncols=100)
         for input_tensor_batch, target_tensor_batch in itr_handler:
             iter_ += 1
             loss_value, decoded_word_ids = estimator.step(input_tensor_batch, target_tensor_batch)
             total_train_loss += loss_value
             total_train_instances += 1.0
-            itr_handler.set_description("[E {}/{}]-[B {}]-[L {}]-#Batches Processed".format(
+            itr_handler.set_description("[E {}/{}]-[B {}]-[L {:.4f}]-#Batches Processed".format(
                 epoch + 1, epochs, model.batch_size, total_train_loss/total_train_instances))
             # if iter_ % print_every == 0:
             #    continue

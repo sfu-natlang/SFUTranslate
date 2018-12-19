@@ -6,11 +6,11 @@ reader:
         granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
         dummy:
             min_len: 8
-            max_len: 20
+            max_len: 50
             vocab_size: 100
-            train_samples: 1000
-            test_samples: 200
-            dev_samples: 50
+            train_samples: 40000
+            test_samples: 3000
+            dev_samples: 1000
     vocab:
         bos_word: '<s>'
         eos_word: '</s>'
@@ -22,14 +22,14 @@ trainer:
         type: seq2seq
         tfr: 1.0 # teacher forcing ratio
         bienc: true # bidirectional encoding
-        hsize: 128 # hidden state size of RNN layers
+        hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder
         ndlayers: 1 # number of hidden layers in decoder
-        bsize: 32 # size of the training sentence batches
+        bsize: 64 # size of the training sentence batches
         ddropout: 0.1 # the dropout probability in the decoder
         init_val: 0.01 # the value to range of which random variables get initiated
     optimizer:
-        name: adam
-        lr: 5e-4
+        name: adadelta
+        lr: 1.0
         gcn: 5 # grad clip norm
         epochs: 10
