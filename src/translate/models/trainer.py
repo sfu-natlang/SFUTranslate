@@ -4,6 +4,7 @@ from translate.configs.utils import get_resource_file
 from translate.models.RNN.estimator import STSEstimator
 from translate.models.RNN.seq2seq import SequenceToSequence
 from translate.models.backend.padder import get_padding_batch_loader
+from translate.models.backend.utils import device
 from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
 from translate.readers.dummydata import DummyDataset
@@ -22,7 +23,7 @@ def prepare_parallel_dataset(configs: ConfigLoader):
 
 
 def make_model(configs: ConfigLoader, train_dataset: AbsDatasetReader):
-    created_model = SequenceToSequence(configs, train_dataset)
+    created_model = SequenceToSequence(configs, train_dataset).to(device)
     created_estimator = STSEstimator(configs, created_model)
     return created_model, created_estimator
 
