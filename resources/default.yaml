@@ -1,5 +1,6 @@
 reader:
     dataset:
+        type: dummy
         buffer_size: 1000
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
         granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
@@ -16,3 +17,19 @@ reader:
         pad_word: '<pad>'
         unk_word: '<unk>'
         bpe_separator: '@@'
+trainer:
+    model:
+        type: seq2seq
+        tfr: 1.0 # teacher forcing ratio
+        bienc: true # bidirectional encoding
+        hsize: 128 # hidden state size of RNN layers
+        nelayers: 1 # number of hidden layers in encoder
+        ndlayers: 1 # number of hidden layers in decoder
+        bsize: 32 # size of the training sentence batches
+        ddropout: 0.1 # the dropout probability in the decoder
+        init_val: 0.01 # the value to range of which random variables get initiated
+    optimizer:
+        name: adam
+        lr: 5e-4
+        gcn: 5 # grad clip norm
+        epochs: 10

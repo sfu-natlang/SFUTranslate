@@ -1,2 +1,4 @@
 pyyaml
 abc
+torch
+tqdm

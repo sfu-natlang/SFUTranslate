@@ -20,8 +20,8 @@ class AbsDatasetReader(ABC):
         self.instance_buffer_size = configs.get("reader.dataset.buffer_size", must_exist=True)
         self.max_valid_length = configs.get("reader.dataset.max_length", must_exist=True)
         self.word_granularity = configs.get("reader.dataset.granularity", default_value=ReaderLevel.WORD)
-        self.e_vocabulary = Vocab(configs)
-        self.f_vocabulary = Vocab(configs)
+        self.source_vocabulary = Vocab(configs)
+        self.target_vocabulary = Vocab(configs)
 
     def __iter__(self):
         return self
@@ -37,3 +37,14 @@ class AbsDatasetReader(ABC):
     @abstractmethod
     def __getitem__(self, idx):
         raise NotImplementedError
+
+    @abstractmethod
+    def allocate(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def deallocate(self):
+        raise NotImplementedError
+
+    def max_sentence_length(self):
+        return self.max_valid_length
