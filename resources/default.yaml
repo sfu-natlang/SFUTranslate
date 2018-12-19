@@ -2,7 +2,14 @@ reader:
     dataset:
         buffer_size: 1000
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
-        granularity: '!!python/object/apply:translate.readers.constants.ReaderLevel [2]'
+        granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
+        dummy:
+            min_len: 8
+            max_len: 20
+            vocab_size: 100
+            train_samples: 1000
+            test_samples: 200
+            dev_samples: 50
     vocab:
         bos_word: '<s>'
         eos_word: '</s>'
