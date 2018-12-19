@@ -8,7 +8,12 @@ def get_resources_dir():
     for path in Path.cwd().parents:
         if str(path).endswith("src"):
             return Path(path.parent, "resources")
-    return Path(Path.cwd(), "resources")
+    else:
+        cwd = Path.cwd()
+        if str(cwd).endswith("src"):
+            return Path(cwd.parent, "resources")
+        else:
+            raise ValueError("Unable to find /src/ directory address!")
 
 
 def get_resource_file(resource_name):
