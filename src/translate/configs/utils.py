@@ -8,6 +8,7 @@ def get_resources_dir():
     for path in Path.cwd().parents:
         if str(path).endswith("src"):
             return Path(path.parent, "resources")
+    return Path(Path.cwd(), "resources")
 
 
 def get_resource_file(resource_name):
