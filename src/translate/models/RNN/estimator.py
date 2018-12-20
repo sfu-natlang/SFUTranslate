@@ -68,9 +68,10 @@ class STSEstimator:
     def step_no_grad(self, input_tensor_batch: backend.Tensor, target_tensor_batch: backend.Tensor):
         with backend.no_grad():
             batch_loss, batch_loss_size, decoded_word_ids = self.model.forward(input_tensor_batch, target_tensor_batch)
+            loss_value = batch_loss.item() / batch_loss_size
             bleu_score, ref_sample, hyp_sample = self.compute_bleu(target_tensor_batch,
                                                                    decoded_word_ids, ref_is_tensor=True)
-            self.dev_stats.update(bleu_score, batch_loss)
+            self.dev_stats.update(bleu_score, loss_value)
             return ref_sample, hyp_sample
 
     def __str__(self):

@@ -76,17 +76,17 @@ class SequenceToSequence(backend.nn.Module):
                 decoder_input = Variable(topi.view(-1))
                 decoder_input = decoder_input.cuda() if self.use_cuda else decoder_input
 
-            output = output.transpose(0, 1)
-            result_decoded_word_ids = []
-            for di in range(output.size()[0]):
-                sent = []
-                for word in output[di]:
-                    word = word.item()
-                    if word != self.pad_token_id:
-                        sent.append(word)
-                    if word == self.eos_token_id:
-                        break
-                result_decoded_word_ids.append(sent)
+        output = output.transpose(0, 1)
+        result_decoded_word_ids = []
+        for di in range(output.size()[0]):
+            sent = []
+            for word in output[di]:
+                word = word.item()
+                if word != self.pad_token_id:
+                    sent.append(word)
+                if word == self.eos_token_id:
+                    break
+            result_decoded_word_ids.append(sent)
 
-            return loss, target_length, result_decoded_word_ids
+        return loss, target_length, result_decoded_word_ids
 
