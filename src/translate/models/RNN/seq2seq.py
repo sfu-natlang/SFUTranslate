@@ -1,3 +1,21 @@
+"""
+The sequence to sequence module with an additional functionality to compute the loss value in the forward path
+ (the loss is added to module for speed optimization purposes). The module can be configured via setting the following
+  values in the config file to the desired values.
+##################################################
+trainer:
+    model:
+        type: seq2seq
+        tfr: 1.001 # teacher forcing ratio
+        bienc: true # bidirectional encoding
+        hsize: 256 # hidden state size of RNN layers
+        nelayers: 1 # number of hidden layers in encoder
+        ndlayers: 1 # number of hidden layers in decoder
+        bsize: 64 # size of the training sentence batches
+        ddropout: 0.1 # the dropout probability in the decoder
+        init_val: 0.1 # the value to range of which random variables get initiated
+##################################################
+"""
 import random
 
 from translate.configs.loader import ConfigLoader
@@ -6,9 +24,17 @@ from translate.models.RNN.encoder import EncoderRNN
 from translate.models.backend.utils import backend, zeros_tensor, Variable, list_to_long_tensor, long_tensor
 from translate.readers.datareader import AbsDatasetReader
 
+__author__ = "Hassan S. Shavarani"
+
 
 class SequenceToSequence(backend.nn.Module):
     def __init__(self, configs: ConfigLoader, train_dataset: AbsDatasetReader):
+        """
+
+        :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
+        :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
+         model configuration
+        """
         super(SequenceToSequence, self).__init__()
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)

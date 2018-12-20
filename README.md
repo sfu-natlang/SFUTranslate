@@ -4,6 +4,9 @@ We also have tried to make the algorithms as fast as possible, but please let us
 concerns regarding the toolkit. To get familiar with what you can do and how you can do it please read through this document.
 
 To run the code you will need python 3.5+.
+
+Note: the base implementation of the modules in `translate.models.RNN` is taken from Sean Robertson's tutorial: 
+> [Translation with a Sequence to Sequence Network and Attention](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html)    
  
 # Resources
 All the necessary resources for the project are supposed to be loaded from the `SFUTranslate/resources` directory.
