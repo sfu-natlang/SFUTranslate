@@ -64,7 +64,10 @@ class Vocab:
         assert self.i2w is not None
         assert type(item) == int or type(item) == str
         if type(item) == int:
-            return self.i2w[item]
+            if 0 <= item < len(self.i2w):
+                return self.i2w[item]
+            else:
+                return self.pad_word
         else:
             if self.w2i is None:
                 self._fill_in_reverse_index_vocabulary()

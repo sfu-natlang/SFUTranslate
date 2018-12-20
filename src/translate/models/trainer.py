@@ -41,6 +41,7 @@ if __name__ == '__main__':
     model, estimator = make_model(opts, train)
 
     total_train_loss = 0.0
+    total_bleu_score = 0.0
     total_train_instances = 0.0
 
     for epoch in range(epochs):
@@ -51,9 +52,11 @@ if __name__ == '__main__':
         for input_tensor_batch, target_tensor_batch in itr_handler:
             iter_ += 1
             loss_value, decoded_word_ids = estimator.step(input_tensor_batch, target_tensor_batch)
+            total_bleu_score += train.compute_bleu(target_tensor_batch, decoded_word_ids, ref_is_tensor=True)
             total_train_loss += loss_value
             total_train_instances += 1.0
-            itr_handler.set_description("[E {}/{}]-[B {}]-[L {:.4f}]-#Batches Processed".format(
-                epoch + 1, epochs, model.batch_size, total_train_loss/total_train_instances))
+            itr_handler.set_description("[E {}/{}]-[B {}]-[L {:.3f}, S {:.3f}]-#Batches Processed".format(
+                epoch + 1, epochs, model.batch_size, total_train_loss/total_train_instances,
+                total_bleu_score/total_train_instances))
             # if iter_ % print_every == 0:
             #    continue

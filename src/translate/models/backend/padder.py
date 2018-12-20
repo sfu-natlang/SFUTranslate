@@ -1,12 +1,14 @@
+from typing import Union, List, Tuple
+
+from translate.readers.datareader import AbsDatasetReader
 from translate.models.backend.utils import device, backend, DataLoader
 
 
-def pad_transform_id_list(id_list, max_length, pad_token_id):
+def _pad_transform_id_list(id_list: Union[List, backend.Tensor], max_length: int, pad_token_id: int):
     """
     Receives the word-indexs [integer/long type] and converts them into a backend tensor
     """
     # TODO make sure the output is always of the same size and input is same formatted
-    assert type(id_list) == list or type(id_list) == backend.Tensor
     assert len(id_list) > 0
     assert type(id_list[0]) is not list
     if type(id_list) == list:
@@ -28,7 +30,7 @@ def pad_transform_id_list(id_list, max_length, pad_token_id):
             return result
 
 
-def pad_transform_embedding_matrix(embedding_matrix, max_length):
+def _pad_transform_embedding_matrix(embedding_matrix: backend.Tensor, max_length: int) -> backend.Tensor:
     """
     :param embedding_matrix: A matrix of size [SentenceLength + 1, EmbeddingSize]
      The +1 part is because the embedding is always ended in embedding vector of pad_word
@@ -46,7 +48,7 @@ def pad_transform_embedding_matrix(embedding_matrix, max_length):
         return result
 
 
-def get_padding_batch_loader(dataset_instance, batch_size):
+def get_padding_batch_loader(dataset_instance: AbsDatasetReader, batch_size: int) -> DataLoader:
     return DataLoader(dataset_instance, batch_size=batch_size,
                       collate_fn=PadCollate(pad_index_e=dataset_instance.target_vocabulary.get_pad_word_index(),
                                             pad_index_f=dataset_instance.source_vocabulary.get_pad_word_index()))
@@ -58,7 +60,7 @@ class PadCollate:
     a batch of sequences
     """
 
-    def __init__(self, pad_index_f, pad_index_e):
+    def __init__(self, pad_index_f: int, pad_index_e: int):
         """
         args:
             dim - the dimension to be padded (dimension of time in sequences)
@@ -67,13 +69,13 @@ class PadCollate:
         self.pad_index_f = pad_index_f
 
     @staticmethod
-    def get_item_length(id_list):
+    def get_item_length(id_list: Union[backend.Tensor, List]) -> int:
         if type(id_list) == backend.Tensor and id_list.size(0) == 1:
             return id_list.view(-1).size(0)
         else:
             return len(id_list)
 
-    def pad_collate(self, batch):
+    def pad_collate(self, batch)-> Tuple:
         """
         args:
             batch - list of (input tensor, label)
@@ -86,22 +88,22 @@ class PadCollate:
         max_len_f = max(map(lambda x: self.get_item_length(x[0]), batch))
         # pad according to max_len
         if batch_elements_size == 1:
-            batch = map(lambda p: (pad_transform_id_list(p[0], max_len_f, self.pad_index_f)), batch)
+            batch = map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f)), batch)
             res_f = backend.stack([x for x in map(lambda x: x[0], batch)], dim=0)
             return res_f
         elif batch_elements_size == 2:
             max_len_e = max(map(lambda x: self.get_item_length(x[1]), batch))
-            batch = [item for item in map(lambda p: (pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
-                                                     pad_transform_id_list(p[1], max_len_e, self.pad_index_e)), batch)]
+            batch = [item for item in map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
+                                                     _pad_transform_id_list(p[1], max_len_e, self.pad_index_e)), batch)]
             res_f = backend.stack([x for x in map(lambda x: x[0], batch)], dim=0)
             res_e = backend.stack([x for x in map(lambda x: x[1], batch)], dim=0)
             return res_f, res_e
         elif batch_elements_size == 3:
             max_len_e = max(map(lambda x: self.get_item_length(x[1]), batch))
             max_len_g = max(map(lambda x: self.get_item_length(x[2]), batch))
-            batch = [item for item in map(lambda p: (pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
-                                                     pad_transform_id_list(p[1], max_len_e, self.pad_index_e),
-                                                     pad_transform_embedding_matrix(p[2], max_len_g)), batch)]
+            batch = [item for item in map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
+                                                     _pad_transform_id_list(p[1], max_len_e, self.pad_index_e),
+                                                     _pad_transform_embedding_matrix(p[2], max_len_g)), batch)]
             res_f = backend.stack([x for x in map(lambda x: x[0], batch)], dim=0)
             res_e = backend.stack([x for x in map(lambda x: x[1], batch)], dim=0)
             res_g = backend.stack([x for x in map(lambda x: x[2], batch)], dim=0)

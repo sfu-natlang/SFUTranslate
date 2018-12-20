@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, Iterable
+from sacrebleu import sentence_bleu
 
 from translate.readers.constants import ReaderLevel, ReaderType
 from translate.readers.vocabulary import Vocab
 from translate.configs.loader import ConfigLoader
+from translate.models.backend.utils import tensor2list
 
 
 class AbsDatasetReader(ABC):
@@ -22,6 +24,33 @@ class AbsDatasetReader(ABC):
         self.word_granularity = configs.get("reader.dataset.granularity", default_value=ReaderLevel.WORD)
         self.source_vocabulary = Vocab(configs)
         self.target_vocabulary = Vocab(configs)
+
+    @staticmethod
+    def _sentensify(vocabulary: Vocab, ids: Iterable[int], merge_bpe_tokens: bool = False, input_is_tensor=False):
+        if input_is_tensor:
+            ids = tensor2list(ids)
+        out_sent = " ".join([x for x in [vocabulary[x] for x in ids]
+                             if x != vocabulary.pad_word and x != vocabulary.eos_word])
+        if not merge_bpe_tokens:
+            return out_sent
+        else:
+            bpe_separator = vocabulary.bpe_separator
+            return out_sent.replace(" {}".format(bpe_separator), "").replace("{} ".format(bpe_separator), "")
+
+    def target_sentensify(self, ids: Iterable[int], merge_bpe_tokens: bool = False, input_is_tensor=False):
+        return self._sentensify(self.target_vocabulary, ids, merge_bpe_tokens, input_is_tensor)
+
+    def target_sentensify_all(self, ids_list: Iterable[Iterable[int]],
+                              merge_bpe_tokens: bool = False, input_is_tensor=False):
+        return [self._sentensify(self.target_vocabulary, ids, merge_bpe_tokens, input_is_tensor) for ids in ids_list]
+
+    def compute_bleu(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]],
+                     ref_is_tensor: bool=False, hyp_is_tensor: bool=False) -> float:
+        assert len(ref_ids_list) == len(hyp_ids_list)
+        refs = self.target_sentensify_all(ref_ids_list, input_is_tensor=ref_is_tensor)
+        hyps = self.target_sentensify_all(hyp_ids_list, input_is_tensor=hyp_is_tensor)
+        scores = [sentence_bleu(hyps[sid], refs[sid]) for sid in range(len(ref_ids_list))]
+        return sum(scores) / len(scores)
 
     def __iter__(self):
         return self

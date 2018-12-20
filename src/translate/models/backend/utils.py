@@ -15,3 +15,7 @@ def list_to_long_tensor(list_long_values):
 
 def long_tensor(d1, d2, d3):
     return backend.LongTensor(d1, d2, d3).to(device)
+
+
+def tensor2list(tensor: backend.Tensor):
+    return tensor.cpu().numpy().tolist()

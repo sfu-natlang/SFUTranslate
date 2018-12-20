@@ -62,8 +62,6 @@ class SequenceToSequence(backend.nn.Module):
 
         decoder_hidden = self.decoder.init_hidden(batch_size=batch_size)
 
-        use_teacher_forcing = True if random.random() < self.teacher_forcing_ratio else False
-
         output = long_tensor(target_length, batch_size, 1).squeeze(-1)
 
         for di in range(target_length):
@@ -72,7 +70,7 @@ class SequenceToSequence(backend.nn.Module):
             loss += self.criterion(decoder_output, target_variable[di])
             _, topi = decoder_output.data.topk(1)
             output[di] = Variable(topi.view(-1))
-            if use_teacher_forcing:
+            if random.random() < self.teacher_forcing_ratio:
                 decoder_input = target_variable[di]  # Teacher forcing
             else:
                 decoder_input = Variable(topi.view(-1))
@@ -81,7 +79,13 @@ class SequenceToSequence(backend.nn.Module):
             output = output.transpose(0, 1)
             result_decoded_word_ids = []
             for di in range(output.size()[0]):
-                sent = [word for word in output[di] if word != self.pad_token_id]
+                sent = []
+                for word in output[di]:
+                    word = word.item()
+                    if word != self.pad_token_id:
+                        sent.append(word)
+                    if word == self.eos_token_id:
+                        break
                 result_decoded_word_ids.append(sent)
 
             return loss, target_length, result_decoded_word_ids
