@@ -17,8 +17,7 @@ def prepare_dummy_datasets(configs: ConfigLoader):
     train_ = DummyDataset(configs, ReaderType.TRAIN)
     test_ = DummyDataset(configs, ReaderType.TEST)
     dev_ = DummyDataset(configs, ReaderType.DEV)
-    vis_ = DummyDataset(configs, ReaderType.VIS)
-    return train_, test_, dev_, vis_
+    return train_, test_, dev_
 
 
 def prepare_parallel_dataset(configs: ConfigLoader):
@@ -36,9 +35,9 @@ if __name__ == '__main__':
     dataset_type = opts.get("reader.dataset.type", must_exist=True)
     epochs = opts.get("trainer.optimizer.epochs", must_exist=True)
     if dataset_type == "dummy":
-        train, test, dev, vis = prepare_dummy_datasets(opts)
+        train, test, dev = prepare_dummy_datasets(opts)
     elif dataset_type == "parallel":
-        train, test, dev, vis = prepare_parallel_dataset(opts)
+        train, test, dev = prepare_parallel_dataset(opts)
     else:
         raise NotImplementedError
     model, estimator = make_model(opts, train)
