@@ -1,4 +1,10 @@
+"""
+Provides config file (strictly in YAML/Ansible format) interpretation functionalities.
+All runnable scripts are relying on this file to read and interpret the configurations they need.
+"""
 from yaml import load
+
+__author__ = "Hassan S. Shavarani"
 
 
 def find(yaml_element, searching_key):

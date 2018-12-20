@@ -1,4 +1,9 @@
+"""
+Provides a uniquely configured logger to the project files
+"""
 import logging
+
+__author__ = "Hassan S. Shavarani"
 
 logger = logging.getLogger('NatlangMT')
 logger.setLevel(logging.DEBUG)

@@ -7,7 +7,7 @@ reader:
         dummy:
             min_len: 8
             max_len: 50
-            vocab_size: 100
+            vocab_size: 96
             train_samples: 40000
             test_samples: 3000
             dev_samples: 1000
@@ -20,16 +20,18 @@ reader:
 trainer:
     model:
         type: seq2seq
-        tfr: 1.0 # teacher forcing ratio
+        tfr: 1.001 # teacher forcing ratio
         bienc: true # bidirectional encoding
         hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder
         ndlayers: 1 # number of hidden layers in decoder
         bsize: 64 # size of the training sentence batches
         ddropout: 0.1 # the dropout probability in the decoder
-        init_val: 0.01 # the value to range of which random variables get initiated
+        init_val: 0.1 # the value to range of which random variables get initiated
     optimizer:
         name: adadelta
         lr: 1.0
         gcn: 5 # grad clip norm
-        epochs: 10
+        epochs: 15
+    experiment:
+        name: 'dummy'

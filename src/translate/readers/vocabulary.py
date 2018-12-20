@@ -1,11 +1,22 @@
+"""
+Provides a data container for the vocabulary words of one language (either "e" or "f").
+"""
 from typing import List
 from collections import Counter
 from translate.configs.loader import ConfigLoader
 from random import choice
 
+__author__ = "Hassan S. Shavarani"
+
 
 class Vocab:
     def __init__(self, configs: ConfigLoader, words: List[str] = None, counter: Counter= None):
+        """
+
+        :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
+        :param words: list of unique tokens in the vocabulary
+        :param counter: [optional] counter containing the frequency of the words in the words list.
+        """
         self.unk_word = configs.get("reader.vocab.unk_word", "<unk>")
         self.bos_word = configs.get("reader.vocab.bos_word", "<s>")
         self.eos_word = configs.get("reader.vocab.eos_word", "</s>")
@@ -16,6 +27,9 @@ class Vocab:
         self.counter = counter
 
     def set_types(self, words: List[str], counter: Counter= None):
+        """
+        The setter function which will set the vocabulary word list (:param words:) and the optional (:param counter:)
+        """
         self.i2w = words
         self.counter = counter
         self.ensure_words_exist([self.bos_word, self.eos_word, self.pad_word, self.unk_word])
@@ -61,6 +75,11 @@ class Vocab:
             self.w2i[word] = ind
 
     def __getitem__(self, item):
+        """
+        The getter function which given an id or word returns the word or id equivalent to it
+        :param item: The id or word to be converted to it's equivalent
+        :return: The converted word or id equivalent of the :param item:
+        """
         assert self.i2w is not None
         assert type(item) == int or type(item) == str
         if type(item) == int:
@@ -77,6 +96,10 @@ class Vocab:
                 return self.w2i[self.unk_word]
 
     def retrieve_dummy_words_list(self, expected_length):
+        """
+        A helper function which returns a random selection (of :param expected_length:) of the words in the vocabulary,
+         specifically to be used for the dummy dataset
+        """
         vocab_types = self.get_types()
         words = []
         while len(words) != expected_length:

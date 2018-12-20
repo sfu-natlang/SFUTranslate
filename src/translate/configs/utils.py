@@ -1,4 +1,9 @@
+"""
+Provides relative/absolute path information required for accessing the project resources
+"""
 from pathlib import Path
+
+__author__ = "Hassan S. Shavarani"
 
 
 def get_resources_dir():
