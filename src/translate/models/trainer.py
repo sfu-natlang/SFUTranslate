@@ -1,3 +1,13 @@
+# !/usr/bin/bash
+"""
+The starting point of the project. Ideally we would not need to change this class for performing different models.
+You can run this script using the following bash script [The config file "default.yaml" will be looked up
+ from /path/to/SFUTranslate/resources]:
+####################################################################
+#!/usr/bin/env bash
+cd /path/to/SFUTranslate/src && python -m translate.models.trainer default.yaml
+####################################################################
+"""
 import math
 from tqdm import tqdm
 import sys
@@ -12,8 +22,14 @@ from translate.readers.datareader import AbsDatasetReader
 from translate.readers.dummydata import DummyDataset
 from translate.logging.utils import logger
 
+__author__ = "Hassan S. Shavarani"
+
 
 def prepare_dummy_datasets(configs: ConfigLoader):
+    """
+    The DummyDataset provider for train, test and dev datasets
+    :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
+    """
     train_ = DummyDataset(configs, ReaderType.TRAIN)
     test_ = DummyDataset(configs, ReaderType.TEST)
     dev_ = DummyDataset(configs, ReaderType.DEV)
@@ -21,19 +37,31 @@ def prepare_dummy_datasets(configs: ConfigLoader):
 
 
 def prepare_parallel_dataset(configs: ConfigLoader):
+    """
+    The ParallelDataset provider for train, test and dev datasets
+    :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
+    """
     raise NotImplementedError
 
 
 def make_model(configs: ConfigLoader, train_dataset: AbsDatasetReader):
+    """
+    The seq2seq model creator + estimator configurator function
+    :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
+    :param train_dataset: the dataset from which the statistics regarding dataset will be looked up in
+     estimator and model configuration
+    """
     created_model = SequenceToSequence(configs, train_dataset).to(device)
     created_estimator = STSEstimator(configs, created_model, train_dataset.compute_bleu)
     return created_model, created_estimator
 
 
 if __name__ == '__main__':
-    opts = ConfigLoader(get_resource_file("default.yaml"))
+    # The single point which loads the config file passed to the script
+    opts = ConfigLoader(get_resource_file(sys.argv[1]))
     dataset_type = opts.get("reader.dataset.type", must_exist=True)
     epochs = opts.get("trainer.optimizer.epochs", must_exist=True)
+    # to support more dataset types you need to extend this list
     if dataset_type == "dummy":
         train, test, dev = prepare_dummy_datasets(opts)
     elif dataset_type == "parallel":
@@ -41,6 +69,7 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError
     model, estimator = make_model(opts, train)
+    # the value which is used for performing the dev set evaluation steps
     print_every = int(0.25 * int(math.ceil(float(len(train)/float(model.batch_size)))))
 
     for epoch in range(epochs):
@@ -63,5 +92,8 @@ if __name__ == '__main__':
                 print("", end='\n', file=sys.stderr)
                 logger.info(u"Sample: E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample))
                 dev.deallocate()
+                # TODO save the best model in here
+                # TODO add early stopping criteria
         print("\n", end='\n', file=sys.stderr)
         train.deallocate()
+        # TODO add test step in here

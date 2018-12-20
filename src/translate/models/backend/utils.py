@@ -1,8 +1,17 @@
-import torch as backend  # renamed for the sake of traceability
-# (later, we can simply look for occurrences of "backend" and change it to tf or anything we need!)
+"""
+The backend utils function which is the only class accessing directly to torch library. The renaming of torch to backend
+ has been performed for the sake of traceability; later, we can simply look for occurrences of "backend" and change it
+  to tf or any backend we may need!
+
+This script contains any conversion functions which are necessary for limiting the direct access of project classes to
+ the torch library itself
+"""
+import torch as backend
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 device = backend.device("cuda" if backend.cuda.is_available() else "cpu")
+
+__author__ = "Hassan S. Shavarani"
 
 
 def zeros_tensor(d1, d2, d3):

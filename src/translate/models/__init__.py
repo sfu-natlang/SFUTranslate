@@ -1,5 +1,5 @@
 __package__ = "translate.models"
-__all__ = []
+__all__ = ["RNN", "backend", "trainer"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]
