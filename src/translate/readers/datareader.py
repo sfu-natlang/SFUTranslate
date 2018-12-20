@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Tuple
 from sacrebleu import sentence_bleu
+from random import choice
 
 from translate.readers.constants import ReaderLevel, ReaderType
 from translate.readers.vocabulary import Vocab
@@ -45,12 +46,13 @@ class AbsDatasetReader(ABC):
         return [self._sentensify(self.target_vocabulary, ids, merge_bpe_tokens, input_is_tensor) for ids in ids_list]
 
     def compute_bleu(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]],
-                     ref_is_tensor: bool=False, hyp_is_tensor: bool=False) -> float:
+                     ref_is_tensor: bool=False, hyp_is_tensor: bool=False) -> Tuple[float, str, str]:
         assert len(ref_ids_list) == len(hyp_ids_list)
         refs = self.target_sentensify_all(ref_ids_list, input_is_tensor=ref_is_tensor)
         hyps = self.target_sentensify_all(hyp_ids_list, input_is_tensor=hyp_is_tensor)
         scores = [sentence_bleu(hyps[sid], refs[sid]) for sid in range(len(ref_ids_list))]
-        return sum(scores) / len(scores)
+        random_index = choice(range(len(refs)))
+        return sum(scores) / len(scores), refs[random_index], hyps[random_index]
 
     def __iter__(self):
         return self
