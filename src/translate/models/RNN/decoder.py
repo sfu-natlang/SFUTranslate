@@ -63,8 +63,11 @@ class DecoderRNN(backend.nn.Module):
         self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size)
         self.dropout = backend.nn.Dropout(self.dropout_p)
         self.gru = backend.nn.GRU(self.hidden_size, self.hidden_size)
-        self.out = backend.nn.Linear(self.hidden_size, self.output_size)
+        # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
         self.attention = Attention(self.hidden_size, self.max_length)
+
+    def get_hidden_size(self):
+        return self.hidden_size
 
     def forward(self, input_tensor, hidden_layer, encoder_outputs, batch_size=-1):
         if batch_size == -1:
@@ -77,8 +80,8 @@ class DecoderRNN(backend.nn.Module):
         output = backend.nn.functional.relu(output)
         output, hidden_layer = self.gru(output, hidden_layer)
 
-        output = backend.nn.functional.log_softmax(self.out(output[0]), dim=1)
-        return output, hidden_layer, attn_weights
+        # output = backend.nn.functional.log_softmax(self.out(), dim=1)
+        return output[0], hidden_layer, attn_weights
 
     def init_hidden(self, batch_size=-1):
         """

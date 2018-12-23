@@ -22,6 +22,7 @@ from typing import List, Any, Tuple
 from translate.configs.loader import ConfigLoader
 from translate.models.RNN.decoder import DecoderRNN
 from translate.models.RNN.encoder import EncoderRNN
+from translate.models.RNN.generator import GeneratorNN
 from translate.models.backend.utils import backend, zeros_tensor, Variable, list_to_long_tensor, long_tensor
 from translate.readers.datareader import AbsDatasetReader
 from translate.models.abs.modelling import AbsCompleteModel
@@ -56,13 +57,13 @@ class SequenceToSequence(AbsCompleteModel):
                                   hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size)
         self.decoder = DecoderRNN(hidden_size, len(train_dataset.target_vocabulary), self.bidirectional_encoding,
                                   self.max_length, n_d_layers, self.batch_size, decoder_dropout)
+        self.generator = GeneratorNN(self.decoder.get_hidden_size(), len(train_dataset.target_vocabulary), decoder_dropout)
         self.encoder_output_size = self.encoder.hidden_size
         if self.bidirectional_encoding:
             self.encoder_output_size *= 2
-        for p in self.encoder.parameters():
-            p.data.uniform_(-init_val, init_val)
-        for p in self.decoder.parameters():
-            p.data.uniform_(-init_val, init_val)
+        for p_set in self.optimizable_params_list():
+            for p in p_set:
+                p.data.uniform_(-init_val, init_val)
 
     def forward(self, input_variable: backend.Tensor, target_variable: backend.Tensor, *args, **kwargs) \
             -> Tuple[backend.Tensor, int, List[Any]]:
@@ -94,6 +95,7 @@ class SequenceToSequence(AbsCompleteModel):
         for di in range(target_length):
             decoder_output, decoder_hidden, decoder_attention = \
                 self.decoder(decoder_input, decoder_hidden, encoder_outputs, batch_size=batch_size)
+            decoder_output = self.generator(decoder_output)
             loss += self.criterion(decoder_output, target_variable[di])
             _, topi = decoder_output.data.topk(1)
             output[di] = Variable(topi.view(-1))
@@ -118,4 +120,4 @@ class SequenceToSequence(AbsCompleteModel):
         return loss, target_length, result_decoded_word_ids
 
     def optimizable_params_list(self) -> List[Any]:
-        return [self.encoder.parameters(), self.decoder.parameters()]
+        return [self.encoder.parameters(), self.decoder.parameters(), self.generator.parameters()]
