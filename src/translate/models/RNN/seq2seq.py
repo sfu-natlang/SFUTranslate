@@ -17,17 +17,18 @@ trainer:
 ##################################################
 """
 import random
+from typing import List, Any, Tuple
 
 from translate.configs.loader import ConfigLoader
 from translate.models.RNN.decoder import DecoderRNN
 from translate.models.RNN.encoder import EncoderRNN
 from translate.models.backend.utils import backend, zeros_tensor, Variable, list_to_long_tensor, long_tensor
 from translate.readers.datareader import AbsDatasetReader
-
+from translate.models.abs.modelling import AbsCompleteModel
 __author__ = "Hassan S. Shavarani"
 
 
-class SequenceToSequence(backend.nn.Module):
+class SequenceToSequence(AbsCompleteModel):
     def __init__(self, configs: ConfigLoader, train_dataset: AbsDatasetReader):
         """
 
@@ -35,7 +36,7 @@ class SequenceToSequence(backend.nn.Module):
         :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
          model configuration
         """
-        super(SequenceToSequence, self).__init__()
+        super(SequenceToSequence, self).__init__(backend.nn.NLLLoss())
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
@@ -45,7 +46,6 @@ class SequenceToSequence(backend.nn.Module):
         init_val = configs.get("trainer.model.init_val", 0.01)
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
 
-        self.criterion = backend.nn.NLLLoss()
         self.max_length = train_dataset.max_sentence_length()
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
@@ -64,7 +64,8 @@ class SequenceToSequence(backend.nn.Module):
         for p in self.decoder.parameters():
             p.data.uniform_(-init_val, init_val)
 
-    def forward(self, input_variable, target_variable):
+    def forward(self, input_variable: backend.Tensor, target_variable: backend.Tensor, *args, **kwargs) \
+            -> Tuple[backend.Tensor, int, List[Any]]:
 
         batch_size = input_variable.size()[0]
         encoder_hidden = self.encoder.init_hidden(batch_size=batch_size)
@@ -116,3 +117,5 @@ class SequenceToSequence(backend.nn.Module):
 
         return loss, target_length, result_decoded_word_ids
 
+    def optimizable_params_list(self) -> List[Any]:
+        return [self.encoder.parameters(), self.decoder.parameters()]
