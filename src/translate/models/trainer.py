@@ -35,8 +35,8 @@ def prepare_datasets(configs: ConfigLoader, dataset_class: Type[AbsDatasetReader
     :param dataset_class: the classname of the intended Dataset reader. 
     """
     train_ = dataset_class(configs, ReaderType.TRAIN)
-    test_ = dataset_class(configs, ReaderType.TEST)
-    dev_ = dataset_class(configs, ReaderType.DEV)
+    test_ = dataset_class(configs, ReaderType.TEST, shared_reader_data=train_.get_sharable_data())
+    dev_ = dataset_class(configs, ReaderType.DEV, shared_reader_data=train_.get_sharable_data())
     return train_, test_, dev_
 
 

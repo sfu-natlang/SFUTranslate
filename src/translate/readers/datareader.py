@@ -5,7 +5,7 @@ To create your own dataset reader you only need to extend this class and augment
   abstract class.
 """
 from abc import ABC, abstractmethod
-from typing import Callable, Iterable, Tuple
+from typing import Callable, Iterable, Tuple, Dict
 from sacrebleu import sentence_bleu
 from random import choice
 
@@ -22,7 +22,8 @@ class AbsDatasetReader(ABC):
     The abstract interface of dataset readers, intended for reading a dataset, converting its data to NN understandable
     format (still in python structures tho!) and providing an iterator over the parallel data.
     """
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
+                 shared_reader_data: Dict=None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
@@ -30,6 +31,7 @@ class AbsDatasetReader(ABC):
          dataset. This handler is used to inform the user the progress of preparing the data while processing the
           dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
            takes any time for data preparation.
+        :param shared_reader_data: the data shared from another reader to this reader instance
         """
         super(AbsDatasetReader, self).__init__()
         self._iter_log_handler = iter_log_handler
@@ -48,6 +50,7 @@ class AbsDatasetReader(ABC):
         self.source_vocabulary = Vocab(configs)
         # the target side vocabulary data (only the container need to be filled in the classes extending the reader!)
         self.target_vocabulary = Vocab(configs)
+        self.load_shared_reader_data(shared_reader_data)
 
     @staticmethod
     def _sentensify(vocabulary: Vocab, ids: Iterable[int], merge_bpe_tokens: bool = False, input_is_tensor=False):
@@ -155,3 +158,19 @@ class AbsDatasetReader(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def load_shared_reader_data(self, shared_data):
+        """
+        The class method in charge of loading the external :param shared_data: information into reader instance. This 
+         method is useful in sharing vocabulary and other shared data among different parts (TRAIN, TEST, DEV) of the 
+          same dataset
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_sharable_data(self):
+        """
+        The class method to provide useful trained data (e.g. vocabulary objects) mainly from TRAIN dataset reader to 
+         the TEST and DEV dataset readers.
+        """
+        raise NotImplementedError

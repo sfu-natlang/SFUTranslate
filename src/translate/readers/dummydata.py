@@ -4,7 +4,7 @@ Provides dummy datasets for proof-of-concept tasks in NLP (e.g. reverse copy for
 """
 import string
 from random import randint, choice
-from typing import Callable
+from typing import Callable, Dict
 
 from translate.configs.loader import ConfigLoader
 from translate.readers.constants import ReaderType
@@ -35,7 +35,8 @@ class ReverseCopyDataset(AbsDatasetReader):
                 name: 'dummy'
     ####################################
     """
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
+                 shared_reader_data: Dict=None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
@@ -43,11 +44,11 @@ class ReverseCopyDataset(AbsDatasetReader):
          dataset. This handler is used to inform the user the progress of preparing the data while processing the
           dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
            takes any time for data preparation.
+        :param shared_reader_data: the data shared from another reader to this reader instance
         """
-        super().__init__(configs, reader_type, iter_log_handler)
+        super().__init__(configs, reader_type, iter_log_handler, shared_reader_data)
         self.min_length = configs.get("reader.dataset.dummy.min_len", must_exist=True)
         self.max_length = configs.get("reader.dataset.dummy.max_len", must_exist=True)
-        self.vocab_size = configs.get("reader.dataset.dummy.vocab_size", must_exist=True)
         if reader_type == ReaderType.TRAIN:
             self.max_samples = configs.get("reader.dataset.dummy.train_samples", must_exist=True)
         elif reader_type == ReaderType.TEST:
@@ -58,10 +59,12 @@ class ReverseCopyDataset(AbsDatasetReader):
             self.max_samples = 1
         # The desired vocabulary given the vocab_size set in config file gets created in here
         #  and is set inside source and target vocabulry objects
-        tmp = [x for x in string.ascii_letters + string.punctuation + string.digits]
-        vocab = [x + "," + y for x in tmp for y in tmp if x != y][:self.vocab_size]
-        self.source_vocabulary.set_types(vocab)
-        self.target_vocabulary.set_types(vocab)
+        if reader_type == ReaderType.TRAIN:
+            vocab_size = configs.get("reader.dataset.dummy.vocab_size", must_exist=True)
+            tmp = [x for x in string.ascii_letters + string.punctuation + string.digits]
+            vocab = [x + "," + y for x in tmp for y in tmp if x != y][:vocab_size]
+            self.source_vocabulary.set_types(vocab)
+            self.target_vocabulary.set_types(vocab)
         if self.max_samples > 1:
             self.pairs = [self._get_next_pair() for _ in range(self.max_samples)]
         else:
@@ -94,6 +97,17 @@ class ReverseCopyDataset(AbsDatasetReader):
 
     def deallocate(self):
         return
+
+    def load_shared_reader_data(self, shared_data):
+        if self.reader_type != ReaderType.TRAIN and shared_data is None:
+            raise ValueError("Only trainer instance is allowed to create the vocabulary and dummy sentences!")
+        if shared_data is not None:
+            vocab = shared_data["types"]
+            self.source_vocabulary.set_types(vocab)
+            self.target_vocabulary.set_types(vocab)
+
+    def get_sharable_data(self):
+        return {"types": self.source_vocabulary.get_types()}
 
     def _get_next_pair(self, expected_length=0):
         """
@@ -140,7 +154,8 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
                 name: 'dummy'
     ####################################
     """
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
+                 shared_reader_data: Dict=None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
@@ -148,11 +163,11 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
          dataset. This handler is used to inform the user the progress of preparing the data while processing the
           dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
            takes any time for data preparation.
+        :param shared_reader_data: the data shared from another reader to this reader instance
         """
-        super().__init__(configs, reader_type, iter_log_handler)
+        super().__init__(configs, reader_type, iter_log_handler, shared_reader_data)
         self.min_length = configs.get("reader.dataset.dummy.min_len", must_exist=True)
         self.max_length = configs.get("reader.dataset.dummy.max_len", must_exist=True)
-        self.vocab_size = configs.get("reader.dataset.dummy.vocab_size", must_exist=True)
         if reader_type == ReaderType.TRAIN:
             self.max_samples = configs.get("reader.dataset.dummy.train_samples", must_exist=True)
         elif reader_type == ReaderType.TEST:
@@ -163,10 +178,12 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
             self.max_samples = 1
         # The desired vocabulary given the vocab_size set in config file gets created in here
         #  and is set inside source and target vocabulry objects
-        tmp = [x for x in string.ascii_letters + string.punctuation + string.digits]
-        vocab = [x + "," + y for x in tmp for y in tmp if x != y][:self.vocab_size]
-        self.source_vocabulary.set_types(vocab)
-        self.target_vocabulary.set_types(vocab)
+        if reader_type == ReaderType.TRAIN:
+            vocab_size = configs.get("reader.dataset.dummy.vocab_size", must_exist=True)
+            tmp = [x for x in string.ascii_letters + string.punctuation + string.digits]
+            vocab = [x + "," + y for x in tmp for y in tmp if x != y][:vocab_size]
+            self.source_vocabulary.set_types(vocab)
+            self.target_vocabulary.set_types(vocab)
         if self.max_samples > 1:
             self.sentences = [self._get_next_sentence() for _ in range(self.max_samples)]
         else:
@@ -200,6 +217,17 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
     def deallocate(self):
         return
 
+    def load_shared_reader_data(self, shared_data):
+        if self.reader_type != ReaderType.TRAIN and shared_data is None:
+            raise ValueError("Only trainer instance is allowed to create the vocabulary and dummy sentences!")
+        if shared_data is not None:
+            vocab = shared_data["types"]
+            self.source_vocabulary.set_types(vocab)
+            self.target_vocabulary.set_types(vocab)
+
+    def get_sharable_data(self):
+        return {"types": self.source_vocabulary.get_types()}
+
     def _get_next_sentence(self, expected_length=0):
         """
         The function which given an :param expected_length: size of sentence, draws a sentence from the defined grammar,
@@ -212,6 +240,7 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
         vocab_length = len(self.target_vocabulary)
         next_index_increase = [-1, +1]
         word_indices = [choice(range(vocab_length))]
-        for i in range(expected_length-1):
-            word_indices.append((word_indices[i] + choice(next_index_increase)) % vocab_length)
+
+        word_indices += [(word_indices[i] + choice(next_index_increase)) % vocab_length
+                         for i in range(expected_length-1)]
         return word_indices
