@@ -40,6 +40,7 @@ class RNNLM(AbsCompleteModel):
          model configuration
         """
         super(RNNLM, self).__init__(backend.nn.NLLLoss())
+        self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
@@ -102,6 +103,6 @@ class RNNLM(AbsCompleteModel):
 
     def validate_instance(self, prediction_loss: float, predictions_batch: Iterable[Iterable[int]],
                           input_batch: backend.Tensor) -> Tuple[float, float, str]:
-        hyps = self.target_sentensify_all(predictions_batch)
+        hyps = self.dataset.target_sentensify_all(predictions_batch)
         random_index = choice(range(len(hyps)))
         return math.exp(prediction_loss), prediction_loss, hyps[random_index]
