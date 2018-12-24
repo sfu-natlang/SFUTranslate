@@ -9,7 +9,8 @@ To run the code you will need python 3.5+ and PyTorch 0.4+.
 Note: the base implementation of the modules in `translate.learning.modules.rnn` is taken from Sean Robertson's tutorial: 
 > [Translation with a Sequence to Sequence Network and Attention](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html)    
  
-##Getting Started
+ 
+# Getting Started
 
 To get started, we start with the project structure. In the highest level of the project, there are two main directories:
 
@@ -50,5 +51,5 @@ You may want to write your own dataset reader, in which case your dataset reader
 `AbsDatasetReader` class defined in this package. The dummy dataset providers `ReverseCopyDataset` and 
 `SimpleGrammerLMDataset` are examples you can look at to understand how you may create your dataset provider.  
 
-## Help and Comments
+# Help and Comments
 If you need help regarding the toolkit or you want to discuss your comments, you are more than welcome to email [Hassan S.Shavarani](sshavara@sfu.ca).
