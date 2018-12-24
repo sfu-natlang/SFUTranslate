@@ -239,8 +239,7 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
             expected_length = self.max_length - 1
         vocab_length = len(self.target_vocabulary)
         next_index_increase = [-1, +1]
-        word_indices = [choice(range(vocab_length))]
-
-        word_indices += [(word_indices[i] + choice(next_index_increase)) % vocab_length
-                         for i in range(expected_length-1)]
-        return word_indices
+        actions = [choice(next_index_increase) for _ in range(expected_length-1)]
+        actions.insert(0, 0)
+        first_word_index = choice(range(vocab_length))
+        return [[(first_word_index + sum(actions[:i])) % vocab_length for i in range(1, len(actions)+1)]]

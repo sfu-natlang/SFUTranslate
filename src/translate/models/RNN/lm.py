@@ -78,7 +78,7 @@ class RNNLM(AbsCompleteModel):
         loss = 0
         for ei in range(input_length - 1):
             encoder_output, encoder_hidden = self.encoder(input_variable[ei], encoder_hidden, batch_size=batch_size)
-            lm_output = self.generator(encoder_output)
+            lm_output = self.generator(encoder_output).squeeze(0)
             loss += self.criterion(lm_output, input_variable[ei + 1])
             _, topi = lm_output.data.topk(1)
             output[ei] = Variable(topi.view(-1))

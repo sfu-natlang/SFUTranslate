@@ -94,8 +94,8 @@ class PadCollate:
         # pad according to max_len
         if batch_elements_size == 1:
             batch = map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f)), batch)
-            res_f = backend.stack([x for x in map(lambda x: x[0], batch)], dim=0)
-            return res_f
+            res_f = backend.stack([x for x in batch], dim=0)
+            return res_f,
         elif batch_elements_size == 2:
             max_len_e = max(map(lambda x: self.get_item_length(x[1]), batch))
             batch = [item for item in map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
