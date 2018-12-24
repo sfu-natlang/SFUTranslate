@@ -1,6 +1,6 @@
 reader:
     dataset:
-        type: dummy_s2s
+        type: dummy_s2s # possible values [dummy_s2s | dummy_lm]
         buffer_size: 1000
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
         granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
@@ -19,7 +19,7 @@ reader:
         bpe_separator: '@@'
 trainer:
     model:
-        type: seq2seq
+        type: seq2seq # possible values [seq2seq | rnnlm]
         tfr: 1.001 # teacher forcing ratio
         bienc: true # bidirectional encoding
         hsize: 256 # hidden state size of RNN layers
