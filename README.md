@@ -1,4 +1,5 @@
 # SFUTranslate
+
 This is an academic machine translation toolkit, in which the main focus has been towards readability and changeability.
 We also have tried to make the algorithms as fast as possible, but please let us know if you have any suggestions or
 concerns regarding the toolkit. To get familiar with what you can do and how you can do it please read through this documentation.
@@ -9,6 +10,7 @@ Note: the base implementation of the modules in `translate.learning.modules.rnn`
 > [Translation with a Sequence to Sequence Network and Attention](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html)    
  
 #Getting Started
+
 To get started, we start with the project structure. In the highest level of the project, there are two main directories:
 
 - `resurces`: All the necessary resources for the project are supposed to be loaded from the `SFUTranslate/resources` directory.
