@@ -39,7 +39,7 @@ class AbsCompleteModel(backend.nn.Module, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def validate_instance(self, *args, **kwargs) -> Tuple[float, str]:
+    def validate_instance(self, *args, **kwargs) -> Tuple[float, float, str]:
         """
         The function in charge of validation of model prediction results (could be based on some expected values), and
          returning the validation score in addition to a sample of the prediction.

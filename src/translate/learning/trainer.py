@@ -45,6 +45,7 @@ if __name__ == '__main__':
     opts = ConfigLoader(get_resource_file(sys.argv[1]))
     dataset_type = opts.get("reader.dataset.type", must_exist=True)
     epochs = opts.get("trainer.optimizer.epochs", must_exist=True)
+    save_best_models = opts.get("trainer.optimizer.save_best_models", False)
     model_type = opts.get("trainer.model.type")
     # to support more dataset types you need to extend this list
     if dataset_type == "dummy_s2s":
@@ -92,7 +93,9 @@ if __name__ == '__main__':
                 print("", end='\n', file=sys.stderr)
                 logger.info(u"Sample: {}".format(dev_sample))
                 dev.deallocate()
-                # TODO save the best model in here
+                if stat_collector.improved_recently() and save_best_models:
+                    saved_path = estimator.save_checkpoint(stat_collector)
+                    model = estimator.load_checkpoint(saved_path)
                 # TODO add early stopping criteria
         print("\n", end='\n', file=sys.stderr)
         train.deallocate()

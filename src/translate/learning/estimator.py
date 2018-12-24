@@ -2,6 +2,7 @@
 Provides the optimizer creation, loss computation, back-propagation, and scoring functionalities
  on the input batches for structured prediction training tasks in which the input is composed of at least two sequences
 """
+import os
 from typing import Tuple, List, Type
 
 from translate.backend.utils import backend
@@ -47,6 +48,10 @@ class StatCollector:
         self._train_score = 0.0
         self._train_loss = 0.0
 
+        self._best_train_loss = float('+inf')
+        self._best_dev_loss = float('+inf')
+        self.global_step = 0.0
+
     @property
     def test_score(self) -> float:
         return self._test_score / (self._test_total + self._eps)
@@ -87,6 +92,20 @@ class StatCollector:
         else:
             raise NotImplementedError
 
+    def improved_recently(self) -> bool:
+        """
+        Checks whether the stat collector has seen any loss improvements from the last time it was asked
+        """
+        improved = False
+        self.global_step += 1.0
+        if self.dev_loss < self._best_dev_loss:
+            self._best_dev_loss = self.dev_loss
+            improved = True
+        if self.train_loss < self._best_train_loss:
+            self._best_train_loss = self.train_loss
+            improved = True
+        return improved
+
 
 class Estimator:
     def __init__(self, configs: ConfigLoader, model: Type[AbsCompleteModel]):
@@ -98,6 +117,7 @@ class Estimator:
         self.optim_name = configs.get("trainer.optimizer.name", must_exist=True)
         self.learning_rate = float(configs.get("trainer.optimizer.lr", must_exist=True))
         self.grad_clip_norm = configs.get("trainer.optimizer.gcn", 5)
+        self.experiment_name = configs.get("trainer.experiment.name", "unnamed")
         self.model = model
         self.optimizers = [create_optimizer(self.optim_name, x, lr=self.learning_rate)
                            for x in model.optimizable_params_list()]
@@ -129,3 +149,26 @@ class Estimator:
             _loss_, _loss_size_, computed_output = self.model.forward(*args, *kwargs)
             loss_value = _loss_.item() / _loss_size_
             return loss_value, computed_output
+
+    def save_checkpoint(self, stat_collector: StatCollector) -> str:
+        """
+        Saves the model and returns the saved checkpoint address, the function uses the collected stats during training 
+         to form the saving checkpoint address
+        """
+        checkpoint = {'global_step': stat_collector.global_step, 'model_state_dict': self.model.state_dict()}
+        checkpoint_path = 'checkpoints/%s_acc_%.2f_loss_%.2f_step_%d.pt' % (
+            self.experiment_name, stat_collector.dev_score, stat_collector.dev_loss, stat_collector.global_step)
+        directory, filename = os.path.split(os.path.abspath(checkpoint_path))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        backend.save(checkpoint, checkpoint_path)
+        return checkpoint_path
+
+    def load_checkpoint(self, checkpoint_path: str) -> Type[AbsCompleteModel]:
+        """
+        Loades the model from the :param checkpoint_path: and returns the loaded model object 
+        """
+        # It's weird that if `map_location` is not given, it will be extremely slow.
+        ckpt = backend.load(checkpoint_path, map_location=lambda storage, loc: storage)
+        self.model.load_state_dict(ckpt['model_state_dict'])
+        return self.model

@@ -33,5 +33,6 @@ trainer:
         lr: 1.0
         gcn: 5 # grad clip norm
         epochs: 15
+        save_best_models: true
     experiment:
         name: 'dummy'
