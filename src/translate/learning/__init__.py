@@ -1,5 +1,5 @@
-__package__ = "translate.logging"
-__all__ = ["utils"]
+__package__ = "translate.learning"
+__all__ = ["models", "modules", "estimator", "modelling", "trainer"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

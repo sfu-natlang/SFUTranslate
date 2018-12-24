@@ -4,9 +4,9 @@ Provides the optimizer creation, loss computation, back-propagation, and scoring
 """
 from typing import Tuple, List, Type
 
+from translate.backend.utils import backend
 from translate.configs.loader import ConfigLoader
-from translate.models.abs.modelling import AbsCompleteModel
-from translate.models.backend.utils import backend
+from translate.learning.modelling import AbsCompleteModel
 from translate.readers.constants import ReaderType
 
 __author__ = "Hassan S. Shavarani"
@@ -34,6 +34,7 @@ class StatCollector:
     """
     The loss, score, and result size container, used for storing the run stats of the training/testing iterations
     """
+
     def __init__(self):
         self._eps = 7. / 3. - 4. / 3. - 1.
         self._test_total = 0.0
@@ -89,11 +90,7 @@ class StatCollector:
 
 class Estimator:
     def __init__(self, configs: ConfigLoader, model: Type[AbsCompleteModel]):
-        # compute_score_function: Type[Callable[[Iterable[Iterable[int]], Iterable[Iterable[int]], bool, bool], float]])
-        # :param compute_score_function: the function handler passed from the dataset to be called for converting back
-        # the lists (tensors) of ids to target sentences and computing the average bleu score on them.
         """
-
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param model: the sequence to sequence model instance object which will be used for computing the model
          predictions and parameter optimization

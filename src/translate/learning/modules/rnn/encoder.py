@@ -1,7 +1,7 @@
 """
 The RNN implementation of the Encoder module in the sequence to sequence framework
 """
-from translate.models.backend.utils import backend, zeros_tensor
+from translate.backend.utils import backend, zeros_tensor
 
 __author__ = "Hassan S. Shavarani"
 

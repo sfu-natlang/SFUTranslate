@@ -1,5 +1,5 @@
-__package__ = "translate.models.abs"
-__all__ = ["modelling"]
+__package__ = "translate.learning.modules.mlp"
+__all__ = ["generator"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

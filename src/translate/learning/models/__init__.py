@@ -1,5 +1,5 @@
-__package__ = "translate.models.RNN"
-__all__ = ["decoder", "encoder", "estimator", "seq2seq"]
+__package__ = "translate.learning.models"
+__all__ = ["rnn"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

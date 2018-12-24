@@ -10,7 +10,7 @@ __author__ = "Hassan S. Shavarani"
 
 
 class Vocab:
-    def __init__(self, configs: ConfigLoader, words: List[str] = None, counter: Counter= None):
+    def __init__(self, configs: ConfigLoader, words: List[str] = None, counter: Counter = None):
         """
 
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
@@ -26,7 +26,7 @@ class Vocab:
         self.w2i = None  # to be loaded lazily!
         self.counter = counter
 
-    def set_types(self, words: List[str], counter: Counter= None):
+    def set_types(self, words: List[str], counter: Counter = None):
         """
         The setter function which will set the vocabulary word list (:param words:) and the optional (:param counter:)
         """

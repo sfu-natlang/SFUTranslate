@@ -1,5 +1,5 @@
-__package__ = "translate.models.backend"
-__all__ = ["padder", "utils"]
+__package__ = "translate.learning.modules"
+__all__ = ["mlp", "rnn"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

@@ -35,8 +35,9 @@ class ReverseCopyDataset(AbsDatasetReader):
                 name: 'dummy'
     ####################################
     """
+
     def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict=None):
+                 shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
@@ -154,8 +155,9 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
                 name: 'dummy'
     ####################################
     """
+
     def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict=None):
+                 shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
@@ -239,7 +241,7 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
             expected_length = self.max_length - 1
         vocab_length = len(self.target_vocabulary)
         next_index_increase = [-1, +1]
-        actions = [choice(next_index_increase) for _ in range(expected_length-1)]
+        actions = [choice(next_index_increase) for _ in range(expected_length - 1)]
         actions.insert(0, 0)
         first_word_index = choice(range(vocab_length))
-        return [[(first_word_index + sum(actions[:i])) % vocab_length for i in range(1, len(actions)+1)]]
+        return [[(first_word_index + sum(actions[:i])) % vocab_length for i in range(1, len(actions) + 1)]]

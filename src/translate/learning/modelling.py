@@ -1,10 +1,9 @@
 """
 Provides an interface for a completed model, which is of Type backen.nn.Module, an will be able to compute the loss
  value for a given input, in addition to the final output.
- 
 """
-from typing import Type, List, Tuple, Any, Iterable
-from translate.models.backend.utils import backend
+from typing import Type, List, Tuple, Any
+from translate.backend.utils import backend
 
 from abc import ABC, abstractmethod
 

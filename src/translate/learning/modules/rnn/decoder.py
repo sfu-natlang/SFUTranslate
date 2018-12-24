@@ -2,7 +2,7 @@
 The RNN implementation of the Decoder module in the sequence to sequence framework plus the modular implementation of
  the attention module.
 """
-from translate.models.backend.utils import backend, zeros_tensor
+from translate.backend.utils import backend, zeros_tensor
 
 __author__ = "Hassan S. Shavarani"
 

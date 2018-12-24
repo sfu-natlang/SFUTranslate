@@ -2,7 +2,7 @@
 The RNN implementation of the Generator module in the sequence to sequence framework which maps back the embedded hidden 
  state passed to it into target vocabulary space
 """
-from translate.models.backend.utils import backend
+from translate.backend.utils import backend
 
 __author__ = "Hassan S. Shavarani"
 

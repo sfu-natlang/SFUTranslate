@@ -9,6 +9,7 @@ This script contains any conversion functions which are necessary for limiting t
 import torch as backend
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
+
 device = backend.device("cuda" if backend.cuda.is_available() else "cpu")
 
 __author__ = "Hassan S. Shavarani"

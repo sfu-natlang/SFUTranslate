@@ -4,7 +4,7 @@ The class in charge of padding , batching, and post-processing of the created in
 from typing import Union, List, Tuple
 
 from translate.readers.datareader import AbsDatasetReader
-from translate.models.backend.utils import device, backend, DataLoader
+from translate.backend.utils import device, backend, DataLoader
 
 __author__ = "Hassan S. Shavarani"
 
@@ -65,6 +65,7 @@ class PadCollate:
     """
     a variant of callate_fn that pads according to the longest sequence in a batch of sequences
     """
+
     def __init__(self, pad_index_f: int, pad_index_e: int):
         """
         receives the padding indices which will be used to pad the tensors
@@ -82,7 +83,7 @@ class PadCollate:
         else:
             return len(id_list)
 
-    def pad_collate(self, batch)-> Tuple:
+    def pad_collate(self, batch) -> Tuple:
         """
         the function to perform the padding + batching + conversion of final resulting batch to a tensor
         :param batch: a batch of Tuples of inputs

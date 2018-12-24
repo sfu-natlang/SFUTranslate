@@ -18,15 +18,14 @@ trainer:
 """
 import math
 from random import choice
+from translate.learning.modules.rnn.encoder import EncoderRNN
 from typing import List, Any, Tuple, Iterable
 
+from translate.backend.utils import backend, Variable, long_tensor
 from translate.configs.loader import ConfigLoader
-from translate.models.RNN.encoder import EncoderRNN
-from translate.models.RNN.generator import GeneratorNN
-from translate.models.backend.utils import backend, Variable, long_tensor
+from translate.learning.modelling import AbsCompleteModel
+from translate.learning.modules.mlp.generator import GeneratorNN
 from translate.readers.datareader import AbsDatasetReader
-from translate.models.abs.modelling import AbsCompleteModel
-
 
 __author__ = "Hassan S. Shavarani"
 

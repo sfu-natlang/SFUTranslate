@@ -12,7 +12,7 @@ from random import choice
 from translate.readers.constants import ReaderLevel, ReaderType
 from translate.readers.vocabulary import Vocab
 from translate.configs.loader import ConfigLoader
-from translate.models.backend.utils import tensor2list
+from translate.backend.utils import tensor2list
 
 __author__ = "Hassan S. Shavarani"
 
@@ -22,8 +22,9 @@ class AbsDatasetReader(ABC):
     The abstract interface of dataset readers, intended for reading a dataset, converting its data to NN understandable
     format (still in python structures tho!) and providing an iterator over the parallel data.
     """
+
     def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict=None):
+                 shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
@@ -89,7 +90,7 @@ class AbsDatasetReader(ABC):
         return [self._sentensify(self.target_vocabulary, ids, merge_bpe_tokens, input_is_tensor) for ids in ids_list]
 
     def compute_bleu(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]],
-                     ref_is_tensor: bool=False, hyp_is_tensor: bool=False) -> Tuple[float, str, str]:
+                     ref_is_tensor: bool = False, hyp_is_tensor: bool = False) -> Tuple[float, str, str]:
         """
         The wrapper function over sacrebleu.sentence_bleu which computes average bleu score over a pack of predicted
          sentences considering their equivalent single reference sentences. The input reference/prediction id lists can

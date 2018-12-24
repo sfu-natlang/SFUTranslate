@@ -15,11 +15,11 @@ from typing import Type
 
 from translate.configs.loader import ConfigLoader
 from translate.configs.utils import get_resource_file
-from translate.models.RNN.estimator import Estimator, StatCollector
-from translate.models.RNN.lm import RNNLM
-from translate.models.RNN.seq2seq import SequenceToSequence
-from translate.models.backend.padder import get_padding_batch_loader
-from translate.models.backend.utils import device
+from translate.learning.estimator import Estimator, StatCollector
+from translate.learning.models.rnn.lm import RNNLM
+from translate.learning.models.rnn.seq2seq import SequenceToSequence
+from translate.backend.padder import get_padding_batch_loader
+from translate.backend.utils import device
 from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
 from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDataset
@@ -86,7 +86,8 @@ if __name__ == '__main__':
                 dev.allocate()
                 dev_sample = ""
                 for dev_values in get_padding_batch_loader(dev, model.batch_size):
-                    dev_score, dev_loss, dev_sample = model.validate_instance(*estimator.step_no_grad(*dev_values), *dev_values)
+                    dev_score, dev_loss, dev_sample = model.validate_instance(*estimator.step_no_grad(*dev_values),
+                                                                              *dev_values)
                     stat_collector.update(dev_score, dev_loss, ReaderType.DEV)
                 print("", end='\n', file=sys.stderr)
                 logger.info(u"Sample: {}".format(dev_sample))
