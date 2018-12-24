@@ -9,7 +9,7 @@ To run the code you will need python 3.5+ and PyTorch 0.4+.
 Note: the base implementation of the modules in `translate.learning.modules.rnn` is taken from Sean Robertson's tutorial: 
 > [Translation with a Sequence to Sequence Network and Attention](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html)    
  
-#Getting Started
+##Getting Started
 
 To get started, we start with the project structure. In the highest level of the project, there are two main directories:
 
