@@ -40,13 +40,10 @@ class AbsCompleteModel(backend.nn.Module, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def validate_instance(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]]) \
-            -> Tuple[float, str]:
+    def validate_instance(self, *args, **kwargs) -> Tuple[float, str]:
         """
         The function in charge of validation of model prediction results (could be based on some expected values), and
          returning the validation score in addition to a sample of the prediction.
-        :param ref_ids_list: the expected Batch of sequences of ids  
-        :param hyp_ids_list: the predicted Batch of sequences of ids
-        :return: the bleu score between the reference and prediction batches, in addition to a sample result
+        :return: the computed validation score in addition to a sample result
         """
         raise NotImplementedError

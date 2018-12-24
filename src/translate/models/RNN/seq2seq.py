@@ -123,12 +123,15 @@ class SequenceToSequence(AbsCompleteModel):
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters(), self.generator.parameters()]
 
-    def validate_instance(self, ref_ids_list: backend.Tensor, hyp_ids_list: List[List[int]]) -> Tuple[float, str]:
+    def validate_instance(self, prediction_loss: float, hyp_ids_list: List[List[int]], input_id_list: backend.Tensor,
+                          ref_ids_list: backend.Tensor) -> Tuple[float, float, str]:
         """
-        :param ref_ids_list: the expected Batch of sequences of ids  
+        :param prediction_loss: the model calculated loss value over the current prediction
         :param hyp_ids_list: the predicted Batch of sequences of ids
+        :param input_id_list: the input batch over which the predictions are generated
+        :param ref_ids_list: the expected Batch of sequences of ids  
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
         bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list, hyp_ids_list, ref_is_tensor=True)
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
-        return bleu_score, result_sample
+        return bleu_score, prediction_loss, result_sample

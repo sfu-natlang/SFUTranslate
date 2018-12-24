@@ -75,9 +75,9 @@ if __name__ == '__main__':
                            desc="[E {}/{}]-[B {}]-[L {}]-#Batches Processed".format(
                                epoch + 1, epochs, model.batch_size, 0.0),
                            total=math.ceil(len(train) / model.batch_size))
-        for input_tensor_batch, target_tensor_batch in itr_handler:
+        for train_batch in itr_handler:
             iter_ += 1
-            loss_value, decoded_word_ids = estimator.step(input_tensor_batch, target_tensor_batch)
+            loss_value, decoded_word_ids = estimator.step(*train_batch)
             stat_collector.update(1.0, loss_value, ReaderType.TRAIN)
             itr_handler.set_description("[E {}/{}]-[B {}]-[TL {:.3f} DL {:.3f} DS {:.3f}]-#Batches Processed"
                                         .format(epoch + 1, epochs, model.batch_size, stat_collector.train_loss,
@@ -85,10 +85,9 @@ if __name__ == '__main__':
             if iter_ % print_every == 0:
                 dev.allocate()
                 dev_sample = ""
-                for batch_i_tensor, batch_t_tensor in get_padding_batch_loader(dev, model.batch_size):
-                    dev_loss_value, dev_decoded_word_ids = estimator.step_no_grad(batch_i_tensor, batch_t_tensor)
-                    dev_score, dev_sample = model.validate_instance(batch_t_tensor, dev_decoded_word_ids)
-                    stat_collector.update(dev_score, dev_loss_value, ReaderType.DEV)
+                for dev_values in get_padding_batch_loader(dev, model.batch_size):
+                    dev_score, dev_loss, dev_sample = model.validate_instance(*estimator.step_no_grad(*dev_values), *dev_values)
+                    stat_collector.update(dev_score, dev_loss, ReaderType.DEV)
                 print("", end='\n', file=sys.stderr)
                 logger.info(u"Sample: {}".format(dev_sample))
                 dev.deallocate()

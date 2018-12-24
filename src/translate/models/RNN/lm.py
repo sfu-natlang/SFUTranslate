@@ -16,6 +16,8 @@ trainer:
         init_val: 0.1 # the value to range of which random variables get initiated
 ##################################################
 """
+import math
+from random import choice
 from typing import List, Any, Tuple, Iterable
 
 from translate.configs.loader import ConfigLoader
@@ -98,6 +100,8 @@ class RNNLM(AbsCompleteModel):
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.generator.parameters()]
 
-    def validate_instance(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]]) \
-            -> Tuple[float, str]:
-        raise NotImplementedError
+    def validate_instance(self, prediction_loss: float, predictions_batch: Iterable[Iterable[int]],
+                          input_batch: backend.Tesnor) -> Tuple[float, float, str]:
+        hyps = self.target_sentensify_all(predictions_batch)
+        random_index = choice(range(len(hyps)))
+        return math.exp(prediction_loss), prediction_loss, hyps[random_index]
