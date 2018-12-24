@@ -84,7 +84,7 @@ if __name__ == '__main__':
                 ref_sample, hyp_sample = "", ""
                 for batch_i_tensor, batch_t_tensor in get_padding_batch_loader(dev, model.batch_size):
                     dev_loss_value, dev_decoded_word_ids = estimator.step_no_grad(batch_i_tensor, batch_t_tensor)
-                    bleu_score, ref_sample, hyp_sample = train.compute_bleu(target_tensor_batch, dev_decoded_word_ids,
+                    bleu_score, ref_sample, hyp_sample = train.compute_bleu(batch_t_tensor, dev_decoded_word_ids,
                                                                             ref_is_tensor=True, hyp_is_tensor=False)
                     stat_collector.update(bleu_score, dev_loss_value, ReaderType.DEV)
                 print("", end='\n', file=sys.stderr)
