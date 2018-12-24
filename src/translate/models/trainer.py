@@ -16,6 +16,7 @@ from typing import Type
 from translate.configs.loader import ConfigLoader
 from translate.configs.utils import get_resource_file
 from translate.models.RNN.estimator import Estimator, StatCollector
+from translate.models.RNN.lm import RNNLM
 from translate.models.RNN.seq2seq import SequenceToSequence
 from translate.models.backend.padder import get_padding_batch_loader
 from translate.models.backend.utils import device
@@ -57,6 +58,8 @@ if __name__ == '__main__':
 
     if model_type == "seq2seq":
         model = SequenceToSequence(opts, train).to(device)
+    elif model_type == "rnnlm":
+        model = RNNLM(opts, train).to(device)
     else:
         raise NotImplementedError
     estimator = Estimator(opts, model)
@@ -81,14 +84,13 @@ if __name__ == '__main__':
                                                 stat_collector.dev_loss, stat_collector.dev_score))
             if iter_ % print_every == 0:
                 dev.allocate()
-                ref_sample, hyp_sample = "", ""
+                dev_sample = ""
                 for batch_i_tensor, batch_t_tensor in get_padding_batch_loader(dev, model.batch_size):
                     dev_loss_value, dev_decoded_word_ids = estimator.step_no_grad(batch_i_tensor, batch_t_tensor)
-                    bleu_score, ref_sample, hyp_sample = train.compute_bleu(batch_t_tensor, dev_decoded_word_ids,
-                                                                            ref_is_tensor=True, hyp_is_tensor=False)
-                    stat_collector.update(bleu_score, dev_loss_value, ReaderType.DEV)
+                    dev_score, dev_sample = model.validate_instance(batch_t_tensor, dev_decoded_word_ids)
+                    stat_collector.update(dev_score, dev_loss_value, ReaderType.DEV)
                 print("", end='\n', file=sys.stderr)
-                logger.info(u"Sample: E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample))
+                logger.info(u"Sample: {}".format(dev_sample))
                 dev.deallocate()
                 # TODO save the best model in here
                 # TODO add early stopping criteria

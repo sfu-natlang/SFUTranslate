@@ -38,6 +38,7 @@ class SequenceToSequence(AbsCompleteModel):
          model configuration
         """
         super(SequenceToSequence, self).__init__(backend.nn.NLLLoss())
+        self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
@@ -121,3 +122,13 @@ class SequenceToSequence(AbsCompleteModel):
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters(), self.generator.parameters()]
+
+    def validate_instance(self, ref_ids_list: backend.Tensor, hyp_ids_list: List[List[int]]) -> Tuple[float, str]:
+        """
+        :param ref_ids_list: the expected Batch of sequences of ids  
+        :param hyp_ids_list: the predicted Batch of sequences of ids
+        :return: the bleu score between the reference and prediction batches, in addition to a sample result
+        """
+        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list, hyp_ids_list, ref_is_tensor=True)
+        result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
+        return bleu_score, result_sample

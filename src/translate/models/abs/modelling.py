@@ -3,7 +3,7 @@ Provides an interface for a completed model, which is of Type backen.nn.Module, 
  value for a given input, in addition to the final output.
  
 """
-from typing import Type, List, Tuple, Any
+from typing import Type, List, Tuple, Any, Iterable
 from translate.models.backend.utils import backend
 
 from abc import ABC, abstractmethod
@@ -36,5 +36,17 @@ class AbsCompleteModel(backend.nn.Module, ABC):
         :return: a list of sets of parameters which need to be optimized separately (e.g. in an encoder-decoder model,
          you may return a list of size two, the first of which containing parameters of the encoder and the second, 
           containing the parameters of the decoder  
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def validate_instance(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]]) \
+            -> Tuple[float, str]:
+        """
+        The function in charge of validation of model prediction results (could be based on some expected values), and
+         returning the validation score in addition to a sample of the prediction.
+        :param ref_ids_list: the expected Batch of sequences of ids  
+        :param hyp_ids_list: the predicted Batch of sequences of ids
+        :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
         raise NotImplementedError
