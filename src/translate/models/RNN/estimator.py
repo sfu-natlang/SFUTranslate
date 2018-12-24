@@ -2,11 +2,12 @@
 Provides the optimizer creation, loss computation, back-propagation, and scoring functionalities
  on the input batches for structured prediction training tasks in which the input is composed of at least two sequences
 """
-from typing import Callable, Iterable, Tuple, List, Type
+from typing import Tuple, List, Type
 
 from translate.configs.loader import ConfigLoader
 from translate.models.abs.modelling import AbsCompleteModel
 from translate.models.backend.utils import backend
+from translate.readers.constants import ReaderType
 
 __author__ = "Hassan S. Shavarani"
 
@@ -29,42 +30,73 @@ def create_optimizer(optimizer_name, unfiltered_params, lr):
         raise ValueError("No optimiser found with the name {}".format(optimizer_name))
 
 
-class RunStats:
+class StatCollector:
     """
     The loss, score, and result size container, used for storing the run stats of the training/testing iterations
     """
-
     def __init__(self):
-        self._total = 0.0
-        self._score = 0.0
-        self._loss = 0.0
         self._eps = 7. / 3. - 4. / 3. - 1.
+        self._test_total = 0.0
+        self._test_score = 0.0
+        self._test_loss = 0.0
+        self._dev_total = 0.0
+        self._dev_score = 0.0
+        self._dev_loss = 0.0
+        self._train_total = 0.0
+        self._train_score = 0.0
+        self._train_loss = 0.0
 
     @property
-    def bscore(self) -> float:
-        return self._score / (self._total + self._eps)
+    def test_score(self) -> float:
+        return self._test_score / (self._test_total + self._eps)
 
     @property
-    def loss(self) -> float:
-        return self._loss / (self._total + self._eps)
+    def test_loss(self) -> float:
+        return self._test_loss / (self._test_total + self._eps)
 
-    def update(self, score: float, loss: float):
-        self._score += score
-        self._loss += loss
-        self._total += 1.0
+    @property
+    def dev_score(self) -> float:
+        return self._dev_score / (self._dev_total + self._eps)
+
+    @property
+    def dev_loss(self) -> float:
+        return self._dev_loss / (self._dev_total + self._eps)
+
+    @property
+    def train_score(self) -> float:
+        return self._train_score / (self._train_total + self._eps)
+
+    @property
+    def train_loss(self) -> float:
+        return self._train_loss / (self._train_total + self._eps)
+
+    def update(self, score: float, loss: float, stat_type: ReaderType):
+        if stat_type == ReaderType.TRAIN:
+            self._train_score += score
+            self._train_loss += loss
+            self._train_total += 1.0
+        elif stat_type == ReaderType.TEST:
+            self._test_score += score
+            self._test_loss += loss
+            self._test_total += 1.0
+        elif stat_type == ReaderType.DEV:
+            self._dev_score += score
+            self._dev_loss += loss
+            self._dev_total += 1.0
+        else:
+            raise NotImplementedError
 
 
-class SPEstimator:
-    def __init__(self, configs: ConfigLoader, model: Type[AbsCompleteModel],
-                 compute_score_function: Type[Callable[[Iterable[Iterable[int]],
-                                                        Iterable[Iterable[int]], bool, bool], float]]):
+class Estimator:
+    def __init__(self, configs: ConfigLoader, model: Type[AbsCompleteModel]):
+        # compute_score_function: Type[Callable[[Iterable[Iterable[int]], Iterable[Iterable[int]], bool, bool], float]])
+        # :param compute_score_function: the function handler passed from the dataset to be called for converting back
+        # the lists (tensors) of ids to target sentences and computing the average bleu score on them.
         """
 
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param model: the sequence to sequence model instance object which will be used for computing the model
          predictions and parameter optimization
-        :param compute_score_function: the function handler passed from the dataset to be called for converting back the
-         lists (tensors) of ids to target sentences and computing the average bleu score on them.
         """
         self.optim_name = configs.get("trainer.optimizer.name", must_exist=True)
         self.learning_rate = float(configs.get("trainer.optimizer.lr", must_exist=True))
@@ -72,44 +104,31 @@ class SPEstimator:
         self.model = model
         self.optimizers = [create_optimizer(self.optim_name, x, lr=self.learning_rate)
                            for x in model.optimizable_params_list()]
-        self.grad_stats = RunStats()
-        self.no_grad_stats = RunStats()
-        self.compute_score = compute_score_function
 
-    def step(self, input_tensor_batch: backend.Tensor, target_tensor_batch: backend.Tensor, *args, **kwargs) \
-            -> Tuple[float, List[List[int]]]:
+    def step(self, *args, **kwargs) -> Tuple[float, List[List[int]]]:
         """
         The step function which takes care of computing the loss, gradients and back-propagating them given
-         the input (:param input_tensor_batch:), output (:param target_tensor_batch:) pair of batch tensors.
+         the input tensors (the number of them could vary based on the application).
         :return: the average loss value for the batch instances plus the decoded output computed over the batch
         """
         for opt in self.optimizers:
             opt.zero_grad()
-        _loss_, _loss_size_, computed_output = self.model.forward(input_tensor_batch, target_tensor_batch, args, kwargs)
+        _loss_, _loss_size_, computed_output = self.model.forward(*args, *kwargs)
         _loss_.backward()
         if self.grad_clip_norm > 0.0:
             [backend.nn.utils.clip_grad_norm_(x, self.grad_clip_norm) for x in self.model.optimizable_params_list()]
         loss_value = _loss_.item() / _loss_size_
-        self.grad_stats.update(0.0, loss_value)
         for opt in self.optimizers:
             opt.step()
         return loss_value, computed_output
 
-    def step_no_grad(self, input_tensor_batch: backend.Tensor, target_tensor_batch: backend.Tensor, *args, **kwargs):
+    def step_no_grad(self, *args, **kwargs):
         """
-        The function which given a pair of input (:param input_tensor_batch:), and output (:param target_tensor_batch:)
-         tensors, freezes the model parameters then computes the model loss over its predictions and updates
-          the relevant stat values.
-        :returns a sample pair of reference, prediction sentences for logging purposes (can be ignored!)
+        The function which given a pair of input tensors, freezes the model parameters then computes the model loss over
+         its predictions.
+        :return: the average loss value for the batch instances plus the decoded output computed over the batch
         """
         with backend.no_grad():
-            _loss_, _loss_size_, computed_output = self.model.forward(input_tensor_batch, target_tensor_batch,
-                                                                      args, kwargs)
+            _loss_, _loss_size_, computed_output = self.model.forward(*args, *kwargs)
             loss_value = _loss_.item() / _loss_size_
-            score, ref_sample, hyp_sample = self.compute_score(target_tensor_batch, computed_output, ref_is_tensor=True)
-            self.no_grad_stats.update(score, loss_value)
-            return ref_sample, hyp_sample
-
-    def __str__(self):
-        return "[TL {:.3f} DL {:.3f} DS {:.3f}]".format(
-            self.grad_stats.loss, self.no_grad_stats.loss, self.no_grad_stats.bscore)
+            return loss_value, computed_output

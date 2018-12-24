@@ -15,7 +15,7 @@ from typing import Type
 
 from translate.configs.loader import ConfigLoader
 from translate.configs.utils import get_resource_file
-from translate.models.RNN.estimator import SPEstimator
+from translate.models.RNN.estimator import Estimator, StatCollector
 from translate.models.RNN.seq2seq import SequenceToSequence
 from translate.models.backend.padder import get_padding_batch_loader
 from translate.models.backend.utils import device
@@ -57,9 +57,10 @@ if __name__ == '__main__':
 
     if model_type == "seq2seq":
         model = SequenceToSequence(opts, train).to(device)
-        estimator = SPEstimator(opts, model, train.compute_bleu)
     else:
         raise NotImplementedError
+    estimator = Estimator(opts, model)
+    stat_collector = StatCollector()
     # the value which is used for performing the dev set evaluation steps
     print_every = int(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
 
@@ -74,13 +75,18 @@ if __name__ == '__main__':
         for input_tensor_batch, target_tensor_batch in itr_handler:
             iter_ += 1
             loss_value, decoded_word_ids = estimator.step(input_tensor_batch, target_tensor_batch)
-            itr_handler.set_description("[E {}/{}]-[B {}]-{}-#Batches Processed".format(
-                epoch + 1, epochs, model.batch_size, str(estimator)))
+            stat_collector.update(1.0, loss_value, ReaderType.TRAIN)
+            itr_handler.set_description("[E {}/{}]-[B {}]-[TL {:.3f} DL {:.3f} DS {:.3f}]-#Batches Processed"
+                                        .format(epoch + 1, epochs, model.batch_size, stat_collector.train_loss,
+                                                stat_collector.dev_loss, stat_collector.dev_score))
             if iter_ % print_every == 0:
                 dev.allocate()
                 ref_sample, hyp_sample = "", ""
                 for batch_i_tensor, batch_t_tensor in get_padding_batch_loader(dev, model.batch_size):
-                    ref_sample, hyp_sample = estimator.step_no_grad(batch_i_tensor, batch_t_tensor)
+                    dev_loss_value, dev_decoded_word_ids = estimator.step_no_grad(batch_i_tensor, batch_t_tensor)
+                    bleu_score, ref_sample, hyp_sample = train.compute_bleu(target_tensor_batch, dev_decoded_word_ids,
+                                                                            ref_is_tensor=True, hyp_is_tensor=False)
+                    stat_collector.update(bleu_score, dev_loss_value, ReaderType.DEV)
                 print("", end='\n', file=sys.stderr)
                 logger.info(u"Sample: E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample))
                 dev.deallocate()
