@@ -9,6 +9,7 @@ from translate.backend.utils import backend
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.readers.constants import ReaderType
+from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
 
@@ -119,6 +120,8 @@ class Estimator:
         self.grad_clip_norm = configs.get("trainer.optimizer.gcn", 5)
         self.experiment_name = configs.get("trainer.experiment.name", "unnamed")
         self.model = model
+        logger.info('Loading {} optimizers of type \"{}\" for training the model'.format(
+            len(model.optimizable_params_list()), self.optim_name.upper()))
         self.optimizers = [create_optimizer(self.optim_name, x, lr=self.learning_rate)
                            for x in model.optimizable_params_list()]
 

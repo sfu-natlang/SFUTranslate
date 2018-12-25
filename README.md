@@ -42,6 +42,7 @@ figure out the format of this configuration file.
 - `learning` the package containing the modules and models defined in the project. In addition to the modules and models, three important parts of the project are located in this package.
   - `trainer` the main script which loads the config file, creates the model and runs the training process. 
   You may want to start looking into this script first, to get familiar with what can be done using this toolkit.
+  Please note that with the current implementation of the `trainer` to add more dataset readers and more models, you will need to extend this script to support your readers/models.
   - `estimator` the script containing the `Estimator` class which will do forward and backward passes in to train the model and evaluate it.
   - `modelling` the abstract class which unifies the interface of models defined in the project. If you are making a new model (e.g. a sequence to sequence model or a language model) using the modules defined in the project (or the modules you have defined and added to the project), your model class needs to extend the `AbsCompleteModel` in this script.
 - `logging` creates and provides a single instance of logger for all that needs to be logged across the project.

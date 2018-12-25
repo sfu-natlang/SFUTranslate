@@ -51,3 +51,6 @@ class ConfigLoader:
         if must_exist and current_node is None:
             raise ValueError("The configuration value {} must exist in your configuration file!".format(key))
         return current_node
+
+    def __str__(self):
+        return str(self._config_data)

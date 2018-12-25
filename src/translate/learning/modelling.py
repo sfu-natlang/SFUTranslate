@@ -4,6 +4,7 @@ Provides an interface for a completed model, which is of Type backen.nn.Module, 
 """
 from typing import Type, List, Tuple, Any
 from translate.backend.utils import backend
+from translate.logging.utils import logger
 
 from abc import ABC, abstractmethod
 
@@ -16,6 +17,7 @@ class AbsCompleteModel(backend.nn.Module, ABC):
         :param criterion: the Loss instance which will be used in computation of the final gradient value 
         """
         super(AbsCompleteModel, self).__init__()
+        logger.info("Loading the project model of type \"{}\"".format(self.__class__.__name__))
         self.criterion = criterion
 
     def forward(self, input_tensor: backend.Tensor, target_tensor: backend.Tensor, *args, **kwargs) \

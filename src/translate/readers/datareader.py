@@ -9,6 +9,7 @@ from typing import Callable, Iterable, Tuple, Dict
 from sacrebleu import sentence_bleu
 from random import choice
 
+from translate.logging.utils import logger
 from translate.readers.constants import ReaderLevel, ReaderType
 from translate.readers.vocabulary import Vocab
 from translate.configs.loader import ConfigLoader
@@ -35,6 +36,7 @@ class AbsDatasetReader(ABC):
         :param shared_reader_data: the data shared from another reader to this reader instance
         """
         super(AbsDatasetReader, self).__init__()
+        logger.info("Loading the dataset reader of type \"{}.{}\"".format(self.__class__.__name__, reader_type.name))
         self._iter_log_handler = iter_log_handler
         self.reader_type = reader_type
         self.configs = configs

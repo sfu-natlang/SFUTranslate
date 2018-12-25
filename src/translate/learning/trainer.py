@@ -1,11 +1,10 @@
-# !/usr/bin/bash
 """
 The starting point of the project. Ideally we would not need to change this class for performing different models.
-You can run this script using the following bash script [The config file "default.yaml" will be looked up
+You can run this script using the following bash script [The config file "dummy.yaml" will be looked up
  from /path/to/SFUTranslate/resources]:
 ####################################################################
 #!/usr/bin/env bash
-cd /path/to/SFUTranslate/src && python -m translate.models.trainer default.yaml
+cd /path/to/SFUTranslate/src && python -m translate.models.trainer dummy.yaml
 ####################################################################
 """
 import math
@@ -31,6 +30,11 @@ __author__ = "Hassan S. Shavarani"
 
 def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, model_estimator: Estimator,
                                       complete_model: Type[AbsCompleteModel], stats_collector: StatCollector):
+    """
+    The function which goes over the passed :param dataset: and computes the validation scores for each batch in it
+     using :param model_estimator: and the :param complete_model: sent to it. Validation results are then updated in the
+      passed :param stats_collector: instance. 
+    """
     dataset.allocate()
     dev_sample = ""
     for dev_values in get_padding_batch_loader(dataset, complete_model.batch_size):
@@ -56,7 +60,9 @@ def prepare_datasets(configs: ConfigLoader, dataset_class: Type[AbsDatasetReader
 
 if __name__ == '__main__':
     # The single point which loads the config file passed to the script
-    opts = ConfigLoader(get_resource_file(sys.argv[1]))
+    configurations_path = sys.argv[1]
+    opts = ConfigLoader(get_resource_file(configurations_path))
+    logger.info('Configurations Loaded from {}:\n{}'.format(configurations_path, opts))
     dataset_type = opts.get("reader.dataset.type", must_exist=True)
     epochs = opts.get("trainer.optimizer.epochs", must_exist=True)
     save_best_models = opts.get("trainer.optimizer.save_best_models", False)
@@ -84,6 +90,8 @@ if __name__ == '__main__':
     print_every = int(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
     best_saved_model_path = None
     early_stopping = False
+    if epochs > 0:
+        logger.info("Starting the training procedure ...")
     for epoch in range(epochs):
         if early_stopping:
             logger.info("Early stopping criteria fulfilled, stopping the training ...")
@@ -110,6 +118,7 @@ if __name__ == '__main__':
         print("\n", end='\n', file=sys.stderr)
         train.deallocate()
     if best_saved_model_path is not None:
+        logger.info("Loading the best checkpoint from \"{}\" for evaluation".format(best_saved_model_path))
         model = estimator.load_checkpoint(best_saved_model_path)
         perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
         print("Validation Results => Loss: {:.3f}\tScore: {:.3f}".format(
