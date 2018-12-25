@@ -16,6 +16,7 @@ from typing import Type
 from translate.configs.loader import ConfigLoader
 from translate.configs.utils import get_resource_file
 from translate.learning.estimator import Estimator, StatCollector
+from translate.learning.modelling import AbsCompleteModel
 from translate.learning.models.rnn.lm import RNNLM
 from translate.learning.models.rnn.seq2seq import SequenceToSequence
 from translate.backend.padder import get_padding_batch_loader
@@ -26,6 +27,19 @@ from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDatas
 from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
+
+
+def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, model_estimator: Estimator,
+                                      complete_model: Type[AbsCompleteModel], stats_collector: StatCollector):
+    dataset.allocate()
+    dev_sample = ""
+    for dev_values in get_padding_batch_loader(dataset, complete_model.batch_size):
+        dev_score, dev_loss, dev_sample = complete_model.validate_instance(*model_estimator.step_no_grad(*dev_values),
+                                                                           *dev_values)
+        stats_collector.update(dev_score, dev_loss, dataset.reader_type)
+    print("", end='\n', file=sys.stderr)
+    logger.info(u"Sample: {}".format(dev_sample))
+    dataset.deallocate()
 
 
 def prepare_datasets(configs: ConfigLoader, dataset_class: Type[AbsDatasetReader]):
@@ -46,6 +60,7 @@ if __name__ == '__main__':
     dataset_type = opts.get("reader.dataset.type", must_exist=True)
     epochs = opts.get("trainer.optimizer.epochs", must_exist=True)
     save_best_models = opts.get("trainer.optimizer.save_best_models", False)
+    early_stopping_loss = opts.get("trainer.optimizer.early_stopping_loss", 0.01)
     model_type = opts.get("trainer.model.type")
     # to support more dataset types you need to extend this list
     if dataset_type == "dummy_s2s":
@@ -67,36 +82,38 @@ if __name__ == '__main__':
     stat_collector = StatCollector()
     # the value which is used for performing the dev set evaluation steps
     print_every = int(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
-
+    best_saved_model_path = None
+    early_stopping = False
     for epoch in range(epochs):
-        logger.info("Epoch {}/{} begins ...".format(epoch + 1, epochs))
+        if early_stopping:
+            logger.info("Early stopping criteria fulfilled, stopping the training ...")
+            break
         iter_ = 0
+        logger.info("Epoch {}/{} begins ...".format(epoch + 1, epochs))
         train.allocate()
         itr_handler = tqdm(get_padding_batch_loader(train, model.batch_size), ncols=100,
-                           desc="[E {}/{}]-[B {}]-[L {}]-#Batches Processed".format(
-                               epoch + 1, epochs, model.batch_size, 0.0),
                            total=math.ceil(len(train) / model.batch_size))
         for train_batch in itr_handler:
             iter_ += 1
             loss_value, decoded_word_ids = estimator.step(*train_batch)
-            stat_collector.update(1.0, loss_value, ReaderType.TRAIN)
+            stat_collector.update(1.0, loss_value, train.reader_type)
             itr_handler.set_description("[E {}/{}]-[B {}]-[TL {:.3f} DL {:.3f} DS {:.3f}]-#Batches Processed"
                                         .format(epoch + 1, epochs, model.batch_size, stat_collector.train_loss,
                                                 stat_collector.dev_loss, stat_collector.dev_score))
             if iter_ % print_every == 0:
-                dev.allocate()
-                dev_sample = ""
-                for dev_values in get_padding_batch_loader(dev, model.batch_size):
-                    dev_score, dev_loss, dev_sample = model.validate_instance(*estimator.step_no_grad(*dev_values),
-                                                                              *dev_values)
-                    stat_collector.update(dev_score, dev_loss, ReaderType.DEV)
-                print("", end='\n', file=sys.stderr)
-                logger.info(u"Sample: {}".format(dev_sample))
-                dev.deallocate()
+                perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
                 if stat_collector.improved_recently() and save_best_models:
-                    saved_path = estimator.save_checkpoint(stat_collector)
-                    model = estimator.load_checkpoint(saved_path)
-                # TODO add early stopping criteria
+                    best_saved_model_path = estimator.save_checkpoint(stat_collector)
+            if stat_collector.train_loss < early_stopping_loss:
+                early_stopping = True
+                break
         print("\n", end='\n', file=sys.stderr)
         train.deallocate()
-        # TODO add test step in here
+    if best_saved_model_path is not None:
+        model = estimator.load_checkpoint(best_saved_model_path)
+        perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
+        print("Validation Results => Loss: {:.3f}\tScore: {:.3f}".format(
+            stat_collector.dev_loss, stat_collector.dev_score))
+        perform_no_grad_dataset_iteration(test, estimator, model, stat_collector)
+        print("Test Results => Loss: {:.3f}\tScore: {:.3f}".format(
+            stat_collector.test_loss, stat_collector.test_score))
