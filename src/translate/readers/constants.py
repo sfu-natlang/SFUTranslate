@@ -25,3 +25,14 @@ class ReaderLevel(Enum):
     WORD = 0
     BPE = 1
     CHAR = 2
+
+
+@unique
+class InstancePartType(Enum):
+    """
+    Defines different types of objects that can be emitted from the DataReader.next() calls
+    """
+    ListId = 1
+    Tensor = 2
+    TransformerSrcMask = 3
+    TransformerTgtMask = 4

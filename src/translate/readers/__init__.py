@@ -1,5 +1,5 @@
 __package__ = "translate.readers"
-__all__ = ["constants", "datareader", "dummydata", "vocabulary"]
+__all__ = ["constants", "datareader", "datawrapper", "dummydata", "vocabulary"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

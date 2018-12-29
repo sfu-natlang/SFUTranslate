@@ -6,9 +6,12 @@ concerns regarding the toolkit. To get familiar with what you can do and how you
 
 To run the code you will need python 3.5+ and PyTorch 0.4+.
 
-Note: the base implementation of the modules in `translate.learning.modules.rnn` is taken from Sean Robertson's tutorial: 
-> [Translation with a Sequence to Sequence Network and Attention](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html)    
- 
+Please note that:
+- the base implementation of the modules in `translate.learning.modules.rnn` is taken from Sean Robertson's tutorial: 
+  > [Translation with a Sequence to Sequence Network and Attention](https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html)    
+
+- the base implementation of the modules in `translate.learning.modules.transformer` is taken from Alexander Rush's tutorial:
+  > [The Annotated Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html)
  
 # Getting Started
 

@@ -108,9 +108,6 @@ class AbsDatasetReader(ABC):
         random_index = choice(range(len(refs)))
         return sum(scores) / len(scores), refs[random_index], hyps[random_index]
 
-    def max_sentence_length(self):
-        return self._max_valid_length
-
     def __iter__(self):
         return self
 
@@ -140,6 +137,10 @@ class AbsDatasetReader(ABC):
         :return: the instance in index :param idx: of the dataset (can be simply calling next but with caution that the
          element in position idx can be different each time one accesses it!)
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def max_sentence_length(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -175,5 +176,16 @@ class AbsDatasetReader(ABC):
         """
         The class method to provide useful trained data (e.g. vocabulary objects) mainly from TRAIN dataset reader to 
          the TEST and DEV dataset readers.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def instance_schema(self):
+        """
+        The class method which explicitly declares the exact types of each part of instance which gets omitted.
+         The exact type will be used when padding and converting to Tensors, It also implecitely declares the number of 
+          parts each instance would contain, e.g. the number would be equal to 1 for language modelling, would be 2 for 
+           normal sequence to sequence, ...
         """
         raise NotImplementedError

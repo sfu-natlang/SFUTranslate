@@ -7,7 +7,7 @@ from random import randint, choice
 from typing import Callable, Dict
 
 from translate.configs.loader import ConfigLoader
-from translate.readers.constants import ReaderType
+from translate.readers.constants import ReaderType, InstancePartType
 from translate.readers.datareader import AbsDatasetReader
 
 __author__ = "Hassan S. Shavarani"
@@ -124,6 +124,10 @@ class ReverseCopyDataset(AbsDatasetReader):
         tmp += [self.target_vocabulary.get_end_word_index()]
         rev += [self.target_vocabulary.get_end_word_index()]
         return tmp, rev
+
+    @property
+    def instance_schema(self):
+        return InstancePartType.ListId, InstancePartType.ListId
 
 
 class SimpleGrammerLMDataset(AbsDatasetReader):
@@ -244,4 +248,8 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
         actions = [choice(next_index_increase) for _ in range(expected_length - 1)]
         actions.insert(0, 0)
         first_word_index = choice(range(vocab_length))
-        return [[(first_word_index + sum(actions[:i])) % vocab_length for i in range(1, len(actions) + 1)]]
+        return [(first_word_index + sum(actions[:i])) % vocab_length for i in range(1, len(actions) + 1)],
+
+    @property
+    def instance_schema(self):
+        return InstancePartType.ListId,

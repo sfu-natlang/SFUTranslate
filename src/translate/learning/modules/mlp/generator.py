@@ -1,5 +1,5 @@
 """
-The RNN implementation of the Generator module in the sequence to sequence framework which maps back the embedded hidden 
+The NN implementation of the Generator module in the sequence to sequence framework which maps back the embedded hidden 
  state passed to it into target vocabulary space
 """
 from translate.backend.utils import backend
@@ -27,4 +27,4 @@ class GeneratorNN(backend.nn.Module):
         """
         :param input_tensor: the embedded batched vector to be mapped back to the vocabulary space 
         """
-        return backend.nn.functional.log_softmax(self.out(input_tensor), dim=1)
+        return backend.nn.functional.log_softmax(self.out(input_tensor), dim=-1)
