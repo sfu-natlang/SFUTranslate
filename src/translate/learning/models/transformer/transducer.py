@@ -26,6 +26,7 @@ from translate.backend.utils import backend, Variable
 from translate.learning.modules.mlp.feedforward import PositionwiseFeedForward
 from translate.learning.modules.mlp.generator import GeneratorNN
 from translate.learning.modules.transformer.attention import MultiHeadedAttention
+from translate.learning.modules.transformer.criterion import LabelSmoothing
 from translate.learning.modules.transformer.decoder import DecoderLayer, Decoder
 from translate.learning.modules.transformer.encoder import EncoderLayer, Encoder
 from translate.learning.modules.transformer.transformer import EncoderDecoder
@@ -42,7 +43,9 @@ class Transformer(AbsCompleteModel):
         :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
          model configuration
         """
-        super(Transformer, self).__init__(backend.nn.NLLLoss())
+        super(Transformer, self).__init__(LabelSmoothing(len(train_dataset.target_vocabulary),
+                                                         train_dataset.target_vocabulary.get_pad_word_index(),
+                                                         smoothing=0.1))
         self.dataset = train_dataset
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
         # init_val = configs.get("trainer.model.init_val", 0.01)

@@ -1,5 +1,5 @@
 __package__ = "translate.learning.modules.transformer"
-__all__ = ["attention", "decoder", "encoder", "transformer", "utils"]
+__all__ = ["attention", "criterion", "decoder", "encoder", "transformer", "utils"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]
