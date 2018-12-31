@@ -63,12 +63,15 @@ class TransformerReaderWrapper(AbsDatasetReader):
             return n_item, src_mask
         else:
             src = np.array(n_item[0])
-            tgt = np.array(n_item[1])
+            tgt = np.array([self.target_vocabulary.get_begin_word_index()] + n_item[1])
+            tgt_without_eos = tgt[:-1]
+            tgt_without_bos = tgt[1:]
             src_mask = [(src != self.src_pad_idx).astype('uint8').tolist()]
-            tgt_mask = (tgt != self.tgt_pad_idx) & (
-                np.triu(np.ones((tgt.shape[-1], tgt.shape[-1])), k=1).astype('uint8') == 0)
+            tgt_mask = (tgt_without_eos != self.tgt_pad_idx) & (
+                np.triu(np.ones((tgt_without_eos.shape[-1], tgt_without_eos.shape[-1])), k=1).astype('uint8') == 0)
             tgt_mask = tgt_mask.astype('uint8').tolist()
-            return list(n_item) + [src_mask, tgt_mask]
+            return [n_item[0], tgt_without_eos.tolist(), tgt_without_bos.tolist()] + \
+                list(n_item[2:]) + [src_mask, tgt_mask]
 
     def __getitem__(self, idx):
         return next(self)
@@ -78,5 +81,6 @@ class TransformerReaderWrapper(AbsDatasetReader):
 
     @property
     def instance_schema(self):
-        return list(self.data_provider.instance_schema) + [InstancePartType.TransformerSrcMask,
+        scm = self.data_provider.instance_schema
+        return [scm[0], scm[1], scm[1]] + list(scm[2:]) + [InstancePartType.TransformerSrcMask,
                                                            InstancePartType.TransformerTgtMask]

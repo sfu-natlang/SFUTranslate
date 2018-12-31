@@ -3,7 +3,7 @@ Provides dummy datasets for proof-of-concept tasks in NLP (e.g. reverse copy for
  sequences generated using a simple Grammer). For further information please read through the docstrings in each class.
 """
 import string
-from random import randint, choice
+from random import randint, choice, shuffle
 from typing import Callable, Dict
 
 from translate.configs.loader import ConfigLoader
@@ -68,6 +68,8 @@ class ReverseCopyDataset(AbsDatasetReader):
             self.target_vocabulary.set_types(vocab)
         if self.max_samples > 1:
             self.pairs = [self._get_next_pair() for _ in range(self.max_samples)]
+            shuffle(self.pairs)
+            self.pairs = sorted(self.pairs, key=lambda element: len(element[0]) + len(element[1]), reverse=True)
         else:
             self.pairs = [self._get_next_pair(self.max_length)]
         self.reading_index = 0
@@ -79,9 +81,9 @@ class ReverseCopyDataset(AbsDatasetReader):
         """
         The function always iterates over the already generated/cached pairs of sequences (with their reverse sequence)
         """
+        self.reading_index += 1
         if self.reading_index < len(self.pairs):
             tmp = self.pairs[self.reading_index]
-            self.reading_index += 1
             return tmp
         else:
             self.reading_index = 0
@@ -203,9 +205,9 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
         """
         The function always iterates over the already generated/cached pairs of sequences (with their reverse sequence)
         """
+        self.reading_index += 1
         if self.reading_index < len(self.sentences):
             tmp = self.sentences[self.reading_index]
-            self.reading_index += 1
             return tmp
         else:
             self.reading_index = 0

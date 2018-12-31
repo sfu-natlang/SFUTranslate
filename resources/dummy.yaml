@@ -42,6 +42,7 @@ trainer:
         d_ff: 2048 # size of intermediate layer in feedforward sub-layers
         h: 8 # number of heads
         dropout: 0.1 # the dropout used in encoder/decoder model parts
+        smoothing: 0.1
     optimizer:
         name: adadelta
         lr: 1.0

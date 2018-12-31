@@ -45,7 +45,7 @@ class Transformer(AbsCompleteModel):
         """
         super(Transformer, self).__init__(LabelSmoothing(len(train_dataset.target_vocabulary),
                                                          train_dataset.target_vocabulary.get_pad_word_index(),
-                                                         smoothing=0.1))
+                                                         smoothing=configs.get("trainer.model.smoothing", 0.1)))
         self.dataset = train_dataset
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
         # init_val = configs.get("trainer.model.init_val", 0.01)
@@ -86,9 +86,10 @@ class Transformer(AbsCompleteModel):
             -> Tuple[backend.Tensor, int, List[Any]]:
         input_mask = args[-2]
         target_mask = args[-1]
+        target_tensor_y = args[0]
         out = self.model(input_tensor, target_tensor, input_mask, target_mask)
         out = self.model.generator(out)
-        loss = self.criterion(out.view(-1, out.size(-1)), target_tensor.view(-1))
+        loss = self.criterion(out.view(-1, out.size(-1)), target_tensor_y.view(-1))
         n_tokens = (target_tensor != self.pad_token_id).data.sum().item()
         # The decode function is not called while running the forward function due to optimization purposes.
         return loss, n_tokens, []
@@ -105,8 +106,8 @@ class Transformer(AbsCompleteModel):
         :param args: contains the Transformer style mask tensors (as the last two indices of the args list)
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
-        hyp_ids_list = self.greedy_decode(input_id_list, args[-2], self.max_length).cpu().tolist()
-        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list, hyp_ids_list, ref_is_tensor=True)
+        hyp_ids_list = self.greedy_decode(input_id_list, args[-2], self.max_length)[:, 1:].cpu().tolist()
+        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list[:, 1:], hyp_ids_list, ref_is_tensor=True)
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, prediction_loss, result_sample
 
@@ -129,8 +130,7 @@ class Transformer(AbsCompleteModel):
                                     Variable(self.subsequent_mask(ys.size(1)).type_as(src.data)))
             prob = self.model.generator(out[:, -1])
             _, next_word = backend.max(prob, dim=1)
-            next_word = next_word.data[0]
-            ys = backend.cat([ys, backend.ones(src.size(0), 1).type_as(src.data).fill_(next_word)], dim=1)
+            ys = backend.cat([ys, next_word.unsqueeze(1)], dim=1)
         return ys
 
     @staticmethod
