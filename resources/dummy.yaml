@@ -3,6 +3,12 @@ reader:
         type: dummy_s2s # possible values [dummy_s2s | dummy_lm | dummy_transformer]
         buffer_size: 1000
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
+        source_lang: fr
+        target_lang: en
+        working_dir: ../../../resources/iwslt
+        train_file_name: train
+        test_file_name: test
+        dev_file_name: dev
         granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
         dummy:
             min_len: 8

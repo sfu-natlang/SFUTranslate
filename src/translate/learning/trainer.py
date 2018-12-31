@@ -24,6 +24,7 @@ from translate.backend.utils import device
 from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
 from translate.readers.datawrapper import TransformerReaderWrapper
+from translate.readers.paralleldata import ParallelDataReader
 from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDataset
 from translate.logging.utils import logger
 
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     elif dataset_type == "dummy_lm":
         train, test, dev = prepare_datasets(opts, SimpleGrammerLMDataset)
     elif dataset_type == "parallel":
-        train, test, dev = prepare_datasets(opts, None)
+        train, test, dev = prepare_datasets(opts, ParallelDataReader)
     else:
         raise NotImplementedError
 
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     estimator = Estimator(opts, model)
     stat_collector = StatCollector()
     # the value which is used for performing the dev set evaluation steps
-    print_every = int(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
+    print_every = math.ceil(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
     best_saved_model_path = None
     early_stopping = False
     if epochs > 0:
