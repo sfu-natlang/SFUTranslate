@@ -71,7 +71,7 @@ class TransformerReaderWrapper(AbsDatasetReader):
                 np.triu(np.ones((tgt_without_eos.shape[-1], tgt_without_eos.shape[-1])), k=1).astype('uint8') == 0)
             tgt_mask = tgt_mask.astype('uint8').tolist()
             return [n_item[0], tgt_without_eos.tolist(), tgt_without_bos.tolist()] + \
-                list(n_item[2:]) + [src_mask, tgt_mask]
+                   list(n_item[2:]) + [src_mask, tgt_mask]
 
     def __getitem__(self, idx):
         return next(self)

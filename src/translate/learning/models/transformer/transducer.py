@@ -107,7 +107,8 @@ class Transformer(AbsCompleteModel):
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
         hyp_ids_list = self.greedy_decode(input_id_list, args[-2], self.max_length)[:, 1:].cpu().tolist()
-        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list[:, 1:], hyp_ids_list, ref_is_tensor=True)
+        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list[:, 1:], hyp_ids_list,
+                                                                       ref_is_tensor=True)
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, prediction_loss, result_sample
 

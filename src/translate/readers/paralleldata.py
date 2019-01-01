@@ -78,7 +78,7 @@ class ParallelDataReader(AbsDatasetReader):
         self.lines_count = source_lines_count
 
     @staticmethod
-    def load_vocab_counts(data_file: Path, vocab_counts_file: Path, min_count: int=1):
+    def load_vocab_counts(data_file: Path, vocab_counts_file: Path, min_count: int = 1):
         """
         The method to take a :param vocab_counts_file: to load the vocabulary from (the words above :param min_count: 
          will get loaded from the file). The method will create the file if it does not exist by going through the 
@@ -135,7 +135,7 @@ class ParallelDataReader(AbsDatasetReader):
             self.target_vocabulary.set_types(shared_data["target_types"])
 
     def __getitem__(self, idx):
-        # TODO make sure the same index is not referred to again
+        # If you are testing, make sure the same index is not referred to again
         return next(self)
 
     def allocate(self):
@@ -159,7 +159,7 @@ class ParallelDataReader(AbsDatasetReader):
                 tgt_len = len(tgt_ids)
                 if src_len > self._max_valid_length or not src_len or tgt_len > self._max_valid_length or not tgt_len:
                     continue
-                self._buffer.append((src_ids, tgt_ids, src_len+tgt_len))
+                self._buffer.append((src_ids, tgt_ids, src_len + tgt_len))
                 if len(self._buffer) == self._instance_buffer_size:
                     break
                 shuffle(self._buffer)

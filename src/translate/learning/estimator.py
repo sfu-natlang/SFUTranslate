@@ -137,7 +137,7 @@ class OptimizerWrapperWithWarmUpSteps:
         self._rate = 0
         logger.info("Optimizer loaded into the learning rate warmup wrapper for the model size: {} with {} warm-up "
                     "states and the learning rate updates of factor {}".format(
-                        self.model_size, self.warmup, self.factor))
+            self.model_size, self.warmup, self.factor))
 
     def step(self):
         """

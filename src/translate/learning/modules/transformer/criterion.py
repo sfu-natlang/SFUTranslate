@@ -11,6 +11,7 @@ class LabelSmoothing(backend.nn.Module):
     """
     This class can be used directly in replacement of NLLLoss of KLDivLoss criterions.
     """
+
     def __init__(self, size, padding_idx, smoothing=0.0):
         """
         :param size: the target space vocabulary size 
