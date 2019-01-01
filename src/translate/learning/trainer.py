@@ -18,10 +18,13 @@ from translate.learning.estimator import Estimator, StatCollector
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.models.rnn.lm import RNNLM
 from translate.learning.models.rnn.seq2seq import SequenceToSequence
+from translate.learning.models.transformer.transducer import Transformer
 from translate.backend.padder import get_padding_batch_loader
 from translate.backend.utils import device
 from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
+from translate.readers.datawrapper import TransformerReaderWrapper
+from translate.readers.paralleldata import ParallelDataReader
 from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDataset
 from translate.logging.utils import logger
 
@@ -71,10 +74,14 @@ if __name__ == '__main__':
     # to support more dataset types you need to extend this list
     if dataset_type == "dummy_s2s":
         train, test, dev = prepare_datasets(opts, ReverseCopyDataset)
+    elif dataset_type == "dummy_transformer":
+        train, test, dev = prepare_datasets(opts, ReverseCopyDataset)
+        train, test, dev = TransformerReaderWrapper(train), TransformerReaderWrapper(test), TransformerReaderWrapper(
+            dev)
     elif dataset_type == "dummy_lm":
         train, test, dev = prepare_datasets(opts, SimpleGrammerLMDataset)
     elif dataset_type == "parallel":
-        train, test, dev = prepare_datasets(opts, None)
+        train, test, dev = prepare_datasets(opts, ParallelDataReader)
     else:
         raise NotImplementedError
 
@@ -82,12 +89,14 @@ if __name__ == '__main__':
         model = SequenceToSequence(opts, train).to(device)
     elif model_type == "rnnlm":
         model = RNNLM(opts, train).to(device)
+    elif model_type == "transformer":
+        model = Transformer(opts, train).to(device)
     else:
         raise NotImplementedError
     estimator = Estimator(opts, model)
     stat_collector = StatCollector()
     # the value which is used for performing the dev set evaluation steps
-    print_every = int(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
+    print_every = math.ceil(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
     best_saved_model_path = None
     early_stopping = False
     if epochs > 0:

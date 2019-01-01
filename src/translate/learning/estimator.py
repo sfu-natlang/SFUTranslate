@@ -14,22 +14,31 @@ from translate.logging.utils import logger
 __author__ = "Hassan S. Shavarani"
 
 
-def create_optimizer(optimizer_name, unfiltered_params, lr):
+def create_optimizer(optimizer_name, unfiltered_params, lr, warmup_wrapper_needed=False, configs=None):
     """
     The method to create the optimizer object given the desired optimizer name (:param optimizer_name:) and the expected
      learning late (:param lr:) for the set of model parameters (:param unfiltered_params:)
+     In case the learning rate warmup wrapper is required you can set the :param  warmup_wrapper_needed: to True and 
+      pass the configs object for the wrapper to get configured. 
     :return: the created optimizer object
     :raises ValueError if the requested optimizer name is not defined
     """
+    if warmup_wrapper_needed:
+        # the learning rate would gradually increase during the warmup
+        lr = 0.0
     params = filter(lambda x: x.requires_grad, unfiltered_params)
     if optimizer_name == "adam":
-        return backend.optim.Adam(params, lr=lr)
+        optim = backend.optim.Adam(params, lr=lr, betas=(0.9, 0.98), eps=1e-9)
     elif optimizer_name == "adadelta":
-        return backend.optim.Adadelta(params, lr=lr)
+        optim = backend.optim.Adadelta(params, lr=lr)
     elif optimizer_name == "sgd":
-        return backend.optim.SGD(params, lr=lr, momentum=0.9)
+        optim = backend.optim.SGD(params, lr=lr, momentum=0.9)
     else:
         raise ValueError("No optimiser found with the name {}".format(optimizer_name))
+    if not warmup_wrapper_needed:
+        return optim
+    else:
+        return OptimizerWrapperWithWarmUpSteps(configs, optim)
 
 
 class StatCollector:
@@ -108,6 +117,53 @@ class StatCollector:
         return improved
 
 
+class OptimizerWrapperWithWarmUpSteps:
+    def __init__(self, configs: ConfigLoader, optimizer_instance: Type[backend.optim.Optimizer]):
+        """
+        :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
+        :param optimizer_instance: The optimizer instance the learning rate of which is supposed to be updated with 
+         after every single loss backward step. 
+        """
+        super(OptimizerWrapperWithWarmUpSteps, self).__init__()
+        self.optimizer = optimizer_instance
+        self._step = 0
+        # the number of warmup steps
+        self.warmup = configs.get("trainer.optimizer.warmup_steps", must_exist=True)
+        # the rate update factor used in learning rate update computation
+        self.factor = configs.get("trainer.optimizer.lr_update_factor", must_exist=True)
+        # the size of the source embedding layer of the model
+        # TODO the value must be able to be taken from a non-transformer model as well!
+        self.model_size = configs.get("trainer.model.d_model", must_exist=True)
+        self._rate = 0
+        logger.info("Optimizer loaded into the learning rate warmup wrapper for the model size: {} with {} warm-up "
+                    "states and the learning rate updates of factor {}".format(
+                        self.model_size, self.warmup, self.factor))
+
+    def step(self):
+        """
+        Performs a single optimization step with the warmup strategy stated in the "attention is all you need" paper.
+        """
+        self._step += 1
+        rate = self._rate_()
+        for p in self.optimizer.param_groups:
+            p['lr'] = rate
+        self._rate = rate
+        self.optimizer.step()
+
+    def zero_grad(self):
+        self.optimizer.zero_grad()
+
+    def _rate_(self, step=None):
+        """
+        Class method in charge of updating the learning rate considering the :param step: number passed to it.
+         The update will be performed according to the "lrate" formula (Equation 3, Page 7 of the "attention is all you 
+          need") paper. 
+        """
+        if step is None:
+            step = self._step
+        return self.factor * (self.model_size ** (-0.5) * min(step ** (-0.5), step * self.warmup ** (-1.5)))
+
+
 class Estimator:
     def __init__(self, configs: ConfigLoader, model: Type[AbsCompleteModel]):
         """
@@ -118,11 +174,12 @@ class Estimator:
         self.optim_name = configs.get("trainer.optimizer.name", must_exist=True)
         self.learning_rate = float(configs.get("trainer.optimizer.lr", must_exist=True))
         self.grad_clip_norm = configs.get("trainer.optimizer.gcn", 5)
+        warmup_needed = configs.get("trainer.optimizer.needs_warmup", False)
         self.experiment_name = configs.get("trainer.experiment.name", "unnamed")
         self.model = model
-        logger.info('Loading {} optimizers of type \"{}\" for training the model'.format(
+        logger.info('Loading {} optimizer(s) of type \"{}\" for training the model'.format(
             len(model.optimizable_params_list()), self.optim_name.upper()))
-        self.optimizers = [create_optimizer(self.optim_name, x, lr=self.learning_rate)
+        self.optimizers = [create_optimizer(self.optim_name, x, self.learning_rate, warmup_needed, configs)
                            for x in model.optimizable_params_list()]
 
     def step(self, *args, **kwargs) -> Tuple[float, List[List[int]]]:

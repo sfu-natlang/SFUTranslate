@@ -27,3 +27,14 @@ def get_resource_file(resource_name):
     :return: an object of `pathlib.PosixPath` which can be directly opened or traversed
     """
     return Path(get_resources_dir(), resource_name)
+
+
+def get_dataset_file(working_directory, resource_name, resource_extension):
+    """
+    :param working_directory: the directory containing the the requested resource 
+    :param resource_name: the name of the resource file in the directory
+    :param resource_extension: the file extension of the requested resource file. Please note that the extension param 
+     must not begin with "." character as it gets already considered in the function
+    :return: an object of `pathlib.PosixPath` which can be directly opened
+    """
+    return Path(working_directory, resource_name + "." + resource_extension)

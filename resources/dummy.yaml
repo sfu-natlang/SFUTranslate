@@ -1,8 +1,14 @@
 reader:
     dataset:
-        type: dummy_s2s # possible values [dummy_s2s | dummy_lm]
+        type: dummy_s2s # possible values [parallel | dummy_s2s | dummy_lm | dummy_transformer]
         buffer_size: 1000
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
+        source_lang: fr
+        target_lang: en
+        working_dir: ../../../resources/iwslt
+        train_file_name: train
+        test_file_name: test
+        dev_file_name: dev
         granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
         dummy:
             min_len: 8
@@ -19,15 +25,24 @@ reader:
         bpe_separator: '@@'
 trainer:
     model:
-        type: seq2seq # possible values [seq2seq | rnnlm]
+        ####### universal configurations
+        type: seq2seq # possible values [seq2seq | rnnlm | transformer]
+        bsize: 64 # size of the training sentence batches
+        init_val: 0.1 # the value to range of which random variables get initiated
+        ####### seq2seq/rnnlm configurations
         tfr: 1.001 # teacher forcing ratio
         bienc: true # bidirectional encoding
         hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder
         ndlayers: 1 # number of hidden layers in decoder
-        bsize: 64 # size of the training sentence batches
         ddropout: 0.1 # the dropout probability in the decoder
-        init_val: 0.1 # the value to range of which random variables get initiated
+        ####### transformer configurations
+        N: 6 # number of encoder/decoder layers
+        d_model: 512 # size of each encoder/decoder layer
+        d_ff: 2048 # size of intermediate layer in feedforward sub-layers
+        h: 8 # number of heads
+        dropout: 0.1 # the dropout used in encoder/decoder model parts
+        smoothing: 0.1
     optimizer:
         name: adadelta
         lr: 1.0
@@ -35,5 +50,9 @@ trainer:
         epochs: 15
         save_best_models: true
         early_stopping_loss: 0.01 # if the model reaches a loss below this value, the training will not continue anymore
+        ####### transformer configurations
+        warmup_steps: 400
+        lr_update_factor: 1
+        needs_warmup: false
     experiment:
         name: 'dummy'

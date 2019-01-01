@@ -3,15 +3,16 @@ The class in charge of padding , batching, and post-processing of the created in
 """
 from typing import Union, List, Tuple
 
+from translate.readers.constants import InstancePartType
 from translate.readers.datareader import AbsDatasetReader
-from translate.backend.utils import device, backend, DataLoader
+from translate.backend.utils import device, backend, DataLoader, zeros_tensor
 
 __author__ = "Hassan S. Shavarani"
 
 
 def _pad_transform_id_list(id_list: Union[List, backend.Tensor], max_length: int, pad_token_id: int) -> backend.Tensor:
     """
-    Receives the word-indexs [integer/long type] and converts them into a backend tensor
+    Receives the word-indices [integer/long type] and converts them into a backend tensor
     """
     assert len(id_list) > 0
     assert type(id_list[0]) is not list
@@ -32,6 +33,18 @@ def _pad_transform_id_list(id_list: Union[List, backend.Tensor], max_length: int
             return result.cuda()
         else:
             return result
+
+
+def _pad_transform_list_list_id(id_list: List[List[int]], max_length: int, pad_token_id: int,
+                                row_wise_padding: bool = False) -> backend.Tensor:
+    """
+    Receives a list of list of word-indices [integer/long type] and converts them into a backend tensor
+    """
+    result = backend.stack([_pad_transform_id_list(x, max_length, pad_token_id) for x in id_list], dim=0)
+    if len(id_list) < max_length and row_wise_padding:
+        return backend.cat([result, zeros_tensor(1, max_length - len(id_list), max_length).long().squeeze(0)], dim=0)
+    else:
+        return result
 
 
 def _pad_transform_embedding_matrix(embedding_matrix: backend.Tensor, max_length: int) -> backend.Tensor:
@@ -58,7 +71,8 @@ def get_padding_batch_loader(dataset_instance: AbsDatasetReader, batch_size: int
     """
     return DataLoader(dataset_instance, batch_size=batch_size,
                       collate_fn=PadCollate(pad_index_e=dataset_instance.target_vocabulary.get_pad_word_index(),
-                                            pad_index_f=dataset_instance.source_vocabulary.get_pad_word_index()))
+                                            pad_index_f=dataset_instance.source_vocabulary.get_pad_word_index(),
+                                            instance_schema=dataset_instance.instance_schema))
 
 
 class PadCollate:
@@ -66,24 +80,61 @@ class PadCollate:
     a variant of callate_fn that pads according to the longest sequence in a batch of sequences
     """
 
-    def __init__(self, pad_index_f: int, pad_index_e: int):
+    def __init__(self, pad_index_f: int, pad_index_e: int, instance_schema: Tuple):
         """
         receives the padding indices which will be used to pad the tensors
         """
         self.pad_index_e = pad_index_e
         self.pad_index_f = pad_index_f
+        self.instance_schema = instance_schema
 
     @staticmethod
-    def get_item_length(id_list: Union[backend.Tensor, List]) -> int:
+    def get_item_length(id_list: Union[backend.Tensor, List], schema_type: InstancePartType) -> int:
         """
         given a list or a tensor, the function will detect the batch size in it and will return it
         """
-        if type(id_list) == backend.Tensor and id_list.size(0) == 1:
+        if schema_type == InstancePartType.Tensor and id_list.size(0) == 1:
             return id_list.view(-1).size(0)
-        else:
+        elif schema_type == InstancePartType.Tensor:
+            raise NotImplementedError
+        elif schema_type == InstancePartType.ListId:
             return len(id_list)
+        elif schema_type == InstancePartType.TransformerSrcMask or \
+                        schema_type == InstancePartType.TransformerTgtMask:
+            return len(id_list[0])
+        else:
+            raise NotImplementedError("Unknown schema type {}".format(schema_type))
 
     def pad_collate(self, batch) -> Tuple:
+        """
+        the function to perform the padding + batching + conversion of final resulting batch to a tensor
+        :param batch: a batch of Tuples of inputs
+         every single input Tuple can contain a number of list (tensors) of ids
+        """
+        result = None
+        for ind, schema_type in enumerate(self.instance_schema):
+            max_len = max(map(lambda x: self.get_item_length(x[ind], schema_type), batch))
+            pad_index = 0
+            if ind == 0:
+                pad_index = self.pad_index_f
+            elif ind == 1:
+                pad_index = self.pad_index_e
+            if schema_type == InstancePartType.ListId:
+                res = backend.stack([x for x in map(lambda p: (
+                    _pad_transform_id_list(p[ind], max_len, pad_index)), batch)], dim=0)
+            elif schema_type == InstancePartType.TransformerSrcMask or \
+                            schema_type == InstancePartType.TransformerTgtMask:
+                res = backend.stack([x for x in map(lambda p: (_pad_transform_list_list_id(
+                    p[ind], max_len, pad_index, schema_type == InstancePartType.TransformerTgtMask)), batch)], dim=0)
+            else:
+                raise NotImplementedError
+            if result is None:
+                result = res,
+            else:
+                result = *result, res
+        return result
+
+    def pad_collate_deprecated(self, batch) -> Tuple:
         """
         the function to perform the padding + batching + conversion of final resulting batch to a tensor
         :param batch: a batch of Tuples of inputs
