@@ -1,3 +1,5 @@
+![SFU Logo](resources/documents/logo.jpg?raw=true "Title")  |  ![Natlang Logo](resources/documents/natlang-logo.png?raw=true "Title")
+:-------------------------:|:-------------------------:
 # SFUTranslate
 
 This is an academic machine translation toolkit, in which the main focus has been towards readability and changeability.
@@ -54,6 +56,93 @@ figure out the format of this configuration file.
 You may want to write your own dataset reader, in which case your dataset reader class must extend the abstact 
 `AbsDatasetReader` class defined in this package. The dummy dataset providers `ReverseCopyDataset` and 
 `SimpleGrammerLMDataset` are examples you can look at to understand how you may create your dataset provider.  
+
+## What can be put in the config file?
+Here we present a complete schema for the config file containing all possible valid tags that can be put in the config file.
+Please note that you may put some in and remove some from your config file, however, if the config file lacks the configurations 
+that are essential to your task you will face the error `The configuration value <CONFIG_VALUE> must exist in your configuration file!`.
+  In that case, please look at the config file and put the configuration tag with your desired value in it. An example 
+  config file called `dummy.yaml` is already put in the `resources` directory so you can modify and use for running the 
+  project. Nevertheless, you can create your own config file as a text file whose name is ending in `.yaml` and put your 
+  configurations in it. Here is the configuration schema:
+```yamlex
+reader:
+    dataset:
+        type: possible values [parallel | dummy_s2s | dummy_lm | dummy_transformer]
+        buffer_size: the reader will read this many lines from the text files and bufferes them before returning each
+        max_length: for word-level it's better to be around 50-60, for bpe level around 128
+        source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
+        target_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
+        working_dir: the releatieve/absolute path of the dataset files
+        train_file_name: the name of train files without the language extension
+        test_file_name: the name of test files without the language extension
+        dev_file_name: the name of dev files without the language extension
+        granularity: the direct object loader of the class translate.readers.constants.ReaderLevel used for pre-processing purposes
+        dummy: Only needed if you want to use the dummy data providers
+            min_len: minimum length of the generated dummy sentences
+            max_len: maximum length of the generated dummy sentences
+            vocab_size: size of the generated vocabulary tokens
+            train_samples: number of generated sequences used as train data
+            test_samples: number of generated sequences used as test data
+            dev_samples: number of generated sequences used as dev data
+    vocab:
+        bos_word: the special begin of sentence token
+        eos_word: the special end of sentence token
+        pad_word: the special pad token
+        unk_word: the special unknown token
+        bpe_separator: the special word-piece identifier token
+trainer:
+    model:
+        ####### universal configurations
+        type: possible values [seq2seq | rnnlm | transformer]
+        bsize: size of the training sentence batches
+        init_val: the value to range of which random variables get initiated in NN models
+        ####### seq2seq/rnnlm configurations
+        tfr: teacher forcing ratio (if 1< teacher forcing is not used)
+        bienc: bidirectional encoding (true or false)
+        hsize: hidden state size of RNN layers
+        nelayers: number of hidden layers in encoder
+        ndlayers:  number of hidden layers in decoder
+        ddropout: the dropout probability in the decoder
+        ####### transformer configurations
+        N: number of encoder/decoder layers
+        d_model: size of each encoder/decoder layer
+        d_ff: size of intermediate layer in feedforward sub-layers
+        h: number of heads
+        dropout: the dropout used in encoder/decoder model parts
+        smoothing: the smoothing probability used in the genrating the output distribution (Label Smoothing technique)
+    optimizer:
+        name: possible values [adam | adadelta | sgd] # you can add other methods by modifying `create_optimizer` function in `translate.learning.estimator`
+        lr: th initial learning rate
+        gcn: grad clip norm value
+        epochs: number of training epochs
+        save_best_models: the feature of saving best found models while training (best based on train/dev loss) can be turned on/off using this feature
+        early_stopping_loss: if the model reaches a loss below this value, the training will not continue anymore
+        ####### transformer configurations
+        warmup_steps: number of warmup steps before reaching the maxmimum learning rate 
+        lr_update_factor: the lr factor suggested in "attention is all you need" paper
+        needs_warmup: using the warmup wrapper feature can be turned on or off using this feature 
+    experiment:
+        name: the experiment name which will be used when saving the best models
+```
+
+# Requirements and Dependencies
+In this section we go over the required libraries and how the project is dependant on each so that in case of the need 
+to change (or remove) any of them, you know how and where to look for them.
+The descriptions here are essentially describing the content of `requirements.txt` file besides this Readme document.
+
+- [`PyYaml`](https://pyyaml.org/) the library needed to read the configurations, parse them and access their parsed values.
+You may need to look at the content of `translate.configs.loader` class for the use cases of this library.
+
+- [`PyTorch`](https://pytorch.org/docs/stable/index.html) the backend library which provides the neural network related 
+functionality and classes. The only script accessing this library is `translate.backend.utils` which renames the `torch`
+object as `backend` and every other script in the project accesses the `backend` object.
+ If you prefer other NN frameworks (e.g. [`Tensorflow`](https://www.tensorflow.org/) or 
+ [`DyNet`](https://dynet.readthedocs.io/en/latest/)) you can simply search for the occurances of the `backend` object 
+  and update them to the way your desired framework does that task.
+    
+- Utility libraries \[`tqdm` and `abc`\] the libraries that provide simple utility functionalities.
+ 
 
 # Help and Comments
 If you need help regarding the toolkit or you want to discuss your comments, you are more than welcome to email [Hassan S.Shavarani](sshavara@sfu.ca).
