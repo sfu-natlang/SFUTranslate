@@ -74,7 +74,7 @@ reader:
         buffer_size: the reader will read this many lines from the text files and bufferes them before returning each
         max_length: for word-level it's better to be around 50-60, for bpe level around 128
         source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
-        target_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
+        target_lang: the bi-letter tag indicating the target language ['en'|'fr'|'de'|...]
         working_dir: the releatieve/absolute path of the dataset files
         train_file_name: the name of train files without the language extension
         test_file_name: the name of test files without the language extension
