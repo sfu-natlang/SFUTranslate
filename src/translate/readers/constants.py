@@ -36,3 +36,17 @@ class InstancePartType(Enum):
     Tensor = 2
     TransformerSrcMask = 3
     TransformerTgtMask = 4
+
+
+@unique
+class LanguageIdentifier(Enum):
+    """
+    Defines different supported languages specifically for pre-processing step.
+    """
+    en = 0
+    de = 1
+    es = 2
+    pt = 3
+    fr = 4
+    it = 5
+    nl = 6

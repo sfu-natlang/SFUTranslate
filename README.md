@@ -142,7 +142,21 @@ object as `backend` and every other script in the project accesses the `backend`
  If you prefer other NN frameworks (e.g. [`Tensorflow`](https://www.tensorflow.org/) or 
  [`DyNet`](https://dynet.readthedocs.io/en/latest/)) you can simply search for the occurances of the `backend` object 
   and update them to the way your desired framework does that task.
-    
+
+- [`spaCy`](https://spacy.io/) the pre-processing toolkit used for normalization and tokenization of `English`, `German`
+, `Spanish`, `Portuguese`, `French`, `Italian`, and `Dutch`. However, to make the library able to process each of the 
+languages you will need to download its resources for spaCy using the following lines (you should simply copy the 
+download line and past it into the command line to get executed). You may need to look at the content of 
+`translate.readers.tokenizer` class for the use cases of this library.
+```commandline
+python -m spacy download en
+python -m spacy download de
+python -m spacy download es
+python -m spacy download pt
+python -m spacy download fr
+python -m spacy download it
+python -m spacy download nl
+```
 - Utility libraries \[`tqdm` and `abc`\] the libraries that provide simple utility functionalities.
  
 

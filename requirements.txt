@@ -2,3 +2,4 @@ pyyaml
 abc
 torch
 tqdm
+spacy
