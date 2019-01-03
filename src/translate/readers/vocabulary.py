@@ -21,6 +21,7 @@ class Vocab:
         self.bos_word = configs.get("reader.vocab.bos_word", "<s>")
         self.eos_word = configs.get("reader.vocab.eos_word", "</s>")
         self.pad_word = configs.get("reader.vocab.pad_word", "<pad>")
+        self.space_word = configs.get("reader.vocab.space_word", "<space>")
         self.bpe_separator = configs.get("reader.vocab.bpe_separator", "@@")
         self.i2w = words
         self.w2i = None  # to be loaded lazily!
@@ -32,7 +33,7 @@ class Vocab:
         """
         self.i2w = words
         self.counter = counter
-        self.ensure_words_exist([self.bos_word, self.eos_word, self.pad_word, self.unk_word])
+        self.ensure_words_exist([self.bos_word, self.eos_word, self.pad_word, self.unk_word, self.space_word])
         self._fill_in_reverse_index_vocabulary()
 
     def __len__(self):
@@ -56,6 +57,10 @@ class Vocab:
     def get_unk_word_index(self):
         assert self.w2i is not None
         return self.w2i[self.unk_word]
+
+    def get_space_word_index(self):
+        assert self.w2i is not None
+        return self.w2i[self.space_word]
 
     def ensure_words_exist(self, words: List[str]):
         assert self.i2w is not None
