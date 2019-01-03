@@ -9,7 +9,6 @@ reader:
         train_file_name: train
         test_file_name: test
         dev_file_name: dev
-        granularity: !!python/object/apply:translate.readers.constants.ReaderLevel [1]
         dummy:
             min_len: 8
             max_len: 50
@@ -22,7 +21,15 @@ reader:
         eos_word: '</s>'
         pad_word: '<pad>'
         unk_word: '<unk>'
+        space_word: '<space>'
         bpe_separator: '@@'
+    preprocess:
+        granularity: "WORD" # possible values ["WORD" (default) | "BPE" | "CHAR"]
+        dataset_directory: ../../../resources/raw_iwslt
+        result_directory: ../../../resources/raw_iwslt/preprocessed
+        source_lang: fr
+        target_lang: en
+        dataset_prefix: "IWSLT17.TED"
 trainer:
     model:
         ####### universal configurations

@@ -79,7 +79,6 @@ reader:
         train_file_name: the name of train files without the language extension
         test_file_name: the name of test files without the language extension
         dev_file_name: the name of dev files without the language extension
-        granularity: the direct object loader of the class translate.readers.constants.ReaderLevel used for pre-processing purposes
         dummy: Only needed if you want to use the dummy data providers
             min_len: minimum length of the generated dummy sentences
             max_len: maximum length of the generated dummy sentences
@@ -91,8 +90,16 @@ reader:
         bos_word: the special begin of sentence token
         eos_word: the special end of sentence token
         pad_word: the special pad token
+        space_word: the special space token
         unk_word: the special unknown token
         bpe_separator: the special word-piece identifier token
+    preprocess:
+        granularity: possible values ["WORD" (default) | "BPE" | "CHAR"]
+        dataset_directory: the path to the directory containing raw data files
+        result_directory: the path to the directory to which the results are to be stored (if not existing will be created)
+        source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
+        target_lang: the bi-letter tag indicating the target language ['en'|'fr'|'de'|...]
+        dataset_prefix: the dataset files prefix (e.g. IWSLT dataset files all begin with "IWSLT17.TED")
 trainer:
     model:
         ####### universal configurations
