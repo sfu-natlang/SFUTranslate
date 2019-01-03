@@ -1,6 +1,8 @@
-![SFU Logo](resources/documents/logo.jpg?raw=true "Title")  |  ![Natlang Logo](resources/documents/natlang-logo.png?raw=true "Title")
-:-------------------------:|:-------------------------:
-# SFUTranslate
+<img src="resources/documents/logo.jpg" align="left"/>
+<img src="resources/documents/natlang-logo.png" align="right"/>
+<br/>
+
+<h1 align="center"> SFUTranslate </h1>
 
 This is an academic machine translation toolkit, in which the main focus has been towards readability and changeability.
 We also have tried to make the algorithms as fast as possible, but please let us know if you have any suggestions or
