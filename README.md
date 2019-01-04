@@ -1,6 +1,5 @@
 <img src="resources/documents/logo.jpg" align="left"/>
 <img src="resources/documents/natlang-logo.png" align="right"/>
-<br/><br/><br/>
 
 <h1 align="center"> SFUTranslate </h1>
 
