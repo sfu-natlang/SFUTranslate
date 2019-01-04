@@ -9,10 +9,14 @@ from typing import Callable, Iterable, Tuple, Dict
 from sacrebleu import sentence_bleu
 from random import choice
 
+from subword_nmt.learn_bpe import learn_bpe
+from subword_nmt.apply_bpe import BPE
+
 from translate.logging.utils import logger
 from translate.readers.constants import ReaderLevel, ReaderType
 from translate.readers.vocabulary import Vocab
 from translate.configs.loader import ConfigLoader
+from translate.configs.utils import Path
 from translate.backend.utils import tensor2list
 
 __author__ = "Hassan S. Shavarani"
@@ -48,7 +52,13 @@ class AbsDatasetReader(ABC):
         # maximum valid sentence length for the model, in case of BPE-level ~ 128, in case of word-level ~ 50-60
         self._max_valid_length = configs.get("reader.dataset.max_length", must_exist=True)
         # word granularity can be used in the dataset reader to prepare the data in a specific format
-        # self._word_granularity = configs.get("reader.dataset.granularity", default_value=ReaderLevel.WORD)
+        granularity = configs.get("reader.dataset.granularity", default_value="WORD")
+        if granularity.lower() == "char":
+            self._word_granularity = ReaderLevel.CHAR
+        elif granularity.lower() == "bpe":
+            self._word_granularity = ReaderLevel.BPE
+        else:
+            self._word_granularity = ReaderLevel.WORD
         # the source side vocabulary data (only the container need to be filled in the classes extending the reader!)
         self.source_vocabulary = Vocab(configs)
         # the target side vocabulary data (only the container need to be filled in the classes extending the reader!)
@@ -107,6 +117,23 @@ class AbsDatasetReader(ABC):
         scores = [sentence_bleu(hyps[sid], refs[sid]) for sid in range(len(ref_ids_list))]
         random_index = choice(range(len(refs)))
         return sum(scores) / len(scores), refs[random_index], hyps[random_index]
+
+    @staticmethod
+    def retrieve_bpe_model(train_file: Path, merge_size: int, bpe_separator: str) -> BPE:
+        """
+        Given the train_file address (:param train_file:), the method checks the existence of it and creates the
+         bpe_file with (:param merge_size:) number of merge operations and returns the address of the file
+          the output model (say named "bpe") can simply segment a line using this command: bpe.segment(line)
+           returning an object of str itself
+        """
+        base = train_file.stem  # the bare name of the file
+        ext = train_file.suffix  # the suffix of the file starting with "."
+        bpe_file = Path(train_file.parent / "{}.{}.bpe{}".format(base, merge_size, ext))
+        if not bpe_file.exists():
+            logger.info("Learning bpe merge operations for {}".format(ext[1:]))
+            learn_bpe(train_file.open(encoding="utf-8"), bpe_file.open(mode='w', encoding='utf-8'), merge_size,
+                      min_frequency=1, verbose=False, is_dict=False)
+        return BPE(bpe_file.open(encoding='utf-8'), separator=bpe_separator)
 
     def __iter__(self):
         return self

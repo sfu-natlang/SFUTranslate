@@ -5,10 +5,11 @@ reader:
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
         source_lang: fr
         target_lang: en
-        working_dir: ../../../resources/iwslt
+        working_dir: ../../../resources/iwslt_de_en/merge_lower_tokenized
         train_file_name: train
         test_file_name: test
         dev_file_name: dev
+        granularity: WORD # possible values ["WORD" (default) | "BPE" | "CHAR"]
         dummy:
             min_len: 8
             max_len: 50
@@ -24,12 +25,11 @@ reader:
         space_word: '<space>'
         bpe_separator: '@@'
     preprocess:
-        granularity: "WORD" # possible values ["WORD" (default) | "BPE" | "CHAR"]
-        dataset_directory: ../../../resources/raw_iwslt
-        result_directory: ../../../resources/raw_iwslt/preprocessed
-        source_lang: fr
+        dataset_directory: ../../../resources/iwslt_de_en
+        result_directory: ../../../resources/iwslt_de_en/merge_lower_tokenized
+        source_lang: de
         target_lang: en
-        dataset_prefix: "IWSLT17.TED"
+        dataset_type: IWSLT # possible values [REGULAR | IWSLT]
 trainer:
     model:
         ####### universal configurations
@@ -62,4 +62,4 @@ trainer:
         lr_update_factor: 1
         needs_warmup: false
     experiment:
-        name: 'dummy'
+        name: dummy

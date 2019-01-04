@@ -79,6 +79,7 @@ reader:
         train_file_name: the name of train files without the language extension
         test_file_name: the name of test files without the language extension
         dev_file_name: the name of dev files without the language extension
+        granularity: indicating the requested granularity level of the resulting dataset as either of CHAR/BPE/WORD; possible values ["WORD" (default) | "BPE" | "CHAR"]
         dummy: Only needed if you want to use the dummy data providers
             min_len: minimum length of the generated dummy sentences
             max_len: maximum length of the generated dummy sentences
@@ -94,12 +95,11 @@ reader:
         unk_word: the special unknown token
         bpe_separator: the special word-piece identifier token
     preprocess:
-        granularity: possible values ["WORD" (default) | "BPE" | "CHAR"]
         dataset_directory: the path to the directory containing raw data files
         result_directory: the path to the directory to which the results are to be stored (if not existing will be created)
         source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
         target_lang: the bi-letter tag indicating the target language ['en'|'fr'|'de'|...]
-        dataset_prefix: the dataset files prefix (e.g. IWSLT dataset files all begin with "IWSLT17.TED")
+        dataset_type: the dataset files prefix (e.g. IWSLT dataset files all begin with "IWSLT17.TED")
 trainer:
     model:
         ####### universal configurations
@@ -164,7 +164,12 @@ python -m spacy download fr
 python -m spacy download it
 python -m spacy download nl
 ```
-- Utility libraries \[`tqdm` and `abc`\] the libraries that provide simple utility functionalities.
+
+- [`subword_nmt`](https://github.com/rsennrich/subword-nmt) the implementation of the bye-pair encoding from the paper
+[Neural Machine Translation of Rare Words with Subword Units](http://www.aclweb.org/anthology/P16-1162) used in
+`translate.readers.datareader` class for providing the Byte-Pair level granularity.
+
+- Utility libraries \[`tqdm` and `abc` and `xml`\] the libraries that provide simple utility functionalities.
  
 
 # Help and Comments

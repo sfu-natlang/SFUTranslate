@@ -3,3 +3,5 @@ abc
 torch
 tqdm
 spacy
+xml
+subword-nmt
