@@ -24,6 +24,9 @@ reader:
         unk_word: '<unk>'
         space_word: '<space>'
         bpe_separator: '@@'
+        bpe_merge_size:
+            src: 30000
+            tgt: 30000
     preprocess:
         dataset_directory: ../../../resources/iwslt_de_en
         result_directory: ../../../resources/iwslt_de_en/merge_lower_tokenized

@@ -93,6 +93,9 @@ reader:
         space_word: the special space token
         unk_word: the special unknown token
         bpe_separator: the special word-piece identifier token
+        bpe_merge_size:
+            src: # the expected number of merge operations if performing bpe on source side
+            tgt: # the expected number of merge operations if performing bpe on target side
     preprocess:
         dataset_directory: the path to the directory containing raw data files
         result_directory: the path to the directory to which the results are to be stored (if not existing will be created)

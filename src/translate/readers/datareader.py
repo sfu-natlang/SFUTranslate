@@ -5,9 +5,10 @@ To create your own dataset reader you only need to extend this class and augment
   abstract class.
 """
 from abc import ABC, abstractmethod
-from typing import Callable, Iterable, Tuple, Dict
+from typing import Callable, Iterable, Tuple, Dict, Iterator
 from sacrebleu import sentence_bleu
 from random import choice
+from collections import Counter
 
 from subword_nmt.learn_bpe import learn_bpe
 from subword_nmt.apply_bpe import BPE
@@ -63,6 +64,10 @@ class AbsDatasetReader(ABC):
         self.source_vocabulary = Vocab(configs)
         # the target side vocabulary data (only the container need to be filled in the classes extending the reader!)
         self.target_vocabulary = Vocab(configs)
+        # the bpe_model instance which can get loaded with source train data
+        self._source_bpe_model = None
+        # the bpe_model instance which can get loaded with target train data
+        self._target_bpe_model = None
         self.load_shared_reader_data(shared_reader_data)
 
     @staticmethod
@@ -134,6 +139,39 @@ class AbsDatasetReader(ABC):
             learn_bpe(train_file.open(encoding="utf-8"), bpe_file.open(mode='w', encoding='utf-8'), merge_size,
                       min_frequency=1, verbose=False, is_dict=False)
         return BPE(bpe_file.open(encoding='utf-8'), separator=bpe_separator)
+
+    @staticmethod
+    def load_vocab_counts(lines_stream: Iterator[str], vocab_counts_file: Path, min_count: int = 1):
+        """
+        The method to take a :param vocab_counts_file: to load the vocabulary from (the words above :param min_count:
+         will get loaded from the file). The method will create the file if it does not exist by going through the
+          actual resource senteces provided through :param lines_stream: to collect the vocabulary.
+           The final vocab_counts_file would look like the following:
+            word1<space>integer_number\n
+            word2<space>integer_number\n
+            word3<space>integer_number\n
+            ...
+        """
+        if not vocab_counts_file.exists():
+            vocab_counts_file.touch(mode=0o666)
+            vocab_counts = Counter()
+            lines_count = 0
+            for line in lines_stream:
+                lines_count += 1
+                for word in line.strip().split():
+                    vocab_counts[word] += 1
+            with vocab_counts_file.open(mode='w') as vcf:
+                for word, count in vocab_counts.most_common():
+                    vcf.write("{} {}\n".format(word, count))
+        result = []
+        with vocab_counts_file.open() as existing_vocab_file:
+            for line in existing_vocab_file:
+                line_parts = line.split()
+                word = line_parts[0]
+                count = int(line_parts[1])
+                if count > min_count:
+                    result.append(word)
+        return result
 
     def __iter__(self):
         return self

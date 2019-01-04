@@ -23,18 +23,22 @@ reader:
         dev_file_name: dev.normalized
 ##################################################
 """
+from enum import Enum
 from random import shuffle
 from typing import Callable, Dict
-from pathlib import Path
-from collections import Counter
 
 from translate.configs.loader import ConfigLoader
-from translate.readers.constants import ReaderType, InstancePartType
+from translate.readers.constants import ReaderType, InstancePartType, ReaderLevel
 from translate.readers.datareader import AbsDatasetReader
 from translate.configs.utils import get_dataset_file
 from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
+
+
+class ParallelSide(Enum):
+    SOURCE = 0
+    TARGET = 1
 
 
 class ParallelDataReader(AbsDatasetReader):
@@ -64,10 +68,19 @@ class ParallelDataReader(AbsDatasetReader):
         self.source_file = get_dataset_file(w_dir, file_name, src_lang)
         self.target_file = get_dataset_file(w_dir, file_name, tgt_lang)
         if reader_type == ReaderType.TRAIN:
-            self.source_vocabulary.set_types(self.load_vocab_counts(
-                self.source_file, get_dataset_file(w_dir, "vocab_counts", src_lang)))
-            self.target_vocabulary.set_types(self.load_vocab_counts(
-                self.target_file, get_dataset_file(w_dir, "vocab_counts", tgt_lang)))
+            if self._word_granularity == ReaderLevel.BPE:
+                src_merge_size = configs.get("reader.vocab.bpe_merge_size.src", must_exist=True)
+                tgt_merge_size = configs.get("reader.vocab.bpe_merge_size.tgt", must_exist=True)
+                self._source_bpe_model = self.retrieve_bpe_model(self.source_file, src_merge_size,
+                                                                 self.source_vocabulary.bpe_separator)
+                self._target_bpe_model = self.retrieve_bpe_model(self.target_file, tgt_merge_size,
+                                                                 self.target_vocabulary.bpe_separator)
+            self.source_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
+                ParallelSide.SOURCE), get_dataset_file(w_dir, "vocab_counts_{}".format(
+                self._word_granularity.name.lower()), src_lang)))
+            self.target_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
+                ParallelSide.TARGET), get_dataset_file(w_dir, "vocab_counts_{}".format(
+                self._word_granularity.name.lower()), tgt_lang)))
         self.files_opened = False
         self.source = None
         self.target = None
@@ -77,42 +90,30 @@ class ParallelDataReader(AbsDatasetReader):
         assert source_lines_count == target_lines_count
         self.lines_count = source_lines_count
 
-    @staticmethod
-    def load_vocab_counts(data_file: Path, vocab_counts_file: Path, min_count: int = 1):
+    def get_resource_lines(self, side: ParallelSide):
         """
-        The method to take a :param vocab_counts_file: to load the vocabulary from (the words above :param min_count: 
-         will get loaded from the file). The method will create the file if it does not exist by going through the 
-          actual resource :param data_file: to collect the vocabulary.
-           The final vocab_counts_file would look like the following:
-            word1<space>integer_number\n
-            word2<space>integer_number\n
-            word3<space>integer_number\n
-            ...
+        The method which goes through the source resource(s) and pre-processes them considering the granularity and
+         returns the pre-processed lines
         """
-        if not vocab_counts_file.exists():
-            vocab_counts_file.touch(mode=0o666)
-            vocab_counts = Counter()
-            lines_count = 0
-            with data_file.open() as dtf:
-                for line in dtf:
-                    lines_count += 1
-                    for word in line.strip().split():
-                        vocab_counts[word] += 1
-            with vocab_counts_file.open(mode='w') as vcf:
-                for word, count in vocab_counts.most_common():
-                    vcf.write("{} {}\n".format(word, count))
-        result = []
-        with vocab_counts_file.open() as existing_vocab_file:
-            for line in existing_vocab_file:
-                line_parts = line.split()
-                word = line_parts[0]
-                count = int(line_parts[1])
-                if count > min_count:
-                    result.append(word)
-        return result
+        if side == ParallelSide.SOURCE:
+            resource_file = self.source_file
+            bpe_model = self._source_bpe_model
+            space_word = self.source_vocabulary.space_word
+        else:
+            resource_file = self.target_file
+            bpe_model = self._target_bpe_model
+            space_word = self.target_vocabulary.space_word
+        for line in resource_file.open():
+            if self._word_granularity == ReaderLevel.BPE:
+                yield bpe_model.segment(line)
+            elif self._word_granularity == ReaderLevel.CHAR:
+                yield " ".join([x for x in line.strip().replace(" ", space_word)])
+            else:
+                yield line
 
     def get_sharable_data(self):
-        return {"source_types": self.source_vocabulary.get_types(), "target_types": self.target_vocabulary.get_types()}
+        return {"source_types": self.source_vocabulary.get_types(), "target_types": self.target_vocabulary.get_types(),
+                "source_bpe_model": self._source_bpe_model, "target_bpe_model": self._target_bpe_model}
 
     def deallocate(self):
         self.files_opened = False
@@ -133,6 +134,8 @@ class ParallelDataReader(AbsDatasetReader):
         if shared_data is not None:
             self.source_vocabulary.set_types(shared_data["source_types"])
             self.target_vocabulary.set_types(shared_data["target_types"])
+            self._source_bpe_model = shared_data["source_bpe_model"]
+            self._target_bpe_model = shared_data["target_bpe_model"]
 
     def __getitem__(self, idx):
         # If you are testing, make sure the same index is not referred to again
@@ -140,8 +143,8 @@ class ParallelDataReader(AbsDatasetReader):
 
     def allocate(self):
         self.files_opened = True
-        self.source = self.source_file.open()
-        self.target = self.target_file.open()
+        self.source = self.get_resource_lines(ParallelSide.SOURCE)
+        self.target = self.get_resource_lines(ParallelSide.TARGET)
         self._buffer = []
 
     def max_sentence_length(self):
