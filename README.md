@@ -99,7 +99,7 @@ reader:
         result_directory: the path to the directory to which the results are to be stored (if not existing will be created)
         source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
         target_lang: the bi-letter tag indicating the target language ['en'|'fr'|'de'|...]
-        dataset_type: the dataset files prefix (e.g. IWSLT dataset files all begin with "IWSLT17.TED")
+        dataset_type: the type of the data placed inside dataset_directory; possible values [REGULAR | IWSLT]
 trainer:
     model:
         ####### universal configurations
