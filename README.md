@@ -1,7 +1,7 @@
 <img src="resources/documents/logo.jpg" align="left"/>
-<img src="resources/documents/natlang-logo.png" align="right"/>
-
+<img src="resources/documents/natlang-logo.png" align="right" width="150"/>
 <h1 align="center"> SFUTranslate </h1>
+<br/><br/>
 
 This is an academic machine translation toolkit, in which the main focus has been towards readability and changeability.
 We also have tried to make the algorithms as fast as possible, but please let us know if you have any suggestions or
