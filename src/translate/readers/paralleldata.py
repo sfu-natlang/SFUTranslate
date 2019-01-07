@@ -81,6 +81,8 @@ class ParallelDataReader(AbsDatasetReader):
             self.target_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.TARGET), get_dataset_file(w_dir, "vocab_counts_{}".format(
                 self._word_granularity.name.lower()), tgt_lang)))
+            logger.info("Source vocabulary loaded with size |F|= %d" % len(self.source_vocabulary))
+            logger.info("Target vocabulary loaded with size |E|= %d" % len(self.target_vocabulary))
         self.files_opened = False
         self.source = None
         self.target = None
@@ -158,6 +160,8 @@ class ParallelDataReader(AbsDatasetReader):
             for src, tgt in zip(self.source, self.target):
                 src_ids = [self.source_vocabulary[x] for x in src.strip().split()]
                 tgt_ids = [self.target_vocabulary[x] for x in tgt.strip().split()]
+                src_ids += [self.source_vocabulary.get_end_word_index()]
+                tgt_ids += [self.target_vocabulary.get_end_word_index()]
                 src_len = len(src_ids)
                 tgt_len = len(tgt_ids)
                 if src_len > self._max_valid_length or not src_len or tgt_len > self._max_valid_length or not tgt_len:
