@@ -26,6 +26,7 @@ from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
 from translate.readers.datareader import AbsDatasetReader
+from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
 
@@ -64,6 +65,7 @@ class SequenceToSequence(AbsCompleteModel):
         self.encoder_output_size = self.encoder.hidden_size
         if self.bidirectional_encoding:
             self.encoder_output_size *= 2
+        logger.info("Randomly initiating model variables in the range [-{0}, {0}]".format(init_val))
         for p_set in self.optimizable_params_list():
             for p in p_set:
                 p.data.uniform_(-init_val, init_val)
