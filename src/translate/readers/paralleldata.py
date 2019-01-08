@@ -46,7 +46,7 @@ class ParallelDataReader(AbsDatasetReader):
                  shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
-        :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
+        :param reader_type: an instance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
         :param iter_log_handler: the handler pointer of set_description handler of tqdm instance, iterating over this
          dataset. This handler is used to inform the user the progress of preparing the data while processing the
           dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
@@ -68,6 +68,8 @@ class ParallelDataReader(AbsDatasetReader):
         self.source_file = get_dataset_file(w_dir, file_name, src_lang)
         self.target_file = get_dataset_file(w_dir, file_name, tgt_lang)
         if reader_type == ReaderType.TRAIN:
+            logger.info("Reader input granularity: {}".format(self._word_granularity))
+            logger.info("Reader maximum valid input length: {}".format(self._max_valid_length))
             if self._word_granularity == ReaderLevel.BPE:
                 src_merge_size = configs.get("reader.vocab.bpe_merge_size.src", must_exist=True)
                 tgt_merge_size = configs.get("reader.vocab.bpe_merge_size.tgt", must_exist=True)
