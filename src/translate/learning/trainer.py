@@ -116,6 +116,8 @@ if __name__ == '__main__':
         train.allocate()
         itr_handler = tqdm(get_padding_batch_loader(train, model.batch_size), ncols=100,
                            total=math.ceil(len(train) / model.batch_size))
+        train.set_iter_log_handler(itr_handler.set_description)
+        dev.set_iter_log_handler(itr_handler.set_description)
         for train_batch in itr_handler:
             iter_ += 1
             loss_value, decoded_word_ids = estimator.step(*train_batch)

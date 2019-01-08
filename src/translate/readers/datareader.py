@@ -29,20 +29,15 @@ class AbsDatasetReader(ABC):
     format (still in python structures tho!) and providing an iterator over the parallel data.
     """
 
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
-        :param iter_log_handler: the handler pointer of set_description handler of tqdm instance, iterating over this
-         dataset. This handler is used to inform the user the progress of preparing the data while processing the
-          dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
-           takes any time for data preparation.
         :param shared_reader_data: the data shared from another reader to this reader instance
         """
         super(AbsDatasetReader, self).__init__()
         logger.info("Loading the dataset reader of type \"{}.{}\"".format(self.__class__.__name__, reader_type.name))
-        self._iter_log_handler = iter_log_handler
+        self._iter_log_handler = None
         self.reader_type = reader_type
         self.configs = configs
 
@@ -69,6 +64,15 @@ class AbsDatasetReader(ABC):
         # the bpe_model instance which can get loaded with target train data
         self._target_bpe_model = None
         self.load_shared_reader_data(shared_reader_data)
+
+    def set_iter_log_handler(self, iter_log_handler: Callable[[str], None]):
+        """
+        :param iter_log_handler: the handler pointer of set_description handler of tqdm instance, iterating over this
+         dataset. This handler is used to inform the user the progress of preparing the data while processing the
+          dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
+           takes any time for data preparation. 
+        """
+        self._iter_log_handler = iter_log_handler
 
     @staticmethod
     def _sentensify(vocabulary: Vocab, ids: Iterable[int], merge_bpe_tokens: bool = False, input_is_tensor=False):

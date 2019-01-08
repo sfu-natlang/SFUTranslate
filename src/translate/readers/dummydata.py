@@ -36,18 +36,13 @@ class ReverseCopyDataset(AbsDatasetReader):
     ####################################
     """
 
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
-        :param iter_log_handler: the handler pointer of set_description handler of tqdm instance, iterating over this
-         dataset. This handler is used to inform the user the progress of preparing the data while processing the
-          dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
-           takes any time for data preparation.
         :param shared_reader_data: the data shared from another reader to this reader instance
         """
-        super().__init__(configs, reader_type, iter_log_handler, shared_reader_data)
+        super().__init__(configs, reader_type, shared_reader_data)
         self.min_length = configs.get("reader.dataset.dummy.min_len", must_exist=True)
         self.max_length = configs.get("reader.dataset.dummy.max_len", must_exist=True)
         if reader_type == ReaderType.TRAIN:
@@ -163,18 +158,13 @@ class SimpleGrammerLMDataset(AbsDatasetReader):
     ####################################
     """
 
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
-        :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
-        :param iter_log_handler: the handler pointer of set_description handler of tqdm instance, iterating over this
-         dataset. This handler is used to inform the user the progress of preparing the data while processing the
-          dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
-           takes any time for data preparation.
+        :param reader_type: an intance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev) 
         :param shared_reader_data: the data shared from another reader to this reader instance
         """
-        super().__init__(configs, reader_type, iter_log_handler, shared_reader_data)
+        super().__init__(configs, reader_type, shared_reader_data)
         self.min_length = configs.get("reader.dataset.dummy.min_len", must_exist=True)
         self.max_length = configs.get("reader.dataset.dummy.max_len", must_exist=True)
         if reader_type == ReaderType.TRAIN:

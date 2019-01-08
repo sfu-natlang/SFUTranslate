@@ -42,18 +42,13 @@ class ParallelSide(Enum):
 
 
 class ParallelDataReader(AbsDatasetReader):
-    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, iter_log_handler: Callable[[str], None] = None,
-                 shared_reader_data: Dict = None):
+    def __init__(self, configs: ConfigLoader, reader_type: ReaderType, shared_reader_data: Dict = None):
         """
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
-        :param reader_type: an instance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev)
-        :param iter_log_handler: the handler pointer of set_description handler of tqdm instance, iterating over this
-         dataset. This handler is used to inform the user the progress of preparing the data while processing the
-          dataset (which could sometimes take a long time). You are not forced to use it if you don't feel your dataset
-           takes any time for data preparation.
+        :param reader_type: an instance of ReaderType enum stating the type of the dataste (e.g. Train, Test, Dev) 
         :param shared_reader_data: the data shared from another reader to this reader instance
         """
-        super(ParallelDataReader, self).__init__(configs, reader_type, iter_log_handler, shared_reader_data)
+        super(ParallelDataReader, self).__init__(configs, reader_type, shared_reader_data)
         src_lang = configs.get("reader.dataset.source_lang", must_exist=True)
         tgt_lang = configs.get("reader.dataset.target_lang", must_exist=True)
         w_dir = configs.get("reader.dataset.working_dir", must_exist=True)
@@ -132,6 +127,13 @@ class ParallelDataReader(AbsDatasetReader):
     def instance_schema(self):
         return InstancePartType.ListId, InstancePartType.ListId
 
+    @property
+    def bfp(self):
+        """
+        :return: the filling percentage of buffer out of 100%
+        """
+        return "{:.1f}".format(len(self._buffer) * 100.0 / self._instance_buffer_size)
+
     def load_shared_reader_data(self, shared_data):
         if self.reader_type != ReaderType.TRAIN and shared_data is None:
             raise ValueError("Only trainer instance is allowed to create the vocabulary from the sentences sentences!")
@@ -168,6 +170,9 @@ class ParallelDataReader(AbsDatasetReader):
                 tgt_len = len(tgt_ids)
                 if src_len > self._max_valid_length or not src_len or tgt_len > self._max_valid_length or not tgt_len:
                     continue
+                if self._iter_log_handler is not None:
+                    self._iter_log_handler("{}: Filling Reader Buffer [rfp: {}%]".format(
+                        self.reader_type.name, self.bfp))
                 self._buffer.append((src_ids, tgt_ids, src_len + tgt_len))
                 if len(self._buffer) == self._instance_buffer_size:
                     break

@@ -26,7 +26,7 @@ class TransformerReaderWrapper(AbsDatasetReader):
          processed by this wrapper class 
         """
         self.data_provider = data_reader
-        super(TransformerReaderWrapper, self).__init__(data_reader.configs, data_reader.reader_type, None, None)
+        super(TransformerReaderWrapper, self).__init__(data_reader.configs, data_reader.reader_type, None)
         self.source_vocabulary = self.data_provider.source_vocabulary
         self.target_vocabulary = self.data_provider.target_vocabulary
         self.item_size = len(self.data_provider.instance_schema)
