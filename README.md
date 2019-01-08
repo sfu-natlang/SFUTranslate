@@ -108,6 +108,7 @@ trainer:
         type: possible values [seq2seq | rnnlm | transformer]
         bsize: size of the training sentence batches
         init_val: the value to range of which random variables get initiated in NN models
+        best_model_path: the path to the best previously trained model (ending in ".pt"). This attribute is optional and if is not passes the defalt will be set to "None" for it
         ####### seq2seq/rnnlm configurations
         tfr: teacher forcing ratio (if 1< teacher forcing is not used)
         bienc: bidirectional encoding (true or false)

@@ -97,10 +97,16 @@ if __name__ == '__main__':
     stat_collector = StatCollector()
     # the value which is used for performing the dev set evaluation steps
     print_every = math.ceil(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
-    best_saved_model_path = None
+    best_saved_model_path = opts.get("trainer.model.best_model_path", None)
     early_stopping = False
     if epochs > 0:
         logger.info("Starting the training procedure ...")
+        if best_saved_model_path is not None:
+            logger.info("Loading the best previously trained model from {} to continue the training over it".format(
+                best_saved_model_path))
+            model = estimator.load_checkpoint(best_saved_model_path)
+    else:
+        logger.info("Skipping the training part [#epochs = 0]")
     for epoch in range(epochs):
         if early_stopping:
             logger.info("Early stopping criteria fulfilled, stopping the training ...")

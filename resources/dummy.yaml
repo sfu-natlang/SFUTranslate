@@ -39,6 +39,7 @@ trainer:
         type: seq2seq # possible values [seq2seq | rnnlm | transformer]
         bsize: 64 # size of the training sentence batches
         init_val: 0.1 # the value to range of which random variables get initiated
+        best_model_path: null
         ####### seq2seq/rnnlm configurations
         tfr: 1.001 # teacher forcing ratio
         bienc: true # bidirectional encoding
