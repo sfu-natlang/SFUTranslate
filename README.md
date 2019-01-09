@@ -37,7 +37,7 @@ As stated earlier, the source codes are placed in the `src` directory and more s
 
 The general structure of the modules is depicted in the following figure.
 
-<img src="resources/SFUTranslate.svg?sanitize=True"/>
+<img src="resources/documents/SFUTranslate.svg?sanitize=True"/>
 
 As of the current version, the `translate` package contains the following packages.
 
