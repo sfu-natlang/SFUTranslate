@@ -35,6 +35,10 @@ The next sections will help you get more familiar with the code flow and trainin
 As stated earlier, the source codes are placed in the `src` directory and more strictly every thing is placed in 
 `translate` package (i.e. `/path/to/SFUTranslate/src/translate/`). 
 
+The general structure of the modules is depicted in the following figure.
+
+<img src="resources/documents/SFUTranslate.svg?sanitize=True"/>
+
 As of the current version, the `translate` package contains the following packages.
 
 - `backend` in charge of providing functionalities directly related to the backend (e.g. PyTorch framework). 
