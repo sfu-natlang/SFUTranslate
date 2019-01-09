@@ -72,12 +72,8 @@ if __name__ == '__main__':
     early_stopping_loss = opts.get("trainer.optimizer.early_stopping_loss", 0.01)
     model_type = opts.get("trainer.model.type")
     # to support more dataset types you need to extend this list
-    if dataset_type == "dummy_s2s":
+    if dataset_type == "dummy_parallel":
         train, test, dev = prepare_datasets(opts, ReverseCopyDataset)
-    elif dataset_type == "dummy_transformer":
-        train, test, dev = prepare_datasets(opts, ReverseCopyDataset)
-        train, test, dev = TransformerReaderWrapper(train), TransformerReaderWrapper(test), TransformerReaderWrapper(
-            dev)
     elif dataset_type == "dummy_lm":
         train, test, dev = prepare_datasets(opts, SimpleGrammerLMDataset)
     elif dataset_type == "parallel":
@@ -90,6 +86,8 @@ if __name__ == '__main__':
     elif model_type == "rnnlm":
         model = RNNLM(opts, train).to(device)
     elif model_type == "transformer":
+        train, test, dev = TransformerReaderWrapper(train), TransformerReaderWrapper(test), TransformerReaderWrapper(
+            dev)
         model = Transformer(opts, train).to(device)
     else:
         raise NotImplementedError
