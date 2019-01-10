@@ -143,7 +143,7 @@ class OptimizerWrapperWithWarmUpSteps:
         self.factor = configs.get("trainer.optimizer.lr_update_factor", must_exist=True)
         # the size of the source embedding layer of the model
         # TODO the value must be able to be taken from a non-transformer model as well!
-        self.model_size = configs.get("trainer.model.d_model", must_exist=True)
+        self.model_size = configs.get("trainer.optimizer.d_model", must_exist=True)
         self._rate = 0
         logger.info("Optimizer loaded into the learning rate warmup wrapper for the model size: {} with {} warm-up "
                     "states and the learning rate updates of factor {}".format(

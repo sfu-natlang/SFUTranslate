@@ -9,7 +9,9 @@ reader:
         train_file_name: train
         test_file_name: test
         dev_file_name: dev
-        granularity: WORD # possible values ["WORD" (default) | "BPE" | "CHAR"]
+        granularity:
+            src: WORD # possible values ["WORD" (default) | "BPE" | "CHAR"]
+            tgt: WORD # possible values ["WORD" (default) | "BPE" | "CHAR"]
         dummy:
             min_len: 8
             max_len: 50
@@ -68,5 +70,6 @@ trainer:
         warmup_steps: 400
         lr_update_factor: 1
         needs_warmup: false
+        d_model: 256 # size of the model used for computing the warmup updates
     experiment:
         name: dummy

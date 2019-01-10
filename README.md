@@ -82,7 +82,9 @@ reader:
         train_file_name: the name of train files without the language extension
         test_file_name: the name of test files without the language extension
         dev_file_name: the name of dev files without the language extension
-        granularity: indicating the requested granularity level of the resulting dataset as either of CHAR/BPE/WORD; possible values ["WORD" (default) | "BPE" | "CHAR"]
+        granularity: 
+            src: indicating the requested granularity level of the resulting dataset for source side as either of CHAR/BPE/WORD; possible values ["WORD" (default) | "BPE" | "CHAR"]
+            tgt: indicating the requested granularity level of the resulting dataset for target side as either of CHAR/BPE/WORD; possible values ["WORD" (default) | "BPE" | "CHAR"]
         dummy: Only needed if you want to use the dummy data providers
             min_len: minimum length of the generated dummy sentences
             max_len: maximum length of the generated dummy sentences
@@ -140,7 +142,8 @@ trainer:
         ####### transformer configurations
         warmup_steps: number of warmup steps before reaching the maxmimum learning rate 
         lr_update_factor: the lr factor suggested in "attention is all you need" paper
-        needs_warmup: using the warmup wrapper feature can be turned on or off using this feature 
+        needs_warmup: using the warmup wrapper feature can be turned on or off using this feature
+        d_model: the size of model used in the warmup updates of the learning rate
     experiment:
         name: the experiment name which will be used when saving the best models
 ```

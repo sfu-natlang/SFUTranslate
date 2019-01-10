@@ -26,6 +26,20 @@ class ReaderLevel(Enum):
     BPE = 1
     CHAR = 2
 
+    @staticmethod
+    def get_granularity(name):
+        """
+        Given the :param name: of one of the ReaderLevel enums this function returns the equivalent enum object.
+        :return:
+        """
+        if name.lower() == "word":
+            return ReaderLevel.WORD
+        elif name.lower() == "char":
+            return ReaderLevel.CHAR
+        elif name.lower() == "bpe":
+            return ReaderLevel.BPE
+        else:
+            raise ValueError("The requested value {} does not exist".format(name))
 
 @unique
 class InstancePartType(Enum):

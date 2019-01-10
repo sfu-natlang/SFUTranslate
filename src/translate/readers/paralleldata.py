@@ -60,24 +60,32 @@ class ParallelDataReader(AbsDatasetReader):
             file_name = configs.get("reader.dataset.dev_file_name", must_exist=True)
         else:
             raise NotImplementedError
+        # word granularity can be used in the dataset reader to prepare the data in a specific format
+        self._src_word_granularity = ReaderLevel.get_granularity(
+            configs.get("reader.dataset.granularity.src", default_value="WORD"))
+        self._tgt_word_granularity = ReaderLevel.get_granularity(
+            configs.get("reader.dataset.granularity.tgt", default_value="WORD"))
         self.source_file = get_dataset_file(w_dir, file_name, src_lang)
         self.target_file = get_dataset_file(w_dir, file_name, tgt_lang)
         if reader_type == ReaderType.TRAIN:
-            logger.info("Reader input granularity: {}".format(self._word_granularity))
+            logger.info("Source input granularity: {}".format(self._src_word_granularity))
+            logger.info("Target input granularity: {}".format(self._tgt_word_granularity))
             logger.info("Reader maximum valid input length: {}".format(self._max_valid_length))
-            if self._word_granularity == ReaderLevel.BPE:
+            if self._src_word_granularity == ReaderLevel.BPE:
                 src_merge_size = configs.get("reader.vocab.bpe_merge_size.src", must_exist=True)
-                tgt_merge_size = configs.get("reader.vocab.bpe_merge_size.tgt", must_exist=True)
                 self._source_bpe_model = self.retrieve_bpe_model(self.source_file, src_merge_size,
                                                                  self.source_vocabulary.bpe_separator)
+            if self._tgt_word_granularity == ReaderLevel.BPE:
+                tgt_merge_size = configs.get("reader.vocab.bpe_merge_size.tgt", must_exist=True)
+
                 self._target_bpe_model = self.retrieve_bpe_model(self.target_file, tgt_merge_size,
                                                                  self.target_vocabulary.bpe_separator)
             self.source_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.SOURCE), get_dataset_file(w_dir, "vocab_counts_{}".format(
-                self._word_granularity.name.lower()), src_lang)))
+                self._src_word_granularity.name.lower()), src_lang)))
             self.target_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.TARGET), get_dataset_file(w_dir, "vocab_counts_{}".format(
-                self._word_granularity.name.lower()), tgt_lang)))
+                self._tgt_word_granularity.name.lower()), tgt_lang)))
             logger.info("Source vocabulary loaded with size |F|= %d" % len(self.source_vocabulary))
             logger.info("Target vocabulary loaded with size |E|= %d" % len(self.target_vocabulary))
         self.files_opened = False
@@ -100,14 +108,16 @@ class ParallelDataReader(AbsDatasetReader):
             resource_file = self.source_file
             bpe_model = self._source_bpe_model
             space_word = self.source_vocabulary.space_word
+            g_level = self._src_word_granularity
         else:
             resource_file = self.target_file
             bpe_model = self._target_bpe_model
             space_word = self.target_vocabulary.space_word
+            g_level = self._tgt_word_granularity
         for line in resource_file.open():
-            if self._word_granularity == ReaderLevel.BPE:
+            if g_level == ReaderLevel.BPE:
                 yield bpe_model.segment(line)
-            elif self._word_granularity == ReaderLevel.CHAR:
+            elif g_level == ReaderLevel.CHAR:
                 yield " ".join([x for x in line.strip().replace(" ", space_word)])
             else:
                 yield line

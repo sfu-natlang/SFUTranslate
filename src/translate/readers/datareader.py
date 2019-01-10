@@ -47,14 +47,6 @@ class AbsDatasetReader(ABC):
         self._instance_buffer_size = configs.get("reader.dataset.buffer_size", must_exist=True)
         # maximum valid sentence length for the model, in case of BPE-level ~ 128, in case of word-level ~ 50-60
         self._max_valid_length = configs.get("reader.dataset.max_length", must_exist=True)
-        # word granularity can be used in the dataset reader to prepare the data in a specific format
-        granularity = configs.get("reader.dataset.granularity", default_value="WORD")
-        if granularity.lower() == "char":
-            self._word_granularity = ReaderLevel.CHAR
-        elif granularity.lower() == "bpe":
-            self._word_granularity = ReaderLevel.BPE
-        else:
-            self._word_granularity = ReaderLevel.WORD
         # the source side vocabulary data (only the container need to be filled in the classes extending the reader!)
         self.source_vocabulary = Vocab(configs)
         # the target side vocabulary data (only the container need to be filled in the classes extending the reader!)
