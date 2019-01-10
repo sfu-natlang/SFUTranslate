@@ -39,13 +39,12 @@ def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, model_estimator
       passed :param stats_collector: instance. 
     """
     dataset.allocate()
-    dev_sample = ""
-    for dev_values in get_padding_batch_loader(dataset, complete_model.batch_size):
-        dev_score, dev_loss, dev_sample = complete_model.validate_instance(*model_estimator.step_no_grad(*dev_values),
-                                                                           *dev_values)
-        stats_collector.update(dev_score, dev_loss, dataset.reader_type)
+    _sample = ""
+    for _values in get_padding_batch_loader(dataset, complete_model.batch_size):
+        _score, _loss, _sample = complete_model.validate_instance(*model_estimator.step_no_grad(*_values), *_values)
+        stats_collector.update(_score, _loss, dataset.reader_type)
     print("", end='\n', file=sys.stderr)
-    logger.info(u"Sample: {}".format(dev_sample))
+    logger.info(u"Sample: {}".format(_sample))
     dataset.deallocate()
 
 
