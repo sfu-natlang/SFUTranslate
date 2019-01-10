@@ -29,7 +29,7 @@ from typing import Dict
 
 from translate.configs.loader import ConfigLoader
 from translate.readers.constants import ReaderType, InstancePartType, ReaderLevel
-from translate.readers.datareader import AbsDatasetReader
+from translate.readers.datareader import AbsDatasetReader, DatasetStats
 from translate.configs.utils import get_dataset_file
 from translate.logging.utils import logger
 
@@ -88,6 +88,8 @@ class ParallelDataReader(AbsDatasetReader):
         target_lines_count = sum((1 for _ in self.target_file.open()))
         assert source_lines_count == target_lines_count
         self.lines_count = source_lines_count
+        self.source_stats = DatasetStats()
+        self.target_stats = DatasetStats()
 
     def get_resource_lines(self, side: ParallelSide):
         """
@@ -119,6 +121,19 @@ class ParallelDataReader(AbsDatasetReader):
         self.source = None
         self.target = None
         self._buffer = None
+        # The following lines will run only once, spitting out logs about the dataset that was just processed.
+        #  The log lines show the minimum, average and maximum line size of source and target sentences after the moment
+        #   that the end of sentence got added to them.
+        if self.source_stats is not None:
+            logger.info("{}.SOURCE stats: [MinLS: {:.2f}, AvgLS: {:.2f}, MaxLS:{:.2f}]".format(
+                self.reader_type.name, self.source_stats.min_size, self.source_stats.avg_size,
+                self.source_stats.max_size))
+            self.source_stats = None
+        if self.target_stats is not None:
+            logger.info("{}.TARGET stats: [MinLS: {:.2f}, AvgLS: {:.2f}, MaxLS:{:.2f}]".format(
+                self.reader_type.name, self.target_stats.min_size, self.target_stats.avg_size,
+                self.target_stats.max_size))
+            self.target_stats = None
 
     def __len__(self):
         return self.lines_count
@@ -173,6 +188,10 @@ class ParallelDataReader(AbsDatasetReader):
                 if self._iter_log_handler is not None:
                     self._iter_log_handler("{}: Filling Reader Buffer [rfp: {}%]".format(
                         self.reader_type.name, self.bfp))
+                if self.source_stats is not None:
+                    self.source_stats.update(src_len)
+                if self.target_stats is not None:
+                    self.target_stats.update(tgt_len)
                 self._buffer.append((src_ids, tgt_ids, src_len + tgt_len))
                 if len(self._buffer) == self._instance_buffer_size:
                     break

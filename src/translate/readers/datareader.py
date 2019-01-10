@@ -258,3 +258,35 @@ class AbsDatasetReader(ABC):
            normal sequence to sequence, ...
         """
         raise NotImplementedError
+
+
+class DatasetStats:
+    """
+    This class will collect the instance size information and can provide the maximum, minimum and average line length
+     of the dataset. The class will be mainly used for logging purposes.
+    """
+    def __init__(self):
+        self._min_size = float("inf")
+        self._max_size = 0.0
+        self.instances_count = 0.0
+        self.instances_size = 0.0
+
+    def update(self, instance_size):
+        if instance_size < self.min_size:
+            self._min_size = instance_size
+        elif instance_size > self.max_size:
+            self._max_size = instance_size
+        self.instances_size += instance_size
+        self.instances_count += 1.0
+
+    @property
+    def min_size(self):
+        return self._min_size
+
+    @property
+    def max_size(self):
+        return self._max_size
+
+    @property
+    def avg_size(self):
+        return self.instances_size / (self.instances_count + 1e-32)
