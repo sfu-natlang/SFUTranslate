@@ -102,6 +102,9 @@ reader:
         bpe_merge_size:
             src: # the expected number of merge operations if performing bpe on source side
             tgt: # the expected number of merge operations if performing bpe on target side
+        min_count:
+            src: # the minimum number of expected occurances in the source train data so that the token is not replaced with UNK token
+            tgt: # the minimum number of expected occurances in the target train data so that the token is not replaced with UNK token
     preprocess:
         dataset_directory: the path to the directory containing raw data files
         result_directory: the path to the directory to which the results are to be stored (if not existing will be created)

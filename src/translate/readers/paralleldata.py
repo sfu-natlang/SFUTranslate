@@ -82,10 +82,12 @@ class ParallelDataReader(AbsDatasetReader):
                                                                  self.target_vocabulary.bpe_separator)
             self.source_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.SOURCE), get_dataset_file(w_dir, "vocab_counts_{}".format(
-                self._src_word_granularity.name.lower()), src_lang)))
+                    self._src_word_granularity.name.lower()), src_lang),
+                        min_count=configs.get("reader.vocab.min_count.src", 1)))
             self.target_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.TARGET), get_dataset_file(w_dir, "vocab_counts_{}".format(
-                self._tgt_word_granularity.name.lower()), tgt_lang)))
+                    self._tgt_word_granularity.name.lower()), tgt_lang),
+                        min_count=configs.get("reader.vocab.min_count.tgt", 1)))
             logger.info("Source vocabulary loaded with size |F|= %d" % len(self.source_vocabulary))
             logger.info("Target vocabulary loaded with size |E|= %d" % len(self.target_vocabulary))
         self.files_opened = False

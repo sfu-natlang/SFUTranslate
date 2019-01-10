@@ -29,6 +29,9 @@ reader:
         bpe_merge_size:
             src: 30000
             tgt: 30000
+        min_count:
+            src: 2
+            tgt: 2
     preprocess:
         dataset_directory: ../../../resources/iwslt_de_en
         result_directory: ../../../resources/iwslt_de_en/merge_lower_tokenized
