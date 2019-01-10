@@ -61,6 +61,9 @@ trainer:
         epochs: 15
         save_best_models: true
         early_stopping_loss: 0.01 # if the model reaches a loss below this value, the training will not continue anymore
+        scheduler:
+            name: cosine # possible values [cosine]
+            eta_min: 1e-5
         ####### transformer configurations
         warmup_steps: 400
         lr_update_factor: 1

@@ -3,12 +3,13 @@ Provides dummy datasets for proof-of-concept tasks in NLP (e.g. reverse copy for
  sequences generated using a simple Grammer). For further information please read through the docstrings in each class.
 """
 import string
-from random import randint, choice, shuffle
-from typing import Callable, Dict
+from random import randint, choice
+from typing import Dict
 
 from translate.configs.loader import ConfigLoader
 from translate.readers.constants import ReaderType, InstancePartType
 from translate.readers.datareader import AbsDatasetReader
+from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
 
@@ -61,6 +62,8 @@ class ReverseCopyDataset(AbsDatasetReader):
             vocab = [x + "," + y for x in tmp for y in tmp if x != y][:vocab_size]
             self.source_vocabulary.set_types(vocab)
             self.target_vocabulary.set_types(vocab)
+            logger.info("Reader maximum valid input length: {}".format(self.max_length))
+            logger.info("Vocabulary loaded with size = %d" % len(self.source_vocabulary))
         if self.max_samples > 1:
             self.pairs = [self._get_next_pair() for _ in range(self.max_samples)]
         else:

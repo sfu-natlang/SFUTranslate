@@ -41,6 +41,16 @@ def create_optimizer(optimizer_name, unfiltered_params, lr, warmup_wrapper_neede
         return OptimizerWrapperWithWarmUpSteps(configs, optim)
 
 
+def create_scheduler(optimizer, configs):
+    scheduler_name = configs.get("trainer.optimizer.scheduler.name", must_exist=True)
+    if scheduler_name.lower() == "cosine":
+        n_epochs = configs.get("trainer.optimizer.epochs", must_exist=True)
+        eta_min = float(configs.get("trainer.optimizer.scheduler.eta_min", must_exist=True))
+        return backend.optim.lr_scheduler.CosineAnnealingLR(optimizer, n_epochs, eta_min)
+    else:
+        raise NotImplementedError
+
+
 class StatCollector:
     """
     The loss, score, and result size container, used for storing the run stats of the training/testing iterations
@@ -181,6 +191,16 @@ class Estimator:
             len(model.optimizable_params_list()), self.optim_name.upper()))
         self.optimizers = [create_optimizer(self.optim_name, x, self.learning_rate, warmup_needed, configs)
                            for x in model.optimizable_params_list()]
+        if configs.get("trainer.optimizer.scheduler", None) is not None and not warmup_needed:
+            self.schedulers = [create_scheduler(opt, configs) for opt in self.optimizers]
+        else:
+            self.schedulers = []
+
+    def step_schedulers(self):
+        if len(self.schedulers):
+            logger.info("Updating the learning rates through scheduler ...")
+        for scheduler in self.schedulers:
+            scheduler.step()
 
     def step(self, *args, **kwargs) -> Tuple[float, List[List[int]]]:
         """

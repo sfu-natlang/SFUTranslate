@@ -134,6 +134,9 @@ trainer:
         epochs: number of training epochs
         save_best_models: the feature of saving best found models while training (best based on train/dev loss) can be turned on/off using this feature
         early_stopping_loss: if the model reaches a loss below this value, the training will not continue anymore
+        scheduler:
+            name: possible values [cosine]
+            eta_min: the lowest learninig rate value which the scheduler is allowed to decay the learning rate into
         ####### transformer configurations
         warmup_steps: number of warmup steps before reaching the maxmimum learning rate 
         lr_update_factor: the lr factor suggested in "attention is all you need" paper

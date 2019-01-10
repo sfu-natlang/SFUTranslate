@@ -25,7 +25,7 @@ reader:
 """
 from enum import Enum
 from random import shuffle
-from typing import Callable, Dict
+from typing import Dict
 
 from translate.configs.loader import ConfigLoader
 from translate.readers.constants import ReaderType, InstancePartType, ReaderLevel
