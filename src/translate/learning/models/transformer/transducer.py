@@ -106,7 +106,17 @@ class Transformer(AbsCompleteModel):
         :param args: contains the Transformer style mask tensors (as the last two indices of the args list)
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
-        hyp_ids_list = self.greedy_decode(input_id_list, args[-2], self.max_length)[:, 1:].cpu().tolist()
+        hyp_ids_list = []
+        hyp_ids_tensor = self.greedy_decode(input_id_list, args[-2], self.max_length)[:, 1:]
+        for sentence_index in range(hyp_ids_tensor.size(0)):
+            sent = []
+            for word in hyp_ids_tensor[sentence_index]:
+                word = word.item()
+                if word != self.pad_token_id:
+                    sent.append(word)
+                if word == self.eos_token_id:
+                    break
+            hyp_ids_list.append(sent)
         bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list[:, 1:], hyp_ids_list,
                                                                        ref_is_tensor=True)
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
