@@ -80,16 +80,18 @@ class ParallelDataReader(AbsDatasetReader):
 
                 self._target_bpe_model = self.retrieve_bpe_model(self.target_file, tgt_merge_size,
                                                                  self.target_vocabulary.bpe_separator)
+            min_count_src = configs.get("reader.vocab.min_count.src", 1)
+            min_count_tgt = configs.get("reader.vocab.min_count.tgt", 1)
             self.source_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.SOURCE), get_dataset_file(w_dir, "vocab_counts_{}".format(
-                    self._src_word_granularity.name.lower()), src_lang),
-                        min_count=configs.get("reader.vocab.min_count.src", 1)))
+                    self._src_word_granularity.name.lower()), src_lang), min_count=min_count_src))
             self.target_vocabulary.set_types(self.load_vocab_counts(self.get_resource_lines(
                 ParallelSide.TARGET), get_dataset_file(w_dir, "vocab_counts_{}".format(
-                    self._tgt_word_granularity.name.lower()), tgt_lang),
-                        min_count=configs.get("reader.vocab.min_count.tgt", 1)))
-            logger.info("Source vocabulary loaded with size |F|= %d" % len(self.source_vocabulary))
-            logger.info("Target vocabulary loaded with size |E|= %d" % len(self.target_vocabulary))
+                    self._tgt_word_granularity.name.lower()), tgt_lang), min_count=min_count_tgt))
+            logger.info("Source vocabulary loaded with size |F|= %d (min word count=%d)" % (
+                len(self.source_vocabulary), min_count_src))
+            logger.info("Target vocabulary loaded with size |E|= %d (min word count=%d)" % (
+                len(self.target_vocabulary), min_count_tgt))
         self.files_opened = False
         self.source = None
         self.target = None
