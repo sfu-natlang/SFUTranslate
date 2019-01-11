@@ -105,8 +105,8 @@ class ParallelDataReader(AbsDatasetReader):
 
     def get_resource_lines(self, side: ParallelSide):
         """
-        The method which goes through the source resource(s) and pre-processes them considering the granularity and
-         returns the pre-processed lines
+        The method which goes through the source/target resource(s) and pre-processes them considering
+         the granularity and returns the pre-processed lines
         """
         if side == ParallelSide.SOURCE:
             resource_file = self.source_file
