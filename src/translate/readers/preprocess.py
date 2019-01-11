@@ -85,10 +85,10 @@ class Preprocess:
             "train.tags*.%s" % self.src_lang.name))
         tgt_train_files = self._access_text_file_lines(self.dataset_directory.rglob(
             "train.tags*.%s" % self.tgt_lang.name))
-        src_dev_files = self._access_xml_seg_tags(self.dataset_directory.rglob("*.dev*.%s.xml" % self.src_lang.name))
-        tgt_dev_files = self._access_xml_seg_tags(self.dataset_directory.rglob("*.dev*.%s.xml" % self.tgt_lang.name))
-        src_test_files = self._access_xml_seg_tags(self.dataset_directory.rglob("*.tst*.%s.xml" % self.src_lang.name))
-        tgt_test_files = self._access_xml_seg_tags(self.dataset_directory.rglob("*.tst*.%s.xml" % self.tgt_lang.name))
+        src_dev_files = self._access_xml_seg_tags(sorted(self.dataset_directory.rglob("*.dev*.%s.xml" % self.src_lang.name)))
+        tgt_dev_files = self._access_xml_seg_tags(sorted(self.dataset_directory.rglob("*.dev*.%s.xml" % self.tgt_lang.name)))
+        src_test_files = self._access_xml_seg_tags(sorted(self.dataset_directory.rglob("*.tst*.%s.xml" % self.src_lang.name)))
+        tgt_test_files = self._access_xml_seg_tags(sorted(self.dataset_directory.rglob("*.tst*.%s.xml" % self.tgt_lang.name)))
 
         self._preprocess_store_stream_of_lines(src_train_files,
                                                self.result_directory / "train.{}".format(self.src_lang.name),
