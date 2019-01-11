@@ -91,9 +91,7 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError
     estimator = Estimator(opts, model)
-    stat_collector = StatCollector()
-    # the value which is used for performing the dev set evaluation steps
-    print_every = math.ceil(0.25 * int(math.ceil(float(len(train) / float(model.batch_size)))))
+    stat_collector = StatCollector(len(train), model.batch_size)
     best_saved_model_path = opts.get("trainer.model.best_model_path", None)
     early_stopping = False
     if epochs > 0:
@@ -108,7 +106,7 @@ if __name__ == '__main__':
         if early_stopping:
             logger.info("Early stopping criteria fulfilled, stopping the training ...")
             break
-        iter_ = 0
+        stat_collector.zero_step()
         logger.info("Epoch {}/{} begins ...".format(epoch + 1, epochs))
         train.allocate()
         itr_handler = tqdm(get_padding_batch_loader(train, model.batch_size), ncols=100,
@@ -116,13 +114,13 @@ if __name__ == '__main__':
         train.set_iter_log_handler(itr_handler.set_description)
         # dev.set_iter_log_handler(itr_handler.set_description)
         for train_batch in itr_handler:
-            iter_ += 1
+            stat_collector.step()
             loss_value, decoded_word_ids = estimator.step(*train_batch)
             stat_collector.update(1.0, loss_value, train.reader_type)
             itr_handler.set_description("[E {}/{}]-[B {}]-[TL {:.3f} DL {:.3f} DS {:.3f}]-#Batches Processed"
                                         .format(epoch + 1, epochs, model.batch_size, stat_collector.train_loss,
                                                 stat_collector.dev_loss, stat_collector.dev_score))
-            if iter_ % print_every == 0:
+            if stat_collector.validation_required():
                 perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
                 if stat_collector.improved_recently() and save_best_models:
                     best_saved_model_path = estimator.save_checkpoint(stat_collector)

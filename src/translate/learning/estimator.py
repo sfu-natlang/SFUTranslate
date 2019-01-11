@@ -3,6 +3,7 @@ Provides the optimizer creation, loss computation, back-propagation, and scoring
  on the input batches for structured prediction training tasks in which the input is composed of at least two sequences
 """
 import os
+import math
 from typing import Tuple, List, Type
 
 from translate.backend.utils import backend
@@ -41,12 +42,15 @@ def create_optimizer(optimizer_name, unfiltered_params, lr, warmup_wrapper_neede
         return OptimizerWrapperWithWarmUpSteps(configs, optim)
 
 
-def create_scheduler(optimizer, configs):
-    scheduler_name = configs.get("trainer.optimizer.scheduler.name", must_exist=True)
+def create_scheduler(scheduler_name, optimizer, configs):
     if scheduler_name.lower() == "cosine":
         n_epochs = configs.get("trainer.optimizer.epochs", must_exist=True)
         eta_min = float(configs.get("trainer.optimizer.scheduler.eta_min", must_exist=True))
         return backend.optim.lr_scheduler.CosineAnnealingLR(optimizer, n_epochs, eta_min)
+    elif scheduler_name.lower() == "step":
+        step_size = configs.get("trainer.optimizer.scheduler.step_size", must_exist=True)
+        gamma = float(configs.get("trainer.optimizer.scheduler.gamma", must_exist=True))
+        return backend.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
     else:
         raise NotImplementedError
 
@@ -56,7 +60,7 @@ class StatCollector:
     The loss, score, and result size container, used for storing the run stats of the training/testing iterations
     """
 
-    def __init__(self):
+    def __init__(self, train_size, model_batch_size):
         self._eps = 7. / 3. - 4. / 3. - 1.
         self._test_total = 0.0
         self._test_score = 0.0
@@ -71,6 +75,21 @@ class StatCollector:
         self._best_train_loss = float('+inf')
         self._best_dev_loss = float('+inf')
         self.global_step = 0.0
+
+        # the value which is used for performing the dev set evaluation steps
+        self._trainset_size = train_size
+        self._training_batch_size = model_batch_size
+        self._print_every = math.ceil(0.25 * int(math.ceil(float(train_size) / float(model_batch_size))))
+        self._train_iter_step = 0.0
+
+    def zero_step(self):
+        self._train_iter_step = 0.0
+
+    def step(self):
+        self._train_iter_step += 1.0
+
+    def validation_required(self):
+        return self._train_iter_step % self._print_every == 0
 
     @property
     def test_score(self) -> float:
@@ -192,13 +211,15 @@ class Estimator:
         self.optimizers = [create_optimizer(self.optim_name, x, self.learning_rate, warmup_needed, configs)
                            for x in model.optimizable_params_list()]
         if configs.get("trainer.optimizer.scheduler", None) is not None and not warmup_needed:
-            self.schedulers = [create_scheduler(opt, configs) for opt in self.optimizers]
+            self.scheduler_name = configs.get("trainer.optimizer.scheduler.name", must_exist=True)
+            self.schedulers = [create_scheduler(self.scheduler_name, opt, configs) for opt in self.optimizers]
         else:
+            self.scheduler_name = None
             self.schedulers = []
 
     def step_schedulers(self):
         if len(self.schedulers):
-            logger.info("Updating the learning rates through scheduler ...")
+            logger.info("Updating the learning rates through {} scheduler ...".format(self.scheduler_name))
         for scheduler in self.schedulers:
             scheduler.step()
 

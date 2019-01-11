@@ -67,8 +67,10 @@ trainer:
         save_best_models: true
         early_stopping_loss: 0.01 # if the model reaches a loss below this value, the training will not continue anymore
         scheduler:
-            name: cosine # possible values [cosine]
-            eta_min: 1e-5
+            name: cosine # possible values [cosine | step]
+            eta_min: 1e-5 # used for "cosine" scheduler
+            step_size: 5 # used for "step" scheduler
+            gamma: 0.5 # used for "step" scheduler
         ####### transformer configurations
         warmup_steps: 400
         lr_update_factor: 1
