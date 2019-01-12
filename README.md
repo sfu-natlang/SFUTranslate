@@ -73,7 +73,7 @@ that are essential to your task you will face the error `The configuration value
 ```yamlex
 reader:
     dataset:
-        type: possible values [parallel | dummy_parallel | dummy_lm]
+        type: possible values [mono | parallel | dummy_parallel | dummy_lm]
         buffer_size: the reader will read this many lines from the text files and bufferes them before returning each
         max_length: for word-level it's better to be around 50-60, for bpe level around 128
         source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]

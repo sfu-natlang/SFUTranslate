@@ -1,6 +1,6 @@
 reader:
     dataset:
-        type: dummy_parallel # possible values [parallel | dummy_parallel | dummy_lm]
+        type: dummy_parallel # possible values [parallel | dummy_parallel | dummy_lm | mono]
         buffer_size: 1000
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
         source_lang: fr

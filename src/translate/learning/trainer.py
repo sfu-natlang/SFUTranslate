@@ -25,6 +25,7 @@ from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
 from translate.readers.datawrapper import TransformerReaderWrapper
 from translate.readers.paralleldata import ParallelDataReader
+from translate.readers.monolingualdata import MonolingualDataReader
 from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDataset
 from translate.logging.utils import logger
 
@@ -77,6 +78,8 @@ if __name__ == '__main__':
         train, test, dev = prepare_datasets(opts, SimpleGrammerLMDataset)
     elif dataset_type == "parallel":
         train, test, dev = prepare_datasets(opts, ParallelDataReader)
+    elif dataset_type == "mono":
+        train, test, dev = prepare_datasets(opts, MonolingualDataReader)
     else:
         raise NotImplementedError
 
