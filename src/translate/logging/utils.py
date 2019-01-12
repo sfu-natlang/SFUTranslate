@@ -5,7 +5,7 @@ import logging
 
 __author__ = "Hassan S. Shavarani"
 
-logger = logging.getLogger('NatlangMT')
+logger = logging.getLogger('SFUTranslate')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
