@@ -153,6 +153,19 @@ trainer:
         name: the experiment name which will be used when saving the best models
 ```
 
+# Experiment Results
+In this section, we put the experiment results of different models on different datasets. Please check this page regularly as we add our new results below the previously posted ones.
+ If you are in Natlang Lab or have access to internal SFU servers, you can pick the pre-trained models the result of which is posted here from `/cs/natlang-expts/hassan/SFUTranslate/pretrained/`.
+ Each experiment will have a model file (ending in ".pt") in there with the exact same name mentioned in the table below.
+ The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
+  The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
+
+|     Experiment Name     |    Model    |     Task    |  Dataset  |    Language    | Greedy Decoding Test Score | Beam Search Test Score |
+|:-----------------------:|:-----------:|:-----------:|:---------:|:--------------:|:--------------------------:|:----------------------:|
+| [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml) | Transformer | Translation | IWSLT2017 | German2English |           23.052           |            -           |
+|            -            |             |             |     -     |        -       |              -             |            -           |
+|                         |             |             |           |                |                            |                        |
+
 # Requirements and Dependencies
 In this section we go over the required libraries and how the project is dependant on each so that in case of the need 
 to change (or remove) any of them, you know how and where to look for them.
@@ -188,7 +201,13 @@ python -m spacy download nl
 `translate.readers.datareader` class for providing the Byte-Pair level granularity.
 
 - Utility libraries \[`tqdm` and `abc` and `xml`\] the libraries that provide simple utility functionalities.
+
  
+# FAQ
+
+1. **What should I do if the `dev` score is going up but my `test` score is low?**  
+check the test set files and make sure they are parallel in every line. If that is not the problem, you might have a vocabulary problem. If the distribution of the words in train and dev sets are closer but far away from the test set, the number of unknown words in the test set might go up, which immediately results in really low scores.  
+Also try filtering out the non-frequent words in the train set to help model learn to deal with the unknown words (you can set the `reader.vocab.min_count` parameters to values grater than 1 to filter the less frequent words based on their train set frequency).
 
 # Help and Comments
 If you need help regarding the toolkit or you want to discuss your comments, you are more than welcome to email [Hassan S.Shavarani](sshavara@sfu.ca).
