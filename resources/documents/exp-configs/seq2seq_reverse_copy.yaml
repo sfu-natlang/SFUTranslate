@@ -5,7 +5,7 @@
 reader:
     dataset:
         type: dummy_parallel
-        buffer_size: 10000
+        buffer_size: 1000
         max_length: 50
         dummy:
             min_len: 10
@@ -18,32 +18,27 @@ reader:
         bos_word: '<s>'
         eos_word: '</s>'
         pad_word: '<pad>'
-        pad_word: '<pad>'
         unk_word: '<unk>'
         space_word: '<space>'
         bpe_separator: '@@'
 trainer:
     model:
-        type: transformer
+        type: seq2seq
         bsize: 64
         init_val: 0.1
         best_model_path: null
-        N: 2
-        d_model: 512
-        d_ff: 2048
-        h: 8
-        dropout: 0.1
-        smoothing: 0.1
+        tfr: 1.001
+        bienc: true
+        hsize: 256
+        nelayers: 1
+        ndlayers: 1
+        ddropout: 0.1
     optimizer:
         name: adam
-        lr: 0.0
-        gcn: 0
+        lr: 1e-3
+        gcn: 5
         epochs: 30
         save_best_models: true
         early_stopping_loss: 0.01
-        warmup_steps: 500
-        lr_update_factor: 1
-        needs_warmup: true
-        d_model: 512
     experiment:
-        name: transformer_reverse_copy
+        name: seq2seq_reverse_copy
