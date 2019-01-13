@@ -162,8 +162,8 @@ In this section, we put the experiment results of different models on different 
 
 |     Experiment Name     |    Model    |     Task    |  Dataset  |    Language    | Greedy Decoding Test Score | More Info |
 |:-----------------------:|:-----------:|:-----------:|:---------:|:--------------:|:--------------------------:|:----------------------:|
-| [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml) | Seq2Seq | SequenceCopy | ReverseCopy | ReverseCopy |           99.703           |        |V| = 1K       |
-| [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) | Transformer | SequenceCopy | ReverseCopy | ReverseCopy |           99.862           |        |V| = 1K       |
+| [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml) | Seq2Seq | SequenceCopy | ReverseCopy | ReverseCopy |           99.703           |        \|V\| = 1K       |
+| [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) | Transformer | SequenceCopy | ReverseCopy | ReverseCopy |           99.862           |        \|V\| = 1K       |
 | [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml) | Transformer | Translation | IWSLT2017 | German2English |           23.052           | lowercased - tokenized with SpaCy |
 |            -            |             |             |     -     |        -       |              -             |            -           |
 |                         |             |             |           |                |                            |                        |
