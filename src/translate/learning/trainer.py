@@ -124,6 +124,7 @@ if __name__ == '__main__':
                                         .format(epoch + 1, epochs, model.batch_size, stat_collector.train_loss,
                                                 stat_collector.dev_loss, stat_collector.dev_score))
             if stat_collector.validation_required():
+                stat_collector.reset(dev.reader_type)
                 perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
                 if stat_collector.improved_recently() and save_best_models:
                     best_saved_model_path = estimator.save_checkpoint(stat_collector)
@@ -136,6 +137,8 @@ if __name__ == '__main__':
     if best_saved_model_path is not None:
         logger.info("Loading the best checkpoint from \"{}\" for evaluation".format(best_saved_model_path))
         model = estimator.load_checkpoint(best_saved_model_path)
+        stat_collector.reset(dev.reader_type)
+        stat_collector.reset(test.reader_type)
         perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
         print("Validation Results => Loss: {:.3f}\tScore: {:.3f}".format(
             stat_collector.dev_loss, stat_collector.dev_score))

@@ -84,6 +84,9 @@ class StatCollector:
 
     def zero_step(self):
         self._train_iter_step = 0.0
+        self._train_score = 0.0
+        self._train_loss = 0.0
+        self._train_total = 0.0
 
     def step(self):
         self._train_iter_step += 1.0
@@ -128,6 +131,22 @@ class StatCollector:
             self._dev_score += score
             self._dev_loss += loss
             self._dev_total += 1.0
+        else:
+            raise NotImplementedError
+
+    def reset(self, stat_type: ReaderType):
+        if stat_type == ReaderType.TRAIN:
+            self._train_score = 0.0
+            self._train_loss = 0.0
+            self._train_total = 0.0
+        elif stat_type == ReaderType.TEST:
+            self._test_score = 0.0
+            self._test_loss = 0.0
+            self._test_total = 0.0
+        elif stat_type == ReaderType.DEV:
+            self._dev_score = 0.0
+            self._dev_loss = 0.0
+            self._dev_total = 0.0
         else:
             raise NotImplementedError
 
