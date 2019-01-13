@@ -1,0 +1,50 @@
+# To run this experiment, you need to
+#     0. put this file in /path/to/SFUTranslate/resources directory
+#     1. run "cd /path/to/SFUTranslate/src && python -m translate.learning.trainer  <name of this file placed in the resources directory>"
+#     5. The test Bleu score of the test set is expected to be above 99 and the test loss should be around 0.01
+
+reader:
+    dataset:
+        type: dummy_parallel
+        buffer_size: 10000
+        max_length: 50
+        dummy:
+            min_len: 10
+            max_len: 50
+            vocab_size: 1000
+            train_samples: 40000
+            test_samples: 1000
+            dev_samples: 100
+    vocab:
+        bos_word: '<s>'
+        eos_word: '</s>'
+        pad_word: '<pad>'
+        pad_word: '<pad>'
+        unk_word: '<unk>'
+        space_word: '<space>'
+        bpe_separator: '@@'
+trainer:
+    model:
+        type: transformer
+        bsize: 64
+        init_val: 0.1
+        best_model_path: null
+        N: 2
+        d_model: 512
+        d_ff: 2048
+        h: 8
+        dropout: 0.1
+        smoothing: 0.1
+    optimizer:
+        name: adam
+        lr: 0.0
+        gcn: 0
+        epochs: 30
+        save_best_models: true
+        early_stopping_loss: 0.01
+        warmup_steps: 500
+        lr_update_factor: 1
+        needs_warmup: true
+        d_model: 512
+    experiment:
+        name: transformer_reverse_copy

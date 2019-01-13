@@ -162,6 +162,7 @@ In this section, we put the experiment results of different models on different 
 
 |     Experiment Name     |    Model    |     Task    |  Dataset  |    Language    | Greedy Decoding Test Score | Beam Search Test Score |
 |:-----------------------:|:-----------:|:-----------:|:---------:|:--------------:|:--------------------------:|:----------------------:|
+| [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) | Transformer | Translation | ReverseCopy | ReverseCopy |           99.862           |            -           |
 | [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml) | Transformer | Translation | IWSLT2017 | German2English |           23.052           |            -           |
 |            -            |             |             |     -     |        -       |              -             |            -           |
 |                         |             |             |           |                |                            |                        |
