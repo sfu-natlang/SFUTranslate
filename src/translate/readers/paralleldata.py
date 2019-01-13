@@ -102,6 +102,7 @@ class ParallelDataReader(AbsDatasetReader):
         self.lines_count = source_lines_count
         self.source_stats = DatasetStats()
         self.target_stats = DatasetStats()
+        logger.info("Parallel data lines in {}: {}".format(self.reader_type.name, self.lines_count))
 
     def get_resource_lines(self, side: ParallelSide):
         """
