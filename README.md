@@ -160,14 +160,13 @@ In this section, we put the experiment results of different models on different 
  The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
   The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
 
-|     Experiment Name     |    Model    |     Task    |  Dataset  |    Language    | Greedy Decoding Test Score | More Info |
-|:-----------------------:|:-----------:|:-----------:|:---------:|:--------------:|:--------------------------:|:----------------------:|
-| [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml) | Seq2Seq | SequenceCopy | ReverseCopy | ReverseCopy |           99.703           |        \|V\| = 1K; \|MaxLen\| = 50       |
-| [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) | Transformer | SequenceCopy | ReverseCopy | ReverseCopy |           99.862           |        \|V\| = 1K; \|MaxLen\| = 50        |
-| [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml) | Seq2Seq | Translation | IWSLT2017 | German2English |           16.774           | lowercased - tokenized with SpaCy; \|MaxLen\| = 100 |
-| [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml) | Transformer | Translation | IWSLT2017 | German2English |           23.052           | lowercased - tokenized with SpaCy; \|MaxLen\| = 100 |
-|            -            |             |             |     -     |        -       |              -             |            -           |
-|                         |             |             |           |                |                            |                        |
+|                                      Experiment Name                                      	|    Model    	|     Task     	|   Dataset   	|    Language    	| Greedy Decoding Test Score 	|                      More Info                      	|
+|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
+|     [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml)     	|   Seq2Seq   	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.703           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
+| [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) 	| Transformer 	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.862           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
+|         [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017  	| German2English 	|           16.774           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
+|     [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml)     	| Transformer 	|  Translation 	|  IWSLT2017  	| German2English 	|           23.052           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
+
 
 # Requirements and Dependencies
 In this section we go over the required libraries and how the project is dependant on each so that in case of the need 
