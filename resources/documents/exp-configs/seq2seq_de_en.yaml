@@ -7,10 +7,8 @@
 #         "cd /path/to/SFUTranslate/src && python -m translate.learning.trainer  <name of this file placed in the resources directory>"
 #     5. The test Bleu score of the test set containing test201[0-5] is expected to be higher than 20 (we got 23.052) and the test loss should be below (2.000)
 
-# You can download our pre-trained model from /cs/natlang-expts/hassan/SFUTranslate/pretrained/transformer_iwslt_de_en.pt
+# You can download our pre-trained model from /cs/natlang-expts/hassan/SFUTranslate/pretrained/sts_iwslt_de_en.pt
 
-# checkpoints/sts_iwslt_de_en_acc_16.22_loss_2.50_step_51.pt
-# Test score
 reader:
     dataset:
         type: parallel
