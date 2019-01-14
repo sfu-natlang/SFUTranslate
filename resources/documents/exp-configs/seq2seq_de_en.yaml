@@ -5,7 +5,7 @@
 #     3. run "cd /path/to/SFUTranslate/src && python -m translate.reader.preprocess <name of this file placed in the resources directory>"
 #     4. once the pre-processed data is ready in resources directory, you may run:
 #         "cd /path/to/SFUTranslate/src && python -m translate.learning.trainer  <name of this file placed in the resources directory>"
-#     5. The test Bleu score of the test set containing test201[0-5] is expected to be higher than 16 (we got 23.052) and the test loss should be below (2.300)
+#     5. The test Bleu score of the test set containing test201[0-5] is expected to be higher than 15 (we got 16.774) and the test loss should be below (2.300)
 
 # You can download our pre-trained model from /cs/natlang-expts/hassan/SFUTranslate/pretrained/sts_iwslt_de_en.pt
 
