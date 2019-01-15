@@ -1,5 +1,5 @@
-__package__ = "translate.learning.models"
-__all__ = ["cnn", "rnn", "transformer"]
+__package__ = "translate.learning.models.cnn"
+__all__ = ["cnntranslate"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2018, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]
