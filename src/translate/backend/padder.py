@@ -134,37 +134,5 @@ class PadCollate:
                 result = *result, res
         return result
 
-    def pad_collate_deprecated(self, batch) -> Tuple:
-        """
-        the function to perform the padding + batching + conversion of final resulting batch to a tensor
-        :param batch: a batch of Tuples of inputs
-         every single input Tuple can contain a number of list (tensors) of ids
-        """
-        # find longest sequence
-        batch_elements_size = len(batch[0])
-        max_len_f = max(map(lambda x: self.get_item_length(x[0]), batch))
-        # pad according to max_len
-        if batch_elements_size == 1:
-            batch = map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f)), batch)
-            res_f = backend.stack([x for x in batch], dim=0)
-            return res_f,
-        elif batch_elements_size == 2:
-            max_len_e = max(map(lambda x: self.get_item_length(x[1]), batch))
-            batch = [item for item in map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
-                                                     _pad_transform_id_list(p[1], max_len_e, self.pad_index_e)), batch)]
-            res_f = backend.stack([x for x in map(lambda x: x[0], batch)], dim=0)
-            res_e = backend.stack([x for x in map(lambda x: x[1], batch)], dim=0)
-            return res_f, res_e
-        elif batch_elements_size == 3:
-            max_len_e = max(map(lambda x: self.get_item_length(x[1]), batch))
-            max_len_g = max(map(lambda x: self.get_item_length(x[2]), batch))
-            batch = [item for item in map(lambda p: (_pad_transform_id_list(p[0], max_len_f, self.pad_index_f),
-                                                     _pad_transform_id_list(p[1], max_len_e, self.pad_index_e),
-                                                     _pad_transform_embedding_matrix(p[2], max_len_g)), batch)]
-            res_f = backend.stack([x for x in map(lambda x: x[0], batch)], dim=0)
-            res_e = backend.stack([x for x in map(lambda x: x[1], batch)], dim=0)
-            res_g = backend.stack([x for x in map(lambda x: x[2], batch)], dim=0)
-            return res_f, res_e, res_g
-
     def __call__(self, batch):
         return self.pad_collate(batch)
