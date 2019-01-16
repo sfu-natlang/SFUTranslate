@@ -16,6 +16,7 @@ from translate.configs.loader import ConfigLoader
 from translate.configs.utils import get_resource_file
 from translate.learning.estimator import Estimator, StatCollector
 from translate.learning.modelling import AbsCompleteModel
+from translate.learning.models.cnn.cnntranslate import ByteNet
 from translate.learning.models.rnn.lm import RNNLM
 from translate.learning.models.rnn.seq2seq import SequenceToSequence
 from translate.learning.models.transformer.transducer import Transformer
@@ -87,6 +88,8 @@ if __name__ == '__main__':
         model = SequenceToSequence(opts, train).to(device)
     elif model_type == "rnnlm":
         model = RNNLM(opts, train).to(device)
+    elif model_type == "bytenet":
+        model = ByteNet(opts, train).to(device)
     elif model_type == "transformer":
         train, test, dev = TransformerReaderWrapper(train), TransformerReaderWrapper(test), TransformerReaderWrapper(
             dev)
