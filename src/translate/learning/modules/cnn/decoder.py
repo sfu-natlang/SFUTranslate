@@ -2,7 +2,7 @@ from translate.backend.utils import backend
 from translate.learning.modules.cnn.utils import ResBlockSet
 
 
-class BytenetDecoder(backend.nn.Module):
+class CharCNNDecoder(backend.nn.Module):
     """
         d = hidden units
         max_r = maximum dilation rate (paper default: 16)
@@ -13,7 +13,7 @@ class BytenetDecoder(backend.nn.Module):
 
     def __init__(self, d=512, max_r=16, k=3, num_sets=6, num_classes=205,
                  reduce_out=None, use_logsm=True):
-        super(BytenetDecoder, self).__init__()
+        super(CharCNNDecoder, self).__init__()
         self.max_r = max_r
         self.k = k
         self.d = d

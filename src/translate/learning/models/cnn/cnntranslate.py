@@ -16,14 +16,13 @@ trainer:
         k: 3 # kernel size
 ##################################################
 """
-import random
 from typing import List, Any, Tuple
 
-from translate.backend.utils import backend, zeros_tensor, Variable, list_to_long_tensor, long_tensor
+from translate.backend.utils import backend
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
-from translate.learning.modules.cnn.decoder import BytenetDecoder
-from translate.learning.modules.cnn.encoder import BytenetEncoder
+from translate.learning.modules.cnn.decoder import CharCNNDecoder
+from translate.learning.modules.cnn.encoder import CharCNNEncoder
 from translate.readers.datareader import AbsDatasetReader
 from translate.logging.utils import logger
 
@@ -38,7 +37,8 @@ class ByteNet(AbsCompleteModel):
         :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
          model configuration
         """
-        super(ByteNet, self).__init__(backend.nn.CrossEntropyLoss(size_average=True))  # ignore_index=padding_index
+        super(ByteNet, self).__init__(backend.nn.CrossEntropyLoss(reduction='elementwise_mean'))
+        # ignore_index=padding_index
         self.dataset = train_dataset
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
         init_val = configs.get("trainer.model.init_val", 0.01)
@@ -53,8 +53,8 @@ class ByteNet(AbsCompleteModel):
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
         self.use_cuda = backend.cuda.is_available()
 
-        self.encoder = BytenetEncoder(input_features // 2, max_r, k, num_sets)
-        self.decoder = BytenetDecoder(input_features // 2, max_r, k, num_sets,
+        self.encoder = CharCNNEncoder(input_features // 2, max_r, k, num_sets)
+        self.decoder = CharCNNDecoder(input_features // 2, max_r, k, num_sets,
                                       len(train_dataset.target_vocabulary), use_logsm=False)
 
         logger.info("Randomly initiating model variables in the range [-{0}, {0}]".format(init_val))
@@ -64,9 +64,9 @@ class ByteNet(AbsCompleteModel):
 
     def forward(self, input_tensor: backend.Tensor, target_tensor: backend.Tensor, *args, **kwargs) \
             -> Tuple[backend.Tensor, int, List[Any]]:
-        out = self.decoder(self.encoder(input_tensor.unsqueeze(1)))
+        out = self.decoder(self.encoder(input_tensor.unsqueeze(1).float()))
         loss = self.criterion(out, target_tensor)
-        return loss, input_tensor.size(-1), []
+        return loss, (input_tensor != self.pad_token_id).sum(), []
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters()]
@@ -84,7 +84,7 @@ class ByteNet(AbsCompleteModel):
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
         hyp_ids_list = []
-        hyp_ids_tensor = self.decoder(self.encoder(input_id_list.unsqueeze(1))).argmax(dim=1)
+        hyp_ids_tensor = self.decoder(self.encoder(input_id_list.unsqueeze(1).float())).argmax(dim=1)
         for sentence_index in range(hyp_ids_tensor.size(0)):
             sent = []
             for word in hyp_ids_tensor[sentence_index]:
