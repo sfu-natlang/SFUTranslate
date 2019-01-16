@@ -50,7 +50,8 @@ class ByteNet(AbsCompleteModel):
         self.max_length = train_dataset.max_sentence_length()
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
-        self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
+        self.tgt_pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
+        self.src_pad_token_id = train_dataset.source_vocabulary.get_pad_word_index()
         self.use_cuda = backend.cuda.is_available()
 
         self.encoder = CharCNNEncoder(input_features // 2, max_r, k, num_sets)
@@ -64,9 +65,10 @@ class ByteNet(AbsCompleteModel):
 
     def forward(self, input_tensor: backend.Tensor, target_tensor: backend.Tensor, *args, **kwargs) \
             -> Tuple[backend.Tensor, int, List[Any]]:
+        input_tensor, target_tensor = self.equalize_tensor_lengths(input_tensor, target_tensor)
         out = self.decoder(self.encoder(input_tensor.unsqueeze(1).float()))
         loss = self.criterion(out, target_tensor)
-        return loss, (input_tensor != self.pad_token_id).sum().item(), []
+        return loss, (input_tensor != self.tgt_pad_token_id).sum().item(), []
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters()]
@@ -89,7 +91,7 @@ class ByteNet(AbsCompleteModel):
             sent = []
             for word in hyp_ids_tensor[sentence_index]:
                 word = word.item()
-                if word != self.pad_token_id:
+                if word != self.tgt_pad_token_id:
                     sent.append(word)
                 if word == self.eos_token_id:
                     break
@@ -100,3 +102,22 @@ class ByteNet(AbsCompleteModel):
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, prediction_loss, result_sample
 
+    def equalize_tensor_lengths(self, input_tensor: backend.Tensor, target_tensor: backend.Tensor) \
+            -> Tuple[backend.Tensor, backend.Tensor]:
+        """
+        The output of the bytenet is of the same size as the :param input_tensor: while the loss is calculated on
+         the :param target_tensor: so this function makes sure the two are of the same length before getting passed
+           through the ByteNet model.
+        """
+        i_size = input_tensor.size(-1)
+        o_size = target_tensor.size(-1)
+        if i_size < o_size:
+            padds = backend.ones(list(input_tensor.size()[:-1]) + [o_size - i_size]).type_as(
+                input_tensor.data) * self.src_pad_token_id
+            input_tensor = backend.cat([input_tensor, padds], dim=-1)
+        elif i_size > o_size:
+            padds = backend.ones(list(target_tensor.size()[:-1]) + [i_size - o_size]).type_as(
+                target_tensor.data) * self.tgt_pad_token_id
+            target_tensor = backend.cat([target_tensor, padds], dim=-1)
+        assert input_tensor.size(-1) == target_tensor.size(-1)
+        return input_tensor, target_tensor
