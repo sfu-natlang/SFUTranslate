@@ -66,7 +66,7 @@ class ByteNet(AbsCompleteModel):
             -> Tuple[backend.Tensor, int, List[Any]]:
         out = self.decoder(self.encoder(input_tensor.unsqueeze(1).float()))
         loss = self.criterion(out, target_tensor)
-        return loss, (input_tensor != self.pad_token_id).sum(), []
+        return loss, (input_tensor != self.pad_token_id).sum().item(), []
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters()]
