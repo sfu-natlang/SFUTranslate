@@ -117,8 +117,9 @@ class Transformer(AbsCompleteModel):
                 if word == self.eos_token_id:
                     break
             hyp_ids_list.append(sent)
-        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list[:, 1:], hyp_ids_list,
-                                                                       ref_is_tensor=True)
+        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
+            ref_ids_list[:, 1:], hyp_ids_list, ref_is_tensor=True,
+            reader_level=self.dataset.get_target_word_granularity())
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, prediction_loss, result_sample
 

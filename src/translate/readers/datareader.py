@@ -56,6 +56,9 @@ class AbsDatasetReader(ABC):
         # the bpe_model instance which can get loaded with target train data
         self._target_bpe_model = None
         self.load_shared_reader_data(shared_reader_data)
+        # setting the default token granularities
+        self._src_word_granularity = ReaderLevel.WORD
+        self._tgt_word_granularity = ReaderLevel.WORD
 
     def set_iter_log_handler(self, iter_log_handler: Callable[[str], None]):
         """
@@ -67,54 +70,66 @@ class AbsDatasetReader(ABC):
         self._iter_log_handler = iter_log_handler
 
     @staticmethod
-    def _sentensify(vocabulary: Vocab, ids: Iterable[int], merge_bpe_tokens: bool = False, input_is_tensor=False):
+    def _sentensify(vocabulary: Vocab, ids: Iterable[int], input_is_tensor=False, reader_level: ReaderLevel=ReaderLevel.WORD):
         """
         The function which receives a list of ids, looks up each one in the dictionary and converts it back to its
          equivalent word. The input can be either a python list of integer ids or a one dimensional tensor of ids (
            input_is_tensor will indicate which one is the case). The function will also consider merging back word-piece
-            (bpe) tokens together (if merge_bpe_tokens is true) to help correct computation of BLEU score for the result
+            (bpe) tokens together to help correct computation of BLEU score for the result. The :param reader_level: 
+             will help performing this conversion from the token id level to the actual words in the sentence. 
         :return: equivalent sentence containing actual words in vocabulary, the format will be :type str:
         """
         if input_is_tensor:
             ids = tensor2list(ids)
         out_sent = " ".join([x for x in [vocabulary[x] for x in ids]
                              if x != vocabulary.pad_word and x != vocabulary.eos_word])
-        if not merge_bpe_tokens:
-            return out_sent
-        else:
+
+        if reader_level == ReaderLevel.BPE:
             bpe_separator = vocabulary.bpe_separator
             return out_sent.replace(" {}".format(bpe_separator), "").replace("{} ".format(bpe_separator), "")
+        elif reader_level == ReaderLevel.CHAR:
+            space_token = vocabulary.space_word
+            return "".join(out_sent.split()).replace(space_token, " ")
+        else:
+            return out_sent
 
-    def target_sentensify(self, ids: Iterable[int], merge_bpe_tokens: bool = False, input_is_tensor=False):
+    def target_sentensify(self, ids: Iterable[int], input_is_tensor=False, reader_level: ReaderLevel=ReaderLevel.WORD):
         """
         receives a list(or tensor) of ids and converts it back to an string containing actual dictionary words.
-        calls the internal static :method _sentensify: function (look at it's description for more details).
+         calls the internal static :method _sentensify: function (look at it's description for more details). 
+          The :param reader_level: will help the internal functions perform the correct conversion from the 
+            token id level to the actual words in the sentence.
         :return: equivalent sentence containing actual words in vocabulary, the format will be :type str:
         """
-        return self._sentensify(self.target_vocabulary, ids, merge_bpe_tokens, input_is_tensor)
+        return self._sentensify(self.target_vocabulary, ids, input_is_tensor, reader_level=reader_level)
 
-    def target_sentensify_all(self, ids_list: Iterable[Iterable[int]],
-                              merge_bpe_tokens: bool = False, input_is_tensor=False):
+    def target_sentensify_all(self, ids_list: Iterable[Iterable[int]], input_is_tensor=False,
+                              reader_level: ReaderLevel=ReaderLevel.WORD):
         """
         receives a list of list(or tensor) of ids and converts them all back to strings containing actual dictionary
          words. calls the internal static :method _sentensify: function (look at it's description for more details) for
-          each of them and returns the resulting strings containing actual words in vocabulary as a List[str].
+          each of them and returns the resulting strings containing actual words in vocabulary as a List[str]. 
+           The :param reader_level: will help the internal functions perform the correct conversion from the 
+            token id level to the actual words in the sentence.
         """
-        return [self._sentensify(self.target_vocabulary, ids, merge_bpe_tokens, input_is_tensor) for ids in ids_list]
+        return [self._sentensify(self.target_vocabulary, ids, input_is_tensor, reader_level=reader_level)
+                for ids in ids_list]
 
     def compute_bleu(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]],
-                     ref_is_tensor: bool = False, hyp_is_tensor: bool = False) -> Tuple[float, str, str]:
+                     ref_is_tensor: bool = False, hyp_is_tensor: bool = False,
+                     reader_level: ReaderLevel=ReaderLevel.WORD) -> Tuple[float, str, str]:
         """
         The wrapper function over sacrebleu.sentence_bleu which computes average bleu score over a pack of predicted
          sentences considering their equivalent single reference sentences. The input reference/prediction id lists can
           be either python lists or tensors (the flags :param ref_is_tensor: and :param hyp_is_tensor: indicate which is
-           the case).
+           the case). The :param reader_level: will help the internal functions perform the correct conversion from the 
+            token id level to the actual words in the sentence.
         :return: the computed average bleu score plus a sample pair of reference/prediction sentences which can be used
          for logging purposes (or totally ignored!)
         """
         assert len(ref_ids_list) == len(hyp_ids_list)
-        refs = self.target_sentensify_all(ref_ids_list, input_is_tensor=ref_is_tensor)
-        hyps = self.target_sentensify_all(hyp_ids_list, input_is_tensor=hyp_is_tensor)
+        refs = self.target_sentensify_all(ref_ids_list, input_is_tensor=ref_is_tensor, reader_level=reader_level)
+        hyps = self.target_sentensify_all(hyp_ids_list, input_is_tensor=hyp_is_tensor, reader_level=reader_level)
         scores = [sentence_bleu(hyps[sid], refs[sid]) for sid in range(len(ref_ids_list))]
         random_index = choice(range(len(refs)))
         return sum(scores) / len(scores), refs[random_index], hyps[random_index]
@@ -171,6 +186,12 @@ class AbsDatasetReader(ABC):
 
     def __iter__(self):
         return self
+
+    def get_sorce_token_granularity(self) -> ReaderLevel:
+        return self._src_word_granularity
+
+    def get_target_word_granularity(self) -> ReaderLevel:
+        return self._tgt_word_granularity
 
     @abstractmethod
     def __next__(self):

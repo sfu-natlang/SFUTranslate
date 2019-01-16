@@ -136,6 +136,7 @@ class SequenceToSequence(AbsCompleteModel):
         :param ref_ids_list: the expected Batch of sequences of ids  
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
-        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(ref_ids_list, hyp_ids_list, ref_is_tensor=True)
+        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
+            ref_ids_list, hyp_ids_list, ref_is_tensor=True, reader_level=self.dataset.get_target_word_granularity())
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, prediction_loss, result_sample
