@@ -144,6 +144,8 @@ class ByteNetReaderWrapper(AbsDatasetReader):
             tgt_padded = n_item[1]
             if len(src_padded) > len(tgt_padded):
                 tgt_padded += [self.tgt_pad_idx] * (len(src_padded) - len(tgt_padded))
+            elif len(src_padded) < len(tgt_padded):
+                src_padded += [self.src_pad_idx] * (len(tgt_padded) - len(src_padded))
             if self.a*.98 >= float(len(tgt_padded) / len(src_padded)) > .3:
                 return [src_padded, tgt_padded] + list(n_item[2:])
             else:
