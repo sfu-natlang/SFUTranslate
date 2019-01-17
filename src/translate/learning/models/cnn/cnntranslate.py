@@ -29,11 +29,6 @@ from translate.logging.utils import logger
 __author__ = "Hassan S. Shavarani"
 
 
-# TODO check the following parameters and make sure they are correctly implemented based on the paper
-#    a = relative length of output sequence
-#    b = output sequence length intercept
-
-
 class ByteNet(AbsCompleteModel):
     def __init__(self, configs: ConfigLoader, train_dataset: AbsDatasetReader):
         """

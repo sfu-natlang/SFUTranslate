@@ -111,7 +111,9 @@ class ByteNetReaderWrapper(AbsDatasetReader):
                 "The wrapper has not been tested with data readers with more than 2 instance parts!")
         self.src_pad_idx = self.data_provider.source_vocabulary.get_pad_word_index()
         self.tgt_pad_idx = self.data_provider.target_vocabulary.get_pad_word_index()
-        # modify these values through configuration
+        # TODO modify these values through configuration
+        #    a = relative length of output sequence
+        #    b = output sequence length intercept
         self.a = 1.2
         self.b = 0
 
