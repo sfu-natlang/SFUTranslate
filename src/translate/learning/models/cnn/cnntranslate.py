@@ -29,10 +29,14 @@ from translate.logging.utils import logger
 __author__ = "Hassan S. Shavarani"
 
 
+# TODO check the following parameters and make sure they are correctly implemented based on the paper
+#    a = relative length of output sequence
+#    b = output sequence length intercept
+
+
 class ByteNet(AbsCompleteModel):
     def __init__(self, configs: ConfigLoader, train_dataset: AbsDatasetReader):
         """
-
         :param configs: an instance of ConfigLoader which has been loaded with a yaml config file
         :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
          model configuration

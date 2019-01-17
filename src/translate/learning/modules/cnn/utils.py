@@ -1,22 +1,29 @@
+"""
+Implements all the necessary utility functions for the CNN module.
+"""
 import math
 from translate.backend.utils import backend
+
+__author__ = "Hassan S. Shavarani"
 
 
 class ResBlock(backend.nn.Module):
     """
-        Note To Self:  using padding to "mask" the convolution is equivalent to
-        either centering the convolution (no mask) or skewing the convolution to
-        the left (mask).  Either way, we should end up with n timesteps.
-        Also note that "masked convolution" and "casual convolution" are two
-        names for the same thing.
-    Args:
-        d (int): size of inner track of network.
-        r (int): size of dilation
-        k (int): size of kernel in dilated convolution (odd numbers only)
-        casual (bool): determines how to pad the casual conv layer. See notes.
+        This class implements the masked convolution from "Neural Machine Translation in Linear Time" paper.
+         Note: sing padding to "mask" the convolution is equivalent to either centering the convolution (no mask) or
+          skewing the convolution to the left (mask).  Either way, we should end up with n timesteps. Also note that
+           "masked convolution" and "casual convolution" are two names for the same thing.
+            Implementation taken from (https://github.com/dhpollack/bytenet.pytorch)
     """
 
     def __init__(self, d, r=1, k=3, casual=False, use_bias=False):
+        """
+        :param d(int): size of inner track of network.
+        :param r(int): size of dilation
+        :param k(int): size of kernel in dilated convolution (odd numbers only)
+        :param casual(bool): determines how to pad the casual convolution layer. See notes.
+        :param use_bias: the use bias parameter passed to backend convolution layers
+        """
         super(ResBlock, self).__init__()
         self.d = d  # input features
         self.r = r  # dilation size
@@ -54,27 +61,32 @@ class ResBlock(backend.nn.Module):
         x = self.layernorm3(x)
         x = self.relu3(x)
         x = self.conv1x1_2(x)
-        # print("ResBlock:", x.size(), input.size())
-        x += input_  # add back in residual
+        # add back in residual
+        x += input_
         return x
 
     @staticmethod
     def _same_pad(k=1, dil=1):
-        # assumes stride length of 1
+        # assumes stride length of 1 the original formula is in the comment below
         # p = math.ceil((l - 1) * s - l + dil*(k - 1) + 1)
         p = math.ceil(dil * (k - 1))
-        # print("padding:", p)
         return p
 
 
 class ResBlockSet(backend.nn.Module):
     """
-        The Bytenet encoder and decoder are made up of sets of residual blocks
-        with dilations of increasing size.  These sets are then stacked upon each
-        other to create the full network.
+    The Bytenet encoder and decoder are made up of sets of residual blocks with dilations of increasing size.
+     These sets are then stacked upon each other to create the full network. This class implements the set container
+      which can be filled with ResBlock instances.
     """
 
     def __init__(self, d, max_r=16, k=3, casual=False):
+        """
+        :param d(int): size of inner track of network.
+        :param max_r(int): maximum expected size of dilation
+        :param k(int): size of kernel in dilated convolution (odd numbers only)
+        :param casual(bool): determines how to pad the casual convolution layer. See notes.
+        """
         super(ResBlockSet, self).__init__()
         self.d = d
         self.max_r = max_r
