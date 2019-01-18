@@ -16,6 +16,7 @@ from translate.configs.loader import ConfigLoader
 from translate.configs.utils import get_resource_file
 from translate.learning.estimator import Estimator, StatCollector
 from translate.learning.modelling import AbsCompleteModel
+from translate.learning.models.cnn.cnntranslate import ByteNet
 from translate.learning.models.rnn.lm import RNNLM
 from translate.learning.models.rnn.seq2seq import SequenceToSequence
 from translate.learning.models.transformer.transducer import Transformer
@@ -23,7 +24,7 @@ from translate.backend.padder import get_padding_batch_loader
 from translate.backend.utils import device
 from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
-from translate.readers.datawrapper import TransformerReaderWrapper
+from translate.readers.datawrapper import TransformerReaderWrapper, ByteNetReaderWrapper
 from translate.readers.paralleldata import ParallelDataReader
 from translate.readers.monolingualdata import MonolingualDataReader
 from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDataset
@@ -87,6 +88,9 @@ if __name__ == '__main__':
         model = SequenceToSequence(opts, train).to(device)
     elif model_type == "rnnlm":
         model = RNNLM(opts, train).to(device)
+    elif model_type == "bytenet":
+        train, test, dev = ByteNetReaderWrapper(train), ByteNetReaderWrapper(test), ByteNetReaderWrapper(dev)
+        model = ByteNet(opts, train).to(device)
     elif model_type == "transformer":
         train, test, dev = TransformerReaderWrapper(train), TransformerReaderWrapper(test), TransformerReaderWrapper(
             dev)

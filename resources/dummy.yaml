@@ -41,7 +41,7 @@ reader:
 trainer:
     model:
         ####### universal configurations
-        type: seq2seq # possible values [seq2seq | rnnlm | transformer]
+        type: seq2seq # possible values [seq2seq | rnnlm | transformer | bytenet]
         bsize: 64 # size of the training sentence batches
         init_val: 0.1 # the value to range of which random variables get initiated
         best_model_path: null
@@ -59,6 +59,11 @@ trainer:
         h: 8 # number of heads
         dropout: 0.1 # the dropout used in encoder/decoder model parts
         smoothing: 0.1
+        ####### bytenet configurations
+        d: 400 # number of features in network
+        max_r: 16 # max dilation size
+        n_sets: 6 # number of ResBlock sets
+        k: 3 # kernel size
     optimizer:
         name: adadelta
         lr: 1.0

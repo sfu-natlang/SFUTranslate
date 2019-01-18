@@ -102,6 +102,7 @@ class RNNLM(AbsCompleteModel):
 
     def validate_instance(self, prediction_loss: float, predictions_batch: Iterable[Iterable[int]],
                           input_batch: backend.Tensor) -> Tuple[float, float, str]:
-        hyps = self.dataset.target_sentensify_all(predictions_batch)
+        hyps = self.dataset.target_sentensify_all(
+            predictions_batch, reader_level=self.dataset.get_target_word_granularity())
         random_index = choice(range(len(hyps)))
         return math.exp(prediction_loss), prediction_loss, hyps[random_index]

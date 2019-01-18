@@ -254,7 +254,7 @@ class Estimator:
         _loss_.backward()
         if self.grad_clip_norm > 0.0:
             [backend.nn.utils.clip_grad_norm_(x, self.grad_clip_norm) for x in self.model.optimizable_params_list()]
-        loss_value = _loss_.item() / _loss_size_
+        loss_value = _loss_.item() / _loss_size_ if _loss_size_ > 0.0 else 0.0
         for opt in self.optimizers:
             opt.step()
         return loss_value, computed_output
@@ -267,7 +267,7 @@ class Estimator:
         """
         with backend.no_grad():
             _loss_, _loss_size_, computed_output = self.model.forward(*args, *kwargs)
-            loss_value = _loss_.item() / _loss_size_
+            loss_value = _loss_.item() / _loss_size_ if _loss_size_ > 0.0 else 0.0
             return loss_value, computed_output
 
     def save_checkpoint(self, stat_collector: StatCollector) -> str:

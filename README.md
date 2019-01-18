@@ -132,6 +132,11 @@ trainer:
         h: number of heads
         dropout: the dropout used in encoder/decoder model parts
         smoothing: the smoothing probability used in the genrating the output distribution (Label Smoothing technique)
+        ####### bytenet configurations
+        d: number of features in network
+        max_r: max dilation size
+        n_sets: number of ResBlock sets
+        k: kernel size
     optimizer:
         name: possible values [adam | adadelta | sgd] # you can add other methods by modifying `create_optimizer` function in `translate.learning.estimator`
         lr: th initial learning rate

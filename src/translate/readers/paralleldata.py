@@ -123,7 +123,7 @@ class ParallelDataReader(AbsDatasetReader):
             if g_level == ReaderLevel.BPE:
                 yield bpe_model.segment(line)
             elif g_level == ReaderLevel.CHAR:
-                yield " ".join([x for x in line.strip().replace(" ", space_word)])
+                yield " ".join([x for x in line.strip().replace(" ", "☺")]).replace("☺", space_word)
             else:
                 yield line
 
