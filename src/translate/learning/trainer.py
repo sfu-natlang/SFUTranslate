@@ -24,7 +24,7 @@ from translate.backend.padder import get_padding_batch_loader
 from translate.backend.utils import device
 from translate.readers.constants import ReaderType
 from translate.readers.datareader import AbsDatasetReader
-from translate.readers.datawrapper import TransformerReaderWrapper
+from translate.readers.datawrapper import TransformerReaderWrapper, ByteNetReaderWrapper
 from translate.readers.paralleldata import ParallelDataReader
 from translate.readers.monolingualdata import MonolingualDataReader
 from translate.readers.dummydata import ReverseCopyDataset, SimpleGrammerLMDataset
@@ -89,6 +89,7 @@ if __name__ == '__main__':
     elif model_type == "rnnlm":
         model = RNNLM(opts, train).to(device)
     elif model_type == "bytenet":
+        train, test, dev = ByteNetReaderWrapper(train), ByteNetReaderWrapper(test), ByteNetReaderWrapper(dev)
         model = ByteNet(opts, train).to(device)
     elif model_type == "transformer":
         train, test, dev = TransformerReaderWrapper(train), TransformerReaderWrapper(test), TransformerReaderWrapper(
