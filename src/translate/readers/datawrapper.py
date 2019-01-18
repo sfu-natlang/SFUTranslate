@@ -35,6 +35,8 @@ class TransformerReaderWrapper(AbsDatasetReader):
                 "The wrapper has not been tested with data readers with more than 2 instance parts!")
         self.src_pad_idx = self.data_provider.source_vocabulary.get_pad_word_index()
         self.tgt_pad_idx = self.data_provider.target_vocabulary.get_pad_word_index()
+        self._src_word_granularity = self.data_provider._src_word_granularity
+        self._tgt_word_granularity = self.data_provider._tgt_word_granularity
 
     def get_sharable_data(self):
         return self.data_provider.get_sharable_data()
@@ -111,6 +113,8 @@ class ByteNetReaderWrapper(AbsDatasetReader):
                 "The wrapper has not been tested with data readers with more than 2 instance parts!")
         self.src_pad_idx = self.data_provider.source_vocabulary.get_pad_word_index()
         self.tgt_pad_idx = self.data_provider.target_vocabulary.get_pad_word_index()
+        self._src_word_granularity = self.data_provider._src_word_granularity
+        self._tgt_word_granularity = self.data_provider._tgt_word_granularity
         # TODO modify these values through configuration
         #    a = relative length of output sequence
         #    b = output sequence length intercept
