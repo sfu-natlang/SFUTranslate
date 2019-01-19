@@ -14,6 +14,7 @@ trainer:
         bsize: 64 # size of the training sentence batches
         ddropout: 0.1 # the dropout probability in the decoder
         init_val: 0.1 # the value to range of which random variables get initiated
+        decoder_weight_tying: false # whether the weights need to be tied between the decoder embedding and generator
 ##################################################
 """
 import random
@@ -49,6 +50,7 @@ class SequenceToSequence(AbsCompleteModel):
         decoder_dropout = configs.get("trainer.model.ddropout", 0.1)
         init_val = configs.get("trainer.model.init_val", 0.01)
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
+        decoder_weight_tying = configs.get("trainer.model.decoder_weight_tying", False)
 
         self.max_length = train_dataset.max_sentence_length()
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
@@ -65,6 +67,14 @@ class SequenceToSequence(AbsCompleteModel):
         self.encoder_output_size = self.encoder.hidden_size
         if self.bidirectional_encoding:
             self.encoder_output_size *= 2
+        if decoder_weight_tying:
+            # "Using the Output Embedding to Improve Language Models" (Press & Wolf 2016)
+            # https://arxiv.org/abs/1608.05859
+            # and
+            # "Tying Word Vectors and Word Classifiers: A Loss Framework for Language Modeling" (Inan et al. 2016)
+            # https://arxiv.org/abs/1611.01462
+            logger.info("Tying the weights in Seq2Seq.Decoder")
+            self.generator.out.weight = self.decoder.embedding.weight
         logger.info("Randomly initiating model variables in the range [-{0}, {0}]".format(init_val))
         for p_set in self.optimizable_params_list():
             for p in p_set:
