@@ -63,7 +63,7 @@ class SequenceToSequence(AbsCompleteModel):
         self.decoder = DecoderRNN(hidden_size, len(train_dataset.target_vocabulary), self.bidirectional_encoding,
                                   self.max_length, n_d_layers, self.batch_size, decoder_dropout)
         self.generator = GeneratorNN(self.decoder.get_hidden_size(), len(train_dataset.target_vocabulary),
-                                     decoder_dropout)
+                                     decoder_dropout, needs_additive_bias=not decoder_weight_tying)
         self.encoder_output_size = self.encoder.hidden_size
         if self.bidirectional_encoding:
             self.encoder_output_size *= 2
