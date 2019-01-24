@@ -2,7 +2,7 @@
 Provides an interface for a completed model, which is of Type backen.nn.Module, an will be able to compute the loss
  value for a given input, in addition to the final output.
 """
-from typing import Type, List, Tuple, Any
+from typing import Type, List, Tuple, Any, Dict
 from translate.backend.utils import backend
 from translate.logging.utils import logger
 
@@ -48,3 +48,12 @@ class AbsCompleteModel(backend.nn.Module, ABC):
         :return: the computed validation score in addition to a sample result
         """
         raise NotImplementedError
+
+    def update_model_parameters(self, args: Dict):
+        """
+        The function designed to let the external sources, signal necessary information to the model so it can update
+         its internal parameters. As an example, if you are implementing the Sequence-to-Sequence model, the trainer can
+          signal the epoch change to the model using this function, so the model uses the information for updating its
+           internal teacher forcing ratio
+        """
+        return

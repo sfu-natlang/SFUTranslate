@@ -161,7 +161,7 @@ class StatCollector:
             improved = True
         if self.train_loss < self._best_train_loss:
             self._best_train_loss = self.train_loss
-            improved = True
+            # improved = True
         return improved
 
 

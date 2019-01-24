@@ -138,6 +138,7 @@ if __name__ == '__main__':
         print("\n", end='\n', file=sys.stderr)
         train.deallocate()
         estimator.step_schedulers()
+        model.update_model_parameters({"epoch": epoch + 1, "total": epochs})
     if best_saved_model_path is not None:
         logger.info("Loading the best checkpoint from \"{}\" for evaluation".format(best_saved_model_path))
         model = estimator.load_checkpoint(best_saved_model_path)

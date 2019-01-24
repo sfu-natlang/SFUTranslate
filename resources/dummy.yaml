@@ -48,6 +48,7 @@ trainer:
         decoder_weight_tying: false # whether the weights need to be tied between the decoder embedding and generator
         ####### seq2seq/rnnlm configurations
         tfr: 1.001 # teacher forcing ratio
+        auto_tfr: false # if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch
         bienc: true # bidirectional encoding
         hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder

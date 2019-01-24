@@ -20,7 +20,7 @@ trainer:
 import random
 from translate.learning.modules.rnn.decoder import DecoderRNN
 from translate.learning.modules.rnn.encoder import EncoderRNN
-from typing import List, Any, Tuple
+from typing import List, Any, Tuple, Dict
 
 from translate.backend.utils import backend, zeros_tensor, Variable, list_to_long_tensor, long_tensor
 from translate.configs.loader import ConfigLoader
@@ -43,6 +43,10 @@ class SequenceToSequence(AbsCompleteModel):
         super(SequenceToSequence, self).__init__(backend.nn.NLLLoss())
         self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
+        self.auto_teacher_forcing_ratio = configs.get("trainer.model.auto_tfr", False)
+        if self.auto_teacher_forcing_ratio:
+            self.teacher_forcing_ratio = 1.1
+            logger.info("Teacher forcing is set to auto-decay mode!")
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
         n_e_layers = configs.get("trainer.model.nelayers", 1)
@@ -150,3 +154,11 @@ class SequenceToSequence(AbsCompleteModel):
             ref_ids_list, hyp_ids_list, ref_is_tensor=True, reader_level=self.dataset.get_target_word_granularity())
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, prediction_loss, result_sample
+
+    def update_model_parameters(self, args: Dict):
+        """
+        :param args: is expected to contain at least the two parameters "epoch" and "total"
+        """
+        if self.auto_teacher_forcing_ratio:
+            self.teacher_forcing_ratio = 1.1 - float(args["epoch"] / args["total"])
+
