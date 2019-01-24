@@ -25,14 +25,14 @@ class EncoderRNN(backend.nn.Module):
         self.num_layers = n_layers
         self.batch_size = batch_size
         self.embedding = backend.nn.Embedding(input_size, hidden_size)
-        self.gru = backend.nn.GRU(hidden_size, hidden_size, bidirectional=bidirectional, num_layers=n_layers)
+        self.lstm = backend.nn.LSTM(hidden_size, hidden_size, bidirectional=bidirectional, num_layers=n_layers)
 
-    def forward(self, input_tensor, hidden_layer, batch_size=-1):
+    def forward(self, input_tensor, hidden_layer, context, batch_size=-1):
         if batch_size == -1:
             batch_size = self.batch_size
         output = self.embedding(input_tensor).view(1, batch_size, self.hidden_size)
-        output, hidden_layer = self.gru(output, hidden_layer)
-        return output, hidden_layer
+        output, (hidden_layer, context) = self.lstm(output, (hidden_layer, context))
+        return output, (hidden_layer, context)
 
     def init_hidden(self, batch_size=-1):
         """
@@ -41,4 +41,5 @@ class EncoderRNN(backend.nn.Module):
         """
         if batch_size == -1:
             batch_size = self.batch_size
-        return zeros_tensor(self.num_directions * self.num_layers, batch_size, self.hidden_size)
+        return zeros_tensor(self.num_directions * self.num_layers, batch_size, self.hidden_size), \
+            zeros_tensor(self.num_directions * self.num_layers, batch_size, self.hidden_size)

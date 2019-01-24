@@ -62,14 +62,14 @@ class DecoderRNN(backend.nn.Module):
 
         self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size)
         self.dropout = backend.nn.Dropout(self.dropout_p)
-        self.gru = backend.nn.GRU(self.hidden_size, self.hidden_size)
+        self.lstm = backend.nn.LSTM(self.hidden_size, self.hidden_size)
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
         self.attention = Attention(self.hidden_size, self.max_length)
 
     def get_hidden_size(self):
         return self.hidden_size
 
-    def forward(self, input_tensor, hidden_layer, encoder_outputs, batch_size=-1):
+    def forward(self, input_tensor, hidden_layer, context, encoder_outputs, batch_size=-1):
         if batch_size == -1:
             batch_size = self.batch_size
         embedded = self.embedding(input_tensor).view(1, batch_size, self.hidden_size)
@@ -78,10 +78,10 @@ class DecoderRNN(backend.nn.Module):
         output, attn_weights = self.attention(encoder_outputs, embedded[0], hidden_layer[0])
 
         output = backend.nn.functional.relu(output)
-        output, hidden_layer = self.gru(output, hidden_layer)
+        output, (hidden_layer, context) = self.lstm(output, (hidden_layer, context))
 
         # output = backend.nn.functional.log_softmax(self.out(), dim=1)
-        return output[0], hidden_layer, attn_weights
+        return output[0], (hidden_layer, context), attn_weights
 
     def init_hidden(self, batch_size=-1):
         """
@@ -90,4 +90,5 @@ class DecoderRNN(backend.nn.Module):
         """
         if batch_size == -1:
             batch_size = self.batch_size
-        return zeros_tensor(self.num_directions * self.num_layers, batch_size, self.hidden_size)
+        return zeros_tensor(self.num_directions * self.num_layers, batch_size, self.hidden_size), \
+            zeros_tensor(self.num_directions * self.num_layers, batch_size, self.hidden_size)

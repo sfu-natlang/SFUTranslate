@@ -67,7 +67,7 @@ class RNNLM(AbsCompleteModel):
     def forward(self, input_variable: backend.Tensor, *args, **kwargs) -> Tuple[backend.Tensor, int, List[Any]]:
 
         batch_size = input_variable.size()[0]
-        encoder_hidden = self.encoder.init_hidden(batch_size=batch_size)
+        encoder_hidden, context = self.encoder.init_hidden(batch_size=batch_size)
 
         input_variable = Variable(input_variable.transpose(0, 1))
 
@@ -77,7 +77,8 @@ class RNNLM(AbsCompleteModel):
 
         loss = 0
         for ei in range(input_length - 1):
-            encoder_output, encoder_hidden = self.encoder(input_variable[ei], encoder_hidden, batch_size=batch_size)
+            encoder_output, (encoder_hidden, context) = self.encoder(input_variable[ei], encoder_hidden, context,
+                                                                     batch_size=batch_size)
             lm_output = self.generator(encoder_output).squeeze(0)
             loss += self.criterion(lm_output, input_variable[ei + 1])
             _, topi = lm_output.data.topk(1)

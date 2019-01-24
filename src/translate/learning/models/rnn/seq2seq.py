@@ -88,7 +88,7 @@ class SequenceToSequence(AbsCompleteModel):
             -> Tuple[backend.Tensor, int, List[Any]]:
 
         batch_size = input_variable.size()[0]
-        encoder_hidden = self.encoder.init_hidden(batch_size=batch_size)
+        encoder_hidden, context = self.encoder.init_hidden(batch_size=batch_size)
 
         input_variable = Variable(input_variable.transpose(0, 1))
         target_variable = Variable(target_variable.transpose(0, 1))
@@ -101,19 +101,20 @@ class SequenceToSequence(AbsCompleteModel):
 
         loss = 0
         for ei in range(input_length):
-            encoder_output, encoder_hidden = self.encoder(input_variable[ei], encoder_hidden, batch_size=batch_size)
+            encoder_output, (encoder_hidden, context) = self.encoder(input_variable[ei], encoder_hidden, context,
+                                                                     batch_size=batch_size)
             encoder_outputs[ei] = encoder_output[0]
 
         decoder_input = Variable(list_to_long_tensor([self.sos_token_id] * batch_size))
         decoder_input = decoder_input.cuda() if self.use_cuda else decoder_input
 
-        decoder_hidden = self.decoder.init_hidden(batch_size=batch_size)
+        decoder_hidden, decoder_context = self.decoder.init_hidden(batch_size=batch_size)
 
         output = long_tensor(target_length, batch_size, 1).squeeze(-1)
 
         for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = \
-                self.decoder(decoder_input, decoder_hidden, encoder_outputs, batch_size=batch_size)
+            decoder_output, (decoder_hidden, decoder_context), decoder_attention = \
+                self.decoder(decoder_input, decoder_hidden, decoder_context, encoder_outputs, batch_size=batch_size)
             decoder_output = self.generator(decoder_output)
             loss += self.criterion(decoder_output, target_variable[di])
             _, topi = decoder_output.data.topk(1)
