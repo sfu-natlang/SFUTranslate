@@ -84,10 +84,12 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError
 
+    higher_score_is_better = True
     if model_type == "seq2seq":
         model = SequenceToSequence(opts, train).to(device)
     elif model_type == "rnnlm":
         model = RNNLM(opts, train).to(device)
+        higher_score_is_better = False
     elif model_type == "bytenet":
         train, test, dev = ByteNetReaderWrapper(train), ByteNetReaderWrapper(test), ByteNetReaderWrapper(dev)
         model = ByteNet(opts, train).to(device)
@@ -98,7 +100,8 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError
     estimator = Estimator(opts, model)
-    stat_collector = StatCollector(len(train), model.batch_size)
+    # The only place in the code which inits the StatCollector object
+    stat_collector = StatCollector(len(train), model.batch_size, higher_score_is_better)
     best_saved_model_path = opts.get("trainer.model.best_model_path", None)
     early_stopping = False
     if epochs > 0:

@@ -53,7 +53,10 @@ trainer:
         hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder
         ndlayers: 1 # number of hidden layers in decoder
-        ddropout: 0.1 # the dropout probability in the decoder
+        edropout: 0.3 # the dropout probability in the encoder
+        ddropout: 0.3 # the dropout probability in the decoder
+        decoder_local_attention: false
+        decoder_local_attention_d: 0.0
         ####### transformer configurations
         N: 6 # number of encoder/decoder layers
         d_model: 512 # size of each encoder/decoder layer

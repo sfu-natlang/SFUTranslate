@@ -60,8 +60,9 @@ class StatCollector:
     The loss, score, and result size container, used for storing the run stats of the training/testing iterations
     """
 
-    def __init__(self, train_size, model_batch_size):
+    def __init__(self, train_size, model_batch_size, higher_score_is_better):
         self._eps = 7. / 3. - 4. / 3. - 1.
+        self._higher_score_is_better = higher_score_is_better
         self._test_total = 0.0
         self._test_score = 0.0
         self._test_loss = 0.0
@@ -74,6 +75,7 @@ class StatCollector:
 
         self._best_train_loss = float('+inf')
         self._best_dev_loss = float('+inf')
+        self._best_dev_score = float('-inf') if higher_score_is_better else float('+inf')
         self.global_step = 0.0
 
         # the value which is used for performing the dev set evaluation steps
@@ -162,6 +164,12 @@ class StatCollector:
         if self.train_loss < self._best_train_loss:
             self._best_train_loss = self.train_loss
             # improved = True
+        if not self._higher_score_is_better and self.dev_score < self._best_dev_score:
+            self._best_dev_score = self.dev_score
+            improved = True
+        if self._higher_score_is_better and self.dev_score > self._best_dev_score:
+            self._best_dev_score = self.dev_score
+            improved = True
         return improved
 
 

@@ -119,7 +119,10 @@ trainer:
         hsize: hidden state size of RNN layers
         nelayers: number of hidden layers in encoder
         ndlayers:  number of hidden layers in decoder
+        edropout: the dropout probability in the encoder
         ddropout: the dropout probability in the decoder
+        decoder_local_attention: the flag indicating whether the attention is supposed to be local or global
+        decoder_local_attention_d: the local attention diameter in case of local attention
         ####### transformer configurations
         N: number of encoder/decoder layers
         d_model: size of each encoder/decoder layer
