@@ -62,7 +62,7 @@ class DecoderRNN(backend.nn.Module):
 
         self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size)
         self.dropout = backend.nn.Dropout(self.dropout_p)
-        self.lstm = backend.nn.LSTM(self.hidden_size, self.hidden_size)
+        self.lstm = backend.nn.LSTM(self.hidden_size, self.hidden_size,  num_layers=n_layers)
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
         self.attention = Attention(self.hidden_size, self.max_length)
 
