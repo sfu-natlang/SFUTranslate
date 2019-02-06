@@ -27,7 +27,7 @@ class Attention(backend.nn.Module):
         self.attn_combine = backend.nn.Linear(self.hidden_size * 2, self.hidden_size)
 
     def forward(self, encoder_output_tensors, decoder_input_tensor, decoder_hidden_layer):
-        attn = self.attn(backend.cat((decoder_input_tensor, decoder_hidden_layer), 1))
+        attn = self.attn(backend.cat((decoder_input_tensor, decoder_hidden_layer), 1))[:, :encoder_output_tensors.size(0)]
         attn_weights = backend.nn.functional.softmax(attn, dim=1)
         attn_applied = backend.bmm(attn_weights.unsqueeze(1), encoder_output_tensors.transpose(0, 1)).transpose(0, 1)
         output = backend.cat((decoder_input_tensor, attn_applied[0]), 1)
@@ -50,6 +50,7 @@ class DecoderRNN(backend.nn.Module):
         """
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
+        self.encoder_is_bidirectional = bidirectional_hidden_state
         if bidirectional_hidden_state:
             self.hidden_size *= 2
         self.output_size = output_size
@@ -82,6 +83,20 @@ class DecoderRNN(backend.nn.Module):
 
         # output = backend.nn.functional.log_softmax(self.out(), dim=1)
         return output[0], (hidden_layer, context), attn_weights
+
+    def reformat_encoder_hidden_states(self, encoder_hidden_prams):
+        """
+        :param encoder_hidden_prams: Pair of size 2 of 3-D Tensors [num_enc_dirs*n_enc_layers, batch_size, hidden_size]
+        """
+        hidden = encoder_hidden_prams[0]
+        context = encoder_hidden_prams[1]
+        if self.encoder_is_bidirectional:
+            hidden = backend.cat([hidden[0:hidden.size(0):2], hidden[1:hidden.size(0):2]], 2)
+            context = backend.cat([context[0:context.size(0):2], context[1:context.size(0):2]], 2)
+        if self.num_layers < hidden.size(0):
+            hidden = hidden[hidden.size(0)-self.num_layers:]
+            context = context[context.size(0)-self.num_layers:]
+        return hidden, context
 
     def init_hidden(self, batch_size=-1):
         """

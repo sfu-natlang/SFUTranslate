@@ -27,12 +27,10 @@ class EncoderRNN(backend.nn.Module):
         self.embedding = backend.nn.Embedding(input_size, hidden_size)
         self.lstm = backend.nn.LSTM(hidden_size, hidden_size, bidirectional=bidirectional, num_layers=n_layers)
 
-    def forward(self, input_tensor, hidden_layer, context, batch_size=-1):
-        if batch_size == -1:
-            batch_size = self.batch_size
-        output = self.embedding(input_tensor).view(1, batch_size, self.hidden_size)
-        output, (hidden_layer, context) = self.lstm(output, (hidden_layer, context))
-        return output, (hidden_layer, context)
+    def forward(self, input_tensor, hidden_layer_params):
+        output = self.embedding(input_tensor)
+        output, hidden_layer_params = self.lstm(output, hidden_layer_params)
+        return output, hidden_layer_params
 
     def init_hidden(self, batch_size=-1):
         """

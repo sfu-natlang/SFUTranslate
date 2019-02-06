@@ -22,7 +22,7 @@ from translate.learning.modules.rnn.decoder import DecoderRNN
 from translate.learning.modules.rnn.encoder import EncoderRNN
 from typing import List, Any, Tuple, Dict
 
-from translate.backend.utils import backend, zeros_tensor, Variable, list_to_long_tensor, long_tensor
+from translate.backend.utils import backend, list_to_long_tensor, long_tensor, device
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
@@ -60,7 +60,6 @@ class SequenceToSequence(AbsCompleteModel):
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
-        self.use_cuda = backend.cuda.is_available()
 
         self.encoder = EncoderRNN(len(train_dataset.source_vocabulary),
                                   hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size)
@@ -87,43 +86,28 @@ class SequenceToSequence(AbsCompleteModel):
     def forward(self, input_variable: backend.Tensor, target_variable: backend.Tensor, *args, **kwargs) \
             -> Tuple[backend.Tensor, int, List[Any]]:
 
-        batch_size = input_variable.size()[0]
-        encoder_hidden, context = self.encoder.init_hidden(batch_size=batch_size)
+        batch_size = input_variable.size(0)
+        input_variable = input_variable.transpose(0, 1)
+        target_variable = target_variable.transpose(0, 1)
+        target_length = target_variable.size(0)
 
-        input_variable = Variable(input_variable.transpose(0, 1))
-        target_variable = Variable(target_variable.transpose(0, 1))
-
-        input_length = input_variable.size()[0]
-        target_length = target_variable.size()[0]
-
-        encoder_outputs = Variable(zeros_tensor(self.max_length, batch_size, self.encoder_output_size))
-        encoder_outputs = encoder_outputs.cuda() if self.use_cuda else encoder_outputs
-
-        loss = 0
-        for ei in range(input_length):
-            encoder_output, (encoder_hidden, context) = self.encoder(input_variable[ei], encoder_hidden, context,
-                                                                     batch_size=batch_size)
-            encoder_outputs[ei] = encoder_output[0]
-
-        decoder_input = Variable(list_to_long_tensor([self.sos_token_id] * batch_size))
-        decoder_input = decoder_input.cuda() if self.use_cuda else decoder_input
-
+        encoder_outputs, encoder_hidden_params = self.encoder(input_variable,
+                                                              self.encoder.init_hidden(batch_size=batch_size))
+        decoder_input = list_to_long_tensor([self.sos_token_id] * batch_size).to(device)
         decoder_hidden, decoder_context = self.decoder.init_hidden(batch_size=batch_size)
-
         output = long_tensor(target_length, batch_size, 1).squeeze(-1)
-
+        loss = 0
         for di in range(target_length):
             decoder_output, (decoder_hidden, decoder_context), decoder_attention = \
                 self.decoder(decoder_input, decoder_hidden, decoder_context, encoder_outputs, batch_size=batch_size)
             decoder_output = self.generator(decoder_output)
             loss += self.criterion(decoder_output, target_variable[di])
             _, topi = decoder_output.data.topk(1)
-            output[di] = Variable(topi.view(-1))
+            output[di] = topi.view(-1).detach()
             if random.random() < self.teacher_forcing_ratio:
                 decoder_input = target_variable[di]  # Teacher forcing
             else:
-                decoder_input = Variable(topi.view(-1))
-                decoder_input = decoder_input.cuda() if self.use_cuda else decoder_input
+                decoder_input = topi.view(-1).to(device).detach()
 
         output = output.transpose(0, 1)
         result_decoded_word_ids = []
