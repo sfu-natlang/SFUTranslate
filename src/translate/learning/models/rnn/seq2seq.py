@@ -95,6 +95,7 @@ class SequenceToSequence(AbsCompleteModel):
                                                               self.encoder.init_hidden(batch_size=batch_size))
         decoder_input = list_to_long_tensor([self.sos_token_id] * batch_size).to(device)
         decoder_hidden, decoder_context = self.decoder.init_hidden(batch_size=batch_size)
+        # decoder_hidden, decoder_context = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
         output = long_tensor(target_length, batch_size, 1).squeeze(-1)
         loss = 0
         for di in range(target_length):
