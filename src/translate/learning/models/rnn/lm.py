@@ -18,10 +18,9 @@ trainer:
 """
 import math
 from random import choice
-from translate.learning.modules.rnn.encoder import EncoderRNN
 from typing import List, Any, Tuple, Iterable
 
-from translate.backend.utils import backend, Variable, long_tensor
+from translate.backend.utils import backend, long_tensor, zeros_tensor
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
@@ -52,11 +51,12 @@ class RNNLM(AbsCompleteModel):
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
-        self.use_cuda = backend.cuda.is_available()
-
-        self.encoder = EncoderRNN(len(train_dataset.source_vocabulary),
-                                  hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size)
-        self.encoder_output_size = self.encoder.hidden_size
+        self.enc_embedding = backend.nn.Embedding(len(train_dataset.source_vocabulary), hidden_size)
+        self.enc_lstm = backend.nn.LSTM(hidden_size * 3, hidden_size, bidirectional=self.bidirectional_encoding,
+                                        num_layers=n_e_layers)
+        self.num_enc_layers = n_e_layers
+        self.enc_hidden_size = hidden_size
+        self.encoder_output_size = hidden_size
         if self.bidirectional_encoding:
             self.encoder_output_size *= 2
         self.generator = GeneratorNN(self.encoder_output_size, len(train_dataset.target_vocabulary), decoder_dropout)
@@ -66,23 +66,25 @@ class RNNLM(AbsCompleteModel):
 
     def forward(self, input_variable: backend.Tensor, *args, **kwargs) -> Tuple[backend.Tensor, int, List[Any]]:
 
-        batch_size = input_variable.size()[0]
-        encoder_hidden, context = self.encoder.init_hidden(batch_size=batch_size)
-
-        input_variable = Variable(input_variable.transpose(0, 1))
-
-        input_length = input_variable.size()[0]
-
+        n_dirs = 2 if self.bidirectional_encoding else 1
+        batch_size = input_variable.size(0)
+        input_variable = input_variable.transpose(0, 1)
+        input_length = input_variable.size(0)
+        hidden_layer_params = zeros_tensor(n_dirs * self.num_enc_layers, batch_size, self.enc_hidden_size), \
+            zeros_tensor(n_dirs * self.num_enc_layers, batch_size, self.enc_hidden_size)
+        embedded_input = self.enc_embedding(input_variable)
         output = long_tensor(input_length, batch_size, 1).squeeze(-1)
-
         loss = 0
+        # INPUT_FEED looks redundant !!!
+        input_feed = zeros_tensor(1, batch_size, self.encoder_output_size)
         for ei in range(input_length - 1):
-            encoder_output, (encoder_hidden, context) = self.encoder(input_variable[ei], encoder_hidden, context,
-                                                                     batch_size=batch_size)
+            encoder_input = backend.cat((embedded_input[ei].view(1, batch_size, self.enc_hidden_size), input_feed), -1)
+            encoder_output, hidden_layer_params = self.enc_lstm(encoder_input, hidden_layer_params)
+            input_feed = encoder_output
             lm_output = self.generator(encoder_output).squeeze(0)
             loss += self.criterion(lm_output, input_variable[ei + 1])
             _, topi = lm_output.data.topk(1)
-            output[ei] = Variable(topi.view(-1))
+            output[ei] = topi.view(-1).detach()
 
         output = output.transpose(0, 1)
         result_decoded_word_ids = []
@@ -95,11 +97,10 @@ class RNNLM(AbsCompleteModel):
                 if word == self.eos_token_id:
                     break
             result_decoded_word_ids.append(sent)
-
         return loss, input_length, result_decoded_word_ids
 
     def optimizable_params_list(self) -> List[Any]:
-        return [self.encoder.parameters(), self.generator.parameters()]
+        return [self.enc_embedding.parameters(), self.enc_lstm.parameters(), self.generator.parameters()]
 
     def validate_instance(self, prediction_loss: float, predictions_batch: Iterable[Iterable[int]],
                           input_batch: backend.Tensor) -> Tuple[float, float, str]:

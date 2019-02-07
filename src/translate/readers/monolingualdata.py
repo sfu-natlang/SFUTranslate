@@ -148,7 +148,7 @@ class MonolingualDataReader(AbsDatasetReader):
                 src_ids = [self.source_vocabulary[x] for x in src.strip().split()]
                 src_ids += [self.source_vocabulary.get_end_word_index()]
                 src_len = len(src_ids)
-                if src_len > self._max_valid_length or not src_len:
+                if src_len < 2:
                     continue
                 if self._iter_log_handler is not None:
                     self._iter_log_handler("{}: Filling Reader Buffer [rfp: {}%]".format(
