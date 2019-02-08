@@ -52,7 +52,7 @@ class RNNLM(AbsCompleteModel):
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
         self.enc_embedding = backend.nn.Embedding(len(train_dataset.source_vocabulary), hidden_size)
-        self.enc_lstm = backend.nn.LSTM(hidden_size * 3, hidden_size, bidirectional=self.bidirectional_encoding,
+        self.enc_lstm = backend.nn.LSTM(hidden_size, hidden_size, bidirectional=self.bidirectional_encoding,
                                         num_layers=n_e_layers)
         self.num_enc_layers = n_e_layers
         self.enc_hidden_size = hidden_size
@@ -75,12 +75,9 @@ class RNNLM(AbsCompleteModel):
         embedded_input = self.enc_embedding(input_variable)
         output = long_tensor(input_length, batch_size, 1).squeeze(-1)
         loss = 0
-        # INPUT_FEED looks redundant !!!
-        input_feed = zeros_tensor(1, batch_size, self.encoder_output_size)
         for ei in range(input_length - 1):
-            encoder_input = backend.cat((embedded_input[ei].view(1, batch_size, self.enc_hidden_size), input_feed), -1)
+            encoder_input = embedded_input[ei].view(1, batch_size, self.enc_hidden_size)
             encoder_output, hidden_layer_params = self.enc_lstm(encoder_input, hidden_layer_params)
-            input_feed = encoder_output
             lm_output = self.generator(encoder_output).squeeze(0)
             loss += self.criterion(lm_output, input_variable[ei + 1])
             _, topi = lm_output.data.topk(1)
