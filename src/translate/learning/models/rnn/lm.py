@@ -25,6 +25,7 @@ from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
 from translate.readers.datareader import AbsDatasetReader
+from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
 
@@ -45,21 +46,28 @@ class RNNLM(AbsCompleteModel):
         n_e_layers = configs.get("trainer.model.nelayers", 1)
         decoder_dropout = configs.get("trainer.model.ddropout", 0.1)
         init_val = configs.get("trainer.model.init_val", 0.01)
+        decoder_weight_tying = configs.get("trainer.model.decoder_weight_tying", False)
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
 
         self.max_length = train_dataset.max_sentence_length()
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
-        self.enc_embedding = backend.nn.Embedding(len(train_dataset.source_vocabulary), hidden_size)
-        self.enc_lstm = backend.nn.LSTM(hidden_size, hidden_size, bidirectional=self.bidirectional_encoding,
-                                        num_layers=n_e_layers)
         self.num_enc_layers = n_e_layers
         self.enc_hidden_size = hidden_size
-        self.encoder_output_size = hidden_size
-        if self.bidirectional_encoding:
-            self.encoder_output_size *= 2
-        self.generator = GeneratorNN(self.encoder_output_size, len(train_dataset.target_vocabulary), decoder_dropout)
+        self.enc_embedding = backend.nn.Embedding(len(train_dataset.source_vocabulary), hidden_size)
+        self.enc_lstm = backend.nn.LSTM(hidden_size, hidden_size // 2 if self.bidirectional_encoding else hidden_size,
+                                        bidirectional=self.bidirectional_encoding, num_layers=n_e_layers)
+
+        self.generator = GeneratorNN(hidden_size, len(train_dataset.target_vocabulary), decoder_dropout)
+        if decoder_weight_tying:
+            # "Using the Output Embedding to Improve Language Models" (Press & Wolf 2016)
+            # https://arxiv.org/abs/1608.05859
+            # and
+            # "Tying Word Vectors and Word Classifiers: A Loss Framework for Language Modeling" (Inan et al. 2016)
+            # https://arxiv.org/abs/1611.01462
+            logger.info("Tying the weights in RNNLM.Encoder")
+            self.generator.out.weight = self.enc_embedding.weight
         for p_set in self.optimizable_params_list():
             for p in p_set:
                 p.data.uniform_(-init_val, init_val)
@@ -70,8 +78,9 @@ class RNNLM(AbsCompleteModel):
         batch_size = input_variable.size(0)
         input_variable = input_variable.transpose(0, 1)
         input_length = input_variable.size(0)
-        hidden_layer_params = zeros_tensor(n_dirs * self.num_enc_layers, batch_size, self.enc_hidden_size), \
-            zeros_tensor(n_dirs * self.num_enc_layers, batch_size, self.enc_hidden_size)
+        h_size = self.enc_hidden_size // 2 if self.bidirectional_encoding else self.enc_hidden_size
+        hidden_layer_params = zeros_tensor(n_dirs * self.num_enc_layers, batch_size, h_size), \
+            zeros_tensor(n_dirs * self.num_enc_layers, batch_size, h_size)
         embedded_input = self.enc_embedding(input_variable)
         output = long_tensor(input_length, batch_size, 1).squeeze(-1)
         loss = 0

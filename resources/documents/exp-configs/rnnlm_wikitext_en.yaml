@@ -41,7 +41,7 @@ trainer:
         bsize: 32 # size of the training sentence batches
         init_val: 0.1 # the value to range of which random variables get initiated
         best_model_path: null # the address of the best pre-trained model to be loaded before staring the train/test
-        decoder_weight_tying: false # whether the weights need to be tied between the decoder embedding and generator
+        decoder_weight_tying: true # whether the weights need to be tied between the decoder embedding and generator
         ####### seq2seq/rnnlm configurations
         tfr: 1.001 # teacher forcing ratio
         auto_tfr: false # if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch
