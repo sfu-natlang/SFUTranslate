@@ -54,6 +54,9 @@ trainer:
         nelayers: 1
         ndlayers: 1
         ddropout: 0.1
+        decoder_attention_type: global
+        decoder_local_attention_d: 0.0
+        decoder_attention_method: dot
     optimizer:
         name: adam
         lr: 1e-3

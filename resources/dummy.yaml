@@ -55,8 +55,9 @@ trainer:
         ndlayers: 1 # number of hidden layers in decoder
         edropout: 0.3 # the dropout probability in the encoder
         ddropout: 0.3 # the dropout probability in the decoder
-        decoder_local_attention: false
-        decoder_local_attention_d: 0.0
+        decoder_attention_type: global # the type of attention used in the decoder, possible values [local|global]
+        decoder_local_attention_d: 0.0 # the window span size of the local attention
+        decoder_attention_method: dot # the attention type, possible values [add|general|concat|dot]
         ####### transformer configurations
         N: 6 # number of encoder/decoder layers
         d_model: 512 # size of each encoder/decoder layer

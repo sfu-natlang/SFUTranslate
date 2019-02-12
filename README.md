@@ -121,8 +121,9 @@ trainer:
         ndlayers:  number of hidden layers in decoder
         edropout: the dropout probability in the encoder
         ddropout: the dropout probability in the decoder
-        decoder_local_attention: the flag indicating whether the attention is supposed to be local or global
-        decoder_local_attention_d: the local attention diameter in case of local attention
+        decoder_attention_type:  the type of attention, possible values ['local'|'global']
+        decoder_local_attention_d: the diameter of attention span in case of performing the local attention
+        decoder_attention_method: the method of attention to be used, possible values ['dot', 'general', 'concat', 'add']
         ####### transformer configurations
         N: number of encoder/decoder layers
         d_model: size of each encoder/decoder layer

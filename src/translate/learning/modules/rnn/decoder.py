@@ -3,7 +3,7 @@ The RNN implementation of the Decoder module in the sequence to sequence framewo
  the attention module.
 """
 from translate.backend.utils import backend, zeros_tensor
-from translate.learning.modules.mlp.attention import GlobalAttention
+from translate.learning.modules.mlp.attention import GlobalAttention, LocalPredictiveAttention
 
 __author__ = "Hassan S. Shavarani"
 
@@ -38,7 +38,8 @@ class Attention(backend.nn.Module):
 
 class DecoderRNN(backend.nn.Module):
     def __init__(self, hidden_size: int, output_size: int, bidirectional_hidden_state: bool, max_length: int,
-                 n_layers=1, batch_size=1, dropout_p=0.1):
+                 n_layers=1, batch_size=1, dropout_p=0.1, attention_method='dot', attention_type='global',
+                 local_attention_d=0.0):
         """
         :param hidden_size: the output size of the last encoder hidden layer which is used as input in the decoder
         :param output_size: the output size of the decoder which is expected to be the size of the target vocabulary
@@ -48,6 +49,9 @@ class DecoderRNN(backend.nn.Module):
         :param batch_size: the expected size of batches passed through the decoder (note that this value might be
          different for some batches especially the last batches in the dataset)
         :param dropout_p: the dropout rate of the dropout layer applied to the input Embedding layer
+        :param attention_method: the method of attention to be used, possible values ['dot', 'general', 'concat', 'add']
+        :param attention_type: the type of attention to be either ['local' or 'global']
+        :param local_attention_d: the diameter of attention span in case of performing the local attention
         """
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -67,7 +71,10 @@ class DecoderRNN(backend.nn.Module):
         self.lstm = backend.nn.LSTM(self.hidden_size * 2, self.hidden_size,  num_layers=n_layers)
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
         # self.attention = Attention(self.hidden_size, self.max_length)
-        self.attention = GlobalAttention(self.hidden_size, method='dot')
+        if attention_type == 'local':
+            self.attention = LocalPredictiveAttention(self.hidden_size, local_attention_d, method=attention_method)
+        else:
+            self.attention = GlobalAttention(self.hidden_size, method=attention_method)
 
     def get_hidden_size(self):
         return self.hidden_size

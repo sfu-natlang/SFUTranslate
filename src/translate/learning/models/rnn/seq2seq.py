@@ -60,11 +60,14 @@ class SequenceToSequence(AbsCompleteModel):
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
-
+        attention_method = configs.get("trainer.model.decoder_attention_method", 'dot')
+        attention_type = configs.get("trainer.model.decoder_attention_type", 'global')
+        local_attention_d = configs.get("trainer.model.decoder_local_attention_d", 0.0)
         self.encoder = EncoderRNN(len(train_dataset.source_vocabulary),
                                   hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size)
         self.decoder = DecoderRNN(hidden_size, len(train_dataset.target_vocabulary), self.bidirectional_encoding,
-                                  self.max_length, n_d_layers, self.batch_size, decoder_dropout)
+                                  self.max_length, n_d_layers, self.batch_size, decoder_dropout, attention_method,
+                                  attention_type, local_attention_d)
         self.generator = GeneratorNN(self.decoder.get_hidden_size(), len(train_dataset.target_vocabulary),
                                      decoder_dropout, needs_additive_bias=not decoder_weight_tying)
         self.encoder_output_size = self.encoder.hidden_size
