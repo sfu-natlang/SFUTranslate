@@ -4,6 +4,7 @@ The RNN implementation of the Decoder module in the sequence to sequence framewo
 """
 from translate.backend.utils import backend, zeros_tensor
 from translate.learning.modules.mlp.attention import GlobalAttention, LocalPredictiveAttention
+from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
 
@@ -72,8 +73,10 @@ class DecoderRNN(backend.nn.Module):
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
         # self.attention = Attention(self.hidden_size, self.max_length)
         if attention_type == 'local':
+            logger.info("Loading the {} local-p attention with d={} ".format(attention_method, local_attention_d))
             self.attention = LocalPredictiveAttention(self.hidden_size, local_attention_d, method=attention_method)
         else:
+            logger.info("Loading the global {} attention".format(attention_method))
             self.attention = GlobalAttention(self.hidden_size, method=attention_method)
 
     def get_hidden_size(self):
