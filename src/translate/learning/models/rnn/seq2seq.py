@@ -22,7 +22,7 @@ from translate.learning.modules.rnn.decoder import DecoderRNN
 from translate.learning.modules.rnn.encoder import EncoderRNN
 from typing import List, Any, Tuple, Dict
 
-from translate.backend.utils import backend, list_to_long_tensor, long_tensor, device
+from translate.backend.utils import backend, list_to_long_tensor, long_tensor, device, zeros_tensor
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
@@ -94,13 +94,16 @@ class SequenceToSequence(AbsCompleteModel):
         encoder_outputs, encoder_hidden_params = self.encoder(input_variable,
                                                               self.encoder.init_hidden(batch_size=batch_size))
         decoder_input = list_to_long_tensor([self.sos_token_id] * batch_size).to(device)
-        # decoder_hidden, decoder_context = self.decoder.init_hidden(batch_size=batch_size)
-        decoder_hidden, decoder_context = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
+        # decoder_hidden_params = self.decoder.init_hidden(batch_size=batch_size)
+        decoder_hidden_params = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
+        # previous attended output is initiated to zeros
+        h_hat = zeros_tensor(1, batch_size, self.encoder_output_size).squeeze(0)
         output = long_tensor(target_length, batch_size, 1).squeeze(-1)
         loss = 0
         for di in range(target_length):
-            decoder_output, (decoder_hidden, decoder_context), decoder_attention = \
-                self.decoder(decoder_input, decoder_hidden, decoder_context, encoder_outputs, batch_size=batch_size)
+            decoder_output, decoder_hidden_params, decoder_attention = \
+                self.decoder(decoder_input, decoder_hidden_params, h_hat, encoder_outputs, batch_size=batch_size)
+            h_hat = decoder_output
             decoder_output = self.generator(decoder_output)
             loss += self.criterion(decoder_output, target_variable[di])
             _, topi = decoder_output.data.topk(1)

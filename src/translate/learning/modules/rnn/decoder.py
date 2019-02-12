@@ -3,6 +3,7 @@ The RNN implementation of the Decoder module in the sequence to sequence framewo
  the attention module.
 """
 from translate.backend.utils import backend, zeros_tensor
+from translate.learning.modules.mlp.attention import GlobalAttention
 
 __author__ = "Hassan S. Shavarani"
 
@@ -63,26 +64,42 @@ class DecoderRNN(backend.nn.Module):
 
         self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size)
         self.dropout = backend.nn.Dropout(self.dropout_p)
-        self.lstm = backend.nn.LSTM(self.hidden_size, self.hidden_size,  num_layers=n_layers)
+        self.lstm = backend.nn.LSTM(self.hidden_size * 2, self.hidden_size,  num_layers=n_layers)
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
-        self.attention = Attention(self.hidden_size, self.max_length)
+        # self.attention = Attention(self.hidden_size, self.max_length)
+        self.attention = GlobalAttention(self.hidden_size, method='dot')
 
     def get_hidden_size(self):
         return self.hidden_size
 
-    def forward(self, input_tensor, hidden_layer, context, encoder_outputs, batch_size=-1):
+    def forward(self, input_tensor, hidden_layer_params, previous_h_hat, encoder_outputs, batch_size=-1):
+        """
+        :param input_tensor: : 1-D Tensor [batch_size]
+        :param hidden_layer_params: Pair of size 2 of 2-D Tensors [batch_size, dec_hidden_size]
+        :param previous_h_hat: 2-D Tensor [batch_size, decoder_hidden_size]
+        :param encoder_outputs: 3-D Tensor [max_encoder_length, batch_size, encoder_hidden_size]
+        :param batch_size: integer stating the size of :param input_tensor:
+        :return: 2-D Tensor [batch_size, dec_hidden_size], Pair of size 2 of 2-D Tensors [batch_size, dec_hidden_size],
+         2-D Tensor [batch_size, decoder_hidden_size], 2-D Tensor [batch_size, encoded_inputs_length]
+        """
         if batch_size == -1:
             batch_size = self.batch_size
         embedded = self.embedding(input_tensor).view(1, batch_size, self.hidden_size)
+        # embedded -> 2-D Tensor of size [batch_size, decoder_hidden_size]
         embedded = self.dropout(embedded)
+        #  commented code: output, attn_weights = self.attention(encoder_outputs, embedded[0], hidden_layer[0])
+        # output -> 3-D Tensor of size [1 (time), batch_size, decoder_hidden_size]
+        output, hidden_layer_params = self.lstm(backend.cat((embedded, previous_h_hat.unsqueeze(0)), -1),
+                                                hidden_layer_params)
+        # h_hat -> 2-D Tensor [batch_size, decoder_hidden_size]
+        # _ -> 2-D Tensor [batch_size, decoder_hidden_size]
+        # attention_weights -> 2-D Tensor [batch_size, encoded_inputs_length]
+        h_hat, _, attention_weights = self.attention(encoder_outputs, output[0])
 
-        output, attn_weights = self.attention(encoder_outputs, embedded[0], hidden_layer[0])
+        h_hat = backend.nn.functional.relu(h_hat)
 
-        output = backend.nn.functional.relu(output)
-        output, (hidden_layer, context) = self.lstm(output, (hidden_layer, context))
-
-        # output = backend.nn.functional.log_softmax(self.out(), dim=1)
-        return output[0], (hidden_layer, context), attn_weights
+        # commented code: output = backend.nn.functional.log_softmax(self.out(), dim=1)
+        return h_hat, hidden_layer_params, attention_weights
 
     def reformat_encoder_hidden_states(self, encoder_hidden_prams):
         """
