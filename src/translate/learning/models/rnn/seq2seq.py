@@ -88,7 +88,10 @@ class SequenceToSequence(AbsCompleteModel):
 
     def forward(self, input_variable: backend.Tensor, target_variable: backend.Tensor, *args, **kwargs) \
             -> Tuple[backend.Tensor, int, List[Any]]:
-
+        """
+        :param input_variable: 2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
+        :param target_variable:  2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
+        """
         batch_size = input_variable.size(0)
         input_variable = input_variable.transpose(0, 1)
         target_variable = target_variable.transpose(0, 1)
