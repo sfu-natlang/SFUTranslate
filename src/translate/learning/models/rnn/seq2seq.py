@@ -26,6 +26,7 @@ from translate.backend.utils import backend, list_to_long_tensor, long_tensor, d
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
+from translate.learning.models.rnn.results import DecodingResult
 from translate.readers.datareader import AbsDatasetReader
 from translate.logging.utils import logger
 
@@ -86,52 +87,61 @@ class SequenceToSequence(AbsCompleteModel):
             for p in p_set:
                 p.data.uniform_(-init_val, init_val)
 
+    def encode(self, input_variable: backend.Tensor):
+        """
+        :param input_variable: 2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
+        """
+        return self.encoder(input_variable.transpose(0, 1), self.encoder.init_hidden(batch_size=input_variable.size(0)))
+
     def forward(self, input_variable: backend.Tensor, target_variable: backend.Tensor, *args, **kwargs) \
             -> Tuple[backend.Tensor, int, List[Any]]:
         """
         :param input_variable: 2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
-        :param target_variable:  2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
+        :param target_variable: 2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
         """
-        batch_size = input_variable.size(0)
-        input_variable = input_variable.transpose(0, 1)
-        target_variable = target_variable.transpose(0, 1)
-        target_length = target_variable.size(0)
+        encoder_outputs, encoder_hidden_params = self.encode(input_variable)
+        return self.greedy_decode(encoder_outputs, encoder_hidden_params, target_variable)
 
-        encoder_outputs, encoder_hidden_params = self.encoder(input_variable,
-                                                              self.encoder.init_hidden(batch_size=batch_size))
+    def greedy_decode(self, encoder_outputs: backend.Tensor, encoder_hidden_params: Tuple[backend.Tensor],
+                      target_variable: backend.Tensor=None):
+        """
+        :param encoder_outputs: 3-D Tensor [max_length (might vary per batch), batch_size, hidden_size]
+        :param encoder_hidden_params: Pair of size 2 of 3-D Tensors
+          [num_enc_dirs*n_enc_layers, batch_size, hidden_size//n_enc_dirs]
+        :param target_variable:  2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
+         in case of decoding a test sentence could be None
+        :return:
+        """
+        batch_size = encoder_outputs.size(1)
+        if target_variable is not None:
+            target_variable = target_variable.transpose(0, 1)
+            expected_target_length = target_variable.size(0)
         decoder_input = list_to_long_tensor([self.sos_token_id] * batch_size).to(device)
         # decoder_hidden_params = self.decoder.init_hidden(batch_size=batch_size)
         decoder_hidden_params = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
         # previous attended output is initiated to zeros
         h_hat = zeros_tensor(1, batch_size, self.encoder_output_size).squeeze(0)
-        output = long_tensor(target_length, batch_size, 1).squeeze(-1)
-        loss = 0
-        for di in range(target_length):
+        result = DecodingResult(batch_size, self.pad_token_id, self.eos_token_id)
+        loss = zeros_tensor(1, 1, 1).view(-1)
+        target_length = 0
+        while not (result.decoding_completed or (
+                        target_variable is not None and target_length > 2 * expected_target_length)):
             decoder_output, decoder_hidden_params, decoder_attention = \
                 self.decoder(decoder_input, decoder_hidden_params, h_hat, encoder_outputs, batch_size=batch_size)
             h_hat = decoder_output
             decoder_output = self.generator(decoder_output)
-            loss += self.criterion(decoder_output, target_variable[di])
-            _, topi = decoder_output.data.topk(1)
-            output[di] = topi.view(-1).detach()
-            if random.random() < self.teacher_forcing_ratio:
+            if target_variable is not None:
+                di = target_length if target_length < expected_target_length \
+                    else expected_target_length - 1
+                loss += self.criterion(decoder_output, target_variable[di])
+            next_decoder_input = result.append(*decoder_output.data.topk(1))
+            if random.random() < self.teacher_forcing_ratio and target_variable is not None:
                 decoder_input = target_variable[di]  # Teacher forcing
             else:
-                decoder_input = topi.view(-1).to(device).detach()
+                decoder_input = next_decoder_input
+            target_length += 1
 
-        output = output.transpose(0, 1)
-        result_decoded_word_ids = []
-        for di in range(output.size()[0]):
-            sent = []
-            for word in output[di]:
-                word = word.item()
-                if word != self.pad_token_id:
-                    sent.append(word)
-                if word == self.eos_token_id:
-                    break
-            result_decoded_word_ids.append(sent)
-
-        return loss, target_length, result_decoded_word_ids
+        return loss, target_length, result.ids
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters(), self.generator.parameters()]
