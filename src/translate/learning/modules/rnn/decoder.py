@@ -38,14 +38,13 @@ class Attention(backend.nn.Module):
 
 
 class DecoderRNN(backend.nn.Module):
-    def __init__(self, hidden_size: int, output_size: int, bidirectional_hidden_state: bool, max_length: int,
+    def __init__(self, hidden_size: int, output_size: int, bidirectional_hidden_state: bool,
                  n_layers=1, batch_size=1, dropout_p=0.1, attention_method='dot', attention_type='global',
                  local_attention_d=0.0):
         """
         :param hidden_size: the output size of the last encoder hidden layer which is used as input in the decoder
         :param output_size: the output size of the decoder which is expected to be the size of the target vocabulary
         :param bidirectional_hidden_state: a flag indicating whether the encoder has been operating bidirectionally
-        :param max_length: the maximum expected length of the input/output sequence
         :param n_layers: number of expected decoder hidden layers
         :param batch_size: the expected size of batches passed through the decoder (note that this value might be
          different for some batches especially the last batches in the dataset)
@@ -61,7 +60,6 @@ class DecoderRNN(backend.nn.Module):
             self.hidden_size *= 2
         self.output_size = output_size
         self.dropout_p = dropout_p
-        self.max_length = max_length
 
         self.num_directions = 1
         self.num_layers = n_layers

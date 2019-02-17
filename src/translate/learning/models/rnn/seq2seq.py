@@ -57,7 +57,7 @@ class SequenceToSequence(AbsCompleteModel):
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
         decoder_weight_tying = configs.get("trainer.model.decoder_weight_tying", False)
 
-        self.max_length = train_dataset.max_sentence_length()
+        self.max_decoding_length = train_dataset.max_sentence_length()
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
@@ -67,8 +67,8 @@ class SequenceToSequence(AbsCompleteModel):
         self.encoder = EncoderRNN(len(train_dataset.source_vocabulary),
                                   hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size)
         self.decoder = DecoderRNN(hidden_size, len(train_dataset.target_vocabulary), self.bidirectional_encoding,
-                                  self.max_length, n_d_layers, self.batch_size, decoder_dropout, attention_method,
-                                  attention_type, local_attention_d)
+                                  n_d_layers, self.batch_size, decoder_dropout, attention_method, attention_type,
+                                  local_attention_d)
         self.generator = GeneratorNN(self.decoder.get_hidden_size(), len(train_dataset.target_vocabulary),
                                      decoder_dropout, needs_additive_bias=not decoder_weight_tying)
         self.encoder_output_size = self.encoder.hidden_size
@@ -116,6 +116,8 @@ class SequenceToSequence(AbsCompleteModel):
         if target_variable is not None:
             target_variable = target_variable.transpose(0, 1)
             expected_target_length = target_variable.size(0)
+        else:
+            expected_target_length = self.max_decoding_length
         decoder_input = list_to_long_tensor([self.sos_token_id] * batch_size).to(device)
         # decoder_hidden_params = self.decoder.init_hidden(batch_size=batch_size)
         decoder_hidden_params = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
@@ -124,8 +126,7 @@ class SequenceToSequence(AbsCompleteModel):
         result = DecodingResult(batch_size, self.pad_token_id, self.eos_token_id)
         loss = zeros_tensor(1, 1, 1).view(-1)
         target_length = 0
-        while not (result.decoding_completed or (
-                        target_variable is not None and target_length > 2 * expected_target_length)):
+        while not result.decoding_completed and target_length < 2 * expected_target_length:
             decoder_output, decoder_hidden_params, decoder_attention = \
                 self.decoder(decoder_input, decoder_hidden_params, h_hat, encoder_outputs, batch_size=batch_size)
             h_hat = decoder_output
