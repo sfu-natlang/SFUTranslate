@@ -15,7 +15,7 @@ class _DecodingSentence:
         self._eos_reached = False
         self.sentence_probability = 0
 
-    def append(self, word_id_log_probabilities: backend.Tensor, word_ids: backend.Tensor):
+    def append(self, word_ids: backend.Tensor, word_id_log_probabilities: backend.Tensor):
         """
         :param word_ids: 1-D Tensor of size [beam_size] containing word ids
         :param word_id_log_probabilities: 1-D Tensor of size [beam_size] containing word ids
@@ -27,6 +27,10 @@ class _DecodingSentence:
             self._eos_reached = True
         self.word_ids.append(word)
         self.sentence_probability += word_id_log_probabilities
+
+    @property
+    def log_probability(self):
+        return self.sentence_probability.item() / len(self.word_ids) if len(self.word_ids) else 0.0
 
     @property
     def eos_reached(self):
@@ -50,7 +54,7 @@ class DecodingResult:
         self.batch_sentences = [_DecodingSentence(eos_id, pad_id) for _ in range(batch_size)]
         self.batch_size = batch_size
 
-    def append(self, batch_ids: backend.Tensor, batch_id_probabilities: backend.Tensor):
+    def append(self, batch_id_probabilities: backend.Tensor, batch_ids: backend.Tensor):
         """
         :param batch_ids: 2-D Tensor of size [batch_size, beam_size]
         :param batch_id_probabilities: 2-D Tensor of size [batch_size, beam_size]
@@ -67,3 +71,7 @@ class DecodingResult:
     @property
     def ids(self):
         return [sent.ids for sent in self.batch_sentences]
+
+    @property
+    def log_probability(self):
+        return sum((sent.log_probability for sent in self.batch_sentences))

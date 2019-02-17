@@ -108,8 +108,9 @@ class RNNLM(AbsCompleteModel):
     def optimizable_params_list(self) -> List[Any]:
         return [self.enc_embedding.parameters(), self.enc_lstm.parameters(), self.generator.parameters()]
 
-    def validate_instance(self, prediction_loss: float, predictions_batch: Iterable[Iterable[int]],
-                          input_batch: backend.Tensor) -> Tuple[float, float, str]:
+    def validate_instance(self, source_tensor: backend.Tensor) -> Tuple[float, float, str]:
+        with backend.no_grad():
+            prediction_loss, _, predictions_batch = self.forward(source_tensor)
         hyps = self.dataset.target_sentensify_all(
             predictions_batch, reader_level=self.dataset.get_target_word_granularity())
         random_index = choice(range(len(hyps)))
