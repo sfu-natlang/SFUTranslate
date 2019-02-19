@@ -147,9 +147,9 @@ if __name__ == '__main__':
         model = estimator.load_checkpoint(best_saved_model_path)
         stat_collector.reset(dev.reader_type)
         stat_collector.reset(test.reader_type)
-        perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
+        perform_no_grad_dataset_iteration(dev, model, stat_collector)
         print("Validation Results => Loss: {:.3f}\tScore: {:.3f}".format(
             stat_collector.dev_loss, stat_collector.dev_score))
-        perform_no_grad_dataset_iteration(test, estimator, model, stat_collector)
+        perform_no_grad_dataset_iteration(test, model, stat_collector)
         print("Test Results => Loss: {:.3f}\tScore: {:.3f}".format(
             stat_collector.test_loss, stat_collector.test_score))
