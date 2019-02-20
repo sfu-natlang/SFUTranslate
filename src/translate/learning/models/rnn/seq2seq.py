@@ -22,7 +22,7 @@ from translate.learning.modules.rnn.decoder import DecoderRNN
 from translate.learning.modules.rnn.encoder import EncoderRNN
 from typing import List, Any, Tuple, Dict
 
-from translate.backend.utils import backend, list_to_long_tensor, long_tensor, device, zeros_tensor
+from translate.backend.utils import backend, list_to_long_tensor, device, zeros_tensor
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
@@ -41,7 +41,8 @@ class SequenceToSequence(AbsCompleteModel):
         :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
          model configuration
         """
-        super(SequenceToSequence, self).__init__(backend.nn.NLLLoss())
+        super(SequenceToSequence, self).__init__(backend.nn.NLLLoss(
+            ignore_index=train_dataset.target_vocabulary.get_pad_word_index()))
         self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.auto_teacher_forcing_ratio = configs.get("trainer.model.auto_tfr", False)
