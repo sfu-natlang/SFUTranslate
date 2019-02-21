@@ -29,3 +29,25 @@ def long_tensor(d1, d2, d3):
 
 def tensor2list(tensor: backend.Tensor):
     return tensor.cpu().numpy().tolist()
+
+
+def row_wise_batch_copy(input_tensor, copy_size):
+    """
+    The function which copies the tensor alongside its one to last dimension
+    :param input_tensor: the tensor to be copied
+    :param copy_size: the number of times each tensor gets copied
+    :return: the duplicated tensor
+    """
+    single_dimensional = False
+    if input_tensor.dim() == 1:
+        input_tensor = input_tensor.unsqueeze(-1)
+        single_dimensional = True
+    sizes = [1] * input_tensor.dim()
+    sizes[-1] = copy_size
+    view_sizes = list(input_tensor.size())
+    view_sizes[-2] *= copy_size
+    output = input_tensor.repeat(*sizes).view(*view_sizes)
+    if single_dimensional:
+        return output.squeeze(-1)
+    else:
+        return output
