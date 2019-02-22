@@ -15,13 +15,20 @@ class _DecodingSentence:
         self._eos_reached = False
         self.sentence_probability = 0
 
+    def clone(self):
+        cln = _DecodingSentence(self.eos_id, self.pad_id)
+        cln.word_ids = [wid for wid in self.word_ids]
+        cln._eos_reached = self._eos_reached
+        cln.sentence_probability = self.sentence_probability
+        return cln
+
     def append(self, word_ids: backend.Tensor, word_id_log_probabilities: backend.Tensor):
         """
-        :param word_ids: 1-D Tensor of size [beam_size] containing word ids
-        :param word_id_log_probabilities: 1-D Tensor of size [beam_size] containing word ids
+        :param word_ids: 1-D Tensor of size [beam_size=1] containing word ids
+        :param word_id_log_probabilities: 1-D Tensor of size [beam_size=1] containing word ids
         """
         if word_ids.size(0) > 1:
-            raise ValueError("Beam sizes bigger than 1 are not yet supported")
+            raise ValueError("Beam sizes bigger than 1 are not supported")
         word = word_ids.item()
         if word == self.eos_id:
             self._eos_reached = True
@@ -42,6 +49,9 @@ class _DecodingSentence:
             return [word for word in self.word_ids[:self.word_ids.index(self.eos_id)] if word != self.pad_id]
         else:
             return [word for word in self.word_ids if word != self.pad_id]
+
+    def __del__(self):
+        del self.word_ids
 
 
 class DecodingResult:
