@@ -105,14 +105,19 @@ class BeamDecodingResult:
         :param batch_ids: 2-D Tensor of size [batch_size * beam_size, beam_size]
         :param batch_id_probabilities: 2-D Tensor of size [batch_size * beam_size, beam_size]
         :return: 1-D Tensor of size [batch_size * beam_size] in which each 'beam_size' number of elements together are 
-            related to one sentence
+            related to one sentence, a 1-D array of size `batch_size * beam_size` stating which previous state should be 
+             kept for each element
         """
         result = []
+        selection_bucket = []
         for index in range(batch_ids.size(0)):
             initial = index * self.beam_size
             end = (index + 1) * self.beam_size
-            result.append(self._beam_append(index, batch_ids[initial:end], batch_id_probabilities[initial:end]))
-        return backend.cat(result)
+            res, bucket_ids = self._beam_append(index, batch_ids[initial:end], batch_id_probabilities[initial:end])
+            result.append(res)
+            for sid in bucket_ids:
+                selection_bucket.append(initial + sid)
+        return backend.cat(result), selection_bucket
 
     def _beam_append(self, batch_index: int, beam_ids: backend.Tensor, beam_id_probabilities: backend.Tensor,):
         """
@@ -120,7 +125,8 @@ class BeamDecodingResult:
         :param batch_index: the sentence index in the batch
         :param beam_ids: 2-D Tensor of size [beam_size, beam_size]
         :param beam_id_probabilities: 2-D Tensor of size [beam_size, beam_size]
-        :return: 1-D Tensor of size [beam_size] which shows the `beam_size` best number of ids produced by the model 
+        :return: 1-D Tensor of size [beam_size] which shows the `beam_size` best number of ids produced by the model, 
+         a 1-D array of size `beam_size` stating which previous state should be kept for each beam
         """
         sentence_beam = self.batch_sentences[batch_index]
         scores = []
@@ -132,14 +138,16 @@ class BeamDecodingResult:
         selection = sorted(scores, key=lambda x: x[2], reverse=True)[:self.beam_size]
         new_beam = []
         resulting_ids = []
+        selection_buckets = []
         for i, j, _ in selection:
             new_beam_element = sentence_beam[i].clone()
             new_beam_element.append(beam_ids[i][j], beam_id_probabilities[i][j])
             resulting_ids.append(beam_ids[i][j].to(device).detach())
             new_beam.append(new_beam_element)
+            selection_buckets.append(i)
         del self.batch_sentences[batch_index][:]
         self.batch_sentences[batch_index] = new_beam
-        return backend.cat(resulting_ids)
+        return backend.cat(resulting_ids), selection_buckets
 
     @property
     def decoding_completed(self):
