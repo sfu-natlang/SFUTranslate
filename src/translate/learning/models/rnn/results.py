@@ -85,3 +85,92 @@ class DecodingResult:
     @property
     def log_probability(self):
         return sum((sent.log_probability for sent in self.batch_sentences))
+
+
+class BeamDecodingResult:
+    def __init__(self, batch_size, beam_size, pad_id, eos_id):
+        """
+        :param batch_size: the expected batch size of the tensors passed to be kept track of
+        :param beam_size: the expected beam_size to keep track of the result
+        :param pad_id: the target side pad id
+        :param eos_id: the target size end of sentence id
+        """
+        self.batch_sentences = [[_DecodingSentence(eos_id, pad_id) for _ in range(beam_size)]
+                                for _ in range(batch_size)]
+        self.batch_size = batch_size
+        self.beam_size = beam_size
+
+    def append(self, batch_id_probabilities: backend.Tensor, batch_ids: backend.Tensor):
+        """
+        :param batch_ids: 2-D Tensor of size [batch_size * beam_size, beam_size]
+        :param batch_id_probabilities: 2-D Tensor of size [batch_size * beam_size, beam_size]
+        :return: 1-D Tensor of size [batch_size * beam_size] in which each 'beam_size' number of elements together are 
+            related to one sentence
+        """
+        result = []
+        for index in range(batch_ids.size(0)):
+            initial = index * self.beam_size
+            end = (index + 1) * self.beam_size
+            result.append(self._beam_append(index, batch_ids[initial:end], batch_id_probabilities[initial:end]))
+        return backend.cat(result)
+
+    def _beam_append(self, batch_index: int, beam_ids: backend.Tensor, beam_id_probabilities: backend.Tensor,):
+        """
+        The function in charge of taking the results of the beam search for one sentence and prune the irrelevant ones
+        :param batch_index: the sentence index in the batch
+        :param beam_ids: 2-D Tensor of size [beam_size, beam_size]
+        :param beam_id_probabilities: 2-D Tensor of size [beam_size, beam_size]
+        :return: 1-D Tensor of size [beam_size] which shows the `beam_size` best number of ids produced by the model 
+        """
+        sentence_beam = self.batch_sentences[batch_index]
+        scores = []
+        for i in range(self.beam_size):
+            ith_beam_prob = sentence_beam[i].log_probability  # one instance of _DecodingSentence
+            ith_beam_log_probabilities = beam_id_probabilities[i]  # 1-D Tensor of size [beam_size]
+            for j in range(self.beam_size):
+                scores.append((i, j, ith_beam_prob + ith_beam_log_probabilities[j].item()))
+        selection = sorted(scores, key=lambda x: x[2], reverse=True)[:self.beam_size]
+        new_beam = []
+        resulting_ids = []
+        for i, j, _ in selection:
+            new_beam_element = sentence_beam[i].clone()
+            new_beam_element.append(beam_ids[i][j], beam_id_probabilities[i][j])
+            resulting_ids.append(beam_ids[i][j].to(device).detach())
+            new_beam.append(new_beam_element)
+        del self.batch_sentences[batch_index][:]
+        self.batch_sentences[batch_index] = new_beam
+        return backend.cat(resulting_ids)
+
+    @property
+    def decoding_completed(self):
+        return self.batch_size == sum((sent.eos_reached for beam_sent in self.batch_sentences for sent in beam_sent))
+
+    @property
+    def ids(self):
+        result = []
+        for beam_sent in self.batch_sentences:
+            best_sent = None
+            best_score = float("-inf")
+            for sent in beam_sent:
+                if sent.log_probability > best_score:
+                    best_score = sent.log_probability
+                    best_sent = sent
+            if best_sent is not None:  # should be always true
+                result.append(best_sent.ids)
+            else:
+                result.append([])
+        return result
+
+    @property
+    def log_probability(self):
+        result = []
+        for beam_sent in self.batch_sentences:
+            best_score = float("-inf")
+            best_score_found = False
+            for sent in beam_sent:
+                if sent.log_probability > best_score:
+                    best_score = sent.log_probability
+                    best_score_found = True
+            if best_score_found:  # should be always true
+                result.append(best_score)
+        return sum(result)
