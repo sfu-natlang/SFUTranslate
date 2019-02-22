@@ -27,7 +27,7 @@ class _DecodingSentence:
         :param word_ids: 1-D Tensor of size [beam_size=1] containing word ids
         :param word_id_log_probabilities: 1-D Tensor of size [beam_size=1] containing word ids
         """
-        if word_ids.size(0) > 1:
+        if word_ids.dim() > 0 and word_ids.size(0) > 1:
             raise ValueError("Beam sizes bigger than 1 are not supported")
         word = word_ids.item()
         if word == self.eos_id:
@@ -142,7 +142,7 @@ class BeamDecodingResult:
         for i, j, _ in selection:
             new_beam_element = sentence_beam[i].clone()
             new_beam_element.append(beam_ids[i][j], beam_id_probabilities[i][j])
-            resulting_ids.append(beam_ids[i][j].to(device).detach())
+            resulting_ids.append(beam_ids[i][j].unsqueeze(-1).to(device).detach())
             new_beam.append(new_beam_element)
             selection_buckets.append(i)
         del self.batch_sentences[batch_index][:]
