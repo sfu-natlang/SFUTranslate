@@ -151,7 +151,8 @@ class BeamDecodingResult:
 
     @property
     def decoding_completed(self):
-        return self.batch_size == sum((sent.eos_reached for beam_sent in self.batch_sentences for sent in beam_sent))
+        return self.batch_size * self.beam_size == sum(
+            (sent.eos_reached for beam_sent in self.batch_sentences for sent in beam_sent))
 
     @property
     def ids(self):
@@ -160,8 +161,9 @@ class BeamDecodingResult:
             best_sent = None
             best_score = float("-inf")
             for sent in beam_sent:
-                if sent.log_probability > best_score:
-                    best_score = sent.log_probability
+                avg_token_prob = sent.log_probability / len(sent.ids)
+                if avg_token_prob > best_score:
+                    best_score = avg_token_prob
                     best_sent = sent
             if best_sent is not None:  # should be always true
                 result.append(best_sent.ids)
@@ -174,11 +176,14 @@ class BeamDecodingResult:
         result = []
         for beam_sent in self.batch_sentences:
             best_score = float("-inf")
+            best_scoring_len = 0.0
             best_score_found = False
             for sent in beam_sent:
-                if sent.log_probability > best_score:
-                    best_score = sent.log_probability
+                avg_token_prob = sent.log_probability / len(sent.ids)
+                if avg_token_prob > best_score:
+                    best_score = avg_token_prob
                     best_score_found = True
+                    best_scoring_len = len(sent.ids)
             if best_score_found:  # should be always true
-                result.append(best_score)
+                result.append(best_score * best_scoring_len)
         return sum(result)
