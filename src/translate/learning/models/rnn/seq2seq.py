@@ -58,6 +58,13 @@ class SequenceToSequence(AbsCompleteModel):
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
         decoder_weight_tying = configs.get("trainer.model.decoder_weight_tying", False)
 
+        self.beam_size = configs.get("trainer.model.beam_size", 1)
+        assert self.beam_size >= 1
+        if self.beam_size == 1:
+            logger.info("The validation would be performed using Greedy Decoding")
+        else:
+            logger.info("The validation would be performed using Beam Search Decoding with Beam Size %d" %
+                        self.beam_size)
         self.max_decoding_length = train_dataset.max_sentence_length()
         self.sos_token_id = train_dataset.target_vocabulary.get_begin_word_index()
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
@@ -211,7 +218,11 @@ class SequenceToSequence(AbsCompleteModel):
         """
         with backend.no_grad():
             encoder_outputs, encoder_hidden_params = self.encode(source_tensor)
-            log_prob, target_length, predicted_ids = self.greedy_decode(encoder_outputs, encoder_hidden_params, None)
+            if self.beam_size == 1:
+                log_prob, target_length, predicted_ids = self.greedy_decode(encoder_outputs, encoder_hidden_params,None)
+            else:
+                log_prob, target_length, predicted_ids = self.beam_search_decode(encoder_outputs, encoder_hidden_params,
+                                                                                 None, self.beam_size)
         bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
             reference_tensor, predicted_ids, ref_is_tensor=True, reader_level=self.dataset.get_target_word_granularity())
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)

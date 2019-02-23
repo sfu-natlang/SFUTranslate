@@ -112,6 +112,7 @@ trainer:
         init_val: the value to range of which random variables get initiated in NN models
         best_model_path: the path to the best previously trained model (ending in ".pt"). This attribute is optional and if is not passes the defalt will be set to "None" for it
         decoder_weight_tying: whether the weights need to be tied between the decoder embedding and generator
+        beam_size: the size of the beams used in validation beam search, if set to 1 the search would be greedy search
         ####### seq2seq/rnnlm configurations
         tfr: teacher forcing ratio (if 1< teacher forcing is not used)
         auto_tfr: if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch

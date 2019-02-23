@@ -46,6 +46,7 @@ trainer:
         init_val: 0.1 # the value to range of which random variables get initiated
         best_model_path: null # the address of the best pre-trained model to be loaded before staring the train/test
         decoder_weight_tying: false # whether the weights need to be tied between the decoder embedding and generator
+        beam_size: 1 # the size of the beams used in validation beam search, if set to 1 the search would be greedy search
         ####### seq2seq/rnnlm configurations
         tfr: 1.001 # teacher forcing ratio
         auto_tfr: false # if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch
