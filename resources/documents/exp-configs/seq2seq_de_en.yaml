@@ -48,6 +48,7 @@ trainer:
         bsize: 32
         init_val: 0.1
         best_model_path: null
+        beam_size: 1
         tfr: 1.001
         bienc: true
         hsize: 512
