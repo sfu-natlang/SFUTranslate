@@ -119,7 +119,7 @@ class BeamDecodingResult:
                 selection_bucket.append(initial + sid)
         return backend.cat(result), selection_bucket
 
-    def _beam_append(self, batch_index: int, beam_ids: backend.Tensor, beam_id_probabilities: backend.Tensor,):
+    def _beam_append(self, batch_index: int, beam_ids: backend.Tensor, beam_id_probabilities: backend.Tensor):
         """
         The function in charge of taking the results of the beam search for one sentence and prune the irrelevant ones
         :param batch_index: the sentence index in the batch
