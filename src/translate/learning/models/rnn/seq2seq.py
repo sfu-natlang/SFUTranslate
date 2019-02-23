@@ -22,11 +22,11 @@ from translate.learning.modules.rnn.decoder import DecoderRNN
 from translate.learning.modules.rnn.encoder import EncoderRNN
 from typing import List, Any, Tuple, Dict
 
-from translate.backend.utils import backend, list_to_long_tensor, device, zeros_tensor
+from translate.backend.utils import backend, list_to_long_tensor, device, zeros_tensor, row_wise_batch_copy
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
-from translate.learning.models.rnn.results import DecodingResult
+from translate.learning.models.rnn.results import GreedyDecodingResult, BeamDecodingResult
 from translate.readers.datareader import AbsDatasetReader
 from translate.logging.utils import logger
 
@@ -125,7 +125,7 @@ class SequenceToSequence(AbsCompleteModel):
         decoder_hidden_params = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
         # previous attended output is initiated to zeros
         h_hat = zeros_tensor(1, batch_size, self.encoder_output_size).squeeze(0)
-        result = DecodingResult(batch_size, self.pad_token_id, self.eos_token_id)
+        result = GreedyDecodingResult(batch_size, self.pad_token_id, self.eos_token_id)
         loss = zeros_tensor(1, 1, 1).view(-1)
         target_length = 0
         while not result.decoding_completed and target_length < 2 * expected_target_length:
@@ -140,6 +140,57 @@ class SequenceToSequence(AbsCompleteModel):
             next_decoder_input = result.append(*decoder_output.data.topk(1))
             if random.random() < self.teacher_forcing_ratio and target_variable is not None:
                 decoder_input = target_variable[di]  # Teacher forcing
+            else:
+                decoder_input = next_decoder_input
+            target_length += 1
+        if target_variable is not None:
+            return loss, target_length, result.ids
+        else:
+            return result.log_probability, target_length, result.ids
+
+    def beam_search_decode(self, encoder_outputs: backend.Tensor, encoder_hidden_params: Tuple[backend.Tensor],
+                           target_variable: backend.Tensor=None, k: int=1):
+        """
+        :param encoder_outputs: 3-D Tensor [max_length (might vary per batch), batch_size, hidden_size]
+        :param encoder_hidden_params: Pair of size 2 of 3-D Tensors
+          [num_enc_dirs*n_enc_layers, batch_size, hidden_size//n_enc_dirs]
+        :param target_variable:  2-D Tensor of size [batch_size, max_input_length (variable for each batch)]
+         in case of decoding a test sentence could be None
+        :param k: the beam size used for the beam search
+        :return:
+        """
+        assert k > 0
+        batch_size = encoder_outputs.size(1)
+        if target_variable is not None:
+            target_variable = target_variable.transpose(0, 1)
+            expected_target_length = target_variable.size(0)
+        else:
+            expected_target_length = self.max_decoding_length
+        encoder_outputs = row_wise_batch_copy(encoder_outputs, k)
+        decoder_input = list_to_long_tensor([self.sos_token_id] * (batch_size * k)).to(device)
+        # decoder_hidden_params = self.decoder.init_hidden(batch_size=batch_size)
+        decoder_hidden_params = self.decoder.reformat_encoder_hidden_states(encoder_hidden_params)
+        decoder_hidden_params = (row_wise_batch_copy(decoder_hidden_params[0], k),
+                                 row_wise_batch_copy(decoder_hidden_params[1], k))
+        # previous attended output is initiated to zeros
+        h_hat = zeros_tensor(1, batch_size * k, self.encoder_output_size).squeeze(0)
+        result = BeamDecodingResult(batch_size, k, self.pad_token_id, self.eos_token_id)
+        loss = zeros_tensor(1, 1, 1).view(-1)
+        target_length = 0
+        while not result.decoding_completed and target_length < 2 * expected_target_length:
+            decoder_output, decoder_hidden_params, decoder_attention = \
+                self.decoder(decoder_input, decoder_hidden_params, h_hat, encoder_outputs, batch_size=batch_size * k)
+            generator_output = self.generator(decoder_output)
+            if target_variable is not None:
+                di = target_length if target_length < expected_target_length \
+                    else expected_target_length - 1
+                loss += self.criterion(generator_output, row_wise_batch_copy(target_variable[di], k))
+            next_decoder_input, selection_bucket = result.append(*generator_output.data.topk(k))
+            h_hat = backend.stack([decoder_output[ind] for ind in selection_bucket], dim=0)
+            decoder_hidden_params = (backend.stack([decoder_hidden_params[0][:, ind] for ind in selection_bucket], dim=1),
+                                     backend.stack([decoder_hidden_params[1][:, ind] for ind in selection_bucket], dim=1))
+            if random.random() < self.teacher_forcing_ratio and target_variable is not None:
+                decoder_input = row_wise_batch_copy(target_variable[di], k)  # Teacher forcing
             else:
                 decoder_input = next_decoder_input
             target_length += 1

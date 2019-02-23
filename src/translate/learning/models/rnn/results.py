@@ -54,7 +54,7 @@ class _DecodingSentence:
         del self.word_ids
 
 
-class DecodingResult:
+class GreedyDecodingResult:
     def __init__(self, batch_size, pad_id, eos_id):
         """
         :param batch_size: the expected batch size of the tensors passed to be kept track of
@@ -110,7 +110,7 @@ class BeamDecodingResult:
         """
         result = []
         selection_bucket = []
-        for index in range(batch_ids.size(0)):
+        for index in range(self.batch_size):
             initial = index * self.beam_size
             end = (index + 1) * self.beam_size
             res, bucket_ids = self._beam_append(index, batch_ids[initial:end], batch_id_probabilities[initial:end])
