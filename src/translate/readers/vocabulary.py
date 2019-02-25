@@ -33,7 +33,7 @@ class Vocab:
         """
         self.i2w = words
         self.counter = counter
-        self.ensure_words_exist([self.bos_word, self.eos_word, self.pad_word, self.unk_word, self.space_word])
+        self.ensure_words_exist([self.pad_word, self.bos_word, self.eos_word, self.unk_word, self.space_word])
         self._fill_in_reverse_index_vocabulary()
 
     def __len__(self):

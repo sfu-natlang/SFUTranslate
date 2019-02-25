@@ -38,14 +38,13 @@ class Attention(backend.nn.Module):
 
 
 class DecoderRNN(backend.nn.Module):
-    def __init__(self, hidden_size: int, output_size: int, bidirectional_hidden_state: bool, max_length: int,
+    def __init__(self, hidden_size: int, output_size: int, bidirectional_hidden_state: bool,
                  n_layers=1, batch_size=1, dropout_p=0.1, attention_method='dot', attention_type='global',
-                 local_attention_d=0.0):
+                 local_attention_d=0.0, padding_index=-1):
         """
         :param hidden_size: the output size of the last encoder hidden layer which is used as input in the decoder
         :param output_size: the output size of the decoder which is expected to be the size of the target vocabulary
         :param bidirectional_hidden_state: a flag indicating whether the encoder has been operating bidirectionally
-        :param max_length: the maximum expected length of the input/output sequence
         :param n_layers: number of expected decoder hidden layers
         :param batch_size: the expected size of batches passed through the decoder (note that this value might be
          different for some batches especially the last batches in the dataset)
@@ -53,6 +52,7 @@ class DecoderRNN(backend.nn.Module):
         :param attention_method: the method of attention to be used, possible values ['dot', 'general', 'concat', 'add']
         :param attention_type: the type of attention to be either ['local' or 'global']
         :param local_attention_d: the diameter of attention span in case of performing the local attention
+        :param padding_index: the index to be ignored for conversion to embedding vectors
         """
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -61,13 +61,12 @@ class DecoderRNN(backend.nn.Module):
             self.hidden_size *= 2
         self.output_size = output_size
         self.dropout_p = dropout_p
-        self.max_length = max_length
 
         self.num_directions = 1
         self.num_layers = n_layers
         self.batch_size = batch_size
 
-        self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size)
+        self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size, padding_idx=padding_index)
         self.dropout = backend.nn.Dropout(self.dropout_p)
         self.lstm = backend.nn.LSTM(self.hidden_size * 2, self.hidden_size,  num_layers=n_layers)
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)

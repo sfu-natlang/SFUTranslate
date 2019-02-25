@@ -45,6 +45,7 @@ def create_optimizer(optimizer_name, unfiltered_params, lr, warmup_wrapper_neede
 def create_scheduler(scheduler_name, optimizer, configs):
     if scheduler_name.lower() == "cosine":
         n_epochs = configs.get("trainer.optimizer.epochs", must_exist=True)
+        n_epochs = n_epochs if n_epochs > 0 else 1
         eta_min = float(configs.get("trainer.optimizer.scheduler.eta_min", must_exist=True))
         return backend.optim.lr_scheduler.CosineAnnealingLR(optimizer, n_epochs, eta_min)
     elif scheduler_name.lower() == "step":

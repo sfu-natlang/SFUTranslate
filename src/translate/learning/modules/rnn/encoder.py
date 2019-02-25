@@ -7,7 +7,8 @@ __author__ = "Hassan S. Shavarani"
 
 
 class EncoderRNN(backend.nn.Module):
-    def __init__(self, input_size: int, hidden_size: int, bidirectional: bool, n_layers: int = 1, batch_size: int = 1):
+    def __init__(self, input_size: int, hidden_size: int, bidirectional: bool, n_layers: int = 1, batch_size: int = 1,
+                 padding_index=-1):
         """
         :param input_size: the input size of the encoder which is expected to be the size of the source vocabulary
         :param hidden_size: the output size of the encoder hidden layer which is used as input in the decoder
@@ -15,6 +16,7 @@ class EncoderRNN(backend.nn.Module):
         :param n_layers: number of expected encoder hidden layers
         :param batch_size: the expected size of batches passed through the encoder (note that this value might be
          different for some batches especially the last batches in the dataset)
+        :param padding_index: the index to be ignored for conversion to embedding vectors
         """
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -24,7 +26,7 @@ class EncoderRNN(backend.nn.Module):
             self.num_directions = 2
         self.num_layers = n_layers
         self.batch_size = batch_size
-        self.embedding = backend.nn.Embedding(input_size, hidden_size)
+        self.embedding = backend.nn.Embedding(input_size, hidden_size, padding_idx=padding_index)
         self.lstm = backend.nn.LSTM(hidden_size, hidden_size, bidirectional=bidirectional, num_layers=n_layers)
 
     def forward(self, input_tensor, hidden_layer_params):

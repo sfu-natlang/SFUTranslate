@@ -33,8 +33,8 @@ from translate.logging.utils import logger
 __author__ = "Hassan S. Shavarani"
 
 
-def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, model_estimator: Estimator,
-                                      complete_model: Type[AbsCompleteModel], stats_collector: StatCollector):
+def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, complete_model: Type[AbsCompleteModel],
+                                      stats_collector: StatCollector):
     """
     The function which goes over the passed :param dataset: and computes the validation scores for each batch in it
      using :param model_estimator: and the :param complete_model: sent to it. Validation results are then updated in the
@@ -43,7 +43,7 @@ def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, model_estimator
     dataset.allocate()
     _sample = ""
     for _values in get_padding_batch_loader(dataset, complete_model.batch_size):
-        _score, _loss, _sample = complete_model.validate_instance(*model_estimator.step_no_grad(*_values), *_values)
+        _score, _loss, _sample = complete_model.validate_instance(*_values)
         stats_collector.update(_score, _loss, dataset.reader_type)
     print("", end='\n', file=sys.stderr)
     logger.info(u"Sample: {}".format(_sample))
@@ -132,7 +132,7 @@ if __name__ == '__main__':
                                                 stat_collector.dev_loss, stat_collector.dev_score))
             if stat_collector.validation_required():
                 stat_collector.reset(dev.reader_type)
-                perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
+                perform_no_grad_dataset_iteration(dev, model, stat_collector)
                 if stat_collector.improved_recently() and save_best_models:
                     best_saved_model_path = estimator.save_checkpoint(stat_collector)
             if stat_collector.train_loss < early_stopping_loss:
@@ -147,9 +147,9 @@ if __name__ == '__main__':
         model = estimator.load_checkpoint(best_saved_model_path)
         stat_collector.reset(dev.reader_type)
         stat_collector.reset(test.reader_type)
-        perform_no_grad_dataset_iteration(dev, estimator, model, stat_collector)
+        perform_no_grad_dataset_iteration(dev, model, stat_collector)
         print("Validation Results => Loss: {:.3f}\tScore: {:.3f}".format(
             stat_collector.dev_loss, stat_collector.dev_score))
-        perform_no_grad_dataset_iteration(test, estimator, model, stat_collector)
+        perform_no_grad_dataset_iteration(test, model, stat_collector)
         print("Test Results => Loss: {:.3f}\tScore: {:.3f}".format(
             stat_collector.test_loss, stat_collector.test_score))

@@ -112,6 +112,7 @@ trainer:
         init_val: the value to range of which random variables get initiated in NN models
         best_model_path: the path to the best previously trained model (ending in ".pt"). This attribute is optional and if is not passes the defalt will be set to "None" for it
         decoder_weight_tying: whether the weights need to be tied between the decoder embedding and generator
+        beam_size: the size of the beams used in validation beam search, if set to 1 the search would be greedy search
         ####### seq2seq/rnnlm configurations
         tfr: teacher forcing ratio (if 1< teacher forcing is not used)
         auto_tfr: if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch
@@ -168,7 +169,7 @@ In this section, we put the experiment results of different models on different 
 |:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
 |     [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml)     	|   Seq2Seq   	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.703           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
 | [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) 	| Transformer 	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.862           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
-|         [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017  	| German2English 	|           24.132           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
+|         [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017  	| German2English 	|           24.286           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
 |     [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml)     	| Transformer 	|  Translation 	|  IWSLT2017  	| German2English 	|           23.052           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
 |     [rnnlm_wikitext_en](resources/documents/exp-configs/rnnlm_wikitext_en.yaml)     	| RNNLM 	|  Language Modelling 	|  [WikiText-2](https://www.salesforce.com/products/einstein/ai-research/the-wikitext-dependency-language-modeling-dataset/)  	| English 	|           97.648           	| - |
 

@@ -94,20 +94,18 @@ class Transformer(AbsCompleteModel):
         # The decode function is not called while running the forward function due to optimization purposes.
         return loss, n_tokens, []
 
-    def validate_instance(self, prediction_loss: float, hyp_ids_list: List[List[int]], input_id_list: backend.Tensor,
-                          ref_ids_list: backend.Tensor, *args, **kwargs) -> Tuple[float, float, str]:
+    def validate_instance(self, source_tensor: backend.Tensor, reference_tensor: backend.Tensor, *args, **kwargs) \
+            -> Tuple[float, float, str]:
         """
-        :param prediction_loss: the model calculated loss value over the current prediction
-        :param hyp_ids_list: the current predicted Batch of sequences of ids. In case of this model the value is always
-         an empty list (it has not been removed from the api to make the interface consistent with the other types of 
-         model). This value can be safely ignored for this model since it will get computed inside this function
-        :param input_id_list: the input batch over which the predictions are generated
-        :param ref_ids_list: the expected Batch of sequences of ids
+        :param source_tensor: the input batch over which the predictions are generated
+        :param reference_tensor: the expected Batch of sequences of ids
         :param args: contains the Transformer style mask tensors (as the last two indices of the args list)
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
+
         hyp_ids_list = []
-        hyp_ids_tensor = self.greedy_decode(input_id_list, args[-2], self.max_length)[:, 1:]
+        with backend.no_grad():
+            hyp_ids_tensor = self.greedy_decode(source_tensor, args[-2], self.max_length)[:, 1:]
         for sentence_index in range(hyp_ids_tensor.size(0)):
             sent = []
             for word in hyp_ids_tensor[sentence_index]:
@@ -118,10 +116,12 @@ class Transformer(AbsCompleteModel):
                     break
             hyp_ids_list.append(sent)
         bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
-            ref_ids_list[:, 1:], hyp_ids_list, ref_is_tensor=True,
+            reference_tensor[:, 1:], hyp_ids_list, ref_is_tensor=True,
             reader_level=self.dataset.get_target_word_granularity())
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
-        return bleu_score, prediction_loss, result_sample
+        # TODO use the DecodingResult class for this method as well
+        # TODO compute the average prediction score (lm score over the output)
+        return bleu_score, 0.0, result_sample
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.model.parameters()]
