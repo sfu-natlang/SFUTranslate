@@ -77,8 +77,10 @@ class Preprocess:
         """
         if self.dataset_type.lower() == "iwslt":
             self._execute_iwslt_prep()
+        elif self.dataset_type.lower() == "wmt":
+            self._execute_wmt_prep()
         else:
-            self._execute_regular_prep()
+            raise NotImplementedError
 
     def _execute_iwslt_prep(self):
         src_train_files = self._access_text_file_lines(self.dataset_directory.rglob(
@@ -109,8 +111,37 @@ class Preprocess:
                                                self.result_directory / "test.{}".format(self.tgt_lang.name),
                                                self.tgt_lang, to_lower=True)
 
-    def _execute_regular_prep(self):
-        raise NotImplementedError
+    def _execute_wmt_prep(self):
+        src_train_files = self._access_text_file_lines((self.dataset_directory / "train").rglob(
+            "*.%s" % self.src_lang.name))
+        tgt_train_files = self._access_text_file_lines((self.dataset_directory / "train").rglob(
+            "*.%s" % self.tgt_lang.name))
+        src_dev_files = self._access_xml_seg_tags(
+            sorted((self.dataset_directory / "dev").rglob("*.%s.sgm" % self.src_lang.name)))
+        tgt_dev_files = self._access_xml_seg_tags(
+            sorted((self.dataset_directory / "dev").rglob("*.%s.sgm" % self.tgt_lang.name)))
+        src_test_files = self._access_xml_seg_tags(
+            sorted((self.dataset_directory / "test").rglob("*.%s.sgm" % self.src_lang.name)))
+        tgt_test_files = self._access_xml_seg_tags(
+            sorted((self.dataset_directory / "test").rglob("*.%s.sgm" % self.tgt_lang.name)))
+        self._preprocess_store_stream_of_lines(src_train_files,
+                                               self.result_directory / "train.{}".format(self.src_lang.name),
+                                               self.src_lang, to_lower=True)
+        self._preprocess_store_stream_of_lines(tgt_train_files,
+                                               self.result_directory / "train.{}".format(self.tgt_lang.name),
+                                               self.tgt_lang, to_lower=True)
+        self._preprocess_store_stream_of_lines(src_dev_files,
+                                               self.result_directory / "dev.{}".format(self.src_lang.name),
+                                               self.src_lang, to_lower=True)
+        self._preprocess_store_stream_of_lines(tgt_dev_files,
+                                               self.result_directory / "dev.{}".format(self.tgt_lang.name),
+                                               self.tgt_lang, to_lower=True)
+        self._preprocess_store_stream_of_lines(src_test_files,
+                                               self.result_directory / "test.{}".format(self.src_lang.name),
+                                               self.src_lang, to_lower=True)
+        self._preprocess_store_stream_of_lines(tgt_test_files,
+                                               self.result_directory / "test.{}".format(self.tgt_lang.name),
+                                               self.tgt_lang, to_lower=True)
 
     @staticmethod
     def _access_xml_seg_tags(file_paths):
