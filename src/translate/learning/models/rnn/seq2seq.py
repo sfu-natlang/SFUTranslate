@@ -45,6 +45,7 @@ class SequenceToSequence(AbsCompleteModel):
             ignore_index=train_dataset.target_vocabulary.get_pad_word_index()))
         self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
+        self.min_teacher_forcing_ratio = configs.get("trainer.model.min_tfr", 0.0)
         self.auto_teacher_forcing_ratio = configs.get("trainer.model.auto_tfr", False)
         if self.auto_teacher_forcing_ratio:
             self.teacher_forcing_ratio = 1.1
@@ -233,5 +234,6 @@ class SequenceToSequence(AbsCompleteModel):
         :param args: is expected to contain at least the two parameters "epoch" and "total"
         """
         if self.auto_teacher_forcing_ratio:
-            self.teacher_forcing_ratio = 1.1 - float(args["epoch"] / args["total"])
+            self.teacher_forcing_ratio = 1.001 - (
+                float(args["epoch"] * (1. - self.min_teacher_forcing_ratio)) / args["total"])
 

@@ -50,7 +50,8 @@ trainer:
         beam_size: 1 # the size of the beams used in validation beam search, if set to 1 the search would be greedy search
         ####### seq2seq/rnnlm configurations
         tfr: 1.001 # teacher forcing ratio
-        auto_tfr: false # if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch
+        auto_tfr: false # if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs * (1-min_tfr)) per epoch
+        min_tfr: 1.001 # if auto_tfr is set to true, the automatic tfr decay will begin from 1 and will get to this value after
         bienc: true # bidirectional encoding
         hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder
