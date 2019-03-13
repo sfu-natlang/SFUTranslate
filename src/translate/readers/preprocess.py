@@ -15,6 +15,7 @@ The config file must contain the following parts:
         source_lang: the bi-letter tag indicating the source language ['en'|'fr'|'de'|...]
         target_lang: the bi-letter tag indicating the target language ['en'|'fr'|'de'|...]
         dataset_type: the type of the data placed inside dataset_directory; possible values [REGULAR | IWSLT]
+        to_lower: whether the output preprocessed data needs to be lower-cased or not
 #####################################################################
 Currently supported pre-processing languages: `English`,`German`,`Spanish`,`Portuguese`,`French`,`Italian`, and `Dutch`.
 #####################################################################
@@ -48,6 +49,7 @@ class Preprocess:
         """
         self.dataset_directory = Path(configs.get("reader.preprocess.dataset_directory", must_exist=True))
         self.result_directory = Path(configs.get("reader.preprocess.result_directory", must_exist=True))
+        self.to_lower = configs.get("reader.preprocess.to_lower", False)
         if not self.result_directory.exists():
             self.result_directory.mkdir(parents=True)
         self.src_lang = LId[configs.get("reader.preprocess.source_lang", must_exist=True)]
@@ -94,22 +96,22 @@ class Preprocess:
 
         self._preprocess_store_stream_of_lines(src_train_files,
                                                self.result_directory / "train.{}".format(self.src_lang.name),
-                                               self.src_lang, to_lower=True)
+                                               self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_train_files,
                                                self.result_directory / "train.{}".format(self.tgt_lang.name),
-                                               self.tgt_lang, to_lower=True)
+                                               self.tgt_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(src_dev_files,
                                                self.result_directory / "dev.{}".format(self.src_lang.name),
-                                               self.src_lang, to_lower=True)
+                                               self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_dev_files,
                                                self.result_directory / "dev.{}".format(self.tgt_lang.name),
-                                               self.tgt_lang, to_lower=True)
+                                               self.tgt_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(src_test_files,
                                                self.result_directory / "test.{}".format(self.src_lang.name),
-                                               self.src_lang, to_lower=True)
+                                               self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_test_files,
                                                self.result_directory / "test.{}".format(self.tgt_lang.name),
-                                               self.tgt_lang, to_lower=True)
+                                               self.tgt_lang, to_lower=self.to_lower)
 
     def _execute_wmt_prep(self):
         src_train_files = self._access_text_file_lines((self.dataset_directory / "train").rglob(
@@ -126,19 +128,19 @@ class Preprocess:
             sorted((self.dataset_directory / "test").rglob("*.%s.sgm" % self.tgt_lang.name)))
         self._preprocess_store_stream_of_lines(src_train_files,
                                                self.result_directory / "train.{}".format(self.src_lang.name),
-                                               self.src_lang, to_lower=True)
+                                               self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_train_files,
                                                self.result_directory / "train.{}".format(self.tgt_lang.name),
-                                               self.tgt_lang, to_lower=True)
+                                               self.tgt_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(src_dev_files,
                                                self.result_directory / "dev.{}".format(self.src_lang.name),
-                                               self.src_lang, to_lower=True)
+                                               self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_dev_files,
                                                self.result_directory / "dev.{}".format(self.tgt_lang.name),
-                                               self.tgt_lang, to_lower=True)
+                                               self.tgt_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(src_test_files,
                                                self.result_directory / "test.{}".format(self.src_lang.name),
-                                               self.src_lang, to_lower=True)
+                                               self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_test_files,
                                                self.result_directory / "test.{}".format(self.tgt_lang.name),
                                                self.tgt_lang, to_lower=True)
