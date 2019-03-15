@@ -235,5 +235,5 @@ class SequenceToSequence(AbsCompleteModel):
         """
         if self.auto_teacher_forcing_ratio:
             self.teacher_forcing_ratio = 1.001 - (
-                float(args["epoch"] * (1. - self.min_teacher_forcing_ratio)) / args["total"])
+                float(args["epoch"] * (1. - self.min_teacher_forcing_ratio)) / args["total"]) ** 2
 
