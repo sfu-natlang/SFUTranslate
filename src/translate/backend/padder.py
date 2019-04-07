@@ -18,7 +18,7 @@ def _pad_transform_id_list(id_list: Union[List, backend.Tensor], max_length: int
     assert type(id_list[0]) is not list
     if type(id_list) == list:
         id_list.extend([pad_token_id] * (max_length - len(id_list)))
-        result = backend.LongTensor(id_list, device=device)
+        result = backend.LongTensor(id_list).to(device)
         if backend.cuda.is_available():
             return result.cuda()
         else:
