@@ -155,7 +155,9 @@ class StatCollector:
 
     @staticmethod
     def log_memory_stats():
-        logger.info("Maximum Memory Allocated: {:.3f}GB".format(backend.cuda.max_memory_allocated() / 1e9))
+        logger.info("Maximum Memory Allocated: {:.3f}GB/{:.3f}GB".format(backend.cuda.max_memory_allocated() / 2 ** 30,
+                                                                         backend.cuda.get_device_properties(
+                                                                             backend.device).total_memory / (2 ** 30)))
 
     def improved_recently(self) -> bool:
         """
