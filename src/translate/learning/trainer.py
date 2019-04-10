@@ -113,6 +113,7 @@ if __name__ == '__main__':
     else:
         logger.info("Skipping the training part [#epochs = 0]")
     for epoch in range(epochs):
+        stat_collector.log_memory_stats()
         if early_stopping:
             logger.info("Early stopping criteria fulfilled, stopping the training ...")
             break

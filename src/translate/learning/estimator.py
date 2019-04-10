@@ -153,6 +153,10 @@ class StatCollector:
         else:
             raise NotImplementedError
 
+    @staticmethod
+    def log_memory_stats():
+        logger.info("Maximum Memory Allocated: {:.3f}".format(backend.cuda.max_memory_allocated() / (1024 * 1024)))
+
     def improved_recently(self) -> bool:
         """
         Checks whether the stat collector has seen any loss improvements from the last time it was asked
@@ -267,7 +271,7 @@ class Estimator:
         for opt in self.optimizers:
             opt.step()
         del args, kwargs
-        backend.cuda.empty_cache()
+        # backend.cuda.empty_cache()
         return loss_value, computed_output
 
     def step_no_grad(self, *args, **kwargs):
