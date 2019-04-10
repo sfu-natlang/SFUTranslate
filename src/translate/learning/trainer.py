@@ -113,7 +113,6 @@ if __name__ == '__main__':
     else:
         logger.info("Skipping the training part [#epochs = 0]")
     for epoch in range(epochs):
-        stat_collector.log_memory_stats()
         if early_stopping:
             logger.info("Early stopping criteria fulfilled, stopping the training ...")
             break
@@ -143,6 +142,7 @@ if __name__ == '__main__':
         train.deallocate()
         estimator.step_schedulers()
         model.update_model_parameters({"epoch": epoch + 1, "total": epochs})
+        stat_collector.log_memory_stats()
     if best_saved_model_path is not None:
         logger.info("Loading the best checkpoint from \"{}\" for evaluation".format(best_saved_model_path))
         model = estimator.load_checkpoint(best_saved_model_path)
