@@ -233,7 +233,7 @@ class Estimator:
         self.grad_clip_norm = configs.get("trainer.optimizer.gcn", 5)
         warmup_needed = configs.get("trainer.optimizer.needs_warmup", False)
         self.experiment_name = configs.get("trainer.experiment.name", "unnamed")
-        self.model = model
+        self.model = model.train()
         logger.info('Loading {} optimizer(s) of type \"{}\" for training the model'.format(
             len(model.optimizable_params_list()), self.optim_name.upper()))
         self.optimizers = [create_optimizer(self.optim_name, x, self.learning_rate, warmup_needed, configs)
@@ -266,6 +266,8 @@ class Estimator:
         loss_value = _loss_.item() / _loss_size_ if _loss_size_ > 0.0 else 0.0
         for opt in self.optimizers:
             opt.step()
+        del args, kwargs
+        backend.cuda.empty_cache()
         return loss_value, computed_output
 
     def step_no_grad(self, *args, **kwargs):
@@ -275,8 +277,12 @@ class Estimator:
         :return: the average loss value for the batch instances plus the decoded output computed over the batch
         """
         with backend.no_grad():
+            self.model.eval()
             _loss_, _loss_size_, computed_output = self.model.forward(*args, *kwargs)
             loss_value = _loss_.item() / _loss_size_ if _loss_size_ > 0.0 else 0.0
+            self.model.train()
+            del args, kwargs
+            backend.cuda.empty_cache()
             return loss_value, computed_output
 
     def save_checkpoint(self, stat_collector: StatCollector) -> str:
