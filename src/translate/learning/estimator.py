@@ -5,7 +5,6 @@ Provides the optimizer creation, loss computation, back-propagation, and scoring
 import os
 import math
 from typing import Tuple, List, Type
-
 from translate.backend.utils import backend
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
@@ -156,8 +155,7 @@ class StatCollector:
     @staticmethod
     def log_memory_stats():
         logger.info("Maximum Memory Allocated: {:.3f}GB/{:.3f}GB".format(backend.cuda.max_memory_allocated() / 2 ** 30,
-                                                                         backend.cuda.get_device_properties(
-                                                                             backend.device).total_memory / (2 ** 30)))
+                                                                         backend.cuda.get_device_properties().total_memory / (2 ** 30)))
 
     def improved_recently(self) -> bool:
         """
