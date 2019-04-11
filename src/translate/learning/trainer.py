@@ -102,7 +102,6 @@ if __name__ == '__main__':
     estimator = Estimator(opts, model)
     # The only place in the code which inits the StatCollector object
     stat_collector = StatCollector(len(train), model.batch_size, higher_score_is_better)
-    stat_collector.log_memory_stats()
     best_saved_model_path = opts.get("trainer.model.best_model_path", None)
     early_stopping = False
     if epochs > 0:
