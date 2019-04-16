@@ -73,7 +73,7 @@ class MonolingualDataReader(AbsDatasetReader):
         self.files_opened = False
         self.data_stream = None
         self._buffer = None
-        self.lines_count = sum((1 for _ in self.data_file.open()))
+        self.lines_count = sum((1 for line in self.data_file.open() if len(line.strip())))
         self.data_stats = DatasetStats()
 
     def get_resource_lines(self):

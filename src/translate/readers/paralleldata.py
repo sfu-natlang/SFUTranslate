@@ -96,8 +96,8 @@ class ParallelDataReader(AbsDatasetReader):
         self.source = None
         self.target = None
         self._buffer = None
-        source_lines_count = sum((1 for _ in self.source_file.open()))
-        target_lines_count = sum((1 for _ in self.target_file.open()))
+        source_lines_count = sum((1 for line in self.source_file.open() if len(line.strip())))
+        target_lines_count = sum((1 for line in self.target_file.open() if len(line.strip())))
         assert source_lines_count == target_lines_count
         self.lines_count = source_lines_count
         self.source_stats = DatasetStats()
