@@ -18,9 +18,9 @@ trainer:
 """
 import math
 from random import choice
-from typing import List, Any, Tuple, Iterable
+from typing import List, Any, Tuple
 
-from translate.backend.utils import backend, long_tensor, zeros_tensor
+from translate.backend.utils import backend, long_tensor, zeros_tensor, Variable
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
@@ -38,10 +38,12 @@ class RNNLM(AbsCompleteModel):
         :param train_dataset: the dataset from which the statistics regarding dataset will be looked up during
          model configuration
         """
-        super(RNNLM, self).__init__(backend.nn.NLLLoss())
+        super(RNNLM, self).__init__(backend.nn.NLLLoss(
+            ignore_index=train_dataset.target_vocabulary.get_pad_word_index()))
         self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.bidirectional_encoding = configs.get("trainer.model.bienc", True)
+        self.max_backprop_length = train_dataset.max_sentence_length()
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
         n_e_layers = configs.get("trainer.model.nelayers", 1)
         decoder_dropout = configs.get("trainer.model.ddropout", 0.1)
@@ -81,17 +83,24 @@ class RNNLM(AbsCompleteModel):
         h_size = self.enc_hidden_size // 2 if self.bidirectional_encoding else self.enc_hidden_size
         hidden_layer_params = zeros_tensor(n_dirs * self.num_enc_layers, batch_size, h_size), \
             zeros_tensor(n_dirs * self.num_enc_layers, batch_size, h_size)
-        embedded_input = self.enc_embedding(input_variable)
         output = long_tensor(input_length, batch_size, 1).squeeze(-1)
+        loss_value = 0.0
         loss = 0
         for ei in range(input_length - 1):
-            encoder_input = embedded_input[ei].view(1, batch_size, self.enc_hidden_size)
+            encoder_input = self.enc_embedding(input_variable[ei]).view(1, batch_size, self.enc_hidden_size)
             encoder_output, hidden_layer_params = self.enc_lstm(encoder_input, hidden_layer_params)
             lm_output = self.generator(encoder_output).squeeze(0)
             loss += self.criterion(lm_output, input_variable[ei + 1])
             _, topi = lm_output.data.topk(1)
             output[ei] = topi.view(-1).detach()
-
+            # The implementation of truncated back-propagation without violating the general architecture of the project
+            if (ei and ei % self.max_backprop_length == 0) or ei == input_length - 2:
+                hidden_layer_params = (hidden_layer_params[0].detach(), hidden_layer_params[1].detach())
+                if type(loss) is not int:
+                    loss_value += loss.item()
+                    if loss.requires_grad:
+                        loss.backward()
+                    loss = 0
         output = output.transpose(0, 1)
         result_decoded_word_ids = []
         for di in range(output.size()[0]):
@@ -103,15 +112,16 @@ class RNNLM(AbsCompleteModel):
                 if word == self.eos_token_id:
                     break
             result_decoded_word_ids.append(sent)
-        return loss, input_length, result_decoded_word_ids
+        return Variable(backend.Tensor([loss_value]), requires_grad=True), input_length, result_decoded_word_ids
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.enc_embedding.parameters(), self.enc_lstm.parameters(), self.generator.parameters()]
 
     def validate_instance(self, source_tensor: backend.Tensor) -> Tuple[float, float, str]:
         with backend.no_grad():
-            prediction_loss, _, predictions_batch = self.forward(source_tensor)
+            prediction_loss, loss_length, predictions_batch = self.forward(source_tensor)
         hyps = self.dataset.target_sentensify_all(
             predictions_batch, reader_level=self.dataset.get_target_word_granularity())
         random_index = choice(range(len(hyps)))
-        return math.exp(prediction_loss), prediction_loss, hyps[random_index]
+        loss_value = prediction_loss.item() / loss_length if loss_length > 0.0 else 0.0
+        return math.exp(loss_value), loss_value, hyps[random_index]

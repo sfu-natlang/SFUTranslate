@@ -38,13 +38,16 @@ def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, complete_model:
     """
     The function which goes over the passed :param dataset: and computes the validation scores for each batch in it
      using :param model_estimator: and the :param complete_model: sent to it. Validation results are then updated in the
-      passed :param stats_collector: instance. 
+      passed :param stats_collector: instance.
     """
     dataset.allocate()
     _sample = ""
+    complete_model.eval()
     for _values in get_padding_batch_loader(dataset, complete_model.batch_size):
         _score, _loss, _sample = complete_model.validate_instance(*_values)
         stats_collector.update(_score, _loss, dataset.reader_type)
+        del _values
+    complete_model.train()
     print("", end='\n', file=sys.stderr)
     logger.info(u"Sample: {}".format(_sample))
     dataset.deallocate()
