@@ -1,0 +1,65 @@
+# To run this experiment, you need to
+#     0. put this file in /path/to/SFUTranslate/resources directory
+#     1. download the WikiText-2 dataset from https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-103-v1.zip
+#     2. extract it into a directory called wikitext-2 in /path/to/SFUTranslate/resources
+#     3. in resources directory, you may run:
+#         "cd /path/to/SFUTranslate/src && python -m translate.learning.trainer  <name of this file placed in the resources directory>"
+#     5. The test perplexity score of the dev set is expected to be around 36 (we got 35.655) and the test perplixity should also be aound 36 (36.098)
+
+# You can download our pre-trained model from /cs/natlang-expts/hassan/SFUTranslate/pretrained/rnnlm_wikitext_103_en.pt
+reader:
+    dataset:
+        type: mono
+        buffer_size: 10000
+        max_length: 100
+        source_lang: tokens
+        target_lang: tokens
+        working_dir: ../resources/wikitext-103
+        train_file_name: wiki.train
+        test_file_name: wiki.test
+        dev_file_name: wiki.valid
+        granularity:
+            src: BPE
+            tgt: BPE
+    vocab:
+        bos_word: '<s>'
+        eos_word: '</s>'
+        pad_word: '<pad>'
+        unk_word: '<unk>'
+        space_word: '<space>'
+        bpe_separator: '@@'
+        bpe_merge_size:
+            src: 50000
+            tgt: 50000
+        min_count:
+            src: 2
+            tgt: 2
+trainer:
+    model:
+        ####### universal configurations
+        type: rnnlm # possible values [seq2seq | rnnlm | transformer | bytenet]
+        bsize: 256 # size of the training sentence batches
+        init_val: 0.1 # the value to range of which random variables get initiated
+        best_model_path: null # the address of the best pre-trained model to be loaded before staring the train/test
+        decoder_weight_tying: true # whether the weights need to be tied between the decoder embedding and generator
+        ####### seq2seq/rnnlm configurations
+        tfr: 1.001 # teacher forcing ratio
+        auto_tfr: false # if set to "true" the tfr value will be ignored and the teacher forcing ratio will decay with a ration of (1/numbe_of_epochs) per epoch
+        bienc: true # bidirectional encoding
+        hsize: 2048 # hidden state size of RNN layers
+        nelayers: 1 # number of hidden layers in encoder
+        ddropout: 0.3
+        decoder_local_attention: false
+        decoder_local_attention_d: 0.0
+    optimizer:
+        name: adam
+        lr: 1e-3
+        gcn: 0
+        epochs: 6
+        save_best_models: true
+        early_stopping_loss: 0.01
+        scheduler:
+            name: cosine # possible values [cosine | step]
+            eta_min: 1e-5 # used for "cosine" scheduler
+    experiment:
+        name: rnnlm_wikitext_103_en
