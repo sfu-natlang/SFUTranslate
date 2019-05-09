@@ -23,6 +23,7 @@ reader:
         dev_file_name: dev.normalized
 ##################################################
 """
+from collections import deque
 from enum import Enum
 from random import shuffle
 from typing import Dict
@@ -96,6 +97,9 @@ class ParallelDataReader(AbsDatasetReader):
         self.source = None
         self.target = None
         self._buffer = None
+        self._buffer_token_size_src = 0
+        self._buffer_token_size_tgt = 0
+        self._temporary_buffer = deque([])
         source_lines_count = sum((1 for line in self.source_file.open() if len(line.strip())))
         target_lines_count = sum((1 for line in self.target_file.open() if len(line.strip())))
         assert source_lines_count == target_lines_count
@@ -162,7 +166,7 @@ class ParallelDataReader(AbsDatasetReader):
         """
         :return: the filling percentage of buffer out of 100%
         """
-        return "{:.1f}".format(len(self._buffer) * 100.0 / self._instance_buffer_size)
+        return "{:.1f}".format(len(self._temporary_buffer) * 100.0 / self._instance_buffer_size)
 
     def load_shared_reader_data(self, shared_data):
         if self.reader_type != ReaderType.TRAIN and shared_data is None:
@@ -191,6 +195,8 @@ class ParallelDataReader(AbsDatasetReader):
             if not self.files_opened:
                 logger.error("You might need to call \"allocate()\" first!")
                 raise StopIteration
+            temporary_buffer_token_size_src = 0
+            temporary_buffer_token_size_tgt = 0
             for src, tgt in zip(self.source, self.target):
                 src_ids = [self.source_vocabulary[x] for x in src.strip().split()]
                 tgt_ids = [self.target_vocabulary[x] for x in tgt.strip().split()]
@@ -207,11 +213,18 @@ class ParallelDataReader(AbsDatasetReader):
                     self.source_stats.update(src_len)
                 if self.target_stats is not None:
                     self.target_stats.update(tgt_len)
-                self._buffer.append((src_ids, tgt_ids, src_len + tgt_len))
-                if len(self._buffer) == self._instance_buffer_size:
+                self._temporary_buffer.append((src_ids, tgt_ids, src_len + tgt_len))
+                temporary_buffer_token_size_src += src_len
+                temporary_buffer_token_size_tgt += tgt_len
+                if len(self._temporary_buffer) == self._instance_buffer_size:
                     break
-                shuffle(self._buffer)
-                self._buffer = sorted(self._buffer, key=lambda element: element[2], reverse=True)
+            self._buffer.extend(list(self._temporary_buffer))
+            self._buffer_token_size_src += temporary_buffer_token_size_src
+            self._buffer_token_size_tgt += temporary_buffer_token_size_tgt
+            shuffle(self._buffer)
+            self._buffer = sorted(self._buffer, key=lambda element: element[2], reverse=True)
+            del self._temporary_buffer
+            self._temporary_buffer = deque([])
         if not len(self._buffer):
             raise StopIteration
         src, tgt, _ = self._buffer.pop(0)

@@ -104,7 +104,11 @@ if __name__ == '__main__':
         raise NotImplementedError
     estimator = Estimator(opts, model)
     # The only place in the code which inits the StatCollector object
-    stat_collector = StatCollector(len(train), model.batch_size, higher_score_is_better)
+    logger.info("Collecting the number of batches ...")
+    train.allocate()
+    actual_number_of_train_batches = sum(1 for _ in get_padding_batch_loader(train, model.batch_size))
+    train.deallocate()
+    stat_collector = StatCollector(actual_number_of_train_batches, higher_score_is_better)
     best_saved_model_path = opts.get("trainer.model.best_model_path", None)
     early_stopping = False
     if epochs > 0:
