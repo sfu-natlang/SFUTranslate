@@ -41,6 +41,7 @@ reader:
         result_directory: ../../../resources/iwslt_de_en/merge_lower_tokenized
         source_lang: de
         target_lang: en
+        to_lower: true
         dataset_type: IWSLT
 trainer:
     model:
