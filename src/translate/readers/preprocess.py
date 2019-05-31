@@ -143,7 +143,7 @@ class Preprocess:
                                                self.src_lang, to_lower=self.to_lower)
         self._preprocess_store_stream_of_lines(tgt_test_files,
                                                self.result_directory / "test.{}".format(self.tgt_lang.name),
-                                               self.tgt_lang, to_lower=True)
+                                               self.tgt_lang, to_lower=self.to_lower)
 
     @staticmethod
     def _access_xml_seg_tags(file_paths):
