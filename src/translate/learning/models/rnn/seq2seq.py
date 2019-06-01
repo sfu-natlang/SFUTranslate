@@ -54,6 +54,8 @@ class SequenceToSequence(AbsCompleteModel):
         hidden_size = configs.get("trainer.model.hsize", must_exist=True)
         n_e_layers = configs.get("trainer.model.nelayers", 1)
         n_d_layers = configs.get("trainer.model.ndlayers", 1)
+        e_emb_size = configs.get("trainer.model.e_emb_size", 1)
+        d_emb_size = configs.get("trainer.model.d_emb_size", 1)
         decoder_dropout = configs.get("trainer.model.ddropout", 0.1)
         init_val = configs.get("trainer.model.init_val", 0.01)
         self.batch_size = configs.get("trainer.model.bsize", must_exist=True)
@@ -74,9 +76,9 @@ class SequenceToSequence(AbsCompleteModel):
         attention_type = configs.get("trainer.model.decoder_attention_type", 'global')
         local_attention_d = configs.get("trainer.model.decoder_local_attention_d", 0.0)
         self.encoder = EncoderRNN(len(train_dataset.source_vocabulary),
-                                  hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size,
+                                  e_emb_size, hidden_size, self.bidirectional_encoding, n_e_layers, self.batch_size,
                                   train_dataset.source_vocabulary.get_pad_word_index())
-        self.decoder = DecoderRNN(hidden_size, len(train_dataset.target_vocabulary), self.bidirectional_encoding,
+        self.decoder = DecoderRNN(d_emb_size, hidden_size, len(train_dataset.target_vocabulary), self.bidirectional_encoding,
                                   n_d_layers, self.batch_size, decoder_dropout, attention_method, attention_type,
                                   local_attention_d, self.pad_token_id)
         self.generator = GeneratorNN(self.decoder.get_hidden_size(), len(train_dataset.target_vocabulary),

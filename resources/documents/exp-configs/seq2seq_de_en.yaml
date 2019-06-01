@@ -57,6 +57,8 @@ trainer:
         hsize: 512
         nelayers: 1
         ndlayers: 1
+        e_emb_size: 512
+        d_emb_size: 512
         ddropout: 0.2
         decoder_attention_type: global
         decoder_local_attention_d: 0.0
