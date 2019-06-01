@@ -5,7 +5,7 @@ reader:
         max_length: 128 # for word-level it's better to be around 50-60, for bpe level around 128
         source_lang: fr
         target_lang: en
-        working_dir: ../../../resources/iwslt_de_en/merge_lower_tokenized
+        working_dir: ../../../resources/iwslt_de_en/merge_tokenized
         train_file_name: train
         test_file_name: test
         dev_file_name: dev
@@ -34,7 +34,7 @@ reader:
             tgt: 2
     preprocess:
         dataset_directory: ../../../resources/iwslt_de_en
-        result_directory: ../../../resources/iwslt_de_en/merge_lower_tokenized
+        result_directory: ../../../resources/iwslt_de_en/merge_tokenized
         source_lang: de
         target_lang: en
         dataset_type: IWSLT # possible values [WMT | IWSLT]
@@ -56,6 +56,8 @@ trainer:
         hsize: 256 # hidden state size of RNN layers
         nelayers: 1 # number of hidden layers in encoder
         ndlayers: 1 # number of hidden layers in decoder
+        e_emb_size: 256
+        d_emb_size: 256
         edropout: 0.3 # the dropout probability in the encoder
         ddropout: 0.3 # the dropout probability in the decoder
         decoder_attention_type: global # the type of attention used in the decoder, possible values [local|global]
