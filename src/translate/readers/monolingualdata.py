@@ -22,6 +22,7 @@ reader:
         dev_file_name: dev.normalized
 ##################################################
 """
+from collections import deque
 from random import shuffle
 from typing import Dict
 
@@ -73,6 +74,8 @@ class MonolingualDataReader(AbsDatasetReader):
         self.files_opened = False
         self.data_stream = None
         self._buffer = None
+        self._buffer_token_size = 0
+        self._temporary_buffer = deque([])
         self.lines_count = sum((1 for line in self.data_file.open() if len(line.strip())))
         self.data_stats = DatasetStats()
 
@@ -117,7 +120,7 @@ class MonolingualDataReader(AbsDatasetReader):
         """
         :return: the filling percentage of buffer out of 100%
         """
-        return "{:.1f}".format(len(self._buffer) * 100.0 / self._instance_buffer_size)
+        return "{:.1f}".format(len(self._temporary_buffer) * 100.0 / self._instance_buffer_size)
 
     def load_shared_reader_data(self, shared_data):
         if self.reader_type != ReaderType.TRAIN and shared_data is None:
@@ -144,6 +147,7 @@ class MonolingualDataReader(AbsDatasetReader):
             if not self.files_opened:
                 logger.error("You might need to call \"allocate()\" first!")
                 raise StopIteration
+            temporary_buffer_token_size = 0
             for src in self.data_stream:
                 src_ids = [self.source_vocabulary[x] for x in src.strip().split()]
                 src_ids += [self.source_vocabulary.get_end_word_index()]
@@ -155,11 +159,16 @@ class MonolingualDataReader(AbsDatasetReader):
                         self.reader_type.name, self.bfp))
                 if self.data_stats is not None:
                     self.data_stats.update(src_len)
-                self._buffer.append((src_ids, src_len))
-                if len(self._buffer) == self._instance_buffer_size:
+                self._temporary_buffer.append((src_ids, src_len))
+                temporary_buffer_token_size += src_len
+                if len(self._temporary_buffer) == self._instance_buffer_size:
                     break
-                shuffle(self._buffer)
-                self._buffer = sorted(self._buffer, key=lambda element: element[1], reverse=True)
+            self._buffer.extend(list(self._temporary_buffer))
+            self._buffer_token_size += temporary_buffer_token_size
+            shuffle(self._buffer)
+            self._buffer = sorted(self._buffer, key=lambda element: element[1], reverse=True)
+            del self._temporary_buffer
+            self._temporary_buffer = deque([])
         if not len(self._buffer):
             raise StopIteration
         src, _ = self._buffer.pop(0)

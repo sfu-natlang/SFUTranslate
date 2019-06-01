@@ -41,6 +41,7 @@ reader:
         result_directory: ../../../resources/iwslt_de_en/merge_lower_tokenized
         source_lang: de
         target_lang: en
+        to_lower: true
         dataset_type: IWSLT
 trainer:
     model:
@@ -56,6 +57,8 @@ trainer:
         hsize: 512
         nelayers: 1
         ndlayers: 1
+        e_emb_size: 512
+        d_emb_size: 512
         ddropout: 0.2
         decoder_attention_type: global
         decoder_local_attention_d: 0.0
@@ -67,5 +70,6 @@ trainer:
         epochs: 15
         save_best_models: true
         early_stopping_loss: 0.01
+        print_every_fraction: 0.25
     experiment:
         name: seq2seq_iwslt_de_en

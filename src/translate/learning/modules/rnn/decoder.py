@@ -38,7 +38,7 @@ class Attention(backend.nn.Module):
 
 
 class DecoderRNN(backend.nn.Module):
-    def __init__(self, hidden_size: int, output_size: int, bidirectional_hidden_state: bool,
+    def __init__(self, emb_size: int, hidden_size: int, output_size: int, bidirectional_hidden_state: bool,
                  n_layers=1, batch_size=1, dropout_p=0.1, attention_method='dot', attention_type='global',
                  local_attention_d=0.0, padding_index=-1):
         """
@@ -55,6 +55,7 @@ class DecoderRNN(backend.nn.Module):
         :param padding_index: the index to be ignored for conversion to embedding vectors
         """
         super(DecoderRNN, self).__init__()
+        self.emb_size = emb_size
         self.hidden_size = hidden_size
         self.encoder_is_bidirectional = bidirectional_hidden_state
         if bidirectional_hidden_state:
@@ -66,9 +67,9 @@ class DecoderRNN(backend.nn.Module):
         self.num_layers = n_layers
         self.batch_size = batch_size
 
-        self.embedding = backend.nn.Embedding(self.output_size, self.hidden_size, padding_idx=padding_index)
+        self.embedding = backend.nn.Embedding(self.output_size, self.emb_size, padding_idx=padding_index)
         self.dropout = backend.nn.Dropout(self.dropout_p)
-        self.lstm = backend.nn.LSTM(self.hidden_size * 2, self.hidden_size,  num_layers=n_layers)
+        self.lstm = backend.nn.LSTM(self.hidden_size + self.emb_size, self.hidden_size,  num_layers=n_layers)
         # self.out = backend.nn.Linear(self.hidden_size, self.output_size)
         # self.attention = Attention(self.hidden_size, self.max_length)
         if attention_type == 'local':
@@ -93,9 +94,9 @@ class DecoderRNN(backend.nn.Module):
         """
         if batch_size == -1:
             batch_size = self.batch_size
-        embedded = self.embedding(input_tensor).view(1, batch_size, self.hidden_size)
+        embedded = self.embedding(input_tensor).view(1, batch_size, self.emb_size)
         # embedded -> 2-D Tensor of size [batch_size, decoder_hidden_size]
-        embedded = self.dropout(embedded)
+        # embedded = self.dropout(embedded)
         #  commented code: output, attn_weights = self.attention(encoder_outputs, embedded[0], hidden_layer[0])
         # output -> 3-D Tensor of size [1 (time), batch_size, decoder_hidden_size]
         output, hidden_layer_params = self.lstm(backend.cat((embedded, previous_h_hat.unsqueeze(0)), -1),
@@ -105,7 +106,7 @@ class DecoderRNN(backend.nn.Module):
         # attention_weights -> 2-D Tensor [batch_size, encoded_inputs_length]
         h_hat, _, attention_weights = self.attention(encoder_outputs, output[0])
 
-        h_hat = backend.nn.functional.relu(h_hat)
+        h_hat = self.dropout(backend.nn.functional.relu(h_hat))
 
         # commented code: output = backend.nn.functional.log_softmax(self.out(), dim=1)
         return h_hat, hidden_layer_params, attention_weights

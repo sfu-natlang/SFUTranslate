@@ -121,6 +121,8 @@ trainer:
         hsize: hidden state size of RNN layers
         nelayers: number of hidden layers in encoder
         ndlayers:  number of hidden layers in decoder
+        e_emb_size: size of encoder embedding layer
+        d_emb_size: size of decoder embedding layer
         edropout: the dropout probability in the encoder
         ddropout: the dropout probability in the decoder
         decoder_attention_type:  the type of attention, possible values ['local'|'global']
@@ -145,6 +147,7 @@ trainer:
         epochs: number of training epochs
         save_best_models: the feature of saving best found models while training (best based on train/dev loss) can be turned on/off using this feature
         early_stopping_loss: if the model reaches a loss below this value, the training will not continue anymore
+        print_every_fraction: the fraction of the training data upon processing of which dev data will be tested 
         scheduler:
             name: possible values [cosine | step]
             eta_min: the lowest learninig rate value which the scheduler is allowed to decay the learning rate into (used for "cosine" scheduler)
@@ -170,7 +173,7 @@ In this section, we put the experiment results of different models on different 
 |:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
 |     [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml)     	|   Seq2Seq   	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.703           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
 | [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) 	| Transformer 	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.862           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
-|         [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017  	| German2English 	|           24.678           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
+|         [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017  	| German2English 	|           26.081           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
 |     [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml)     	| Transformer 	|  Translation 	|  IWSLT2017  	| German2English 	|           23.052           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
 |     [rnnlm_wikitext_103_en](resources/documents/exp-configs/rnnlm_wikitext_103_en.yaml)     	| RNNLM 	|  Language Modelling 	|  [WikiText-103](https://www.salesforce.com/products/einstein/ai-research/the-wikitext-dependency-language-modeling-dataset/)  	| English 	|           36.098           	| - |
 

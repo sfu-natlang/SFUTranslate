@@ -175,7 +175,7 @@ class AbsDatasetReader(ABC):
                 for word, count in vocab_counts.most_common():
                     vcf.write("{} {}\n".format(word, count))
         result = []
-        with vocab_counts_file.open() as existing_vocab_file:
+        with vocab_counts_file.open(encoding="utf-8") as existing_vocab_file:
             for line in existing_vocab_file:
                 line_parts = line.split()
                 word = line_parts[0]
