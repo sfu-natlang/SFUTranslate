@@ -147,6 +147,7 @@ trainer:
         epochs: number of training epochs
         save_best_models: the feature of saving best found models while training (best based on train/dev loss) can be turned on/off using this feature
         early_stopping_loss: if the model reaches a loss below this value, the training will not continue anymore
+        print_every_fraction: the fraction of the training data upon processing of which dev data will be tested 
         scheduler:
             name: possible values [cosine | step]
             eta_min: the lowest learninig rate value which the scheduler is allowed to decay the learning rate into (used for "cosine" scheduler)

@@ -60,7 +60,7 @@ class StatCollector:
     The loss, score, and result size container, used for storing the run stats of the training/testing iterations
     """
 
-    def __init__(self, number_of_batches, higher_score_is_better):
+    def __init__(self, number_of_batches, higher_score_is_better, print_every_fraction):
         self._eps = 7. / 3. - 4. / 3. - 1.
         self._higher_score_is_better = higher_score_is_better
         self._test_total = 0.0
@@ -79,7 +79,7 @@ class StatCollector:
         self.global_step = 0.0
 
         # the value which is used for performing the dev set evaluation steps
-        self._print_every = math.ceil(0.25 * number_of_batches)
+        self._print_every = math.ceil(print_every_fraction * number_of_batches)
         self._train_iter_step = 0.0
 
     def zero_step(self):

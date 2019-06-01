@@ -108,7 +108,9 @@ if __name__ == '__main__':
     train.allocate()
     actual_number_of_train_batches = sum(1 for _ in get_padding_batch_loader(train, model.batch_size))
     train.deallocate()
-    stat_collector = StatCollector(actual_number_of_train_batches, higher_score_is_better)
+    print_every_fraction = opts.get("trainer.optimizer.print_every_fraction", 0.25)
+    logger.info("Evaluating on dev set every {}% of each training epoch".format(print_every_fraction * 100))
+    stat_collector = StatCollector(actual_number_of_train_batches, higher_score_is_better, print_every_fraction)
     best_saved_model_path = opts.get("trainer.model.best_model_path", None)
     early_stopping = False
     if epochs > 0:

@@ -82,6 +82,7 @@ trainer:
         epochs: 15
         save_best_models: true
         early_stopping_loss: 0.01 # if the model reaches a loss below this value, the training will not continue anymore
+        print_every_fraction: 0.25
         scheduler:
             name: cosine # possible values [cosine | step]
             eta_min: 1e-5 # used for "cosine" scheduler
