@@ -70,5 +70,6 @@ trainer:
         epochs: 15
         save_best_models: true
         early_stopping_loss: 0.01
+        print_every_fraction: 0.25
     experiment:
         name: seq2seq_iwslt_de_en
