@@ -174,7 +174,7 @@ In this section, we put the experiment results of different models on different 
 |     [seq2seq_reverse_copy](resources/documents/exp-configs/seq2seq_reverse_copy.yaml)     	|   Seq2Seq   	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.703           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
 | [transformer_reverse_copy](resources/documents/exp-configs/transformer_reverse_copy.yaml) 	| Transformer 	| SequenceCopy 	| ReverseCopy 	|   ReverseCopy  	|           99.862           	|             \|V\| = 1K; \|MaxLen\| = 50             	|
 |         [seq2seq_iwslt_de_en](resources/documents/exp-configs/seq2seq_de_en.yaml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017  	| German2English 	|           26.081           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
-|     [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml)     	| Transformer 	|  Translation 	|  IWSLT2017  	| German2English 	|           23.052           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
+|     [transformer_iwslt_de_en](resources/documents/exp-configs/transformer_de_en.yaml)     	| Transformer 	|  Translation 	|  IWSLT2017  	| German2English 	|           26.866           	| lowercased - tokenized with SpaCy; \|MaxLen\| = 100 	|
 |     [rnnlm_wikitext_103_en](resources/documents/exp-configs/rnnlm_wikitext_103_en.yaml)     	| RNNLM 	|  Language Modelling 	|  [WikiText-103](https://www.salesforce.com/products/einstein/ai-research/the-wikitext-dependency-language-modeling-dataset/)  	| English 	|           36.098           	| - |
 
 
