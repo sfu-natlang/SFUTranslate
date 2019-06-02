@@ -26,7 +26,7 @@ from translate.backend.utils import backend, list_to_long_tensor, device, zeros_
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.learning.modules.mlp.generator import GeneratorNN
-from translate.learning.models.rnn.results import GreedyDecodingResult, BeamDecodingResult
+from translate.learning.models.results import GreedyDecodingResult, BeamDecodingResult
 from translate.readers.datareader import AbsDatasetReader
 from translate.logging.utils import logger
 

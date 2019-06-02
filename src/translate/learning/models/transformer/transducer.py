@@ -23,6 +23,7 @@ from typing import List, Any, Tuple
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
 from translate.backend.utils import backend, Variable
+from translate.learning.models.results import GreedyDecodingResult
 from translate.learning.modules.mlp.feedforward import PositionwiseFeedForward
 from translate.learning.modules.mlp.generator import GeneratorNN
 from translate.learning.modules.transformer.attention import MultiHeadedAttention
@@ -103,25 +104,14 @@ class Transformer(AbsCompleteModel):
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
 
-        hyp_ids_list = []
-        with backend.no_grad():
-            hyp_ids_tensor = self.greedy_decode(source_tensor, args[-2], self.max_length)[:, 1:]
-        for sentence_index in range(hyp_ids_tensor.size(0)):
-            sent = []
-            for word in hyp_ids_tensor[sentence_index]:
-                word = word.item()
-                if word != self.pad_token_id:
-                    sent.append(word)
-                if word == self.eos_token_id:
-                    break
-            hyp_ids_list.append(sent)
+        decoding_result = self.greedy_decode(source_tensor, args[-2], self.max_length)
         bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
-            reference_tensor[:, 1:], hyp_ids_list, ref_is_tensor=True,
+            reference_tensor[:, 1:], decoding_result.ids, ref_is_tensor=True,
             reader_level=self.dataset.get_target_word_granularity())
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         # TODO use the DecodingResult class for this method as well
         # TODO compute the average prediction score (lm score over the output)
-        return bleu_score, 0.0, result_sample
+        return bleu_score, decoding_result.log_probability, result_sample
 
     def optimizable_params_list(self) -> List[Any]:
         return [self.model.parameters()]
@@ -136,14 +126,16 @@ class Transformer(AbsCompleteModel):
         :return: the predicted target side ids for the sentences in the input batch   
         """
         memory = self.model.encode(src, src_mask)
-        ys = backend.ones(src.size(0), 1).fill_(self.sos_token_id).type_as(src.data)
+        batch_size = src.size(0)
+        result = GreedyDecodingResult(batch_size, self.pad_token_id, self.eos_token_id)
+        ys = backend.ones(batch_size, 1).fill_(self.sos_token_id).type_as(src.data)
         for i in range(max_len - 1):
             out = self.model.decode(memory, src_mask, Variable(ys),
                                     Variable(self.subsequent_mask(ys.size(1)).type_as(src.data)))
             prob = self.model.generator(out[:, -1])
-            _, next_word = backend.max(prob, dim=1)
+            next_word = result.append(*prob.data.topk(1))
             ys = backend.cat([ys, next_word.unsqueeze(1)], dim=1)
-        return ys
+        return result
 
     @staticmethod
     def subsequent_mask(size):
