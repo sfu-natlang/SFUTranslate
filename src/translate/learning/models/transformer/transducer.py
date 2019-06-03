@@ -22,8 +22,8 @@ from typing import List, Any, Tuple
 
 from translate.configs.loader import ConfigLoader
 from translate.learning.modelling import AbsCompleteModel
-from translate.backend.utils import backend, Variable
-from translate.learning.models.results import GreedyDecodingResult
+from translate.backend.utils import backend, Variable, row_wise_batch_copy
+from translate.learning.models.results import GreedyDecodingResult, BeamDecodingResult
 from translate.learning.modules.mlp.feedforward import PositionwiseFeedForward
 from translate.learning.modules.mlp.generator import GeneratorNN
 from translate.learning.modules.transformer.attention import MultiHeadedAttention
@@ -33,6 +33,7 @@ from translate.learning.modules.transformer.encoder import EncoderLayer, Encoder
 from translate.learning.modules.transformer.transformer import EncoderDecoder
 from translate.learning.modules.transformer.utils import PositionalEncoding, Embeddings
 from translate.readers.datareader import AbsDatasetReader
+from translate.logging.utils import logger
 
 __author__ = "Hassan S. Shavarani"
 
@@ -61,6 +62,14 @@ class Transformer(AbsCompleteModel):
         self.eos_token_id = train_dataset.target_vocabulary.get_end_word_index()
         self.pad_token_id = train_dataset.target_vocabulary.get_pad_word_index()
         self.use_cuda = backend.cuda.is_available()
+
+        self.beam_size = configs.get("trainer.model.beam_size", 1)
+        assert self.beam_size >= 1
+        if self.beam_size == 1:
+            logger.info("The validation would be performed using Greedy Decoding")
+        else:
+            logger.info("The validation would be performed using Beam Search Decoding with Beam Size %d" %
+                        self.beam_size)
 
         c = copy.deepcopy
         attn = MultiHeadedAttention(h, d_model)
@@ -103,8 +112,11 @@ class Transformer(AbsCompleteModel):
         :param args: contains the Transformer style mask tensors (as the last two indices of the args list)
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
-
-        decoding_result = self.greedy_decode(source_tensor, args[-2], self.max_length)
+        with backend.no_grad():
+            if self.beam_size == 1:
+                decoding_result = self.greedy_decode(source_tensor, args[-2], self.max_length)
+            else:
+                decoding_result = self.beam_search(source_tensor, args[-2], self.max_length, self.beam_size)
         bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
             reference_tensor[:, 1:], decoding_result.ids, ref_is_tensor=True,
             reader_level=self.dataset.get_target_word_granularity())
@@ -135,6 +147,29 @@ class Transformer(AbsCompleteModel):
             prob = self.model.generator(out[:, -1])
             next_word = result.append(*prob.data.topk(1))
             ys = backend.cat([ys, next_word.unsqueeze(1)], dim=1)
+        return result
+
+    def beam_search(self, src, src_mask, max_len, k: int = 1) -> backend.Tensor:
+        """
+        The function in charge of performing the decoding for the transformer model (using the highest predicted
+         probability as the prediction in each step)
+        :param src: the tensor containing the converted, padded batch of sentences to be translated
+        :param src_mask: the transformer style mask generated for the source batch
+        :param max_len: maximum allowed length of sentence to be generated
+        :param k: the beam size used for the beam search
+        :return: the predicted target side ids for the sentences in the input batch
+        """
+        src_mask = row_wise_batch_copy(src_mask.squeeze(1), k).unsqueeze(1)
+        memory = self.model.encode(row_wise_batch_copy(src, k), src_mask)
+        batch_size = src.size(0)
+        result = BeamDecodingResult(batch_size, k, self.pad_token_id, self.eos_token_id)
+        ys = backend.ones(batch_size * k, 1).fill_(self.sos_token_id).type_as(src.data)
+        for i in range(max_len - 1):
+            out = self.model.decode(memory, src_mask, Variable(ys),
+                                    Variable(self.subsequent_mask(ys.size(1)).type_as(src.data)))
+            prob = self.model.generator(out[:, -1])
+            next_decoder_input, selection_bucket = result.append(*prob.data.topk(k))
+            ys = backend.cat([ys, next_decoder_input.unsqueeze(1)], dim=1)
         return result
 
     @staticmethod
