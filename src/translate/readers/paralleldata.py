@@ -206,7 +206,8 @@ class ParallelDataReader(AbsDatasetReader):
                 tgt_ids += [self.target_vocabulary.get_end_word_index()]
                 src_len = len(src_ids)
                 tgt_len = len(tgt_ids)
-                if src_len > self._max_valid_length or not src_len or tgt_len > self._max_valid_length or not tgt_len:
+                if self.reader_type == ReaderType.TRAIN and src_len > self._max_valid_length or not src_len \
+                        or tgt_len > self._max_valid_length or not tgt_len:
                     continue
                 if self._iter_log_handler is not None:
                     self._iter_log_handler("{}: Filling Reader Buffer [rfp: {}%]".format(
