@@ -43,7 +43,6 @@ class SequenceToSequence(AbsCompleteModel):
         """
         super(SequenceToSequence, self).__init__(backend.nn.NLLLoss(
             ignore_index=train_dataset.target_vocabulary.get_pad_word_index()))
-        self.dataset = train_dataset
         self.teacher_forcing_ratio = configs.get("trainer.model.tfr", 1.1)
         self.min_teacher_forcing_ratio = configs.get("trainer.model.min_tfr", 0.0)
         self.auto_teacher_forcing_ratio = configs.get("trainer.model.auto_tfr", False)
@@ -212,11 +211,12 @@ class SequenceToSequence(AbsCompleteModel):
     def optimizable_params_list(self) -> List[Any]:
         return [self.encoder.parameters(), self.decoder.parameters(), self.generator.parameters()]
 
-    def validate_instance(self, source_tensor: backend.Tensor, reference_tensor: backend.Tensor) \
-            -> Tuple[float, float, str]:
+    def validate_instance(self, source_tensor: backend.Tensor, reference_tensor: backend.Tensor,
+                          validation_dataset: AbsDatasetReader) -> Tuple[float, float, str]:
         """
         :param source_tensor: the input batch over which the predictions are generated
         :param reference_tensor: the expected Batch of sequences of ids
+        :param validation_dataset: the dataset over which the evaluation will be performed
         :return: the bleu score between the reference and prediction batches, in addition to a sample result
         """
         with backend.no_grad():
@@ -226,8 +226,9 @@ class SequenceToSequence(AbsCompleteModel):
             else:
                 log_prob, target_length, predicted_ids = self.beam_search_decode(encoder_outputs, encoder_hidden_params,
                                                                                  None, self.beam_size)
-        bleu_score, ref_sample, hyp_sample = self.dataset.compute_bleu(
-            reference_tensor, predicted_ids, ref_is_tensor=True, reader_level=self.dataset.get_target_word_granularity())
+        bleu_score, ref_sample, hyp_sample = validation_dataset.compute_bleu(
+            reference_tensor, predicted_ids, ref_is_tensor=True,
+            reader_level=validation_dataset.get_target_word_granularity(), dump_results_to_pred_file=True)
         result_sample = u"E=\"{}\", P=\"{}\"\n".format(ref_sample, hyp_sample)
         return bleu_score, log_prob, result_sample
 

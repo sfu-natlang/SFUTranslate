@@ -153,6 +153,7 @@ class ParallelDataReader(AbsDatasetReader):
                 self.reader_type.name, self.target_stats.min_size, self.target_stats.avg_size,
                 self.target_stats.max_size))
             self.target_stats = None
+        self._unset_prediction_file()
 
     def __len__(self):
         return self.lines_count
@@ -186,6 +187,7 @@ class ParallelDataReader(AbsDatasetReader):
         self.source = self.get_resource_lines(ParallelSide.SOURCE)
         self.target = self.get_resource_lines(ParallelSide.TARGET)
         self._buffer = []
+        self._set_prediction_file()
 
     def max_sentence_length(self):
         return self._max_valid_length
@@ -221,8 +223,9 @@ class ParallelDataReader(AbsDatasetReader):
             self._buffer.extend(list(self._temporary_buffer))
             self._buffer_token_size_src += temporary_buffer_token_size_src
             self._buffer_token_size_tgt += temporary_buffer_token_size_tgt
-            shuffle(self._buffer)
-            self._buffer = sorted(self._buffer, key=lambda element: element[2], reverse=True)
+            if self.reader_type == ReaderType.TRAIN:
+                shuffle(self._buffer)
+                self._buffer = sorted(self._buffer, key=lambda element: element[2], reverse=True)
             del self._temporary_buffer
             self._temporary_buffer = deque([])
         if not len(self._buffer):

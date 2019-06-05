@@ -59,6 +59,15 @@ class AbsDatasetReader(ABC):
         # setting the default token granularities
         self._src_word_granularity = ReaderLevel.WORD
         self._tgt_word_granularity = ReaderLevel.WORD
+        if self.reader_type == ReaderType.DEV:
+            self.pred_file_adr = Path(configs.get("reader.dataset.working_dir", must_exist=True)) / (
+                    "dev.pred." + configs.get("reader.dataset.target_lang", must_exist=True))
+        elif self.reader_type == ReaderType.TEST:
+            self.pred_file_adr = Path(configs.get("reader.dataset.working_dir", must_exist=True)) / (
+                    "test.pred." + configs.get("reader.dataset.target_lang", must_exist=True))
+        else:
+            self.pred_file_adr = None
+        self.pred_file = None
 
     def set_iter_log_handler(self, iter_log_handler: Callable[[str], None]):
         """
@@ -68,6 +77,15 @@ class AbsDatasetReader(ABC):
            takes any time for data preparation. 
         """
         self._iter_log_handler = iter_log_handler
+
+    def _set_prediction_file(self):
+        if self.pred_file_adr is not None:
+            self.pred_file = self.pred_file_adr.open(encoding="utf-8", mode="w")
+
+    def _unset_prediction_file(self):
+        if self.pred_file_adr is not None:
+            self.pred_file.close()
+            self.pred_file = None
 
     @staticmethod
     def _sentensify(vocabulary: Vocab, ids: Iterable[int], input_is_tensor=False, reader_level: ReaderLevel=ReaderLevel.WORD):
@@ -117,19 +135,26 @@ class AbsDatasetReader(ABC):
 
     def compute_bleu(self, ref_ids_list: Iterable[Iterable[int]], hyp_ids_list: Iterable[Iterable[int]],
                      ref_is_tensor: bool = False, hyp_is_tensor: bool = False,
-                     reader_level: ReaderLevel=ReaderLevel.WORD) -> Tuple[float, str, str]:
+                     reader_level: ReaderLevel = ReaderLevel.WORD, dump_results_to_pred_file: bool = False) \
+            -> Tuple[float, str, str]:
         """
         The wrapper function over sacrebleu.sentence_bleu which computes average bleu score over a pack of predicted
          sentences considering their equivalent single reference sentences. The input reference/prediction id lists can
           be either python lists or tensors (the flags :param ref_is_tensor: and :param hyp_is_tensor: indicate which is
            the case). The :param reader_level: will help the internal functions perform the correct conversion from the 
             token id level to the actual words in the sentence.
+            if :param dump_results_to_pred_file: is set, the result hypothesis will be written to the pre-set prediction
+            file for the dataset
         :return: the computed average bleu score plus a sample pair of reference/prediction sentences which can be used
          for logging purposes (or totally ignored!)
         """
         assert len(ref_ids_list) == len(hyp_ids_list)
         refs = self.target_sentensify_all(ref_ids_list, input_is_tensor=ref_is_tensor, reader_level=reader_level)
         hyps = self.target_sentensify_all(hyp_ids_list, input_is_tensor=hyp_is_tensor, reader_level=reader_level)
+        if dump_results_to_pred_file and self.pred_file is not None:
+            self.pred_file.write("\n".join(hyps))
+            self.pred_file.write("\n")
+            self.pred_file.flush()
         scores = [sentence_bleu(hyps[sid], refs[sid]) for sid in range(len(ref_ids_list))]
         random_index = choice(range(len(refs)))
         return sum(scores) / len(scores), refs[random_index], hyps[random_index]

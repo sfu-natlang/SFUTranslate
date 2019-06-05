@@ -44,7 +44,7 @@ def perform_no_grad_dataset_iteration(dataset: AbsDatasetReader, complete_model:
     _sample = ""
     complete_model.eval()
     for _values in get_padding_batch_loader(dataset, complete_model.batch_size):
-        _score, _loss, _sample = complete_model.validate_instance(*_values)
+        _score, _loss, _sample = complete_model.validate_instance(*_values, dataset)
         stats_collector.update(_score, _loss, dataset.reader_type)
         del _values
     complete_model.train()
