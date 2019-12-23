@@ -1,5 +1,6 @@
 __package__ = "translate"
-__all__ = ["configuration", "evaluation_utils", "init_nn", "optimizers", "reader", "sts_model", "trainer"]
+__all__ = ["configuration", "evaluation_utils", "init_nn", "optimizers", "reader", "sts_model", "trainer",
+           "test_trained_model"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

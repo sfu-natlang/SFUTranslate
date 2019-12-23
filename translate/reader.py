@@ -146,6 +146,8 @@ if bool(cfg.debug_mode):
     train, val, test = datasets.translation.Multi30k.splits(exts=('.de', '.en'), fields=(SRC, TGT))
     src_val_file_address = ".data/multi30k/val.{}".format(src_lan)
     tgt_val_file_address = ".data/multi30k/val.{}".format(tgt_lan)
+    src_test_file_address = ".data/multi30k/test2016.{}".format(src_lan)
+    tgt_test_file_address = ".data/multi30k/test2016.{}".format(tgt_lan)
 else:
     train, val, test = IWSLT.splits(
         filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
@@ -153,6 +155,8 @@ else:
         debug_mode=bool(cfg.debug_mode))
     src_val_file_address = ".data/iwslt/{0}-{1}/IWSLT16.TED.tst2013.{0}-{1}.{0}".format(src_lan, tgt_lan)
     tgt_val_file_address = ".data/iwslt/{0}-{1}/IWSLT16.TED.tst2013.{0}-{1}.{1}".format(src_lan, tgt_lan)
+    src_test_file_address = ".data/iwslt/{0}-{1}/IWSLT16.TED.tst2014.{0}-{1}.{0}".format(src_lan, tgt_lan)
+    tgt_test_file_address = ".data/iwslt/{0}-{1}/IWSLT16.TED.tst2014.{0}-{1}.{1}".format(src_lan, tgt_lan)
 
 
 print("Number of training examples: {}".format(len(train.examples)))
@@ -183,7 +187,7 @@ train_iter = MyIterator(train, batch_size=int(cfg.batch_size), device=device, re
 # BucketIterator keeps the order of lines which makes it easy to compare the decoded sentences with the reference
 val_iter = data.BucketIterator(val, batch_size=int(cfg.batch_size), device=device, repeat=False, train=False,
                                shuffle=False, sort=False, sort_within_batch=False)
-test_iter = data.BucketIterator(val, batch_size=int(cfg.batch_size), device=device, repeat=False, train=False,
+test_iter = data.BucketIterator(test, batch_size=int(cfg.batch_size), device=device, repeat=False, train=False,
                                 shuffle=False, sort=False, sort_within_batch=False)
 
 # ######################################### So far reading the dataset and preparing it #######################

@@ -55,7 +55,7 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
 
 def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
              src_file: str, gold_tgt_file: str, eph: str):
-    print("Validation ....")
+    print("Evaluation ....")
     model.eval()
     src_originals = iter(open(src_file, "r"))
     tgt_originals = iter(open(gold_tgt_file, "r"))
