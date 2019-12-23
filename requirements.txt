@@ -1,6 +1,7 @@
-torch
+torch==1.1.0
 torchtext
 sacrebleu
+sacremoses
 spacy
 yaml
 xml
