@@ -14,7 +14,7 @@ def main_sts():
     from reader import SRC, TGT
     model = STS(SRC, TGT).to(device)
     model.apply(weight_init)
-    torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, 'nmt.pt')
+    torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)
     optimizer, scheduler = get_a_new_optimizer(cfg.init_optim, cfg.init_learning_rate, model.parameters())
     size_train = len([_ for _ in train_iter])
     val_indices = [int(size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
@@ -54,13 +54,13 @@ def main_sts():
             if ind in val_indices:
                 val_l, val_bleu = evaluate(val_iter, TGT, model, src_val_file_address, tgt_val_file_address, str(epoch))
                 if val_bleu > best_val_score:
-                    torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, 'nmt.pt')
+                    torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)
                     best_val_score = val_bleu
                 scheduler.step(val_bleu)
 
     if best_val_score > 0.0:
         print("Loading the best validated model with validation bleu score of {:.3f}".format(best_val_score))
-        saved_obj = torch.load('nmt.pt', map_location=lambda storage, loc: storage)
+        saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
         model = saved_obj['model'].to(device)
         # it might not correctly overwrite the vocabulary objects
         SRC = saved_obj['field_src']

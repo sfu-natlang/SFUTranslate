@@ -1,5 +1,5 @@
 import torch
-from configuration import device
+from configuration import cfg, device
 from reader import val_iter, src_val_file_address, tgt_val_file_address
 from reader import test_iter, src_test_file_address, tgt_test_file_address
 # from sts_model import STS
@@ -10,7 +10,7 @@ def test_sts():
     # from reader import SRC, TGT
     # model = STS(SRC, TGT).to(device)
     print("Loading the best trained model")
-    saved_obj = torch.load('nmt.pt', map_location=lambda storage, loc: storage)
+    saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     # it might not correctly overwrite the vocabulary objects
     # SRC = saved_obj['field_src']

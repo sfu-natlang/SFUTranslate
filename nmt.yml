@@ -47,3 +47,5 @@ lr_decay_patience_steps: 10
 lr_decay_factor: 0.9
 lr_decay_threshold: 1.5
 lr_decay_min: 0.005
+
+checkpoint_name: nmt.pt
