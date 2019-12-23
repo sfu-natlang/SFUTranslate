@@ -4,9 +4,11 @@ import torch
 from torch import nn
 from torchtext import data
 import sacrebleu
-
+from sacremoses import MosesDetokenizer
 from configuration import cfg
 from reader import src_tokenizer
+
+detokenizer = MosesDetokenizer(lang=cfg.tgt_lang)
 
 
 def convert_target_batch_back(btch, TGT):
@@ -50,7 +52,8 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
                 continue
         result.append(tgt_token)
     # Naive detokenization
-    return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in result]).strip()
+    # return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in result]).strip()
+    return detokenizer.detokenize(result)
 
 
 def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
