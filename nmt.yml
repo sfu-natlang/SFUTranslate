@@ -1,4 +1,7 @@
 debug_mode: true
+src_lang: de
+tgt_lang: en
+dataset_name: multi30k16
 lowercase_data: true
 pad_token: <pad>
 bos_token: <bos>

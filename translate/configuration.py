@@ -9,12 +9,10 @@ torch_major_version, torch_minor_version, torch_patch_version = map(int, match.g
 if not torch_major_version >= 1 or not torch_minor_version >= 1:
     # pack_padded_sequence forces the batches to be sorted in older versions which makes validation sloppy
     raise ValueError("You need pytorch 1.1.0+ to run this code")
-if len(sys.argv) < 4:
-    print("run the application with <src> and <tgt>")
+if len(sys.argv) < 2:
+    print("run the application with <config_file>")
     exit()
-src_lan = sys.argv[1]
-tgt_lan = sys.argv[2]
-config_file = sys.argv[3]
+config_file = sys.argv[1]
 
 
 class DotConfig:
@@ -30,3 +28,6 @@ class DotConfig:
 
 with open(config_file, 'r') as yml_file:
     cfg = DotConfig(yaml.safe_load(yml_file))
+    src_lan = cfg.src_lang
+    tgt_lan = cfg.tgt_lang
+

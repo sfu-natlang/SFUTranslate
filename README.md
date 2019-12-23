@@ -19,7 +19,9 @@ Please refrain from putting the resources anywhere else if you are planing to ma
 - `translate`: All the source code files are placed under `SFUTranslate/translate` directory.
 If you are using an IDE to debug or run the code, don't forget to mark this directory as your sources directory.
 Otherwise you will need to have the address of `SFUTranslate/translate` directory in your `$PATH` environment variable to be able to run the code.
-Another way of running the code would be to run `cd /path/to/SFUTranslate/translate && python trainer.py <src_lang> <tgt_lang> <path/to/config.yml>`.
+Another way of running the code would be to run `cd /path/to/SFUTranslate/translate && python trainer.py <path/to/config.yml>`. 
+To test the trained model on the test set, you may use the `test_trained_model` script 
+(e.g. `cd /path/to/SFUTranslate/translate && python test_trained_model.py <path/to/config.yml>`). 
  
 The next sections will help you get more familiar with the code flow and training different models.
 
@@ -37,6 +39,7 @@ As of the current version, the `translate` package contains the following classe
   - `optimizers` 
   - `reader`
   - `sts_model`
+  - `test_trained_model`
   - `trainer` the main script which loads the config file, creates the model and runs the training process. 
   You may want to start looking into this script first, to get familiar with what can be done using this toolkit.
   
@@ -51,6 +54,9 @@ that are essential to your task you will face an error indicating that the requi
   configurations in it. Here is the configuration schema:
 ```yamlex
 debug_mode: [true/false] if true spacy tokenizer is deactivated and Multi30k dataset is automatically loaded
+src_lang: the bi-letter language identifier for source langugage
+tgt_lang: the bi-letter language identifier for target langugage
+dataset_name: the name of the torchtext datasetname
 lowercase_data: [true/false] whether the dataset setences need to be lowercased or not
 pad_token: special pad token used in data transformation
 bos_token: special begin of sentence token used in data transformation
