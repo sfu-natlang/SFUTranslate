@@ -29,7 +29,6 @@ coverage_dropout: 0.2
 
 maximum_decoding_length: 100
 bahdanau_attention: true
-coverage_phi_n: 2
 coverage_required: false
 coverage_lambda: 0.09
 

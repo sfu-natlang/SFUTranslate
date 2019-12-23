@@ -29,9 +29,8 @@ coverage_dropout: 0.2
 
 maximum_decoding_length: 50
 bahdanau_attention: true
-coverage_phi_n: 2
-coverage_required: false
-coverage_lambda: 0.01
+coverage_required: true
+coverage_lambda: 1.0
 
 n_epochs: 20
 init_optim: adagrad

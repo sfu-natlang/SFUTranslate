@@ -14,7 +14,7 @@ class STS(nn.Module):
         self.bahdanau_attention = bool(cfg.bahdanau_attention)
         print("Creating the Seq2Seq Model with {} attention".format("Bahdanau" if self.bahdanau_attention else "Loung"))
         self.coverage = bool(cfg.coverage_required)
-        print("Coverage model (linguistic definition) is {}".format(
+        print("Coverage model (See et al. definition [P17-1099]) is {}".format(
             "also considered" if self.coverage else "not considered"))
         self.encoder_emb = nn.Embedding(len(SRC.vocab), int(cfg.encoder_emb_size),
                                         padding_idx=SRC.vocab.stoi[cfg.pad_token])
@@ -30,7 +30,7 @@ class STS(nn.Module):
         self.attention_W = nn.Linear(self.encoder_hidden * (2 if self.encoder_bidirectional else 1),
                                      self.decoder_hidden, bias=False)
         if self.bahdanau_attention:
-            self.attention_U = nn.Linear(self.decoder_hidden, self.decoder_hidden, bias=False)
+            self.attention_U = nn.Linear(self.decoder_hidden, self.decoder_hidden, bias=True)
             self.attention_V = nn.Linear(self.decoder_hidden, 1, bias=False)
         else:
             self.attention_U = None
@@ -57,14 +57,14 @@ class STS(nn.Module):
         if self.coverage:
             if not self.bahdanau_attention:
                 raise ValueError("Coverage model is just integrated with Bahdanau Attention")
-            self.u_phi_j = nn.Linear(self.encoder_hidden * (2 if self.encoder_bidirectional else 1), 1, bias=False)
-            self.phi_j_N = int(cfg.coverage_phi_n)
+            # self.u_phi_j = nn.Linear(self.encoder_hidden * (2 if self.encoder_bidirectional else 1), 1, bias=False)
+            # self.phi_j_N = int(cfg.coverage_phi_n)
             self.coverage_lambda = float(cfg.coverage_lambda)
             self.attention_C = nn.Linear(1, self.decoder_hidden, bias=False)
             self.coverage_dropout = nn.Dropout(p=float(cfg.coverage_dropout))
         else:
-            self.u_phi_j = None
-            self.phi_j_N = 1
+            # self.u_phi_j = None
+            # self.phi_j_N = 1
             self.coverage_lambda = 0.0
             self.attention_C = None
             self.coverage_dropout = None
@@ -108,8 +108,8 @@ class STS(nn.Module):
         if self.coverage:
             coverage_vector = torch.zeros(batch_size, input_sequence_length, 1, device=device).float()
             # phi_j: batch_size * 1 * max_input_length
-            phi_j = self.phi_j_N * self.sigmoid(
-                self.u_phi_j(self.coverage_dropout(encoder_lstm_output.transpose(0, 1)))).squeeze(-1).unsqueeze(1)
+            # phi_j = self.phi_j_N * self.sigmoid(
+            #    self.u_phi_j(self.coverage_dropout(encoder_lstm_output.transpose(0, 1)))).squeeze(-1).unsqueeze(1)
         max_attention_indices = torch.zeros(target_length, batch_size, device=device)
         for t in range(target_length):
             dec_emb = self.emb_dropout(self.decoder_emb(next_token))  # batch_size * decoder_emb_size
@@ -155,14 +155,16 @@ class STS(nn.Module):
             alphas = torch.where(attention_mask, alphas, alphas.new_full([1], float('-inf')))
             alphas = self.softmax(alphas)  # batch_size * 1 * max_input_length
             if self.coverage:
-                coverage_vector = coverage_vector + ((1.0 / (phi_j + 1e-32)) * alphas).squeeze(1).unsqueeze(-1)
+                # coverage_vector = coverage_vector + ((1.0 / (phi_j + 1e-32)) * alphas).squeeze(1).unsqueeze(-1)
+                cvg_formatted_alphas = alphas.squeeze(1)
+                coverage_vector = coverage_vector + cvg_formatted_alphas.unsqueeze(-1)
             # input_tensor => max_seq_length * batch_size
             max_attention_indices[t, :] = alphas.max(dim=-1)[1].view(-1).detach()  # batch_size
             c_t = (alphas @ encoder_lstm_output.transpose(0, 1)).squeeze(1)
-        if self.coverage and output_tensor is not None:
-            expected_coverage = torch.ones(batch_size, input_sequence_length, device=device).float()
-            cumulative_loss = cumulative_loss + self.coverage_lambda * torch.pow(
-                expected_coverage - coverage_vector.squeeze(2) * attention_mask.float().squeeze(1), 2).sum()
+            if self.coverage and output_tensor is not None:
+                masked_coverage = coverage_vector.squeeze(2) * attention_mask.float().squeeze(1)
+                min_coverage_and_attn = torch.min(masked_coverage, cvg_formatted_alphas)
+                cumulative_loss = cumulative_loss + self.coverage_lambda * min_coverage_and_attn.sum()
         return result, max_attention_indices, cumulative_loss,  loss_size, tokens_count
 
     def reformat_encoder_hidden_states(self, encoder_hidden_prams):
