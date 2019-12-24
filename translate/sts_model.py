@@ -97,6 +97,7 @@ class STS(nn.Module):
             self.coverage_lambda = 0.0
             self.attention_C = None
             self.coverage_dropout = None
+        self.beam_search_decoding = False
         # TODO have it in the config file
         self.beam_size = 5
 
@@ -104,16 +105,18 @@ class STS(nn.Module):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
+        :param test_mode: a flag indicating whether the model is allowed to use the target tensor for input feeding
         """
-        if not test_mode:
-            return self.greedy_decode(input_tensor_with_lengths, output_tensor_with_length, test_mode)
-        else:
+        if self.beam_search_decoding:
             return self.beam_search_decode(input_tensor_with_lengths, beam_size=self.beam_size)
+        else:
+            return self.greedy_decode(input_tensor_with_lengths, output_tensor_with_length, test_mode)
 
     def greedy_decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
+        :param test_mode: a flag indicating whether the model is allowed to use the target tensor for input feeding
         """
         input_tensor, input_lengths = input_tensor_with_lengths
         if output_tensor_with_length is not None:

@@ -12,6 +12,7 @@ def test_sts():
     print("Loading the best trained model")
     saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
+    model.beam_search_decoding = True
     # it might not correctly overwrite the vocabulary objects
     # SRC = saved_obj['field_src']
     TGT = saved_obj['field_tgt']
