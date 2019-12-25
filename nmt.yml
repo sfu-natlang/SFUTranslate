@@ -47,4 +47,5 @@ lr_decay_factor: 0.9
 lr_decay_threshold: 1.5
 lr_decay_min: 0.005
 
+beam_size: 5
 checkpoint_name: nmt.pt

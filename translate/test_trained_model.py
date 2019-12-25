@@ -13,6 +13,7 @@ def test_sts():
     saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     model.beam_search_decoding = True
+    model.beam_size = int(cfg.beam_size)
     # it might not correctly overwrite the vocabulary objects
     # SRC = saved_obj['field_src']
     TGT = saved_obj['field_tgt']

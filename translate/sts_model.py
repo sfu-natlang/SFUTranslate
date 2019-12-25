@@ -98,8 +98,7 @@ class STS(nn.Module):
             self.attention_C = None
             self.coverage_dropout = None
         self.beam_search_decoding = False
-        # TODO have it in the config file
-        self.beam_size = 5
+        self.beam_size = int(cfg.beam_size)
 
     def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """
@@ -242,6 +241,7 @@ class STS(nn.Module):
         nodes = [BeamSearchNode(last_created_node_id, decoder_lstm_context, next_token, c_t, eos_predicted,
                                 coverage_vector, result, max_attention_indices, cumulative_loss, loss_size, tokens, lm_score)]
         final_results = []
+        m_softmax = nn.Softmax(dim=-1)
         for step in range(target_length):
             k = beam_size - len(final_results)
             if k < 1:
@@ -256,7 +256,7 @@ class STS(nn.Module):
                 query = decoder_lstm_context[0][-1].view(batch_size, self.decoder_hidden)
                 semi_output = self.out_dropout(torch.cat([dec_emb, query, node.c_t], dim=1))
                 o = self.out(self.tanh(semi_output)).view(batch_size, len(self.TGT.vocab))  # batch_size, target_vocab_size
-                node.set_result(o, query, decoder_lstm_context)
+                node.set_result(m_softmax(o), query, decoder_lstm_context)
                 k_values, k_indices = torch.topk(node.result_output, dim=1, k=k)
                 for beam_index in range(k):
                     overall_index = n_id * k + beam_index
