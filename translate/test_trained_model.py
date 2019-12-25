@@ -14,6 +14,8 @@ def test_sts():
     model = saved_obj['model'].to(device)
     model.beam_search_decoding = True
     model.beam_size = int(cfg.beam_size)
+    model.beam_search_length_norm_factor = float(cfg.beam_search_length_norm_factor)
+    model.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
     # it might not correctly overwrite the vocabulary objects
     # SRC = saved_obj['field_src']
     TGT = saved_obj['field_tgt']

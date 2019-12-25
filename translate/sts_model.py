@@ -1,3 +1,4 @@
+import math
 import torch
 from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
@@ -99,6 +100,8 @@ class STS(nn.Module):
             self.coverage_dropout = None
         self.beam_search_decoding = False
         self.beam_size = int(cfg.beam_size)
+        self.beam_search_length_norm_factor = float(cfg.beam_search_length_norm_factor)
+        self.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
 
     def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """
@@ -321,6 +324,7 @@ class STS(nn.Module):
                 final_results.append(node)
         result = torch.zeros(target_length, batch_size, device=device)
         max_attention_indices = torch.zeros(target_length, batch_size, device=device)
+        lp = lambda l: ((5 + l) ** self.beam_search_length_norm_factor) / (5 + 1) ** self.beam_search_length_norm_factor
         for b_ind in range(batch_size):
             best_score = float('-inf')
             best_tokens = None
@@ -332,7 +336,10 @@ class STS(nn.Module):
                     tsize = eos_ind[0].item()
                 else:
                     tsize = tokens.size(0)
-                lms = node.lm_score[b_ind].item() / tsize
+                # based on Google's NMT system paper [https://arxiv.org/pdf/1609.08144.pdf]
+                cp = sum([math.log(min(x, 1.0)) for x in
+                          list(node.coverage_vector[b_ind].view(-1).cpu().numpy()) if x > 0.0])
+                lms = node.lm_score[b_ind].item() / lp(tsize) + self.beam_search_coverage_penalty_factor * cp
                 if lms > best_score:
                     best_score = lms
                     best_tokens = tokens
