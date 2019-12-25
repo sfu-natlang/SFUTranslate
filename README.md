@@ -111,10 +111,10 @@ In this section, we put the experiment results of different models on different 
  The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
   The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
 
-|                                      Experiment Name                                      	|    Model    	|     Task     	|   Dataset   	|   Testset |    Language    	| Greedy Decoding Test Score 	|                      More Info                      	|
+|                                      Experiment Name                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Decoding Test Score (dev/test)	|                      More Info                      	|
 |:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
-|         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           30.030           	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2016 |           tst2014   	| [German2English](https://wit3.fbk.eu/download.php?release=2016-01&type=texts&slang=de&tlang=en) 	|           21.239           	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           30.448 / 31.004           	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2016 |           tst2013; tst2014   	| [German2English](https://wit3.fbk.eu/download.php?release=2016-01&type=texts&slang=de&tlang=en) 	|           27.434 / 22.933           	| lowercased - tokenized with SpaCy	|
 
 
 # Requirements and Dependencies
