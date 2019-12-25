@@ -114,7 +114,7 @@ In this section, we put the experiment results of different models on different 
 |                                      Experiment Name                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	|                      More Info                      	|
 |:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
 |         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           30.448 / 31.004           	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2016 |           tst2013; tst2014   	| [German2English](https://wit3.fbk.eu/download.php?release=2016-01&type=texts&slang=de&tlang=en) 	|           27.434 / 22.933           	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
 
 
 # Requirements and Dependencies

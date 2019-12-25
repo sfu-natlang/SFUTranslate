@@ -36,14 +36,14 @@ class IWSLT(datasets.TranslationDataset):
     This one just does not apply filter_pred designed for length limiting to the test and dev datasets.
     The IWSLT 2016 TED talk translation task"""
 
-    #base_url = 'https://wit3.fbk.eu/archive/2016-01//texts/{}/{}/{}.tgz'
-    base_url = 'https://wit3.fbk.eu/archive/2017-01-trnted/texts/{}/{}/{}-{}.tgz'
+    # base_url = 'https://wit3.fbk.eu/archive/2016-01//texts/{}/{}/{}.tgz'
+    base_url = 'https://wit3.fbk.eu/archive/2017-01-trnted/texts/{}/{}/{}.tgz'
     name = 'iwslt'
     base_dirname = '{}-{}'
 
     @classmethod
     def splits(cls, exts, fields, root='.data',
-               train='train', validation='IWSLT16.TED.dev2010',
+               train='train', validation='IWSLT17.TED.dev2010',
                test='IWSLT17.TED.tst2015', **kwargs):
         debug_mode = False
         if "debug_mode" in kwargs:
@@ -152,8 +152,8 @@ if bool(cfg.debug_mode):
 else:
     train, val, test = IWSLT.splits(
         filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
-            vars(x)['trg']) <= cfg.max_sequence_length, exts=('.de', '.en'), fields=(SRC, TGT),test='IWSLT17.TED.tst2015', validation='IWSLT17.TED.dev2010',
-        debug_mode=bool(cfg.debug_mode))
+            vars(x)['trg']) <= cfg.max_sequence_length, exts=('.de', '.en'), fields=(SRC, TGT),
+        test='IWSLT17.TED.tst2015', validation='IWSLT17.TED.dev2010', debug_mode=bool(cfg.debug_mode))
     src_val_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.dev2010.{0}-{1}.{0}".format(src_lan, tgt_lan)
     tgt_val_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.dev2010.{0}-{1}.{1}".format(src_lan, tgt_lan)
     src_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{0}".format(src_lan, tgt_lan)
