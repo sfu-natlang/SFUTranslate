@@ -80,6 +80,9 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
                     source_sentence = source_sentence.lower()
                     reference_sentence = reference_sentence.lower()
                 decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id))
+                if bool(cfg.dataset_is_in_bpe):
+                    decoded = decoded.replace("@@ ", "")
+                    reference_sentence = reference_sentence.replace("@@ ", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:

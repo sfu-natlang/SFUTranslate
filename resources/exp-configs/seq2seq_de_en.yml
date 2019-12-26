@@ -2,6 +2,7 @@ debug_mode: false
 src_lang: de
 tgt_lang: en
 dataset_name: iwslt17
+dataset_is_in_bpe: false
 lowercase_data: true
 pad_token: <pad>
 bos_token: <bos>
