@@ -142,14 +142,14 @@ SRC = data.Field(tokenize=src_tokenizer, lower=bool(cfg.lowercase_data), pad_tok
                  unk_token=cfg.unk_token, include_lengths=True)
 TGT = data.Field(tokenize=tgt_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
                  unk_token=cfg.unk_token, init_token=cfg.bos_token, eos_token=cfg.eos_token, include_lengths=True)
-if bool(cfg.debug_mode):
+if cfg.dataset_name == "multi30k16":
     print("Debug mode: True => loading Multi30k (a smaller dataset [MinLen:1;AvgLen:12;MaxLen:40]) instead of IWSLT")
     train, val, test = datasets.translation.Multi30k.splits(exts=('.de', '.en'), fields=(SRC, TGT))
     src_val_file_address = ".data/multi30k/val.{}".format(src_lan)
     tgt_val_file_address = ".data/multi30k/val.{}".format(tgt_lan)
     src_test_file_address = ".data/multi30k/test2016.{}".format(src_lan)
     tgt_test_file_address = ".data/multi30k/test2016.{}".format(tgt_lan)
-else:
+elif cfg.dataset_name == "iwslt17":
     train, val, test = IWSLT.splits(
         filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
             vars(x)['trg']) <= cfg.max_sequence_length, exts=('.de', '.en'), fields=(SRC, TGT),
@@ -158,6 +158,15 @@ else:
     tgt_val_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.dev2010.{0}-{1}.{1}".format(src_lan, tgt_lan)
     src_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{0}".format(src_lan, tgt_lan)
     tgt_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{1}".format(src_lan, tgt_lan)
+elif cfg.dataset_name == "wmt16":
+    train, val, test = datasets.WMT14.splits(exts=('.de', '.en'), fields=(SRC, TGT), train='train.tok.clean.bpe.32000',
+                                             validation='newstest2009.tok.bpe.32000', test='newstest2016.tok.bpe.32000')
+    src_val_file_address = ".data/wmt14/newstest2009.tok.bpe.32000.{}".format(src_lan)
+    tgt_val_file_address = ".data/wmt14/newstest2009.tok.bpe.32000.{}".format(tgt_lan)
+    src_test_file_address = ".data/wmt14/newstest2016.tok.bpe.32000.{}".format(src_lan)
+    tgt_test_file_address = ".data/wmt14/newstest2016.tok.bpe.32000.{}".format(tgt_lan)
+else:
+    raise ValueError("The dataset {} is not defined!".format(cfg.dataset_name))
 
 
 print("Number of training examples: {}".format(len(train.examples)))
