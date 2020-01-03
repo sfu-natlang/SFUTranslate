@@ -158,7 +158,7 @@ elif cfg.dataset_name == "iwslt17":
     tgt_val_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.dev2010.{0}-{1}.{1}".format(src_lan, tgt_lan)
     src_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{0}".format(src_lan, tgt_lan)
     tgt_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{1}".format(src_lan, tgt_lan)
-elif cfg.dataset_name == "wmt16":
+elif cfg.dataset_name == "wmt14":
     train, val, test = datasets.WMT14.splits(exts=('.de', '.en'), fields=(SRC, TGT), train='train.tok.clean.bpe.32000',
                                              validation='newstest2009.tok.bpe.32000', test='newstest2016.tok.bpe.32000')
     src_val_file_address = ".data/wmt14/newstest2009.tok.bpe.32000.{}".format(src_lan)
