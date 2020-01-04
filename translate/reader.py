@@ -143,8 +143,9 @@ SRC = data.Field(tokenize=src_tokenizer, lower=bool(cfg.lowercase_data), pad_tok
 TGT = data.Field(tokenize=tgt_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
                  unk_token=cfg.unk_token, init_token=cfg.bos_token, eos_token=cfg.eos_token, include_lengths=True)
 if cfg.dataset_name == "multi30k16":
-    print("Debug mode: True => loading Multi30k (a smaller dataset [MinLen:1;AvgLen:12;MaxLen:40]) instead of IWSLT")
-    train, val, test = datasets.translation.Multi30k.splits(exts=('.de', '.en'), fields=(SRC, TGT))
+    print("Loading Multi30k (a smaller dataset [MinLen:1;AvgLen:12;MaxLen:40]) instead of IWSLT")
+    train, val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                                                            fields=(SRC, TGT))
     src_val_file_address = ".data/multi30k/val.{}".format(src_lan)
     tgt_val_file_address = ".data/multi30k/val.{}".format(tgt_lan)
     src_test_file_address = ".data/multi30k/test2016.{}".format(src_lan)
@@ -152,14 +153,15 @@ if cfg.dataset_name == "multi30k16":
 elif cfg.dataset_name == "iwslt17":
     train, val, test = IWSLT.splits(
         filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
-            vars(x)['trg']) <= cfg.max_sequence_length, exts=('.de', '.en'), fields=(SRC, TGT),
-        test='IWSLT17.TED.tst2015', validation='IWSLT17.TED.dev2010', debug_mode=bool(cfg.debug_mode))
+            vars(x)['trg']) <= cfg.max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+        fields=(SRC, TGT),test='IWSLT17.TED.tst2015', validation='IWSLT17.TED.dev2010', debug_mode=bool(cfg.debug_mode))
     src_val_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.dev2010.{0}-{1}.{0}".format(src_lan, tgt_lan)
     tgt_val_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.dev2010.{0}-{1}.{1}".format(src_lan, tgt_lan)
     src_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{0}".format(src_lan, tgt_lan)
     tgt_test_file_address = ".data/iwslt/{0}-{1}/IWSLT17.TED.tst2015.{0}-{1}.{1}".format(src_lan, tgt_lan)
 elif cfg.dataset_name == "wmt14":
-    train, val, test = datasets.WMT14.splits(exts=('.de', '.en'), fields=(SRC, TGT), train='train.tok.clean.bpe.32000',
+    train, val, test = datasets.WMT14.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                                             fields=(SRC, TGT), train='train.tok.clean.bpe.32000',
                                              validation='newstest2009.tok.bpe.32000', test='newstest2016.tok.bpe.32000')
     src_val_file_address = ".data/wmt14/newstest2009.tok.bpe.32000.{}".format(src_lan)
     tgt_val_file_address = ".data/wmt14/newstest2009.tok.bpe.32000.{}".format(tgt_lan)
@@ -176,8 +178,8 @@ print("Number of testing examples: {}".format(len(test.examples)))
 SRC.build_vocab(train, max_size=int(cfg.max_vocab_src), min_freq=int(cfg.min_freq_src))
 TGT.build_vocab(train, max_size=int(cfg.max_vocab_tgt), min_freq=int(cfg.min_freq_tgt))
 
-print("Unique tokens in source (de) vocabulary: {}".format(len(SRC.vocab)))
-print("Unique tokens in target (en) vocabulary: {}".format(len(TGT.vocab)))
+print("Unique tokens in source ({}) vocabulary: {}".format(src_lan, len(SRC.vocab)))
+print("Unique tokens in target ({}) vocabulary: {}".format(tgt_lan, len(TGT.vocab)))
 
 # Replaced the Bucket Iterator with the suggested iterator in here:
 # http://nlp.seas.harvard.edu/2018/04/03/attention.html

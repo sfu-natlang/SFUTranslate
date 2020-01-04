@@ -35,6 +35,7 @@ The general structure of the modules is depicted in the following figure.
 As of the current version, the `translate` package contains the following classes.
   - `configuration`
   - `evaluation_utils`
+  - `extract_common_vocab`
   - `init_nn` 
   - `optimizers` 
   - `reader`
@@ -132,6 +133,8 @@ functionality and classes.
 - [`torchtext`](https://torchtext.readthedocs.io/en/latest/) the data provider which downloads and loads the demanded dataset.
 
 - [`sacrebleu`](https://github.com/mjpost/sacreBLEU) the evaluation package used for computing the Bleu scores in validation and test set score computation.
+
+- [`sacremoses`](https://github.com/alvations/sacremoses) the tokenizer/detokenizer implementation of Moses.
 
 - [`spaCy`](https://spacy.io/) the pre-processing toolkit used for normalization and tokenization of `English`, `German`
 , `Spanish`, `Portuguese`, `French`, `Italian`, and `Dutch`. However, to make the library able to process each of the 
