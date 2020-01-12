@@ -37,6 +37,10 @@ class BeamSearchNode:
 
 class STS(nn.Module):
     def __init__(self, SRC: data.Field, TGT: data.Field):
+        """
+        :param SRC: the trained torchtext.data.Field object containing the source side vocabulary
+        :param TGT: the trained torchtext.data.Field object containing the target side vocabulary
+        """
         super(STS, self).__init__()
         self.SRC = SRC
         self.TGT = TGT
@@ -114,13 +118,50 @@ class STS(nn.Module):
         else:
             return self.greedy_decode(input_tensor_with_lengths, output_tensor_with_length, test_mode)
 
+    def encode(self, input_tensor_with_lengths):
+        """
+        :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
+        """
+        input_tensor, input_lengths = input_tensor_with_lengths
+        input_sequence_length, batch_size = input_tensor.size()
+        embedded_input = self.emb_dropout(self.encoder_emb(input_tensor))  # seq_length * batch_size * emd_size
+        packed_input = pack_padded_sequence(embedded_input, input_lengths, enforce_sorted=False)
+        encoded_pack_output, encoder_lstm_context = self.encoder(packed_input)
+        encoder_lstm_output, _ = pad_packed_sequence(encoded_pack_output)
+        decoder_lstm_context = self.reformat_encoder_hidden_states(encoder_lstm_context)
+        attention_mask = input_tensor.transpose(0, 1).unsqueeze(1) != self.SRC.vocab.stoi[cfg.pad_token]
+        if self.bahdanau_attention:
+            encoder_memory = self.attention_W(encoder_lstm_output).transpose(0, 1)
+        else:
+            encoder_memory = self.attention_W(encoder_lstm_output).permute(1, 2, 0)
+
+        target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
+        next_token = torch.LongTensor().new_full((batch_size,), self.TGT.vocab.stoi[cfg.bos_token]).to(device)
+
+        c_t = torch.zeros(batch_size, self.encoder_hidden * (2 if self.encoder_bidirectional else 1), device=device)
+        eos_predicted = torch.zeros(batch_size, device=device).byte()
+        result = torch.zeros(target_length, batch_size, device=device)
+        coverage_vector = torch.zeros(batch_size, input_sequence_length, 1, device=device).float() \
+            if self.coverage else None
+        max_attention_indices = torch.zeros(target_length, batch_size, device=device)
+        tokens = torch.zeros((batch_size, 1), device=device).long()
+        lm_score = torch.zeros((batch_size,), device=device)
+        cumulative_loss = 0.0
+        loss_size = 0.0
+        last_created_node_id = 0
+        decoding_initializer = BeamSearchNode(last_created_node_id, decoder_lstm_context, next_token, c_t,
+                                              eos_predicted, coverage_vector, result, max_attention_indices,
+                                              cumulative_loss, loss_size, tokens, lm_score)
+        return decoding_initializer, encoder_lstm_output, encoder_memory, attention_mask, target_length
+
     def greedy_decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param test_mode: a flag indicating whether the model is allowed to use the target tensor for input feeding
         """
-        input_tensor, input_lengths = input_tensor_with_lengths
+        # #################################INITIALIZATION OF ENCODING PARAMETERS#######################################
+        input_sequence_length, batch_size = input_tensor_with_lengths[0].size()
         if output_tensor_with_length is not None:
             output_tensor, outputs_lengths = output_tensor_with_length
             tokens_count = float(outputs_lengths.sum().item())
@@ -128,122 +169,105 @@ class STS(nn.Module):
             output_tensor, outputs_lengths = None, None
             tokens_count = 0.0
         predicted_tokens_count = 0.0
-        input_sequence_length, batch_size = input_tensor.size()
-        embedded_input = self.emb_dropout(self.encoder_emb(input_tensor))  # seq_length * batch_size * emd_size
-        packed_input = pack_padded_sequence(embedded_input, input_lengths, enforce_sorted=False)
-        encoded_pack_output, encoder_lstm_context = self.encoder(packed_input)
-        encoder_lstm_output, _ = pad_packed_sequence(encoded_pack_output)
-        # encoder_lstm_output, encoder_lstm_context = self.encoder(
-        # embedded_input, self.encoder_init(input_tensor.size(1)))
-        decoder_lstm_context = self.reformat_encoder_hidden_states(encoder_lstm_context)
-        target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
-        next_token = output_tensor.select(0, 0) if output_tensor is not None and not test_mode else \
-            torch.LongTensor().new_full((batch_size,), self.TGT.vocab.stoi[cfg.bos_token]).to(device)  # size = batch_size
-        pad_token = torch.LongTensor().new_full((batch_size,), self.TGT.vocab.stoi[cfg.pad_token]).to(device)
-        result = torch.zeros(target_length, batch_size, device=device)
-        cumulative_loss = 0.0
-        c_t = torch.zeros(batch_size, self.encoder_hidden * (2 if self.encoder_bidirectional else 1), device=device)
-        eos_predicted = torch.zeros(batch_size, device=device).byte()
-        if self.bahdanau_attention:
-            preprocessed_attention_encoder_representations = self.attention_W(encoder_lstm_output).transpose(0, 1)
-        else:
-            preprocessed_attention_encoder_representations = self.attention_W(encoder_lstm_output).permute(1, 2, 0)
-        attention_mask = input_tensor.transpose(0, 1).unsqueeze(1) != self.SRC.vocab.stoi[cfg.pad_token]
-        loss_size = 0.0
 
-        if self.coverage:
-            coverage_vector = torch.zeros(batch_size, input_sequence_length, 1, device=device).float()
-            # phi_j: batch_size * 1 * max_input_length
-            # phi_j = self.phi_j_N * self.sigmoid(
-            #    self.u_phi_j(self.coverage_dropout(encoder_lstm_output.transpose(0, 1)))).squeeze(-1).unsqueeze(1)
-        max_attention_indices = torch.zeros(target_length, batch_size, device=device)
+        # #################################CALLING THE ENCODER TO ENCODE THE INPUT BATCH###############################
+        decoding_initializer, encoder_output, encoder_memory, attention_mask, target_length = self.encode(
+            input_tensor_with_lengths)
+
+        # #################################INITIALIZATION OF DECODING PARAMETERS#######################################
+        pad_token = torch.LongTensor().new_full((batch_size,), self.TGT.vocab.stoi[cfg.pad_token]).to(device)
+        next_token = decoding_initializer.next_token
+        decoder_context = decoding_initializer.decoder_lstm_context
+        c_t = decoding_initializer.c_t
+        result = decoding_initializer.result
+        max_attention_indices = decoding_initializer.max_attention_indices
+        coverage_vector = decoding_initializer.coverage_vector
+        eos_predicted = decoding_initializer.eos_predicted
+        cumulative_loss = decoding_initializer.cumulative_loss
+        loss_size = decoding_initializer.loss_size
+
+        # #################################ITERATIVE GENERATION OF THE OUTPUT##########################################
         for t in range(target_length):
-            dec_emb = self.emb_dropout(self.decoder_emb(next_token))  # batch_size * decoder_emb_size
-            decoder_input = torch.cat([dec_emb, c_t], dim=1).view(1, batch_size, self.decoder_input_size)
-            _, decoder_lstm_context = self.decoder(decoder_input, decoder_lstm_context)
-            query = decoder_lstm_context[0][-1].view(batch_size, self.decoder_hidden)
-            semi_output = self.out_dropout(torch.cat([dec_emb, query, c_t], dim=1))
-            o = self.out(self.tanh(semi_output)) \
-                .view(batch_size, len(self.TGT.vocab))  # batch_size, target_vocab_size
-            greedy_prediction = torch.argmax(o, dim=1).detach()
+            p_gen, query, decoder_context = self.next_target_distribution(next_token, decoder_context, c_t, batch_size)
+            alphas = self.compute_attention_scores(query, encoder_memory,
+                                                   attention_mask, input_sequence_length, coverage_vector)
+            max_attention_indices[t, :] = alphas.max(dim=-1)[1].view(-1).detach()  # batch_size
+            c_t = (alphas @ encoder_output.transpose(0, 1)).squeeze(1)
+            greedy_prediction = torch.argmax(p_gen, dim=1).detach()
+            next_token = greedy_prediction  # greedy approach
             eos_predicted = torch.max(eos_predicted, (greedy_prediction == self.TGT.vocab.stoi[cfg.eos_token]))
             if output_tensor is not None:
-                # Input Feeding
-                next_token = output_tensor.select(0, t + 1) if t < output_tensor.size(0) - 1 else pad_token
-                cumulative_loss += self.criterion(o, next_token)
+                if not test_mode:  # Input Feeding
+                    next_token = output_tensor.select(0, t + 1) if t < output_tensor.size(0) - 1 else pad_token
+                cumulative_loss += self.criterion(p_gen, next_token)
                 loss_size += 1.0
-            else:
-                # greedy approach
-                next_token = greedy_prediction
             predicted_tokens_count += batch_size - eos_predicted.sum().item()
             if sum(eos_predicted.int()) == batch_size:
                 break
-            # overwrite the Input Feeding criteria
-            if test_mode:
-                next_token = greedy_prediction
             result[t, :] = greedy_prediction
-            # Calculate the new context vector
-            # encoded representations size: innput_seq_length * batch_size * (2 * encoder_hidden representation size)
-            # decoder representation size: 1 * batch_size * decoder representation size
-            # inp_hidden = encoder_lstm_output.transpose(0, 1)
-            # mapped_inputs = self.attention_W(inp_hidden)  # batch_size, input_len, dec hidden
-            # alphas = torch.bmm(query.unsqueeze(1), mapped_inputs.transpose(1, 2))  # batch_size,1, input_len
-            # alphas = self.softmax(alphas)
-            # c_t = torch.bmm(alphas, inp_hidden).squeeze(1)
-            if self.bahdanau_attention:
-                attention_inputs = self.attention_U(query.unsqueeze(1).repeat(1, input_sequence_length, 1)) + \
-                                   preprocessed_attention_encoder_representations
-                if self.coverage:
-                    attention_inputs = attention_inputs + self.attention_C(coverage_vector)
-                alphas = self.attention_V(self.tanh(attention_inputs)).squeeze(2).unsqueeze(1) # b_size,1,input_len
-            else:  # Loung general
-                alphas = query.unsqueeze(1) @ preprocessed_attention_encoder_representations  # b_size,1,input_len
-            alphas = torch.where(attention_mask, alphas, alphas.new_full([1], float('-inf')))
-            alphas = self.softmax(alphas)  # batch_size * 1 * max_input_length
             if self.coverage:
                 # coverage_vector = coverage_vector + ((1.0 / (phi_j + 1e-32)) * alphas).squeeze(1).unsqueeze(-1)
                 cvg_formatted_alphas = alphas.squeeze(1)
                 coverage_vector = coverage_vector + cvg_formatted_alphas.unsqueeze(-1)
-            # input_tensor => max_seq_length * batch_size
-            max_attention_indices[t, :] = alphas.max(dim=-1)[1].view(-1).detach()  # batch_size
-            c_t = (alphas @ encoder_lstm_output.transpose(0, 1)).squeeze(1)
-            if self.coverage and output_tensor is not None:
-                masked_coverage = coverage_vector.squeeze(2) * attention_mask.float().squeeze(1)
-                min_coverage_and_attn = torch.min(masked_coverage, cvg_formatted_alphas)
-                cumulative_loss = cumulative_loss + self.coverage_lambda * min_coverage_and_attn.sum()
+                if output_tensor is not None:
+                    masked_coverage = coverage_vector.squeeze(2) * attention_mask.float().squeeze(1)
+                    min_coverage_and_attn = torch.min(masked_coverage, cvg_formatted_alphas)
+                    cumulative_loss = cumulative_loss + self.coverage_lambda * min_coverage_and_attn.sum()
         return result, max_attention_indices, cumulative_loss,  loss_size, tokens_count
 
-    def beam_search_decode(self, input_tensor_with_lengths, beam_size=1):
-        input_tensor, input_lengths = input_tensor_with_lengths
-        input_sequence_length, batch_size = input_tensor.size()
-        embedded_input = self.emb_dropout(self.encoder_emb(input_tensor))  # seq_length * batch_size * emd_size
-        packed_input = pack_padded_sequence(embedded_input, input_lengths, enforce_sorted=False)
-        encoded_pack_output, encoder_lstm_context = self.encoder(packed_input)
-        encoder_lstm_output, _ = pad_packed_sequence(encoded_pack_output)
-        decoder_lstm_context = self.reformat_encoder_hidden_states(encoder_lstm_context)
-        attention_mask = input_tensor.transpose(0, 1).unsqueeze(1) != self.SRC.vocab.stoi[cfg.pad_token]
-        tokens_count = 0.0
-        target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
+    def compute_attention_scores(self, query, memory, attention_mask, input_sequence_length, coverage_vector=None):
+        """
+        :param query: (batch_size, self.decoder_hidden)
+        :param memory: (batch_size, input_sequence_length, self.encoder_hidden * [2 if bidirectional else 1])
+        :param attention_mask: (batch_size, 1, input_sequence_length)
+        :param coverage_vector: (batch_size, input_sequence_length, 1)
+        :param input_sequence_length: the maximum size of input sequences in the current batch
+        """
         if self.bahdanau_attention:
-            preprocessed_attention_encoder_representations = self.attention_W(encoder_lstm_output).transpose(0, 1)
-        else:
-            preprocessed_attention_encoder_representations = self.attention_W(encoder_lstm_output).permute(1, 2, 0)
-        next_token = torch.LongTensor().new_full((batch_size,), self.TGT.vocab.stoi[cfg.bos_token]).to(device)
-        c_t = torch.zeros(batch_size, self.encoder_hidden * (2 if self.encoder_bidirectional else 1), device=device)
-        eos_predicted = torch.zeros(batch_size, device=device).byte()
-        coverage_vector = torch.zeros(batch_size, input_sequence_length, 1, device=device).float() \
-            if self.coverage else None
+            attention_inputs = self.attention_U(query.unsqueeze(1).repeat(1, input_sequence_length, 1)) + memory
+            if coverage_vector is not None:
+                attention_inputs = attention_inputs + self.attention_C(coverage_vector)
+            alphas = self.attention_V(self.tanh(attention_inputs)).squeeze(2).unsqueeze(1)  # b_size, 1, input_len
+        else:  # Loung general
+            alphas = query.unsqueeze(1) @ memory  # b_size,1,input_len
+        alphas = torch.where(attention_mask, alphas, alphas.new_full([1], float('-inf')))
+        return self.softmax(alphas)  # batch_size * 1 * max_input_length
 
-        result = torch.zeros(target_length, batch_size, device=device)
-        max_attention_indices = torch.zeros(target_length, batch_size, device=device)
-        cumulative_loss = 0.0
-        loss_size = 0.0
-        last_created_node_id = 0
-        tokens = torch.zeros((batch_size, 1), device=device).long()
-        lm_score = torch.zeros((batch_size,), device=device)
-        nodes = [BeamSearchNode(last_created_node_id, decoder_lstm_context, next_token, c_t, eos_predicted,
-                                coverage_vector, result, max_attention_indices, cumulative_loss, loss_size, tokens, lm_score)]
+    def next_target_distribution(self, next_token, prev_decoder_context, c_t, batch_size):
+        """
+        :param next_token: (batch_size, ) a single dimensional vector
+        :param prev_decoder_context: tuple of size 2: ((1, batch_size, self.decoder_hidden),
+                                                        (1, batch_size, self.decoder_hidden))
+        :param c_t: (batch_size, self.encoder_hidden * [2 if bidirectional else 1])
+        :param batch_size: the number of sentences passed to be translated
+        """
+        dec_emb = self.emb_dropout(self.decoder_emb(next_token))  # batch_size * decoder_emb_size
+        decoder_input = torch.cat([dec_emb, c_t], dim=1).view(1, batch_size, self.decoder_input_size)
+        _, decoder_lstm_context = self.decoder(decoder_input, prev_decoder_context)
+        query = decoder_lstm_context[0][-1].view(batch_size, self.decoder_hidden)
+        semi_output = self.out_dropout(torch.cat([dec_emb, query, c_t], dim=1))
+        # out: batch_size, target_vocab_size
+        return self.out(self.tanh(semi_output)).view(batch_size, len(self.TGT.vocab)),  query, decoder_lstm_context
+
+    def beam_search_decode(self, input_tensor_with_lengths, beam_size=1):
+        """
+        :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
+        :param beam_size: number of the hypothesis expansions during inference
+        """
+        # #################################INITIALIZATION OF ENCODING PARAMETERS#######################################
+        input_sequence_length, batch_size = input_tensor_with_lengths[0].size()
+        tokens_count = 0.0
+
+        # #################################CALLING THE ENCODER TO ENCODE THE INPUT BATCH###############################
+        decoding_initializer, encoder_output, encoder_memory, attention_mask, target_length = self.encode(
+            input_tensor_with_lengths)
+
+        # #################################INITIALIZATION OF DECODING PARAMETERS#######################################
+        nodes = [decoding_initializer]
+        last_created_node_id = decoding_initializer.id
         final_results = []
+
+        # #################################ITERATIVE GENERATION OF THE OUTPUT##########################################
         m_softmax = nn.Softmax(dim=-1)
         for step in range(target_length):
             k = beam_size - len(final_results)
@@ -253,12 +277,8 @@ class STS(nn.Module):
             all_lm_scores = torch.zeros(batch_size, len(nodes) * k, device=device).float()
 
             for n_id, node in enumerate(nodes):
-                dec_emb = self.emb_dropout(self.decoder_emb(node.next_token))  # batch_size * decoder_emb_size
-                decoder_input = torch.cat([dec_emb, node.c_t], dim=1).view(1, batch_size, self.decoder_input_size)
-                _, decoder_lstm_context = self.decoder(decoder_input, node.decoder_lstm_context)
-                query = decoder_lstm_context[0][-1].view(batch_size, self.decoder_hidden)
-                semi_output = self.out_dropout(torch.cat([dec_emb, query, node.c_t], dim=1))
-                o = self.out(self.tanh(semi_output)).view(batch_size, len(self.TGT.vocab))  # batch_size, target_vocab_size
+                o, query, decoder_lstm_context = self.next_target_distribution(
+                    node.next_token, node.decoder_lstm_context, node.c_t, batch_size)
                 node.set_result(m_softmax(o), query, decoder_lstm_context)
                 k_values, k_indices = torch.topk(node.result_output, dim=1, k=k)
                 for beam_index in range(k):
@@ -271,43 +291,38 @@ class STS(nn.Module):
                 node_ids = k_indices[:, beam_index] / k
                 node_ids = list(node_ids.cpu().numpy())  # list of size batch_size
                 pred_ids = list(k_indices[:, beam_index].cpu().numpy())
-                greedy_prediction = torch.zeros((batch_size,), device=device).long()
-                for b in range(batch_size):
-                    greedy_prediction[b] = all_predictions[b, pred_ids[b]]
                 lm_score = k_values[:, beam_index]
                 last_created_node_id += 1
-                query = torch.cat([nodes[n_id].result_query[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
+                query = torch.cat(
+                    [nodes[n_id].result_query[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
                 coverage_vector = torch.cat(
                     [nodes[n_id].coverage_vector[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
-                max_attention_indices = torch.cat([nodes[n_id].max_attention_indices[:, b_id].unsqueeze(1) for b_id, n_id in enumerate(node_ids)], dim=1)
-                if self.bahdanau_attention:
-                    attention_inputs = self.attention_U(query.unsqueeze(1).repeat(1, input_sequence_length, 1)) + \
-                                       preprocessed_attention_encoder_representations
-                    if self.coverage:
-                        attention_inputs = attention_inputs + self.attention_C(coverage_vector)
-                    alphas = self.attention_V(self.tanh(attention_inputs)).squeeze(2).unsqueeze(1) # b_size,1,input_len
-                else:  # Loung general
-                    alphas = query.unsqueeze(1) @ preprocessed_attention_encoder_representations  # b_size,1,input_len
-                # BeamSearchNode.make_new_node(last_created_node_id, nodes, node_ids, lm_score,
-                #                                        greedy_prediction, self.TGT.vocab.stoi[cfg.eos_token], step))
-                alphas = torch.where(attention_mask, alphas, alphas.new_full([1], float('-inf')))
-                alphas = self.softmax(alphas)  # batch_size * 1 * max_input_length
+                max_attention_indices = torch.cat([nodes[n_id].max_attention_indices[:, b_id].unsqueeze(1)
+                                                   for b_id, n_id in enumerate(node_ids)], dim=1)
+                alphas = self.compute_attention_scores(query, encoder_memory, attention_mask,
+                                                       input_sequence_length, coverage_vector)
                 if self.coverage:
                     # coverage_vector = coverage_vector + ((1.0 / (phi_j + 1e-32)) * alphas).squeeze(1).unsqueeze(-1)
                     cvg_formatted_alphas = alphas.squeeze(1)
                     coverage_vector = coverage_vector + cvg_formatted_alphas.unsqueeze(-1)
                 # input_tensor => max_seq_length * batch_size
                 max_attention_indices[step, :] = alphas.max(dim=-1)[1].view(-1).detach()  # batch_size
-                c_t = (alphas @ encoder_lstm_output.transpose(0, 1)).squeeze(1)
+                c_t = (alphas @ encoder_output.transpose(0, 1)).squeeze(1)
+                greedy_prediction = torch.zeros((batch_size,), device=device).long()
+                for b in range(batch_size):
+                    greedy_prediction[b] = all_predictions[b, pred_ids[b]]
                 decoder_lstm_context = (torch.cat([nodes[n_id].result_context[0][:, b_id, :]
                                                    for b_id, n_id in enumerate(node_ids)], dim=0).unsqueeze(0),
                                         torch.cat([nodes[n_id].result_context[1][:, b_id, :]
                                                    for b_id, n_id in enumerate(node_ids)], dim=0).unsqueeze(0))
-                eos_p = torch.cat([nodes[n_id].eos_predicted[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
+                eos_p = torch.cat(
+                    [nodes[n_id].eos_predicted[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
                 eos_predicted = torch.max(eos_p, (greedy_prediction == self.TGT.vocab.stoi[cfg.eos_token]))
-                prev_tokens = torch.cat([nodes[n_id].tokens[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
+                prev_tokens = torch.cat(
+                    [nodes[n_id].tokens[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
                 new_tokens = torch.cat((prev_tokens, greedy_prediction.unsqueeze(-1)), dim=1)
-                result = torch.cat([nodes[n_id].result[:, b_id].unsqueeze(1) for b_id, n_id in enumerate(node_ids)], dim=1)
+                result = torch.cat(
+                    [nodes[n_id].result[:, b_id].unsqueeze(1) for b_id, n_id in enumerate(node_ids)], dim=1)
                 result[step, :] = greedy_prediction
                 c_beam = BeamSearchNode(last_created_node_id, decoder_lstm_context, greedy_prediction,
                                         c_t, eos_predicted, coverage_vector, result, max_attention_indices, 0.0, 1.0,
