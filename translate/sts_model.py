@@ -6,7 +6,7 @@ from torchtext import data
 from configuration import cfg, device
 
 
-class BeamSearchNode:
+class DecodingSearchNode:
     def __init__(self, _id, decoder_lstm_context, next_token, c_t, eos_predicted, coverage_vector, result,
                  max_attention_indices, cumulative_loss, loss_size, tokens, lm_score):
         self.decoder_lstm_context = decoder_lstm_context
@@ -81,7 +81,7 @@ class STS(nn.Module):
         self.decoder_layers = int(cfg.decoder_layers)
         self.decoder = nn.LSTM(self.decoder_input_size, self.decoder_hidden, self.decoder_layers,
                                dropout=float(cfg.decoder_dropout_rate) if self.decoder_layers > 1 else 0.0)
-        self.softmax = nn.Softmax(dim=2)
+        self.softmax = nn.Softmax(dim=-1)
         self.tanh = nn.Tanh()
         self.sigmoid = nn.Sigmoid()
         self.emb_dropout = nn.Dropout(p=float(cfg.emb_dropout))
@@ -149,9 +149,9 @@ class STS(nn.Module):
         cumulative_loss = 0.0
         loss_size = 0.0
         last_created_node_id = 0
-        decoding_initializer = BeamSearchNode(last_created_node_id, decoder_lstm_context, next_token, c_t,
-                                              eos_predicted, coverage_vector, result, max_attention_indices,
-                                              cumulative_loss, loss_size, tokens, lm_score)
+        decoding_initializer = DecodingSearchNode(last_created_node_id, decoder_lstm_context, next_token, c_t,
+                                                  eos_predicted, coverage_vector, result, max_attention_indices,
+                                                  cumulative_loss, loss_size, tokens, lm_score)
         return decoding_initializer, encoder_lstm_output, encoder_memory, attention_mask, target_length
 
     def greedy_decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
@@ -268,7 +268,6 @@ class STS(nn.Module):
         final_results = []
 
         # #################################ITERATIVE GENERATION OF THE OUTPUT##########################################
-        m_softmax = nn.Softmax(dim=-1)
         for step in range(target_length):
             k = beam_size - len(final_results)
             if k < 1:
@@ -277,9 +276,9 @@ class STS(nn.Module):
             all_lm_scores = torch.zeros(batch_size, len(nodes) * k, device=device).float()
 
             for n_id, node in enumerate(nodes):
-                o, query, decoder_lstm_context = self.next_target_distribution(
+                p_gen, query, decoder_lstm_context = self.next_target_distribution(
                     node.next_token, node.decoder_lstm_context, node.c_t, batch_size)
-                node.set_result(m_softmax(o), query, decoder_lstm_context)
+                node.set_result(self.softmax(p_gen), query, decoder_lstm_context)
                 k_values, k_indices = torch.topk(node.result_output, dim=1, k=k)
                 for beam_index in range(k):
                     overall_index = n_id * k + beam_index
@@ -324,9 +323,9 @@ class STS(nn.Module):
                 result = torch.cat(
                     [nodes[n_id].result[:, b_id].unsqueeze(1) for b_id, n_id in enumerate(node_ids)], dim=1)
                 result[step, :] = greedy_prediction
-                c_beam = BeamSearchNode(last_created_node_id, decoder_lstm_context, greedy_prediction,
-                                        c_t, eos_predicted, coverage_vector, result, max_attention_indices, 0.0, 1.0,
-                                        new_tokens, lm_score)
+                c_beam = DecodingSearchNode(last_created_node_id, decoder_lstm_context, greedy_prediction, c_t,
+                                            eos_predicted, coverage_vector, result, max_attention_indices, 0.0, 1.0,
+                                            new_tokens, lm_score)
 
                 if sum(eos_predicted.int()) == batch_size:
                     final_results.append(c_beam)
