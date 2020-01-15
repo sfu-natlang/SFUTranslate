@@ -149,8 +149,7 @@ functionality and classes.
 - [`spaCy`](https://spacy.io/) the pre-processing toolkit used for normalization and tokenization of `English`, `German`
 , `Spanish`, `Portuguese`, `French`, `Italian`, and `Dutch`. However, to make the library able to process each of the 
 languages you will need to download its resources for spaCy using the following lines (you should simply copy the 
-download line and past it into the command line to get executed). You may need to look at the content of 
-`translate.readers.tokenizer` class for the use cases of this library.
+download line and past it into the command line to get executed).
 ```commandline
 python -m spacy download en
 python -m spacy download de
@@ -162,10 +161,9 @@ python -m spacy download nl
 ```
 
 - [`subword_nmt`](https://github.com/rsennrich/subword-nmt) the implementation of the bye-pair encoding from the paper
-[Neural Machine Translation of Rare Words with Subword Units](http://www.aclweb.org/anthology/P16-1162) used in
-`translate.readers.datareader` class for providing the Byte-Pair level granularity.
+[Neural Machine Translation of Rare Words with Subword Units](http://www.aclweb.org/anthology/P16-1162) used for providing the Byte-Pair level granularity.
 
-- Utility libraries \[`tqdm` and `xml`\] the libraries that provide simple utility functionalities.
+- Utility libraries \[`tqdm` and `xml`\] the libraries that provide simple utility functionality.
 
  
 # Help and Comments
