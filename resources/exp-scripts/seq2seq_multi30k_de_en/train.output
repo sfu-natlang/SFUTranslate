@@ -1,0 +1,946 @@
+Loading the data ...
+Loading Multi30k (a smaller dataset [MinLen:1;AvgLen:12;MaxLen:40]) instead of IWSLT
+downloading training.tar.gz
+downloading validation.tar.gz
+downloading mmt_task1_test2016.tar.gz
+Number of training examples: 29000
+Number of validation examples: 1014
+Number of testing examples: 1000
+Unique tokens in source (de) vocabulary: 24331
+Unique tokens in target (en) vocabulary: 14450
+Creating the Seq2Seq Model with Bahdanau attention
+Coverage model (See et al. definition [P17-1099]) is also considered
+Evaluation ....
+Sample Pred : weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave weave
+Model Expc'd: a man in a red shirt is standing with two <unk> in front of an old structure.
+Sample Act'l: a man in a red shirt is standing with two fitls in front of an old structure.
+E INIT ::: Average Loss 26.937 ::: Average BleuP1 0.330
+Evaluation ....
+Sample Pred : a man in the einer ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein ein
+Model Expc'd: a hiker posing for a photo in an arid mountain landscape.
+Sample Act'l: a hiker posing for a photo in an arid mountain landscape.
+E 0 ::: Average Loss 0.773 ::: Average BleuP1 0.963
+Evaluation ....
+Sample Pred : a man in a man in the a man in the a man in the
+Model Expc'd: a man and a woman talk while standing next to a tree.
+Sample Act'l: a man and a woman talk while standing next to a tree.
+E 0 ::: Average Loss 10.860 ::: Average BleuP1 3.492
+Evaluation ....
+Sample Pred : a man in a man in a man in a man in a man in the
+Model Expc'd: an asian fruit and vegetable vendor's selection of <unk> oranges, <unk> and more in his small boat.
+Sample Act'l: an asian fruit and vegetable vendor's selection of bananas, oranges, melons and more in his small boat.
+E 0 ::: Average Loss 9.602 ::: Average BleuP1 5.114
+Evaluation ....
+Sample Pred : a man in a man in a man in a large
+Model Expc'd: a woman in a black dress is pushing a cart with <unk> down a paved walkway.
+Sample Act'l: a woman in a black dress is pushing a cart with thermos down a paved walkway.
+E 0 ::: Average Loss 2.913 ::: Average BleuP1 5.798
+Evaluation ....
+Sample Pred : two men are sitting on a blue
+Model Expc'd: people are walking down a sidewalk where there is an outdoors market.
+Sample Act'l: people are walking down a sidewalk where there is an outdoors market.
+E 0 ::: Average Loss 3.139 ::: Average BleuP1 7.130
+Evaluation ....
+Sample Pred : a woman is playing a red shirt is playing a red shirt is playing a large
+Model Expc'd: a woman <unk> a frisbee to a dog as a baseball player in uniform runs behind her.
+Sample Act'l: a woman thows a frisbee to a dog as a baseball player in uniform runs behind her.
+E 0 ::: Average Loss 4.103 ::: Average BleuP1 7.938
+Evaluation ....
+Sample Pred : two men are sitting on a blue shirt and a large
+Model Expc'd: two dogs play with an orange toy in tall grass.
+Sample Act'l: two dogs play with an orange toy in tall grass.
+E 0 ::: Average Loss 4.797 ::: Average BleuP1 7.706
+Evaluation ....
+Sample Pred : two women are sitting in a red shirt and a large
+Model Expc'd: two women are standing in front of a class of children talking about a book.
+Sample Act'l: two women are standing in front of a class of children talking about a book.
+E 0 ::: Average Loss 4.311 ::: Average BleuP1 9.168
+Evaluation ....
+Sample Pred : a group of people are sitting on a large
+Model Expc'd: a band is playing music on stage at a concert.
+Sample Act'l: a band is playing music on stage at a concert.
+E 0 ::: Average Loss 4.023 ::: Average BleuP1 10.139
+Evaluation ....
+Sample Pred : a man is standing on a man is playing the ground.
+Model Expc'd: a half naked man is sleeping on his chair outdoors.
+Sample Act'l: a half naked man is sleeping on his chair outdoors.
+E 1 ::: Average Loss 8.695 ::: Average BleuP1 12.308
+Evaluation ....
+Sample Pred : two women are standing outside in front of a large
+Model Expc'd: two women are standing in front of a class of children talking about a book.
+Sample Act'l: two women are standing in front of a class of children talking about a book.
+E 1 ::: Average Loss 7.973 ::: Average BleuP1 13.236
+Evaluation ....
+Sample Pred : the brown dog is running through a small
+Model Expc'd: the brown dog is wearing a black collar.
+Sample Act'l: the brown dog is wearing a black collar.
+E 1 ::: Average Loss 8.241 ::: Average BleuP1 13.289
+Evaluation ....
+Sample Pred : a group of people are walking down a large
+Model Expc'd: a janitor about to mop in a train station.
+Sample Act'l: a janitor about to mop in a train station.
+E 1 ::: Average Loss 9.026 ::: Average BleuP1 13.604
+Evaluation ....
+Sample Pred : a man is sitting in a green shirt is riding a sidewalk.
+Model Expc'd: a man sleeping in a green room on a couch.
+Sample Act'l: a man sleeping in a green room on a couch.
+E 1 ::: Average Loss 7.878 ::: Average BleuP1 14.409
+Evaluation ....
+Sample Pred : a woman with a black and black pants walking down a sidewalk.
+Model Expc'd: a woman in a yellow t-shirt and sunglasses walks down a sidewalk.
+Sample Act'l: a woman in a yellow t-shirt and sunglasses walks down a sidewalk.
+E 1 ::: Average Loss 8.207 ::: Average BleuP1 15.028
+Evaluation ....
+Sample Pred : a girl sits in a pink shirt and a blue shirt and a blue shirt and a blue hat is holding a blue hat with a blue hat with a large
+Model Expc'd: sitting casually in a public place, a girl reads holding the book open with her hand on which is a butterfly ring.
+Sample Act'l: sitting casually in a public place, a girl reads holding the book open with her hand on which is a butterfly ring.
+E 1 ::: Average Loss 7.382 ::: Average BleuP1 15.713
+Evaluation ....
+Sample Pred : a group of people are gathered around a man in a red and white shirt and a small
+Model Expc'd: a group of people <unk> around a man in a suit and a little boy.
+Sample Act'l: a group of people collect around a man in a suit and a little boy.
+E 1 ::: Average Loss 8.070 ::: Average BleuP1 16.342
+Evaluation ....
+Sample Pred : a snowboarder is being pulled near a large building.
+Model Expc'd: a lone firefighter helps tame a large fire.
+Sample Act'l: a lone firefighter helps tame a large fire.
+E 1 ::: Average Loss 8.309 ::: Average BleuP1 17.187
+Evaluation ....
+Sample Pred : a woman sits on a sidewalk on a sidewalk.
+Model Expc'd: a woman is sitting by her dried flower display at an outside market.
+Sample Act'l: a woman is sitting by her dried flower display at an outside market.
+E 2 ::: Average Loss 8.130 ::: Average BleuP1 17.238
+Evaluation ....
+Sample Pred : a man in a black shirt is on a wave.
+Model Expc'd: a man in a black wetsuit is surfing on a wave.
+Sample Act'l: a man in a black wetsuit is surfing on a wave.
+E 2 ::: Average Loss 8.128 ::: Average BleuP1 18.418
+Evaluation ....
+Sample Pred : a woman in a blue shirt and jeans is holding something in a blue shirt.
+Model Expc'd: a woman in a blue shirt and jeans is throwing something away in a dumpster.
+Sample Act'l: a woman in a blue shirt and jeans is throwing something away in a dumpster.
+E 2 ::: Average Loss 7.772 ::: Average BleuP1 19.024
+Evaluation ....
+Sample Pred : a man is trying to be a restaurant.
+Model Expc'd: a man in a restaurant having lunch.
+Sample Act'l: a man in a restaurant having lunch.
+E 2 ::: Average Loss 8.171 ::: Average BleuP1 19.433
+Evaluation ....
+Sample Pred : a baby baby is preparing a child watches.
+Model Expc'd: a cute baby is smiling at another child.
+Sample Act'l: a cute baby is smiling at another child.
+E 2 ::: Average Loss 8.026 ::: Average BleuP1 19.522
+Evaluation ....
+Sample Pred : a man with a colorful hat is standing next to his bicycle.
+Model Expc'd: a man is wearing a gold outfit while standing with his gold bike.
+Sample Act'l: a man is wearing a gold outfit while standing with his gold bike.
+E 2 ::: Average Loss 7.579 ::: Average BleuP1 20.502
+Evaluation ....
+Sample Pred : a group of men are gathered around a dirt path.
+Model Expc'd: a group of men are loading cotton onto a truck
+Sample Act'l: a group of men are loading cotton onto a truck
+E 2 ::: Average Loss 8.403 ::: Average BleuP1 20.121
+Evaluation ....
+Sample Pred : a group of men sit in the boat near a boat near the middle of a red and blue sky.
+Model Expc'd: some men are sitting on a boat near a beach covered in stacked logs and sticks.
+Sample Act'l: some men are sitting on a boat near a beach covered in stacked logs and sticks.
+E 2 ::: Average Loss 7.980 ::: Average BleuP1 20.580
+Evaluation ....
+Sample Pred : a woman in a pink shirt is pushing a man in a striped shirt is pushing a piece of paper in a striped shirt.
+Model Expc'd: a woman wearing a pink shirt showing a man with a striped sweater how to do some work with yarn.
+Sample Act'l: a woman wearing a pink shirt showing a man with a striped sweater how to do some work with yarn.
+E 2 ::: Average Loss 7.509 ::: Average BleuP1 21.585
+Evaluation ....
+Sample Pred : a person is trying to a large piece of water.
+Model Expc'd: an atv attempts to get out of a ditch.
+Sample Act'l: an atv attempts to get out of a ditch.
+E 3 ::: Average Loss 7.682 ::: Average BleuP1 22.277
+Evaluation ....
+Sample Pred : a baby baby is watching a child looks on.
+Model Expc'd: a cute baby is smiling at another child.
+Sample Act'l: a cute baby is smiling at another child.
+E 3 ::: Average Loss 7.936 ::: Average BleuP1 22.368
+Evaluation ....
+Sample Pred : a little boy with a baseball cap is swinging a ball in a man's of water.
+Model Expc'd: a young boy wearing a giants jersey swings a baseball bat at an incoming pitch.
+Sample Act'l: a young boy wearing a giants jersey swings a baseball bat at an incoming pitch.
+E 3 ::: Average Loss 8.029 ::: Average BleuP1 22.091
+Evaluation ....
+Sample Pred : a woman with a bag is sitting on a bench.
+Model Expc'd: a woman with a pink purse is sitting on a bench.
+Sample Act'l: a woman with a pink purse is sitting on a bench.
+E 3 ::: Average Loss 7.859 ::: Average BleuP1 22.936
+Evaluation ....
+Sample Pred : children are riding in a crowded area.
+Model Expc'd: kids are riding a swinging carnival ride
+Sample Act'l: kids are riding a swinging carnival ride
+E 3 ::: Average Loss 7.498 ::: Average BleuP1 22.880
+Evaluation ....
+Sample Pred : a young girl is running through a park.
+Model Expc'd: a young girl running by herself in a park.
+Sample Act'l: a young girl running by herself in a park.
+E 3 ::: Average Loss 7.976 ::: Average BleuP1 23.428
+Epoch    32: reducing learning rate of group 0 to 9.0000e-04.
+Evaluation ....
+Sample Pred : a man is preparing a woman in a bar.
+Model Expc'd: man looks on as woman is talking while at a bar.
+Sample Act'l: man looks on as woman is talking while at a bar.
+E 3 ::: Average Loss 7.661 ::: Average BleuP1 23.505
+Evaluation ....
+Sample Pred : a man and woman are walking on the beach.
+Model Expc'd: a man and woman fishing at the beach.
+Sample Act'l: a man and woman fishing at the beach.
+E 3 ::: Average Loss 7.526 ::: Average BleuP1 24.537
+Evaluation ....
+Sample Pred : a group of men are gathered together on a race.
+Model Expc'd: a group of men are loading cotton onto a truck
+Sample Act'l: a group of men are loading cotton onto a truck
+E 3 ::: Average Loss 7.868 ::: Average BleuP1 23.897
+Evaluation ....
+Sample Pred : a man in a wetsuit climbs up a rock wall.
+Model Expc'd: a man in a harness climbing a rock wall
+Sample Act'l: a man in a harness climbing a rock wall
+E 4 ::: Average Loss 7.478 ::: Average BleuP1 24.903
+Evaluation ....
+Sample Pred : a young white man is sweeping a bowl with a large broom.
+Model Expc'd: a young white male is sweeping a porch with a large broom.
+Sample Act'l: a young white male is sweeping a porch with a large broom.
+E 4 ::: Average Loss 5.440 ::: Average BleuP1 24.669
+Evaluation ....
+Sample Pred : three men walk down a street in the mountains.
+Model Expc'd: three men are walking on a road in the mountains.
+Sample Act'l: three men are walking on a road in the mountains.
+E 4 ::: Average Loss 7.545 ::: Average BleuP1 25.551
+Evaluation ....
+Sample Pred : a lone man in a black t-shirt is walking down the other in a huge bar.
+Model Expc'd: a single man in a black t-shirt standing above the crowd at a busy bar.
+Sample Act'l: a single man in a black t-shirt standing above the crowd at a busy bar.
+E 4 ::: Average Loss 7.355 ::: Average BleuP1 25.358
+Evaluation ....
+Sample Pred : a man is talking on a bus in a chair.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 4 ::: Average Loss 7.795 ::: Average BleuP1 24.400
+Epoch    40: reducing learning rate of group 0 to 8.1000e-04.
+Evaluation ....
+Sample Pred : the sun sets in front of the subway.
+Model Expc'd: the skiers are in front of the lodge.
+Sample Act'l: the skiers are in front of the lodge.
+E 4 ::: Average Loss 7.231 ::: Average BleuP1 25.576
+Evaluation ....
+Sample Pred : a young man with blond-hair is speaking into a microphone.
+Model Expc'd: a young blond-haired man speaks into a microphone.
+Sample Act'l: a young blond-haired man speaks into a microphone.
+E 4 ::: Average Loss 6.037 ::: Average BleuP1 25.640
+Evaluation ....
+Sample Pred : a boy wearing headphones is sitting on the shoulders of a woman.
+Model Expc'd: a boy wearing headphones sits on a woman's shoulders.
+Sample Act'l: a boy wearing headphones sits on a woman's shoulders.
+E 4 ::: Average Loss 7.465 ::: Average BleuP1 26.107
+Evaluation ....
+Sample Pred : a man in a red uniform is crossing the street at a white bus and red and red car.
+Model Expc'd: there is a man in fireman's gear crossing the road near a white bus and a red <unk>
+Sample Act'l: there is a man in fireman's gear crossing the road near a white bus and a red semi.
+E 4 ::: Average Loss 7.528 ::: Average BleuP1 25.805
+Evaluation ....
+Sample Pred : a baby baby smiles as another child looks on.
+Model Expc'd: a cute baby is smiling at another child.
+Sample Act'l: a cute baby is smiling at another child.
+E 5 ::: Average Loss 7.620 ::: Average BleuP1 26.119
+Evaluation ....
+Sample Pred : a group of children sitting in a circle watching a book in a circle watching a book.
+Model Expc'd: a group of kids sitting in the back of a van together looking at a book.
+Sample Act'l: a group of kids sitting in the back of a van together looking at a book.
+E 5 ::: Average Loss 7.616 ::: Average BleuP1 26.157
+Epoch    46: reducing learning rate of group 0 to 7.2900e-04.
+Evaluation ....
+Sample Pred : man standing on a pier next to a boat near a lake.
+Model Expc'd: man standing on a pier next to a boat on a still lake.
+Sample Act'l: man standing on a pier next to a boat on a still lake.
+E 5 ::: Average Loss 6.297 ::: Average BleuP1 26.335
+Evaluation ....
+Sample Pred : a lone man in a black t-shirt is jumping off the other in a large body of people.
+Model Expc'd: a single man in a black t-shirt standing above the crowd at a busy bar.
+Sample Act'l: a single man in a black t-shirt standing above the crowd at a busy bar.
+E 5 ::: Average Loss 7.487 ::: Average BleuP1 26.345
+Evaluation ....
+Sample Pred : two men are kicking a river with green raft down on a paved path with two dogs.
+Model Expc'd: two man are paddling a kayak along a river with green trees on either side.
+Sample Act'l: two man are paddling a kayak along a river with green trees on either side.
+E 5 ::: Average Loss 7.401 ::: Average BleuP1 26.632
+Evaluation ....
+Sample Pred : a group of men are gathered together on a truck
+Model Expc'd: a group of men are loading cotton onto a truck
+Sample Act'l: a group of men are loading cotton onto a truck
+E 5 ::: Average Loss 6.426 ::: Average BleuP1 26.656
+Evaluation ....
+Sample Pred : the sun sets in front of the background.
+Model Expc'd: the skiers are in front of the lodge.
+Sample Act'l: the skiers are in front of the lodge.
+E 5 ::: Average Loss 7.126 ::: Average BleuP1 26.875
+Evaluation ....
+Sample Pred : a man eats to be in a restaurant.
+Model Expc'd: a man in a restaurant having lunch.
+Sample Act'l: a man in a restaurant having lunch.
+E 5 ::: Average Loss 4.200 ::: Average BleuP1 27.169
+Evaluation ....
+Sample Pred : a large brown dog is holding his face in its mouth.
+Model Expc'd: a large brown dog is sticking his face in the sprinkler.
+Sample Act'l: a large brown dog is sticking his face in the sprinkler.
+E 5 ::: Average Loss 5.310 ::: Average BleuP1 26.912
+Evaluation ....
+Sample Pred : two women are standing together while standing with the other woman
+Model Expc'd: two women with short hair are facing each other and the blond one is talking.
+Sample Act'l: two women with short hair are facing each other and the blond one is talking.
+E 6 ::: Average Loss 7.476 ::: Average BleuP1 26.998
+Evaluation ....
+Sample Pred : a boy is running a bicycle off a bicycle off a race.
+Model Expc'd: a boy who is taking a stick from a girl in the middle of a race.
+Sample Act'l: a boy who is taking a stick from a girl in the middle of a race.
+E 6 ::: Average Loss 7.102 ::: Average BleuP1 27.139
+Evaluation ....
+Sample Pred : a man is talking on a bus stop.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 6 ::: Average Loss 5.686 ::: Average BleuP1 27.551
+Evaluation ....
+Sample Pred : woman and man walking across the street with white cups.
+Model Expc'd: woman and man walking across wooden rope bridge with a caution sign beside it.
+Sample Act'l: woman and man walking across wooden rope bridge with a caution sign beside it.
+E 6 ::: Average Loss 5.976 ::: Average BleuP1 26.909
+Evaluation ....
+Sample Pred : a man is sleeping on his stool outside of his head.
+Model Expc'd: a half naked man is sleeping on his chair outdoors.
+Sample Act'l: a half naked man is sleeping on his chair outdoors.
+E 6 ::: Average Loss 5.348 ::: Average BleuP1 27.695
+Epoch    58: reducing learning rate of group 0 to 6.5610e-04.
+Evaluation ....
+Sample Pred : a small child stands alone on a rock cliff.
+Model Expc'd: a young child is standing alone on some jagged rocks.
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 6 ::: Average Loss 4.150 ::: Average BleuP1 27.909
+Evaluation ....
+Sample Pred : two people hold a large basket with a large number of them and a child who is carrying a large number of them is wearing a blue sky.
+Model Expc'd: two people are holding a large upside-down earth <unk> about <unk> in <unk> and a child appears to be jumping over <unk>
+Sample Act'l: two people are holding a large upside-down earth globe, about 4' in diameter, and a child appears to be jumping over antarctica.
+E 6 ::: Average Loss 4.301 ::: Average BleuP1 27.633
+Evaluation ....
+Sample Pred : a brown dog is running through the sand. with a stick in its mouth.
+Model Expc'd: a brown dog runs on the sand carrying a stick.
+Sample Act'l: a brown dog runs on the sand carrying a stick.
+E 6 ::: Average Loss 4.130 ::: Average BleuP1 27.396
+Evaluation ....
+Sample Pred : woman and man walking across the water with trees in front of them.
+Model Expc'd: woman and man walking across wooden rope bridge with a caution sign beside it.
+Sample Act'l: woman and man walking across wooden rope bridge with a caution sign beside it.
+E 6 ::: Average Loss 5.602 ::: Average BleuP1 27.618
+Evaluation ....
+Sample Pred : a baby is looking at the edge of a building.
+Model Expc'd: baby looking at the leaves on a branch of a tree.
+Sample Act'l: baby looking at the leaves on a branch of a tree.
+E 7 ::: Average Loss 4.119 ::: Average BleuP1 27.918
+Evaluation ....
+Sample Pred : three girls are standing by a small village stand in the middle of a busy street.
+Model Expc'd: three girls make faces as one takes a drink while they stand in a busy street.
+Sample Act'l: three girls make faces as one takes a drink while they stand in a busy street.
+E 7 ::: Average Loss 4.012 ::: Average BleuP1 28.353
+Epoch    64: reducing learning rate of group 0 to 5.9049e-04.
+Evaluation ....
+Sample Pred : people walking on a sidewalk past a blue sky.
+Model Expc'd: people are walking down a sidewalk where there is an outdoors market.
+Sample Act'l: people are walking down a sidewalk where there is an outdoors market.
+E 7 ::: Average Loss 4.281 ::: Average BleuP1 27.748
+Evaluation ....
+Sample Pred : a woman is reading a magazine while sitting on the edge of a man while another woman stands in a hand and standing next to her side.
+Model Expc'd: a woman is reading a card while sitting on an end of a couch, while another woman is standing next to her holding a glass to drink.
+Sample Act'l: a woman is reading a card while sitting on an end of a couch, while another woman is standing next to her holding a glass to drink.
+E 7 ::: Average Loss 4.488 ::: Average BleuP1 27.704
+Evaluation ....
+Sample Pred : a band is giving a picture in front of a crowd of people.
+Model Expc'd: a band plays a rock show to a bar audience.
+Sample Act'l: a band plays a rock show to a bar audience.
+E 7 ::: Average Loss 3.629 ::: Average BleuP1 28.387
+Evaluation ....
+Sample Pred : a vendor sits alone on his board in a asian country.
+Model Expc'd: a vendor sits in the middle of a display of glasses at a street market in an asian country.
+Sample Act'l: a vendor sits in the middle of a display of glasses at a street market in an asian country.
+E 7 ::: Average Loss 4.621 ::: Average BleuP1 28.365
+Evaluation ....
+Sample Pred : a little redheaded girl in a pink rides a soccer ball on a soccer field.
+Model Expc'd: a little redheaded girl wears a spider-man suit while riding a play horse.
+Sample Act'l: a little redheaded girl wears a spider-man suit while riding a play horse.
+E 7 ::: Average Loss 5.098 ::: Average BleuP1 28.073
+Evaluation ....
+Sample Pred : a young skier looks at the camera.
+Model Expc'd: a young skier looks at the camera.
+Sample Act'l: a young skier looks at the camera.
+E 7 ::: Average Loss 7.054 ::: Average BleuP1 28.371
+Epoch    70: reducing learning rate of group 0 to 5.3144e-04.
+Evaluation ....
+Sample Pred : a blue subaru is driving into a body of water.
+Model Expc'd: a blue jeep drive into <unk> muddy water.
+Sample Act'l: a blue jeep drive into deep, muddy water.
+E 7 ::: Average Loss 7.242 ::: Average BleuP1 28.107
+Evaluation ....
+Sample Pred : two construction workers help remove on a construction site.
+Model Expc'd: two construction workers assist in the loading of a dump truck at an urban construction site.
+Sample Act'l: two construction workers assist in the loading of a dump truck at an urban construction site.
+E 8 ::: Average Loss 4.113 ::: Average BleuP1 28.580
+Evaluation ....
+Sample Pred : three girls are standing by a small village stand in the middle of a busy street.
+Model Expc'd: three girls make faces as one takes a drink while they stand in a busy street.
+Sample Act'l: three girls make faces as one takes a drink while they stand in a busy street.
+E 8 ::: Average Loss 4.483 ::: Average BleuP1 27.991
+Evaluation ....
+Sample Pred : two men are working on a wet lake on a wet lake.
+Model Expc'd: two men setting up a blue ice fishing hut on an iced over lake
+Sample Act'l: two men setting up a blue ice fishing hut on an iced over lake
+E 8 ::: Average Loss 4.152 ::: Average BleuP1 28.282
+Evaluation ....
+Sample Pred : men in orange suits are watching a machine near a large body of water, that says "the
+Model Expc'd: men in orange suits watching a machine dig near what looks to be subway tracks.
+Sample Act'l: men in orange suits watching a machine dig near what looks to be subway tracks.
+E 8 ::: Average Loss 4.254 ::: Average BleuP1 28.094
+Evaluation ....
+Sample Pred : a man is talking on a messy office.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 8 ::: Average Loss 3.502 ::: Average BleuP1 28.672
+Epoch    76: reducing learning rate of group 0 to 4.7830e-04.
+Evaluation ....
+Sample Pred : a man is talking on a messy office.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 8 ::: Average Loss 3.560 ::: Average BleuP1 28.916
+Evaluation ....
+Sample Pred : a group of people standing in front of a group of people on a parking lot.
+Model Expc'd: a group of people standing in front of a hut in a parking lot.
+Sample Act'l: a group of people standing in front of a hut in a parking lot.
+E 8 ::: Average Loss 3.734 ::: Average BleuP1 28.783
+Evaluation ....
+Sample Pred : man is preparing a woman in a bar while listening to be a lecture.
+Model Expc'd: man looks on as woman is talking while at a bar.
+Sample Act'l: man looks on as woman is talking while at a bar.
+E 8 ::: Average Loss 4.423 ::: Average BleuP1 28.824
+Evaluation ....
+Sample Pred : a lone man in a black t-shirt is standing in the middle of people dressed in a large bowl.
+Model Expc'd: a single man in a black t-shirt standing above the crowd at a busy bar.
+Sample Act'l: a single man in a black t-shirt standing above the crowd at a busy bar.
+E 8 ::: Average Loss 6.854 ::: Average BleuP1 28.940
+Evaluation ....
+Sample Pred : a boy in an orange shirt smiles as a boy in a blue shirt is watching him.
+Model Expc'd: a boy with an orange shirt smiles, while a boy in a blue shirt looks on.
+Sample Act'l: a boy with an orange shirt smiles, while a boy in a blue shirt looks on.
+E 9 ::: Average Loss 6.867 ::: Average BleuP1 28.675
+Evaluation ....
+Sample Pred : a baby is looking at the edge of a brick building.
+Model Expc'd: baby looking at the leaves on a branch of a tree.
+Sample Act'l: baby looking at the leaves on a branch of a tree.
+E 9 ::: Average Loss 7.033 ::: Average BleuP1 28.982
+Epoch    82: reducing learning rate of group 0 to 4.3047e-04.
+Evaluation ....
+Sample Pred : a child does a trick while riding on a trampoline.
+Model Expc'd: a child is doing a back flip whilst jumping on a trampoline.
+Sample Act'l: a child is doing a back flip whilst jumping on a trampoline.
+E 9 ::: Average Loss 6.929 ::: Average BleuP1 28.837
+Evaluation ....
+Sample Pred : a man is talking on a messy office.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 9 ::: Average Loss 4.313 ::: Average BleuP1 28.960
+Evaluation ....
+Sample Pred : a baby baby another child looks on.
+Model Expc'd: a cute baby is smiling at another child.
+Sample Act'l: a cute baby is smiling at another child.
+E 9 ::: Average Loss 3.705 ::: Average BleuP1 28.631
+Evaluation ....
+Sample Pred : a group of asian people are looking at a book and a red vehicle
+Model Expc'd: a group of asian people at an auto show stare and take picture of a new vehicle.
+Sample Act'l: a group of asian people at an auto show stare and take picture of a new vehicle.
+E 9 ::: Average Loss 3.670 ::: Average BleuP1 28.701
+Evaluation ....
+Sample Pred : a man is sitting on the ground playing the guitar.
+Model Expc'd: a man sitting on the ground, playing guitar.
+Sample Act'l: a man sitting on the ground, playing guitar.
+E 9 ::: Average Loss 3.940 ::: Average BleuP1 28.890
+Evaluation ....
+Sample Pred : a baby baby another child looks on.
+Model Expc'd: a cute baby is smiling at another child.
+Sample Act'l: a cute baby is smiling at another child.
+E 9 ::: Average Loss 3.903 ::: Average BleuP1 28.932
+Epoch    88: reducing learning rate of group 0 to 3.8742e-04.
+Evaluation ....
+Sample Pred : a man in a red shirt stands with two girls in front of a old building.
+Model Expc'd: a man in a red shirt is standing with two <unk> in front of an old structure.
+Sample Act'l: a man in a red shirt is standing with two fitls in front of an old structure.
+E 9 ::: Average Loss 3.815 ::: Average BleuP1 28.965
+Evaluation ....
+Sample Pred : construction workers working on a train station.
+Model Expc'd: there are construction workers working hard on a project.
+Sample Act'l: there are construction workers working hard on a project.
+E 10 ::: Average Loss 3.751 ::: Average BleuP1 28.869
+Evaluation ....
+Sample Pred : two people hold a large basket of which says "stop with a large number of them as they are all over a black and white headdress covered with their left hand.
+Model Expc'd: two people are holding a large upside-down earth <unk> about <unk> in <unk> and a child appears to be jumping over <unk>
+Sample Act'l: two people are holding a large upside-down earth globe, about 4' in diameter, and a child appears to be jumping over antarctica.
+E 10 ::: Average Loss 3.635 ::: Average BleuP1 28.977
+Evaluation ....
+Sample Pred : three small dogs are sitting at something.
+Model Expc'd: three small dogs <unk> at something.
+Sample Act'l: three small dogs sniff at something.
+E 10 ::: Average Loss 3.427 ::: Average BleuP1 28.648
+Evaluation ....
+Sample Pred : a person in a purple top is painting a picture of a woman on a white wall.
+Model Expc'd: a person with a purple shirt is painting an image of a woman on a white wall.
+Sample Act'l: a person with a purple shirt is painting an image of a woman on a white wall.
+E 10 ::: Average Loss 3.751 ::: Average BleuP1 29.017
+Evaluation ....
+Sample Pred : a man wearing a pink hat, wearing a red and red jacket sitting in a small boat.
+Model Expc'd: a balding man wearing a red life jacket is sitting in a small boat.
+Sample Act'l: a balding man wearing a red life jacket is sitting in a small boat.
+E 10 ::: Average Loss 4.053 ::: Average BleuP1 28.784
+Epoch    94: reducing learning rate of group 0 to 3.4868e-04.
+Evaluation ....
+Sample Pred : a man in a white shirt is climbing a rock wall.
+Model Expc'd: a man in a harness climbing a rock wall
+Sample Act'l: a man in a harness climbing a rock wall
+E 10 ::: Average Loss 3.725 ::: Average BleuP1 28.686
+Evaluation ....
+Sample Pred : a man in a white t-shirt is painting a busy street with a lot of people in the middle of it.
+Model Expc'd: a man in a white t-shirt painting in the middle of a stone paved road.
+Sample Act'l: a man in a white t-shirt painting in the middle of a stone paved road.
+E 10 ::: Average Loss 4.141 ::: Average BleuP1 28.602
+Evaluation ....
+Sample Pred : a small child stands alone on a rock cliff.
+Model Expc'd: a young child is standing alone on some jagged rocks.
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 10 ::: Average Loss 4.057 ::: Average BleuP1 28.649
+Evaluation ....
+Sample Pred : a man is sitting on the ground playing the guitar.
+Model Expc'd: a man sitting on the ground, playing guitar.
+Sample Act'l: a man sitting on the ground, playing guitar.
+E 10 ::: Average Loss 3.746 ::: Average BleuP1 29.110
+Evaluation ....
+Sample Pred : a man dressed in a blue hat is flipping a rock while he is taking pictures.
+Model Expc'd: an older, overweight man flips a pancake while making <unk>
+Sample Act'l: an older, overweight man flips a pancake while making breakfast.
+E 11 ::: Average Loss 3.951 ::: Average BleuP1 29.130
+Evaluation ....
+Sample Pred : four children are sitting on a sandy beach talking.
+Model Expc'd: 4 kids sit on a ledge and <unk>
+Sample Act'l: 4 kids sit on a ledge and converse.
+E 11 ::: Average Loss 3.761 ::: Average BleuP1 28.865
+Epoch   100: reducing learning rate of group 0 to 3.1381e-04.
+Evaluation ....
+Sample Pred : a man is talking on a messy office.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 11 ::: Average Loss 3.598 ::: Average BleuP1 29.340
+Evaluation ....
+Sample Pred : two men are constructing a blue inflatable rafts on a wet lake
+Model Expc'd: two men setting up a blue ice fishing hut on an iced over lake
+Sample Act'l: two men setting up a blue ice fishing hut on an iced over lake
+E 11 ::: Average Loss 4.081 ::: Average BleuP1 29.118
+Evaluation ....
+Sample Pred : young adults in orange jackets walk on a field.
+Model Expc'd: young adults dressed casually walk around in a field.
+Sample Act'l: young adults dressed casually walk around in a field.
+E 11 ::: Average Loss 3.871 ::: Average BleuP1 29.176
+Evaluation ....
+Sample Pred : a blond boy in a blue shirt stands in front of a green van with a green truck.
+Model Expc'd: a blond boy in a blue t-shirt stands smiling before a craft of green <unk> fabric.
+Sample Act'l: a blond boy in a blue t-shirt stands smiling before a craft of green nylon fabric.
+E 11 ::: Average Loss 3.773 ::: Average BleuP1 29.290
+Evaluation ....
+Sample Pred : a small child stands alone on a rock cliff.
+Model Expc'd: a young child is standing alone on some jagged rocks.
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 11 ::: Average Loss 3.556 ::: Average BleuP1 29.420
+Evaluation ....
+Sample Pred : a woman and two boys looking at a carnival.
+Model Expc'd: a woman and two boys looking at an information station.
+Sample Act'l: a woman and two boys looking at an information station.
+E 11 ::: Average Loss 3.901 ::: Average BleuP1 29.667
+Epoch   106: reducing learning rate of group 0 to 2.8243e-04.
+Evaluation ....
+Sample Pred : a young woman in traditional islamic garb and a woman in traditional islamic garb are standing with three people in the same direction and three other people in the same time. abwärts eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine eine
+Model Expc'd: a young woman and older woman wear traditional saris as they spin <unk> three people are pictured at only the <unk> and wear modern clothes.
+Sample Act'l: a young woman and older woman wear traditional saris as they spin textiles, three people are pictured at only the waists, and wear modern clothes.
+E 11 ::: Average Loss 3.664 ::: Average BleuP1 29.508
+Evaluation ....
+Sample Pred : the sun sets in front of the air.
+Model Expc'd: the skiers are in front of the lodge.
+Sample Act'l: the skiers are in front of the lodge.
+E 12 ::: Average Loss 3.643 ::: Average BleuP1 29.121
+Evaluation ....
+Sample Pred : a group of people standing in front of a group of people on a parking lot.
+Model Expc'd: a group of people standing in front of a hut in a parking lot.
+Sample Act'l: a group of people standing in front of a hut in a parking lot.
+E 12 ::: Average Loss 3.849 ::: Average BleuP1 29.156
+Evaluation ....
+Sample Pred : three men are walking on a street in the mountains.
+Model Expc'd: three men are walking on a road in the mountains.
+Sample Act'l: three men are walking on a road in the mountains.
+E 12 ::: Average Loss 3.812 ::: Average BleuP1 29.234
+Evaluation ....
+Sample Pred : a man and a boy are sitting at a picnic table holding a paper bag.
+Model Expc'd: a man and a boy are sitting at an <unk> both are holding <unk>
+Sample Act'l: a man and a boy are sitting at an altar both are holding bells.
+E 12 ::: Average Loss 3.359 ::: Average BleuP1 29.537
+Evaluation ....
+Sample Pred : several people stand near the water near a body of water.
+Model Expc'd: several people are standing near trees at dusk.
+Sample Act'l: several people are standing near trees at dusk.
+E 12 ::: Average Loss 3.871 ::: Average BleuP1 29.207
+Epoch   112: reducing learning rate of group 0 to 2.5419e-04.
+Evaluation ....
+Sample Pred : a dog walks through a grassy area near a rocky beach.
+Model Expc'd: a dog treads through a shallow area of water located on a rocky mountainside.
+Sample Act'l: a dog treads through a shallow area of water located on a rocky mountainside.
+E 12 ::: Average Loss 4.030 ::: Average BleuP1 28.874
+Evaluation ....
+Sample Pred : a policeman is holding a vehicle on the side of the street.
+Model Expc'd: a policeman stopping a vehicle on the side of the road.
+Sample Act'l: a policeman stopping a vehicle on the side of the road.
+E 12 ::: Average Loss 4.114 ::: Average BleuP1 29.213
+Evaluation ....
+Sample Pred : person on a ski lift in the middle of the middle of a jump.
+Model Expc'd: a person on a snowmobile in mid jump.
+Sample Act'l: a person on a snowmobile in mid jump.
+E 12 ::: Average Loss 3.916 ::: Average BleuP1 29.255
+Evaluation ....
+Sample Pred : a child sits on a rock wall.
+Model Expc'd: a child sitting on a rock formation.
+Sample Act'l: a child sitting on a rock formation.
+E 12 ::: Average Loss 3.828 ::: Average BleuP1 29.780
+Evaluation ....
+Sample Pred : a smiling woman with a backpack holds a baby
+Model Expc'd: a smiling woman in a peach tank top stands holding a mountain bike
+Sample Act'l: a smiling woman in a peach tank top stands holding a mountain bike
+E 13 ::: Average Loss 3.831 ::: Average BleuP1 29.482
+Evaluation ....
+Sample Pred : a mountain biker is coming out of a wooden shed.
+Model Expc'd: an atv attempts to get out of a ditch.
+Sample Act'l: an atv attempts to get out of a ditch.
+E 13 ::: Average Loss 3.683 ::: Average BleuP1 29.358
+Epoch   118: reducing learning rate of group 0 to 2.2877e-04.
+Evaluation ....
+Sample Pred : a little girl is swinging on a street corner, with white polka dot for the family.
+Model Expc'd: a little girl <unk> to the salvation army near a storefront with white, plastic <unk>
+Sample Act'l: a little girl donates to the salvation army near a storefront with white, plastic containers.
+E 13 ::: Average Loss 3.603 ::: Average BleuP1 29.562
+Evaluation ....
+Sample Pred : three people on two balconies and a large ride through tall grass.
+Model Expc'd: three people on two <unk> and one four-wheeler are riding through brown grass.
+Sample Act'l: three people on two dirt-bikes and one four-wheeler are riding through brown grass.
+E 13 ::: Average Loss 3.511 ::: Average BleuP1 29.491
+Evaluation ....
+Sample Pred : children are riding in a dirt road.
+Model Expc'd: kids are riding a swinging carnival ride
+Sample Act'l: kids are riding a swinging carnival ride
+E 13 ::: Average Loss 3.734 ::: Average BleuP1 29.351
+Evaluation ....
+Sample Pred : three girls are standing by one of them are standing in a busy street and making faces.
+Model Expc'd: three girls make faces as one takes a drink while they stand in a busy street.
+Sample Act'l: three girls make faces as one takes a drink while they stand in a busy street.
+E 13 ::: Average Loss 3.675 ::: Average BleuP1 29.413
+Evaluation ....
+Sample Pred : a blond boy in a blue shirt stands in front of a boat made of green truck.
+Model Expc'd: a blond boy in a blue t-shirt stands smiling before a craft of green <unk> fabric.
+Sample Act'l: a blond boy in a blue t-shirt stands smiling before a craft of green nylon fabric.
+E 13 ::: Average Loss 3.543 ::: Average BleuP1 29.047
+Evaluation ....
+Sample Pred : a female dancer is walking in front of a brick building.
+Model Expc'd: an elaborate costumed figure is in front of a brightly decorated structure.
+Sample Act'l: an elaborate costumed figure is in front of a brightly decorated structure.
+E 13 ::: Average Loss 3.668 ::: Average BleuP1 29.362
+Epoch   124: reducing learning rate of group 0 to 2.0589e-04.
+Evaluation ....
+Sample Pred : a brown dog chews on a large rock formation.
+Model Expc'd: a brown dog chewing on a large piece of wood.
+Sample Act'l: a brown dog chewing on a large piece of wood.
+E 13 ::: Average Loss 3.724 ::: Average BleuP1 29.368
+Evaluation ....
+Sample Pred : a man is talking on a messy office.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 14 ::: Average Loss 3.809 ::: Average BleuP1 29.456
+Evaluation ....
+Sample Pred : man standing on top of a boat near a boat lake.
+Model Expc'd: man standing on a pier next to a boat on a still lake.
+Sample Act'l: man standing on a pier next to a boat on a still lake.
+E 14 ::: Average Loss 3.544 ::: Average BleuP1 29.255
+Evaluation ....
+Sample Pred : a man is playing a keyboard and singing into a microphone.
+Model Expc'd: a man playing a keyboard and singing into a microphone.
+Sample Act'l: a man playing a keyboard and singing into a microphone.
+E 14 ::: Average Loss 3.649 ::: Average BleuP1 29.269
+Evaluation ....
+Sample Pred : two women are walking down a street with their heads down a busy street.
+Model Expc'd: two women with their baby strollers walking along a leaves covered street.
+Sample Act'l: two women with their baby strollers walking along a leaves covered street.
+E 14 ::: Average Loss 4.012 ::: Average BleuP1 29.568
+Evaluation ....
+Sample Pred : a man in a red shirt stands with a young girl in front of a old building.
+Model Expc'd: a man in a red shirt is standing with two <unk> in front of an old structure.
+Sample Act'l: a man in a red shirt is standing with two fitls in front of an old structure.
+E 14 ::: Average Loss 3.833 ::: Average BleuP1 29.468
+Epoch   130: reducing learning rate of group 0 to 1.8530e-04.
+Evaluation ....
+Sample Pred : a young girl runs alone through a park.
+Model Expc'd: a young girl running by herself in a park.
+Sample Act'l: a young girl running by herself in a park.
+E 14 ::: Average Loss 3.901 ::: Average BleuP1 29.695
+Evaluation ....
+Sample Pred : a young man carries a presentation in a large black tube.
+Model Expc'd: a young man is carrying something in a large black plastic garbage bag.
+Sample Act'l: a young man is carrying something in a large black plastic garbage bag.
+E 14 ::: Average Loss 6.522 ::: Average BleuP1 29.158
+Evaluation ....
+Sample Pred : a man asleep in a green room on a couch.
+Model Expc'd: a man sleeping in a green room on a couch.
+Sample Act'l: a man sleeping in a green room on a couch.
+E 14 ::: Average Loss 4.008 ::: Average BleuP1 29.345
+Evaluation ....
+Sample Pred : a young child with a pink plays in a toy train.
+Model Expc'd: a toddler in a denim hats plays in a tire.
+Sample Act'l: a toddler in a denim hats plays in a tire.
+E 14 ::: Average Loss 3.437 ::: Average BleuP1 29.503
+Evaluation ....
+Sample Pred : this is looking at a wet boat by the beautiful sunset on a cloudy sky.
+Model Expc'd: beach goers look at a heart left in the sky by a sky <unk>
+Sample Act'l: beach goers look at a heart left in the sky by a sky writer.
+E 15 ::: Average Loss 3.404 ::: Average BleuP1 29.432
+Evaluation ....
+Sample Pred : a group of men loading their crops on a truck.
+Model Expc'd: a group of men are loading cotton onto a truck
+Sample Act'l: a group of men are loading cotton onto a truck
+E 15 ::: Average Loss 3.894 ::: Average BleuP1 29.471
+Epoch   136: reducing learning rate of group 0 to 1.6677e-04.
+Evaluation ....
+Sample Pred : a woman with a black and black hair is blowing on a party.
+Model Expc'd: a woman in a <unk> mask and <unk> hair is at a party.
+Sample Act'l: a woman in a domino mask and severe hair is at a party.
+E 15 ::: Average Loss 3.943 ::: Average BleuP1 29.358
+Evaluation ....
+Sample Pred : two men are constructing a blue inflatable rafts on a wet lake in the middle of a wet concrete.
+Model Expc'd: two men setting up a blue ice fishing hut on an iced over lake
+Sample Act'l: two men setting up a blue ice fishing hut on an iced over lake
+E 15 ::: Average Loss 3.609 ::: Average BleuP1 29.505
+Evaluation ....
+Sample Pred : a small child stands alone on a rock cliff.
+Model Expc'd: a young child is standing alone on some jagged rocks.
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 15 ::: Average Loss 3.616 ::: Average BleuP1 29.476
+Evaluation ....
+Sample Pred : a brown dog runs along the black dog.
+Model Expc'd: a brown dog is running after the black dog.
+Sample Act'l: a brown dog is running after the black dog.
+E 15 ::: Average Loss 3.593 ::: Average BleuP1 29.729
+Evaluation ....
+Sample Pred : a young boy throws a rock into a swimming pool
+Model Expc'd: a young boy, throwing a stone into calm water.
+Sample Act'l: a young boy, throwing a stone into calm water.
+E 15 ::: Average Loss 3.621 ::: Average BleuP1 29.859
+Evaluation ....
+Sample Pred : two men are constructing a blue inflatable rafts on a wet lake.
+Model Expc'd: two men setting up a blue ice fishing hut on an iced over lake
+Sample Act'l: two men setting up a blue ice fishing hut on an iced over lake
+E 15 ::: Average Loss 3.527 ::: Average BleuP1 29.672
+Epoch   142: reducing learning rate of group 0 to 1.5009e-04.
+Evaluation ....
+Sample Pred : a smiling woman with a backpack holds a baby
+Model Expc'd: a smiling woman in a peach tank top stands holding a mountain bike
+Sample Act'l: a smiling woman in a peach tank top stands holding a mountain bike
+E 15 ::: Average Loss 6.445 ::: Average BleuP1 29.565
+Evaluation ....
+Sample Pred : a woman sits on her phone at a train station.
+Model Expc'd: a woman is sitting by her dried flower display at an outside market.
+Sample Act'l: a woman is sitting by her dried flower display at an outside market.
+E 16 ::: Average Loss 3.567 ::: Average BleuP1 29.383
+Evaluation ....
+Sample Pred : a man with a blue backpack reads a paper while sitting on the subway.
+Model Expc'd: a man with a blue backpack reads the paper while waiting to board the subway.
+Sample Act'l: a man with a blue backpack reads the paper while waiting to board the subway.
+E 16 ::: Average Loss 3.317 ::: Average BleuP1 29.458
+Evaluation ....
+Sample Pred : a female dancer is walking in front of a brick building.
+Model Expc'd: an elaborate costumed figure is in front of a brightly decorated structure.
+Sample Act'l: an elaborate costumed figure is in front of a brightly decorated structure.
+E 16 ::: Average Loss 3.305 ::: Average BleuP1 29.760
+Evaluation ....
+Sample Pred : a brown dog chews on a large rock formation.
+Model Expc'd: a brown dog chewing on a large piece of wood.
+Sample Act'l: a brown dog chewing on a large piece of wood.
+E 16 ::: Average Loss 3.741 ::: Average BleuP1 29.858
+Evaluation ....
+Sample Pred : man and young boys are playing with a dog on the beach.
+Model Expc'd: man and boy play with dog at sunset on a beach.
+Sample Act'l: man and boy play with dog at sunset on a beach.
+E 16 ::: Average Loss 3.821 ::: Average BleuP1 29.932
+Evaluation ....
+Sample Pred : two people cross a street
+Model Expc'd: two people walking across a street.
+Sample Act'l: two people walking across a street.
+E 16 ::: Average Loss 3.872 ::: Average BleuP1 29.534
+Evaluation ....
+Sample Pred : men in blue shirts sitting in a bus.
+Model Expc'd: men wearing blue uniforms sit on a bus.
+Sample Act'l: men wearing blue uniforms sit on a bus.
+E 16 ::: Average Loss 3.729 ::: Average BleuP1 29.486
+Evaluation ....
+Sample Pred : a woman in a blue shirt and jeans is throwing something into a grocery store.
+Model Expc'd: a woman in a blue shirt and jeans is throwing something away in a dumpster.
+Sample Act'l: a woman in a blue shirt and jeans is throwing something away in a dumpster.
+E 16 ::: Average Loss 3.439 ::: Average BleuP1 29.757
+Evaluation ....
+Sample Pred : a boy with headphones on his shoulders is sitting on a wooden floor.
+Model Expc'd: a boy wearing headphones sits on a woman's shoulders.
+Sample Act'l: a boy wearing headphones sits on a woman's shoulders.
+E 16 ::: Average Loss 3.672 ::: Average BleuP1 29.507
+Evaluation ....
+Sample Pred : a person is throwing a green bowling ball down a green bowling alley.
+Model Expc'd: a person about in the middle of throwing a green bowling ball down a bowling lane.
+Sample Act'l: a person about in the middle of throwing a green bowling ball down a bowling lane.
+E 17 ::: Average Loss 3.558 ::: Average BleuP1 29.478
+Evaluation ....
+Sample Pred : a small child stands alone on a rock cliff.
+Model Expc'd: a young child is standing alone on some jagged rocks.
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 17 ::: Average Loss 3.892 ::: Average BleuP1 29.623
+Epoch   154: reducing learning rate of group 0 to 1.3509e-04.
+Evaluation ....
+Sample Pred : a man with a sleeping sleeps outside on his chair.
+Model Expc'd: a half naked man is sleeping on his chair outdoors.
+Sample Act'l: a half naked man is sleeping on his chair outdoors.
+E 17 ::: Average Loss 3.763 ::: Average BleuP1 29.716
+Evaluation ....
+Sample Pred : a person is throwing a green bowling ball down a green bowling alley.
+Model Expc'd: a person about in the middle of throwing a green bowling ball down a bowling lane.
+Sample Act'l: a person about in the middle of throwing a green bowling ball down a bowling lane.
+E 17 ::: Average Loss 3.837 ::: Average BleuP1 29.803
+Evaluation ....
+Sample Pred : three young children stand around a piece of fire hydrant.
+Model Expc'd: three young children stand around a blue and white barrel.
+Sample Act'l: three young children stand around a blue and white barrel.
+E 17 ::: Average Loss 3.525 ::: Average BleuP1 29.742
+Evaluation ....
+Sample Pred : a small child is standing alone on a rock cliff.
+Model Expc'd: a young child is standing alone on some jagged rocks.
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 17 ::: Average Loss 3.675 ::: Average BleuP1 29.511
+Evaluation ....
+Sample Pred : a woman is sitting at a dark bar.
+Model Expc'd: a woman sits at a dark bar.
+Sample Act'l: a woman sits at a dark bar.
+E 17 ::: Average Loss 3.550 ::: Average BleuP1 29.668
+Evaluation ....
+Sample Pred : a dog crouches between the back of some camera.
+Model Expc'd: dog in plants crouches to look at camera.
+Sample Act'l: dog in plants crouches to look at camera.
+E 17 ::: Average Loss 3.940 ::: Average BleuP1 29.448
+Epoch   160: reducing learning rate of group 0 to 1.2158e-04.
+Evaluation ....
+Sample Pred : a red plane flies low over a boat pulling the pink cooler.
+Model Expc'd: a red plane flying over a boat as it trails pink smoke.
+Sample Act'l: a red plane flying over a boat as it trails pink smoke.
+E 17 ::: Average Loss 3.530 ::: Average BleuP1 29.530
+Evaluation ....
+Sample Pred : two girls are walking down a street.
+Model Expc'd: two girls walking down the street.
+Sample Act'l: two girls walking down the street.
+E 18 ::: Average Loss 3.746 ::: Average BleuP1 29.922
+Evaluation ....
+Sample Pred : a man with a pink hat, wearing a red hat, is sitting in a small boat.
+Model Expc'd: a balding man wearing a red life jacket is sitting in a small boat.
+Sample Act'l: a balding man wearing a red life jacket is sitting in a small boat.
+E 18 ::: Average Loss 3.991 ::: Average BleuP1 29.726
+Evaluation ....
+Sample Pred : a person is parasailing over a large body of water.
+Model Expc'd: a person is parasailing over a large body of water.
+Sample Act'l: a person is parasailing over a large body of water.
+E 18 ::: Average Loss 3.243 ::: Average BleuP1 29.893
+Evaluation ....
+Sample Pred : a man in a suit is crossing the street in a white bus and red and red light.
+Model Expc'd: there is a man in fireman's gear crossing the road near a white bus and a red <unk>
+Sample Act'l: there is a man in fireman's gear crossing the road near a white bus and a red semi.
+E 18 ::: Average Loss 3.217 ::: Average BleuP1 29.806
+Evaluation ....
+Sample Pred : a group of people are performing music on stage in front of a crowd.
+Model Expc'd: a group is playing music on stage in front of a crowd of people.
+Sample Act'l: a group is playing music on stage in front of a crowd of people.
+E 18 ::: Average Loss 3.559 ::: Average BleuP1 29.762
+Epoch   166: reducing learning rate of group 0 to 1.0942e-04.
+Evaluation ....
+Sample Pred : a cheerleading squad performing on a stage.
+Model Expc'd: a three man band is performing on stage.
+Sample Act'l: a three man band is performing on stage.
+E 18 ::: Average Loss 3.358 ::: Average BleuP1 29.751
+Evaluation ....
+Sample Pred : an asian girl in a green hat and apron is swinging on a wooden shed.
+Model Expc'd: an asian girl in a green hat and apron is serving drinks on a tray.
+Sample Act'l: an asian girl in a green hat and apron is serving drinks on a tray.
+E 18 ::: Average Loss 6.300 ::: Average BleuP1 29.674
+Evaluation ....
+Sample Pred : a small child and a woman are standing around a hot air balloon in the woods.
+Model Expc'd: a young child and a woman are standing around a caged rooster.
+Sample Act'l: a young child and a woman are standing around a caged rooster.
+E 18 ::: Average Loss 3.659 ::: Average BleuP1 29.658
+Evaluation ....
+Sample Pred : a mother and two children posing with their heads entwined
+Model Expc'd: a mother and two children are posing with funny faces.
+Sample Act'l: a mother and two children are posing with funny faces.
+E 18 ::: Average Loss 3.780 ::: Average BleuP1 29.832
+Evaluation ....
+Sample Pred : women walking down the sidewalk carrying a steep path.
+Model Expc'd: women walking through deep snow and down a steep hill.
+Sample Act'l: women walking through deep snow and down a steep hill.
+E 19 ::: Average Loss 3.629 ::: Average BleuP1 29.782
+Evaluation ....
+Sample Pred : a man is eating food in a restaurant.
+Model Expc'd: a man in a restaurant having lunch.
+Sample Act'l: a man in a restaurant having lunch.
+E 19 ::: Average Loss 4.032 ::: Average BleuP1 29.917
+Epoch   172: reducing learning rate of group 0 to 9.8477e-05.
+Evaluation ....
+Sample Pred : a young woman is laughing while sitting in the bright orange outfit.
+Model Expc'd: a young woman is making rugs in the rain forest
+Sample Act'l: a young woman is making rugs in the rain forest
+E 19 ::: Average Loss 6.201 ::: Average BleuP1 29.583
+Evaluation ....
+Sample Pred : a group of people standing in front of a group of people on a parking lot.
+Model Expc'd: a group of people standing in front of a hut in a parking lot.
+Sample Act'l: a group of people standing in front of a hut in a parking lot.
+E 19 ::: Average Loss 3.731 ::: Average BleuP1 29.445
+Evaluation ....
+Sample Pred : a white woman and a black man walking down a street.
+Model Expc'd: a white woman and black man walking down the street.
+Sample Act'l: a white woman and black man walking down the street.
+E 19 ::: Average Loss 3.773 ::: Average BleuP1 29.601
+Evaluation ....
+Sample Pred : a man in a harness climbs a rock face.
+Model Expc'd: a man in a harness climbing a rock wall
+Sample Act'l: a man in a harness climbing a rock wall
+E 19 ::: Average Loss 3.877 ::: Average BleuP1 29.773
+Evaluation ....
+Sample Pred : a little boy jumps into the water.
+Model Expc'd: a young boy jumps into water.
+Sample Act'l: a young boy jumps into water.
+E 19 ::: Average Loss 3.726 ::: Average BleuP1 29.979
+Evaluation ....
+Sample Pred : a woman dressed in black and black hair with a small tan dog is playing in a crowd.
+Model Expc'd: a warmly dressed woman in black kneels with a small tan dog near a crowd of onlookers.
+Sample Act'l: a warmly dressed woman in black kneels with a small tan dog near a crowd of onlookers.
+E 19 ::: Average Loss 6.268 ::: Average BleuP1 29.862
+Epoch   178: reducing learning rate of group 0 to 8.8629e-05.
+Evaluation ....
+Sample Pred : a baby baby another child looks on.
+Model Expc'd: a cute baby is smiling at another child.
+Sample Act'l: a cute baby is smiling at another child.
+E 19 ::: Average Loss 6.295 ::: Average BleuP1 29.689
+Loading the best validated model with validation bleu score of 29.979
+Evaluation ....
+Sample Pred : a young man with blond-hair is speaking into a microphone.
+Model Expc'd: a young blond-haired man speaks into a microphone.
+Sample Act'l: a young blond-haired man speaks into a microphone.
+E LAST ::: Average Loss 3.726 ::: Average BleuP1 29.979
