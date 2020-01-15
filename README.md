@@ -112,12 +112,22 @@ In this section, we put the experiment results of different models on different 
  The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
   The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
 
-|                                      Experiment Name                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	|                      More Info                      	|
-|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
-|         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           30.448 / 31.004           	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt14_de_en.yml)         	|   Seq2Seq   	|  Translation 	|  WMT14 |           newstest2009; newstest2016   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           17.941 / 22.603          	| lowercased - bpe tokenized \[32000 tokens\]|
+|                                      Experiment Name                                      	|                                      Replication Script                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	|                      More Info                      	|
+|:-----------------------------------------------------------------------------------------:	|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
+|         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_multi30k_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           31.218 / 31.902           	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt14_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_wmt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  WMT14 |           newstest2009; newstest2016   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           17.941 / 22.603          	| lowercased - bpe tokenized \[32000 tokens\]|
 
+## How to replicate our results?
+Second column of the provided results tables contains the replication scripts for each experiment 
+(in cases of multiple test sets, the script only tests on the default test set provided by `torchtext`).
+Replication of our results is quite easy, just download the `replicate.sh` script for the experiment you are interested in and run `bash <script_name>`.
+The script will create a virtual environment, install SFUTranslate along with all of its dependencies, trains the model with our provided configuration, and test and print the dev/test scores. 
+You can also modify these scripts as you desire. 
+
+The validation results during the training as well as the samples created from the model in each epoch, can be found in `train.output` during and after training (it might take a bit till they actually appear in the file while training is in process as python buffers the content and writes them in batches).
+The final validation and test results can be found in `test.output`. You may also track the training progress by running the command `cd /path/to/SFUTranslate/translate && tail -f train_progress_bars.log`.
+The output files of our experiment are also uploaded besides each replication script in a folder with the same name, so you can compare and verify your replicated results.  
 
 # Requirements and Dependencies
 In this section, we go over the required libraries and how the project is dependant on each so that in case of the need 
