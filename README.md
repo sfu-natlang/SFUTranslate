@@ -119,7 +119,7 @@ In this section, we put the experiment results of different models on different 
 |         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt14_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_wmt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  WMT14 |           newstest2009; newstest2016   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           17.941 / 22.603          	| lowercased - bpe tokenized \[32000 tokens\]|
 
 ## How to replicate our results?
-Second column of the provided results tables contains the replication scripts for each experiment 
+Second column of the provided results table contains the replication scripts for each experiment 
 (in cases of multiple test sets, the script only tests on the default test set provided by `torchtext`).
 Replication of our results is quite easy, just download the `replicate.sh` script for the experiment you are interested in and run `bash <script_name>`.
 The script will create a virtual environment, install SFUTranslate along with all of its dependencies, trains the model with our provided configuration, and test and print the dev/test scores. 
