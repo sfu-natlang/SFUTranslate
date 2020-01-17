@@ -3,15 +3,15 @@ import torch
 from torch import nn
 from tqdm import tqdm
 from configuration import cfg, device
-from reader import train_iter, val_iter, src_val_file_address, tgt_val_file_address
-from optimizers import get_a_new_optimizer
-from sts_model import STS
-from init_nn import weight_init
-from evaluation_utils import evaluate
+from readers.data_provider import train_iter, val_iter, src_val_file_address, tgt_val_file_address
+from utils.optimizers import get_a_new_optimizer
+from models.sts import STS
+from utils.init_nn import weight_init
+from utils.evaluation import evaluate
 
 
 def main_sts():
-    from reader import SRC, TGT
+    from readers.data_provider import SRC, TGT
     model = STS(SRC, TGT).to(device)
     model.apply(weight_init)
     torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)

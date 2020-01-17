@@ -32,14 +32,21 @@ The general structure of the modules is depicted in the following figure.
 
 <img src="docs/SFUTranslate.svg?sanitize=True"/>
 
-As of the current version, the `translate` package contains the following classes.
+As of the current version, the `translate` package contains the following sub-packages and classes.
+  - `models`
+    + `general`   
+    + `sts`
+  - `readers`
+    + `data_provider`   
+    + `datasets`
+    + `utils`
+  - `utils`
+    + `containers`   
+    + `evaluation`
+    + `init_nn`
+    + `optimizers`
   - `configuration`
-  - `evaluation_utils`
   - `extract_common_vocab`
-  - `init_nn` 
-  - `optimizers` 
-  - `reader`
-  - `sts_model`
   - `test_trained_model`
   - `trainer` the main script which loads the config file, creates the model and runs the training process. 
   You may want to start looking into this script first, to get familiar with what can be done using this toolkit.

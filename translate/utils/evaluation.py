@@ -6,7 +6,7 @@ from torchtext import data
 import sacrebleu
 from sacremoses import MosesDetokenizer
 from configuration import cfg
-from reader import src_tokenizer
+from readers.data_provider import src_tokenizer
 
 detokenizer = MosesDetokenizer(lang=cfg.tgt_lang)
 
