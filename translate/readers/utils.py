@@ -44,7 +44,7 @@ class MyIterator(data.Iterator):
 
 def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=None, test_data=None):
     if cfg.dataset_name == "multi30k16":
-        print("Loading Multi30k (a smaller dataset [MinLen:1;AvgLen:12;MaxLen:40]) instead of IWSLT")
+        print("Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]")
         train, val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                                 fields=(SRC, TGT))
         src_val_file_address = ".data/multi30k/val.{}".format(src_lan)

@@ -39,6 +39,16 @@ TGT = data.Field(tokenize=tgt_tokenizer, lower=bool(cfg.lowercase_data), pad_tok
 train, val, test, src_val_file_address, tgt_val_file_address, src_test_file_address, tgt_test_file_address = \
     get_dataset(src_lan, tgt_lan, SRC, TGT)
 
+print("Number of training examples: {}".format(len(train.examples)))
+print("Number of validation examples: {}".format(len(val.examples)))
+print("Number of testing examples: {}".format(len(test.examples)))
+
+SRC.build_vocab(train, max_size=int(cfg.max_vocab_src), min_freq=int(cfg.min_freq_src))
+TGT.build_vocab(train, max_size=int(cfg.max_vocab_tgt), min_freq=int(cfg.min_freq_tgt))
+
+print("Unique tokens in source ({}) vocabulary: {}".format(src_lan, len(SRC.vocab)))
+print("Unique tokens in target ({}) vocabulary: {}".format(tgt_lan, len(TGT.vocab)))
+
 train_iter = MyIterator(train, batch_size=int(cfg.batch_size), device=device, repeat=False, train=True,
                         sort_key=lambda x: (len(x.src), len(x.trg)), batch_size_fn=batch_size_fn, shuffle=True,
                         sort_within_batch=lambda x: (len(x.src), len(x.trg)))
