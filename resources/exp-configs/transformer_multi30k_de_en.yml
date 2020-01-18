@@ -35,6 +35,8 @@ transformer_d_ff: 512
 transformer_max_len: 2500
 transformer_N: 4
 transformer_loss_smoothing: 0.1
+transformer_opt_factor: 1
+transformer_opt_warmup: 2000
 
 maximum_decoding_length: 50
 bahdanau_attention: true

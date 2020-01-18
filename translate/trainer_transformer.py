@@ -18,7 +18,8 @@ def main_transformer():
     torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)
     # optimizer, scheduler = get_a_new_optimizer(cfg.init_optim, cfg.init_learning_rate, model.parameters())
     optimizer = torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
-    model_size, factor, warmup = model.src_embed[0].d_model, 1, 400
+    model_size = int(cfg.transformer_d_model)
+    factor, warmup = int(cfg.transformer_opt_factor), int(cfg.transformer_opt_warmup)
     scheduler = TransformerScheduler(model_size, factor, warmup, optimizer)
     size_train = len([_ for _ in train_iter])
     val_indices = [int(size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
