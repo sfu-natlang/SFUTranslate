@@ -180,8 +180,7 @@ class Transformer(nn.Module):
             out = self.dec_norm(x)
             prob = self.generator(out[:, -1])
             _, next_word = torch.max(prob, dim=1)
-            next_word = next_word.data[0]
-            ys = torch.cat([ys, torch.ones(batch_size, 1).type_as(input_tensor.data).fill_(next_word)], dim=1)
+            ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
         return ys.transpose(0, 1), torch.zeros(1, device=device), 1, 1
 
     def generate_src_mask(self, input_tensor):
