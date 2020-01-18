@@ -122,6 +122,7 @@ def evaluate_transformer(data_iter: data.BucketIterator, TGT: data.field, model:
                 if bool(cfg.dataset_is_in_bpe):
                     decoded = decoded.replace("@@ ", "")
                     reference_sentence = reference_sentence.replace("@@ ", "")
+                decoded = detokenizer.detokenize(decoded.split())
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:
