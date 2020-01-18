@@ -99,3 +99,37 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
         print("E {} ::: Average Loss {:.3f} ::: Average BleuP1 {:.3f}".format(eph, average_loss, average_bleu))
     model.train()
     return average_loss, average_bleu
+
+
+def evaluate_transformer(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
+                         src_file: str, gold_tgt_file: str, eph: str):
+    print("Evaluation ....")
+    model.eval()
+    tgt_originals = iter(open(gold_tgt_file, "r"))
+    random_sample_created = False
+    with torch.no_grad():
+        lall_valid = 0.0
+        lcount_valid = 0.0
+        all_bleu_score = 0.0
+        sent_count = 0.0
+        for valid_instance in data_iter:
+            pred, lss, decoded_length, n_tokens = model.greedy_decode(valid_instance.src)
+            for d_id, (decoded, model_expected) in enumerate(zip(
+                    convert_target_batch_back(pred, TGT), convert_target_batch_back(valid_instance.trg[0], TGT))):
+                reference_sentence = next(tgt_originals).strip()
+                if bool(cfg.lowercase_data):
+                    reference_sentence = reference_sentence.lower()
+                if bool(cfg.dataset_is_in_bpe):
+                    decoded = decoded.replace("@@ ", "")
+                    reference_sentence = reference_sentence.replace("@@ ", "")
+                all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
+                sent_count += 1.0
+                if not random_sample_created and random.random() < 0.01:
+                    random_sample_created = True
+                    print("Sample Pred : {}\nModel Expc'd: {}\nSample Act'l: {}".format(
+                        decoded, model_expected, reference_sentence))
+        average_loss = lall_valid/max(lcount_valid, 1)
+        average_bleu = all_bleu_score / max(sent_count, 1)
+        print("E {} ::: Average Loss {:.3f} ::: Average BleuP1 {:.3f}".format(eph, average_loss, average_bleu))
+    model.train()
+    return average_loss, average_bleu
