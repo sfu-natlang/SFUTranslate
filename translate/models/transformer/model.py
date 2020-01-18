@@ -26,21 +26,13 @@ class Transformer(nn.Module):
         # self.criterion = nn.CrossEntropyLoss(ignore_index=TGT.vocab.stoi[cfg.pad_token], reduction='sum')
 
         # #################################### Parameter Initialization ################################################
-        # self.decoder_layers = int(cfg.decoder_layers)
-        d_model = 512
-        h = 8
-        dropout = 0.1
-        d_ff = 2048
-        max_len = 5000
-        N = 6
-        loss_smoothing = 0.1
-        d_model = 256
-        h = 8
-        dropout = 0.1
-        d_ff = 512
-        max_len = 5000
-        N = 2
-        loss_smoothing = 0.1
+        d_model = int(cfg.transformer_d_model)
+        h = int(cfg.transformer_h)
+        dropout = float(cfg.transformer_dropout)
+        d_ff = int(cfg.transformer_d_ff)
+        max_len = int(cfg.transformer_max_len)
+        N = int(cfg.transformer_N)
+        loss_smoothing = float(cfg.transformer_loss_smoothing)
         # #################################### Loss Function Initialization ############################################
         self.criterion = LabelSmoothing(size=len(TGT.vocab),
                                         padding_idx=TGT.vocab.stoi[cfg.pad_token], smoothing=loss_smoothing)

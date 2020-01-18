@@ -36,6 +36,11 @@ As of the current version, the `translate` package contains the following sub-pa
   - `models`
     + `general`   
     + `sts`
+    + `transformer`
+        - `model`
+        - `modules`
+        - `optim`
+        - `utils`
   - `readers`
     + `data_provider`   
     + `datasets`
@@ -122,7 +127,7 @@ In this section, we put the experiment results of different models on different 
 |                                      Experiment Name                                      	|                                      Replication Script                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	|                      More Info                      	|
 |:-----------------------------------------------------------------------------------------:	|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
 |         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_multi30k_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           31.218 / 31.902           	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_iwslt_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
 |         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt14_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_wmt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  WMT14 |           newstest2009; newstest2016   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           17.941 / 22.603          	| lowercased - bpe tokenized \[32000 tokens\]|
 
 ## How to replicate our results?

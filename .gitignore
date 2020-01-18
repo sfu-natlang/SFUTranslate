@@ -90,3 +90,4 @@ ENV/
 # Rope project settings
 .ropeproject
 /translate/*.pt
+/translate/models/.data/*/
