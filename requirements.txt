@@ -5,3 +5,4 @@ sacremoses==0.0.35
 spacy==2.2.3
 PyYAML==5.1
 tqdm==4.41.0
+zipp==1.0.0
