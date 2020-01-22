@@ -9,7 +9,7 @@ python setup.py install
 python -m spacy download en
 python -m spacy download de
 cd translate/ || return
-python trainer_sts.py ../resources/exp-configs/seq2seq_iwslt_de_en.yml 2>train_progress_bars.log >train.output
+python trainer.py ../resources/exp-configs/seq2seq_iwslt_de_en.yml 2>train_progress_bars.log >train.output
 python test_trained_model.py ../resources/exp-configs/seq2seq_iwslt_de_en.yml 2>testerr.log >test.output
 cat test.output # The dev and test scores are printed after this line
 deactivate

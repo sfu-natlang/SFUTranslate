@@ -16,7 +16,8 @@ max_vocab_tgt: 50000
 min_freq_tgt: 1
 
 emb_dropout: 0.3
-batch_size: 4069
+train_batch_size: 4096
+valid_batch_size: 100
 encoder_emb_size: 600
 encoder_hidden_size: 600
 encoder_layers: 1
@@ -28,6 +29,7 @@ decoder_dropout_rate: 0.1
 out_dropout: 0.2
 coverage_dropout: 0.2
 
+model_name: transformer
 transformer_d_model: 256
 transformer_h: 4
 transformer_dropout: 0.2
@@ -61,4 +63,4 @@ lr_decay_min: 0.00001
 beam_size: 5
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: nmt.pt
+checkpoint_name: transformer_iwslt_de_en.pt

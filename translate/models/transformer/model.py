@@ -158,7 +158,7 @@ class Transformer(nn.Module):
             for i in range(x.size(1)-1):
                 _, next_word = torch.max(x.select(1, i), dim=1)
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
-            return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), norm
+            return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), float(norm.item())
         else:
             self.greedy_decode(input_tensor_with_lengths)
 

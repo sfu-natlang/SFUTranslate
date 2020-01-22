@@ -15,8 +15,10 @@ min_freq_src: 0
 max_vocab_tgt: 50000
 min_freq_tgt: 0
 
+model_name: sts
 emb_dropout: 0.3
-batch_size: 4500
+train_batch_size: 4500
+valid_batch_size: 100
 encoder_emb_size: 600
 encoder_hidden_size: 600
 encoder_layers: 1
@@ -51,4 +53,4 @@ lr_decay_min: 0.00001
 beam_size: 10
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: wmt16_de_en.pt
+checkpoint_name: seq2seq_wmt14_de_en.pt

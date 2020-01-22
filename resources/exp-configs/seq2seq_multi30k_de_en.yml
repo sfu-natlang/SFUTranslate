@@ -15,8 +15,10 @@ min_freq_src: 0
 max_vocab_tgt: 25000
 min_freq_tgt: 0
 
+model_name: sts
 emb_dropout: 0.3
-batch_size: 2500
+train_batch_size: 2500
+valid_batch_size: 100
 encoder_emb_size: 250
 encoder_hidden_size: 250
 encoder_layers: 1
@@ -51,4 +53,4 @@ lr_decay_min: 0.00001
 beam_size: 5
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: nmt.pt
+checkpoint_name: seq2seq_multi30k_de_en.pt
