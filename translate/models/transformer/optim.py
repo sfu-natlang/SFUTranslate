@@ -1,3 +1,6 @@
+"""
+The implementation of LabelSmoothing class in this file are taken from (https://nlp.seas.harvard.edu/2018/04/03/attention.html)
+"""
 import torch
 import torch.nn as nn
 

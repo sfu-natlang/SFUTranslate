@@ -1,3 +1,6 @@
+"""
+The module implementations in this file are taken from (https://nlp.seas.harvard.edu/2018/04/03/attention.html)
+"""
 import math
 import torch
 import torch.nn as nn
