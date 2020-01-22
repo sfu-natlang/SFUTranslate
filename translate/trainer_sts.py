@@ -5,7 +5,7 @@ from tqdm import tqdm
 from configuration import cfg, device
 from readers.data_provider import train_iter, val_iter, src_val_file_address, tgt_val_file_address
 from utils.optimizers import get_a_new_optimizer
-from models.sts import STS
+from models.sts.model import STS
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
 

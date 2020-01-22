@@ -9,7 +9,7 @@ python setup.py install
 python -m spacy download en
 python -m spacy download de
 cd translate/ || return
-python trainer.py ../resources/nmt.yml 2>train_progress_bars.log >train.output
+python trainer_sts.py ../resources/nmt.yml 2>train_progress_bars.log >train.output
 python test_trained_model.py ../resources/nmt.yml 2>testerr.log >test.output
 cat test.output # The dev and test scores are printed after this line
 deactivate

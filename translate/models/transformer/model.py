@@ -142,6 +142,8 @@ class Transformer(nn.Module):
                decoding_initializer.cumulative_loss,  decoding_initializer.loss_size, tokens_count"""
         memory, input_mask = self.encode(input_tensor_with_lengths)
         if output_tensor_with_length is not None:
+            batch_size = input_tensor_with_lengths[0].size(1)
+            ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor_with_lengths[0].data)
             output_mask = self.generate_tgt_mask(output_tensor)
             x = self.tgt_embed(output_tensor[:, :-1])
             for layer in self.dec_layers:
@@ -152,7 +154,11 @@ class Transformer(nn.Module):
             norm = (y != self.TGT.vocab.stoi[cfg.pad_token]).data.sum()
             x = self.generator(out)
             loss = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
-            return x, loss, x.size(1), norm
+            max_attention_indices = None
+            for i in range(x.size(1)-1):
+                _, next_word = torch.max(x.select(1, i), dim=1)
+                ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
+            return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), norm
         else:
             self.greedy_decode(input_tensor_with_lengths)
 
@@ -173,7 +179,8 @@ class Transformer(nn.Module):
             prob = self.generator(out[:, -1])
             _, next_word = torch.max(prob, dim=1)
             ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
-        return ys.transpose(0, 1), torch.zeros(1, device=device), 1, 1
+        max_attention_indices = None
+        return ys.transpose(0, 1), max_attention_indices, torch.zeros(1, device=device), 1, 1
 
     def generate_src_mask(self, input_tensor):
         return (input_tensor != self.SRC.vocab.stoi[cfg.pad_token]).unsqueeze(-2)

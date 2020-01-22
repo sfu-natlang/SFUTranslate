@@ -7,8 +7,7 @@ from models.transformer.optim import TransformerScheduler
 from readers.data_provider import train_iter, val_iter, src_val_file_address, tgt_val_file_address
 from utils.optimizers import get_a_new_optimizer
 from models.transformer.model import Transformer
-from utils.init_nn import weight_init
-from utils.evaluation import evaluate_transformer as evaluate
+from utils.evaluation import evaluate
 
 
 def main_transformer():
@@ -36,7 +35,7 @@ def main_transformer():
             optimizer.zero_grad()
             if instance.src[0].size(0) < 2:
                 continue
-            _, lss, decoded_length, n_tokens = model(instance.src, instance.trg)
+            _, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg)
             itm = lss.item()
             all_loss += itm
             all_tokens_count += float(n_tokens.item())
@@ -44,7 +43,7 @@ def main_transformer():
             batch_count += 1.0
             lss /= max(decoded_length, 1)
             lss.backward()
-            #if bool(cfg.grad_clip):
+            # if bool(cfg.grad_clip):
             #    nn.utils.clip_grad_norm_(model.parameters(), float(cfg.max_grad_norm))
             # scheduler.step()
             optimizer.step()
@@ -60,7 +59,6 @@ def main_transformer():
                 if val_bleu > best_val_score:
                     torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)
                     best_val_score = val_bleu
-
     if best_val_score > 0.0:
         print("Loading the best validated model with validation bleu score of {:.3f}".format(best_val_score))
         saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
