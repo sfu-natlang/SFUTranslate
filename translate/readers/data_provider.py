@@ -49,12 +49,12 @@ TGT.build_vocab(train, max_size=int(cfg.max_vocab_tgt), min_freq=int(cfg.min_fre
 print("Unique tokens in source ({}) vocabulary: {}".format(src_lan, len(SRC.vocab)))
 print("Unique tokens in target ({}) vocabulary: {}".format(tgt_lan, len(TGT.vocab)))
 
-train_iter = MyIterator(train, batch_size=int(cfg.batch_size), device=device, repeat=False, train=True,
+train_iter = MyIterator(train, batch_size=int(cfg.train_batch_size), device=device, repeat=False, train=True,
                         sort_key=lambda x: (len(x.src), len(x.trg)), batch_size_fn=batch_size_fn, shuffle=True,
                         sort_within_batch=lambda x: (len(x.src), len(x.trg)))
 # the BucketIterator does not reorder the lines in the actual dataset file so we can compare the results of the model
 # by the actual files via reading the test/val file line-by-line
-val_iter = data.BucketIterator(val, batch_size=int(cfg.batch_size), device=device, repeat=False, train=False,
+val_iter = data.BucketIterator(val, batch_size=int(cfg.valid_batch_size), device=device, repeat=False, train=False,
                                shuffle=False, sort=False, sort_within_batch=False)
-test_iter = data.BucketIterator(test, batch_size=int(cfg.batch_size), device=device, repeat=False, train=False,
+test_iter = data.BucketIterator(test, batch_size=int(cfg.valid_batch_size), device=device, repeat=False, train=False,
                                 shuffle=False, sort=False, sort_within_batch=False)

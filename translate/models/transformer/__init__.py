@@ -1,5 +1,5 @@
-__package__ = "translate.models"
-__all__ = ["sts", "general", "transformer"]
+__package__ = "translate.models.transformer"
+__all__ = ["modules", "utils", "model", "optim"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

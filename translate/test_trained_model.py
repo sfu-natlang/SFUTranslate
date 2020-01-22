@@ -2,13 +2,10 @@ import torch
 from configuration import cfg, device
 from readers.data_provider import val_iter, src_val_file_address, tgt_val_file_address
 from readers.data_provider import test_iter, src_test_file_address, tgt_test_file_address
-# from models.sts import STS
 from utils.evaluation import evaluate
 
 
-def test_sts():
-    # from readers.data_provider import SRC, TGT
-    # model = STS(SRC, TGT).to(device)
+def test_trained_model():
     print("Loading the best trained model")
     saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
@@ -23,4 +20,4 @@ def test_sts():
 
 
 if __name__ == "__main__":
-    test_sts()
+    test_trained_model()

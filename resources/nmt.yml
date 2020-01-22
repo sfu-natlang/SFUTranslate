@@ -10,13 +10,15 @@ eos_token: <eos>
 unk_token: <unk>
 propn_token: <propn>
 max_sequence_length: 45
-max_vocab_src: 25000
+max_vocab_src: 10000
 min_freq_src: 0
-max_vocab_tgt: 25000
+max_vocab_tgt: 10000
 min_freq_tgt: 0
 
+model_name: sts
 emb_dropout: 0.3
-batch_size: 2500
+train_batch_size: 2500
+valid_batch_size: 100
 encoder_emb_size: 250
 encoder_hidden_size: 250
 encoder_layers: 1
@@ -27,6 +29,16 @@ decoder_layers: 1
 decoder_dropout_rate: 0.1
 out_dropout: 0.2
 coverage_dropout: 0.2
+
+transformer_d_model: 0
+transformer_h: 0
+transformer_dropout: 0.0
+transformer_d_ff: 0
+transformer_max_len: 0
+transformer_N: 0
+transformer_loss_smoothing: 0.0
+transformer_opt_factor: 0
+transformer_opt_warmup: 0
 
 maximum_decoding_length: 50
 bahdanau_attention: true

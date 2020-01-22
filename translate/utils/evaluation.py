@@ -37,6 +37,8 @@ def convert_target_batch_back(btch, TGT):
 
 
 def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
+    if attention_scores is None:
+        return detokenizer.detokenize(decoded_sentence.split())
     source_sentence_tokenized = src_tokenizer(input_sentence)
     max_input_sentence_length = len(source_sentence_tokenized)
     max_decode_length = attention_scores.size(0)
@@ -79,7 +81,8 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
                 if bool(cfg.lowercase_data):
                     source_sentence = source_sentence.lower()
                     reference_sentence = reference_sentence.lower()
-                decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id))
+                decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id)
+                                              if max_attention_idcs is not None else None)
                 if bool(cfg.dataset_is_in_bpe):
                     decoded = decoded.replace("@@ ", "")
                     reference_sentence = reference_sentence.replace("@@ ", "")
@@ -99,3 +102,4 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
         print("E {} ::: Average Loss {:.3f} ::: Average BleuP1 {:.3f}".format(eph, average_loss, average_bleu))
     model.train()
     return average_loss, average_bleu
+

@@ -1,8 +1,8 @@
 debug_mode: false
 src_lang: de
 tgt_lang: en
-dataset_name: wmt14
-dataset_is_in_bpe: true
+dataset_name: iwslt17
+dataset_is_in_bpe: false
 lowercase_data: true
 pad_token: <pad>
 bos_token: <bos>
@@ -11,9 +11,9 @@ unk_token: <unk>
 propn_token: <propn>
 max_sequence_length: 80
 max_vocab_src: 50000
-min_freq_src: 0
+min_freq_src: 2
 max_vocab_tgt: 50000
-min_freq_tgt: 0
+min_freq_tgt: 1
 
 model_name: sts
 emb_dropout: 0.3
@@ -35,7 +35,7 @@ bahdanau_attention: true
 coverage_required: true
 coverage_lambda: 1.0
 
-n_epochs: 6
+n_epochs: 20
 init_optim: adagrad
 init_learning_rate: 0.01
 init_epochs: 0
@@ -50,7 +50,7 @@ lr_decay_factor: 0.9
 lr_decay_threshold: 0.1
 lr_decay_min: 0.00001
 
-beam_size: 10
+beam_size: 5
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: seq2seq_wmt14_de_en.pt
+checkpoint_name: seq2seq_iwslt_de_en.pt

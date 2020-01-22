@@ -36,6 +36,12 @@ As of the current version, the `translate` package contains the following sub-pa
   - `models`
     + `general`   
     + `sts`
+        - `model`
+    + `transformer`
+        - `model`
+        - `modules`
+        - `optim`
+        - `utils`
   - `readers`
     + `data_provider`   
     + `datasets`
@@ -77,24 +83,37 @@ min_freq_src: minimum considrable source vocabulary, words with less freqency th
 max_vocab_tgt: maximum size of target side vocabulary
 min_freq_tgt: minimum considrable target vocabulary, words with less freqency than this are replaced with ``unk_token``
 
-emb_dropout: the droupout ratio applied to both source and target embedding layers
-batch_size: the average number of words expected to be put in a batch [4000 to 5000 seem to be a reasonable defalt]
-encoder_emb_size: the size of the embedding layer in encoder
-encoder_hidden_size: the size of the RNN layer in encoder
-encoder_layers: number of encoder RNN layers
-encoder_dropout_rate: the dropout value applied to the encoder RNN
-decoder_emb_size: the size of the embedding layer in decoder
-decoder_hidden_size: the size of the RNN layer in decoder if this is not equal to twice the size of encoder output, a bridge network automatically mapps the encoder hidden states to the decoder hidden states.
-decoder_layers: number of decoder RNN layers
-decoder_dropout_rate: the dropout value applied to the decoder RNN
-out_dropout: the dropout value applied to the output of attention before getting fed to the affine transformation
-coverage_dropout: the droput value applied to the encoded representations before phi parameter is created 
-
+model_name: `transformer` or `sts`
+train_batch_size: the average number of words expected to be put in a batch while training [4000 to 5000 seem to be a reasonable defalt]
+valid_batch_size: the average number of words expected to be put in a batch while testing [you dont need big numbers in this case]
 maximum_decoding_length: maximum valid decoding length
-bahdanau_attention: [true/false] if not true Loung general attention is applied 
-coverage_phi_n: the N value for calculating the phi parameter in linguistic coverage calculation
-coverage_required: [true/false] indicates whether coverage mechanism will be conisdered or not 
-coverage_lambda: the justification coefficient for the coverage loss when its added to the NLL loss
+
+emb_dropout: the droupout ratio applied to both source and target embedding layers of sts model
+encoder_emb_size: the size of the embedding layer in encoder in sts model
+encoder_hidden_size: the size of the RNN layer in encoder in sts model
+encoder_layers: number of encoder RNN layers in sts model
+encoder_dropout_rate: the dropout value applied to the encoder RNN in sts model
+decoder_emb_size: the size of the embedding layer in decoder in sts model
+decoder_hidden_size: the size of the RNN layer in decoder in sts model if this is not equal to twice the size of encoder output, a bridge network automatically mapps the encoder hidden states to the decoder hidden states.
+decoder_layers: number of decoder RNN layers in sts model
+decoder_dropout_rate: the dropout value applied to the decoder RNN in sts model
+out_dropout: the dropout value applied to the output of attention before getting fed to the affine transformation in sts model
+coverage_dropout: the droput value applied to the encoded representations in sts model before phi parameter is created
+
+bahdanau_attention: [true/false] if not true Loung general attention is applied (in sts model)
+coverage_phi_n: the N value for calculating the phi parameter in linguistic coverage calculation (in sts model)
+coverage_required: [true/false] indicates whether coverage mechanism will be conisdered or not (in sts model)
+coverage_lambda: the justification coefficient for the coverage loss when its added to the NLL loss (in sts model)
+
+transformer_d_model: the size of the encoder and decoder layers of the transformer model
+transformer_h: the number of the transformer model heads
+transformer_dropout: the droput applied to the transformer model layers
+transformer_d_ff: the size of the feed-forward layer in the transformer model
+transformer_max_len: max expected length of input for positioanl encoding in tranformer model [you can safely leave it be as 5000 if you dont do document translation]
+transformer_N: the number of encoder and decoder layers in the transformer model
+transformer_loss_smoothing: the soothing factor in KL divergance loss calculation
+transformer_opt_factor: the NoamOpt scheduler learning rate multiplicatin factor
+transformer_opt_warmup: the number of NoamOpt scheduler warmup steps
 
 n_epochs: number of iterations over the all of training data 
 init_optim: the optimizer with which model is initialized [normally for just a few iterations] 
@@ -121,8 +140,8 @@ In this section, we put the experiment results of different models on different 
 
 |                                      Experiment Name                                      	|                                      Replication Script                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	|                      More Info                      	|
 |:-----------------------------------------------------------------------------------------:	|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------:	|:---------------------------------------------------:	|
-|         [seq2seq_multi30k_de_en](resources/nmt.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_multi30k_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           31.218 / 31.902           	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_multi30k_de_en](resources/exp-configs/seq2seq_multi30k_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_multi30k_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           31.218 / 31.902           	| lowercased - tokenized with SpaCy	|
+|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_iwslt_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.153 / \[26.099; 28.383; 25.046; 27.021; 23.287; 23.277\]          	| lowercased - tokenized with SpaCy	|
 |         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt14_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_wmt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  WMT14 |           newstest2009; newstest2016   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           17.941 / 22.603          	| lowercased - bpe tokenized \[32000 tokens\]|
 
 ## How to replicate our results?

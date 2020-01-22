@@ -1,7 +1,7 @@
 debug_mode: false
 src_lang: de
 tgt_lang: en
-dataset_name: iwslt17
+dataset_name: multi30k16
 dataset_is_in_bpe: false
 lowercase_data: true
 pad_token: <pad>
@@ -9,26 +9,28 @@ bos_token: <bos>
 eos_token: <eos>
 unk_token: <unk>
 propn_token: <propn>
-max_sequence_length: 80
-max_vocab_src: 50000
-min_freq_src: 2
-max_vocab_tgt: 50000
-min_freq_tgt: 1
+max_sequence_length: 45
+max_vocab_src: 25000
+min_freq_src: 0
+max_vocab_tgt: 25000
+min_freq_tgt: 0
 
+model_name: sts
 emb_dropout: 0.3
-batch_size: 4500
-encoder_emb_size: 600
-encoder_hidden_size: 600
+train_batch_size: 2500
+valid_batch_size: 100
+encoder_emb_size: 250
+encoder_hidden_size: 250
 encoder_layers: 1
 encoder_dropout_rate: 0.1
-decoder_emb_size: 600
-decoder_hidden_size: 1200
+decoder_emb_size: 250
+decoder_hidden_size: 500
 decoder_layers: 1
 decoder_dropout_rate: 0.1
 out_dropout: 0.2
 coverage_dropout: 0.2
 
-maximum_decoding_length: 100
+maximum_decoding_length: 50
 bahdanau_attention: true
 coverage_required: true
 coverage_lambda: 1.0
@@ -40,7 +42,7 @@ init_epochs: 0
 optim: adam
 learning_rate: 0.001
 learning_momentum: 0.9
-grad_clip: true
+grad_clip: false
 max_grad_norm: 1.0
 val_slices: 10
 lr_decay_patience_steps: 5
@@ -51,4 +53,4 @@ lr_decay_min: 0.00001
 beam_size: 5
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: nmt.pt
+checkpoint_name: seq2seq_multi30k_de_en.pt
