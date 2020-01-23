@@ -90,8 +90,8 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:
                     random_sample_created = True
-                    print("Sample Pred : {}\nModel Expc'd: {}\nSample Act'l: {}".format(
-                        decoded, model_expected, reference_sentence))
+                    print("Sample Inp't: {}\nSample Pred : {}\nModel Expc'd: {}\nSample Act'l: {}".format(
+                        source_sentence, decoded, model_expected, reference_sentence))
         # valid_instance = next(iter(val_iter))
         # pred, _, _, _ = model(valid_instance.src, valid_instance.trg)
         # cpreds = convert_target_batch_back(pred)
