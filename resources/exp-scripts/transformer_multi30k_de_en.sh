@@ -4,7 +4,7 @@ virtualenv sfutranslate
 source sfutranslate/bin/activate
 git clone https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout c50b27c52f8950c112636ed17a477bd36ba995c0
+git checkout 5833774270aa225df1b5146d63bce6f6511c26a2
 python setup.py install
 python -m spacy download en
 python -m spacy download de
