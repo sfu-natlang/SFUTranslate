@@ -18,7 +18,7 @@ min_freq_tgt: 0
 model_name: sts
 emb_dropout: 0.3
 train_batch_size: 4500
-valid_batch_size: 100
+valid_batch_size: 4500
 encoder_emb_size: 600
 encoder_hidden_size: 600
 encoder_layers: 1
