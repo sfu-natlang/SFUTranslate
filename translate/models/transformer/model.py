@@ -127,7 +127,7 @@ class Transformer(nn.Module):
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
             return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), float(norm.item())
         elif self.beam_search_decoding:
-            return self.beam_search_decode(input_tensor_with_lengths, self.beam_size)
+            return self.beam_search_decode(input_tensor_with_lengths, beam_size)
         else:
             return self.greedy_decode(input_tensor_with_lengths)
 
