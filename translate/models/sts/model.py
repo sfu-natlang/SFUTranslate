@@ -283,8 +283,11 @@ class STS(nn.Module):
                 last_created_node_id += 1
                 query = torch.cat(
                     [nodes[n_id].result_query[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
-                coverage_vectors = torch.cat(
-                    [nodes[n_id].coverage_vectors[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
+                if self.coverage:
+                    coverage_vectors = torch.cat(
+                        [nodes[n_id].coverage_vectors[b_id].unsqueeze(0) for b_id, n_id in enumerate(node_ids)], dim=0)
+                else:
+                    coverage_vectors = None
                 max_attention_indices = torch.cat([nodes[n_id].max_attention_indices[:, b_id].unsqueeze(1)
                                                    for b_id, n_id in enumerate(node_ids)], dim=1)
                 alphas = self.compute_attention_scores(query, encoder_memory, attention_mask,
@@ -338,8 +341,12 @@ class STS(nn.Module):
                 else:
                     tsize = tokens.size(0)
                 # based on Google's NMT system paper [https://arxiv.org/pdf/1609.08144.pdf]
-                cp = sum([math.log(min(x, 1.0)) for x in
+                if self.coverage:
+                    cp = sum([math.log(min(x, 1.0)) for x in
                           list(node.coverage_vectors[b_ind].view(-1).cpu().numpy()) if x > 0.0])
+                else:
+                    # might not be the best thing to do
+                    cp = 0.0
                 lms = node.predicted_target_lm_score[b_ind].item() / lp(tsize) \
                     + self.beam_search_coverage_penalty_factor * cp
                 if lms > best_score:
