@@ -100,15 +100,35 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc):
     return fertilities
 
 
-def extract_linguistic_features(line):
+def extract_linguistic_features(line, bert_tokenizer):
     result = []
-    # TODO fill in result using `spacy_to_bert_aligner`
-    # Is it best to be a list ?
+    lesk_queries = {"NOUN": 'n', "VERB": 'v', "ADJ": 'a', "ADV": 'r'}
+    doc = nlp(line)
+    spacy_doc = [token.text for token in doc]
+    bert_doc = [token for token in bert_tokenizer.tokenize(line)]
+    fertilities = spacy_to_bert_aligner(spacy_doc, bert_doc)
+    bert_doc_pointer = 0
+    for token, fertility in zip(doc, fertilities):
+        pos = token.pos_
+        tag = token.tag_ if len(token.tag_) else "none"
+        shape = token.shape_
+        ent_type = token.ent_type_ if len(token.ent_type_) else "none"
+        ent_iob = token.ent_iob_ if len(token.ent_type_) else "o"
+        sense_data = lesk(spacy_doc, token.text, lesk_queries[pos] if pos in lesk_queries else "")
+        sense = sense_data.name().split(".")[-1] if sense_data is not None else "none"
+        sentiment = 'positive' if TextBlob(token.text).sentiment.polarity > 0.05 else 'negative' \
+            if TextBlob(token.text).sentiment.polarity < -0.05 else 'none'
+        linguistic_features = {"pos": pos, "tag": tag, "shape": shape, "ent_type": ent_type,
+                               "ent_iob": ent_iob, "sense": sense, "sentiment": sentiment}
+        for _ in range(fertility):
+            linguistic_features["token"] = bert_doc[bert_doc_pointer]
+            result.append(linguistic_features.copy())
+            bert_doc_pointer += 1
+        del linguistic_features
     return result
 
 
-def projection_trainer(file_adr):
-    bert_tokenizer = BertTokenizer.from_pretrained(model_name)
+def projection_trainer(file_adr, bert_tokenizer):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     model = torch.nn.Sequential(nn.Linear(D_in, H), nn.Linear(H, D_out)).to(device)
 
@@ -139,4 +159,8 @@ def projection_trainer(file_adr):
 
 
 if __name__ == '__main__':
-    projection_trainer(sys.argv[1])
+    nlp = spacy.load("en")
+    bert_tknizer = BertTokenizer.from_pretrained(model_name)
+    projection_trainer(sys.argv[1], bert_tknizer)
+    # extract_linguistic_features("I'd say, this id a good sentence, mr. brian rudolf", bert_tknizer)
+
