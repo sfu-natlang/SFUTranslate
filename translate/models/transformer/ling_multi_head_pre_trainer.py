@@ -110,10 +110,10 @@ def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
     bert_doc_pointer = 0
     for token, fertility in zip(doc, fertilities):
         pos = token.pos_
-        tag = token.tag_ if len(token.tag_) else "none"
+        tag = token.tag_ if len(token.tag_) else "NONE"
         shape = token.shape_
-        ent_type = token.ent_type_ if len(token.ent_type_) else "none"
-        ent_iob = token.ent_iob_ if len(token.ent_type_) else "o"
+        ent_type = token.ent_type_ if len(token.ent_type_) else "NONE"
+        ent_iob = token.ent_iob_ if len(token.ent_type_) else "O"
         sense_data = lesk(spacy_doc, token.text, lesk_queries[pos] if pos in lesk_queries else "")
         sense = sense_data.name().split(".")[-1] if sense_data is not None else "none"
         if extract_sentiment:
@@ -161,14 +161,8 @@ def projection_trainer(file_adr, bert_tokenizer):
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
 
 
-def project_sub_layers_trainer(file_adr, bert_tokenizer):
-    """
-    Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
-    """
-    # bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
-    # model = torch.nn.Sequential(nn.Linear(D_in, H), nn.Linear(H, D_out)).to(device)
+def extract_linguistic_vocabs(file_adr, bert_tokenizer):
     vocabs = {"pos": {}, "tag": {}, "shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}}
-
     itr = tqdm(get_next_batch(file_adr, batch_size))
     for input_sentences in itr:
         for sent in input_sentences:
@@ -178,7 +172,17 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer):
                     value = res_item[key]
                     if key in vocabs and value not in vocabs[key]:
                         vocabs[key][value] = len(vocabs[key])
-    print(vocabs)
+    return vocabs
+
+
+def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list):
+    """
+    Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
+    """
+    # bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    # model = torch.nn.Sequential(nn.Linear(D_in, H), nn.Linear(H, D_out)).to(device)
+
+    pass
 
 
 if __name__ == '__main__':
@@ -187,5 +191,35 @@ if __name__ == '__main__':
     if not int(sys.argv[1]):
         projection_trainer(sys.argv[2], bert_tknizer)
     else:
-        project_sub_layers_trainer(sys.argv[2], bert_tknizer)
+        multi30k_linguistic_vocab = {
+            'pos': {'X': 15, 'PUNCT': 2, 'DET': 9, 'ADV': 5, 'CCONJ': 11, 'NOUN': 3, 'PROPN': 13, 'NUM': 0, 'INTJ': 14,
+                    'VERB': 8, 'SYM': 16, 'PRON': 12, 'SCONJ': 6, 'AUX': 4, 'ADP': 7, 'ADJ': 1, 'PART': 10},
+            'sense': {'26': 36, '10': 10, '46': 41, '37': 40, '41': 43, '38': 35, '17': 24, '28': 21, '29': 22,
+                      '33': 18, '16': 19, '02': 2, '08': 5, '14': 15, '43': 32, '01': 0, '15': 12, '23': 28, '48': 25,
+                      '11': 16, '24': 29, '03': 3, '04': 9, '31': 37, '34': 31, '13': 7, '09': 11, 'none': 1, '05': 8,
+                      '19': 14, '18': 26, '20': 23, '22': 33, '35': 20, '21': 42, '30': 34, '07': 4, '12': 17, '39': 30,
+                      '27': 13, '32': 38, '06': 6, '42': 27, '25': 39},
+            'sentiment': {'positive': 1, 'none': 0, 'negative': 2},
+            'ent_iob': {'B': 0, 'I': 2, 'O': 1},
+            'ent_type': {'LOC': 12, 'ORG': 7, 'WORK_OF_ART': 6, 'PERCENT': 18, 'MONEY': 15, 'CARDINAL': 0,
+                         'PRODUCT': 11, 'NORP': 5, 'NONE': 1, 'LAW': 17, 'DATE': 2, 'LANGUAGE': 16, 'TIME': 8,
+                         'ORDINAL': 14, 'PERSON': 4, 'GPE': 9, 'EVENT': 13, 'QUANTITY': 10, 'FAC': 3},
+            'shape': {'XXXx': 75, 'X&xxx;X.': 40, 'X': 8, 'XxxxxXxxx': 33, 'dxx': 45, "'xx": 23, 'd-xxxx': 53,
+                      'xxxxd': 65, 'XXxxxx': 71, '.x': 56, "x'xxxx": 38, 'Xxx.': 55, 'xxxx': 1, 'X.X': 47, ':': 48,
+                      'X.X.': 61, '(': 19, "'": 29, 'XxxxXxxx': 10, 'xXxx': 51, 'x': 7, 'ddx': 64, 'dx': 76, 'XXX': 13,
+                      'dd:dd': 70, 'Xxxxx': 3, 'dd': 16, 'xxxx-': 59, 'XxXxxxx': 11, 'X.': 31, 'xx': 6, 'Xx.': 32,
+                      'Xx': 14, 'X.X.X.X.X.': 34, 'XxXxxx': 73, 'd': 18, 'Xxxx': 9, '#': 39, 'xxx': 4, 'XxxxXxxxx': 37,
+                      'XxxxxXxx': 27, 'ddd': 57, "x'x": 36, 'XxxXx': 72, '=': 79, 'XXx': 25, 'XX': 26, 'xXXXxxxx': 69,
+                      'x-d': 30, 'Xxx': 0, ',': 2, 'ddddx': 78, 'XxxXxxx': 52, 'X.X.X.': 49, "'x": 12, ';': 22, '?': 44,
+                      '"': 17, '%': 63, 'dd,ddd': 50, 'XxxxxXxxxx': 46, '!': 28, '&': 21, '.': 5, 'xXxxx': 42,
+                      'xxxx.xxx': 58, '-': 15, 'dddd': 43, 'ddxx': 54, ')': 20, 'x&xxx;x': 67, 'xXxxxx': 66, '$': 68,
+                      'X&xxx;X': 41, 'xxxXxxxx': 60, 'd.dd': 35, 'XXXX': 24, 'ddxxx': 77, 'xxd': 74, '`': 62},
+            'tag': {'JJ': 1, 'JJR': 24, 'CC': 14, 'PDT': 35, 'WDT': 16, 'UH': 36, 'CD': 0, ':': 34, 'VBG': 8, 'RB': 5,
+                    'VB': 20, 'VBZ': 11, 'POS': 21, 'WP': 22, 'LS': 43, 'NNS': 3, 'NN': 10, '``': 27, 'XX': 44,
+                    'PRP$': 12, 'TO': 15, 'HYPH': 23, 'PRP': 17, '-LRB-': 32, 'NNP': 19, 'WP$': 38, 'WRB': 30,
+                    '-RRB-': 33, 'VBD': 25, 'RBS': 37, 'FW': 39, 'IN': 6, 'JJS': 41, 'RBR': 42, 'MD': 31, '.': 7,
+                    'VBP': 4, 'DT': 9, ',': 2, 'NNPS': 28, 'EX': 26, 'RP': 18, 'VBN': 13, '$': 40, "''": 29}}
+        # TODO after being done with testing, you'd need to call extract_linguistic_vocabs() to extract the vocab
+        required_features_list = ['pos', 'shape', 'tag']
+        project_sub_layers_trainer(sys.argv[2], bert_tknizer, multi30k_linguistic_vocab, required_features_list)
 
