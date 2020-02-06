@@ -100,7 +100,7 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc):
     return fertilities
 
 
-def extract_linguistic_features(line, bert_tokenizer):
+def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
     result = []
     lesk_queries = {"NOUN": 'n', "VERB": 'v', "ADJ": 'a', "ADV": 'r'}
     doc = nlp(line)
@@ -116,8 +116,11 @@ def extract_linguistic_features(line, bert_tokenizer):
         ent_iob = token.ent_iob_ if len(token.ent_type_) else "o"
         sense_data = lesk(spacy_doc, token.text, lesk_queries[pos] if pos in lesk_queries else "")
         sense = sense_data.name().split(".")[-1] if sense_data is not None else "none"
-        sentiment = 'positive' if TextBlob(token.text).sentiment.polarity > 0.05 else 'negative' \
-            if TextBlob(token.text).sentiment.polarity < -0.05 else 'none'
+        if extract_sentiment:
+            sentiment = 'positive' if TextBlob(token.text).sentiment.polarity > 0.05 else 'negative' \
+                if TextBlob(token.text).sentiment.polarity < -0.05 else 'none'
+        else:
+            sentiment = "none"
         linguistic_features = {"pos": pos, "tag": tag, "shape": shape, "ent_type": ent_type,
                                "ent_iob": ent_iob, "sense": sense, "sentiment": sentiment}
         for _ in range(fertility):
