@@ -175,14 +175,96 @@ def extract_linguistic_vocabs(file_adr, bert_tokenizer):
     return vocabs
 
 
+class SubLayerED(torch.nn.Module):
+    def __init__(self, D_in, Hs, D_out, feature_sizes, padding_index=0):
+        super(SubLayerED, self).__init__()
+        self.encoders = nn.ModuleList([nn.Linear(D_in, h) for h in Hs])
+        self.decoder = nn.Linear(sum(Hs), D_out)
+        self.feature_classifiers = nn.ModuleList([nn.Linear(h, o) for h, o in zip(Hs[:-1], feature_sizes)])
+
+        self.loss_fn = torch.nn.MSELoss(reduction='sum')
+        self.class_loss_fn = nn.CrossEntropyLoss(ignore_index=padding_index, reduction='sum')
+        self.pair_distance = nn.PairwiseDistance(p=2)
+
+    def forward(self, x, features):
+        encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
+        y_pred = self.decoder(torch.cat(encoded, 1))
+        ling_classes = [self.feature_classifiers[i](encoded[i]) for i in range(len(self.encoders)-1)]
+        loss = self.loss_fn(y_pred, x)
+        for ind, lc in enumerate(ling_classes):
+            loss += self.class_loss_fn(lc, features[ind])
+        # l = 0
+        # for i in range(len(self.encoders)-1): # see questions in LingEmb document for this part!
+        #    for j in range(i+1, len(self.encoders)-1):
+        #        l += self.pair_distance(encoded[i], encoded[j])
+        # TODO average l out and add it to loss
+        return y_pred, loss
+
+
+def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer):
+    padding_value = 0
+    extracted_features = [[] for _ in required_features_list]
+    for sent in input_sentences:
+        sent_extracted_features = [[padding_value] for _ in required_features_list]
+        res = extract_linguistic_features(sent, bert_tokenizer)
+        for token_feature in res:
+            for ind, elem in enumerate(required_features_list):
+                assert elem in token_feature, "feature {} is required to be extracted!"
+                feature = token_feature[elem]
+                feature_id = linguistic_vocab[elem][feature] + 1  # the first index is <PAD>
+                sent_extracted_features[ind].append(feature_id)
+        for ind in range(len(required_features_list)):
+            sent_extracted_features[ind].append(padding_value)
+            extracted_features[ind].append(torch.tensor(sent_extracted_features[ind], device=device).long())
+
+    return [torch.nn.utils.rnn.pad_sequence(extracted_features[ind], batch_first=True, padding_value=padding_value)
+            for ind in range(len(required_features_list))]
+
+
 def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
     """
-    # bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
-    # model = torch.nn.Sequential(nn.Linear(D_in, H), nn.Linear(H, D_out)).to(device)
+    assert len(required_features_list) > 0, "You have to select some features"
+    assert linguistic_vocab is not None and len(linguistic_vocab) > 0
 
-    pass
+    Hs = []
+    for rfl in required_features_list:
+        if rfl in linguistic_vocab:
+            Hs.append(len(linguistic_vocab[rfl]))
+    Hs.append(max(Hs))
+    weight_ratio = int(float(H)/sum(Hs))
+    assert weight_ratio > 1
+    Hs = [weight_ratio * ind for ind in Hs]
+    Hs[-1] += max(0, (H - sum(Hs)))
+
+    bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    model = SubLayerED(D_in, Hs, D_out, [len(linguistic_vocab[f]) + 1 for f in required_features_list]).to(device)
+
+    model.apply(weight_init)
+    opt = optim.SGD(model.parameters(), lr=float(lr))
+    for t in range(epochs):
+        all_loss = 0.0
+        all_tokens_count = 0.0
+        itr = tqdm(get_next_batch(file_adr, batch_size))
+        for input_sentences in itr:
+            sequences = [torch.tensor(bert_tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
+                         for input_sentence in input_sentences]
+            features = map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer)
+            input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
+            outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+            embedded = outputs[desired_bert_layer].detach()
+            for s in range(1, embedded.size(1)-1):
+                x = embedded.select(1, s)
+                features_selected = [f.select(1, s) for f in features]
+                pred, loss = model(x, features_selected)
+                model.zero_grad()
+                loss.backward()
+                nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+                opt.step()
+                all_loss += loss.item()
+                all_tokens_count += x.size(0)
+                itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
 
 
 if __name__ == '__main__':
@@ -220,6 +302,8 @@ if __name__ == '__main__':
                     '-RRB-': 33, 'VBD': 25, 'RBS': 37, 'FW': 39, 'IN': 6, 'JJS': 41, 'RBR': 42, 'MD': 31, '.': 7,
                     'VBP': 4, 'DT': 9, ',': 2, 'NNPS': 28, 'EX': 26, 'RP': 18, 'VBN': 13, '$': 40, "''": 29}}
         # TODO after being done with testing, you'd need to call extract_linguistic_vocabs() to extract the vocab
-        required_features_list = ['pos', 'shape', 'tag']
-        project_sub_layers_trainer(sys.argv[2], bert_tknizer, multi30k_linguistic_vocab, required_features_list)
+        # 1 ../../.data/iwslt/de-en/train.de-en.en
+        # 1 ../../.data/multi30k/train.en
+        features_list = ['pos', 'shape', 'tag']
+        project_sub_layers_trainer(sys.argv[2], bert_tknizer, multi30k_linguistic_vocab, features_list)
 
