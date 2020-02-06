@@ -158,9 +158,31 @@ def projection_trainer(file_adr, bert_tokenizer):
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
 
 
+def project_sub_layers_trainer(file_adr, bert_tokenizer):
+    """
+    Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
+    """
+    # bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    # model = torch.nn.Sequential(nn.Linear(D_in, H), nn.Linear(H, D_out)).to(device)
+    vocabs = {"pos": {}, "tag": {}, "shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}}
+
+    itr = tqdm(get_next_batch(file_adr, batch_size))
+    for input_sentences in itr:
+        for sent in input_sentences:
+            res = extract_linguistic_features(sent, bert_tokenizer)
+            for res_item in res:
+                for key in res_item:
+                    value = res_item[key]
+                    if key in vocabs and value not in vocabs[key]:
+                        vocabs[key][value] = len(vocabs[key])
+    print(vocabs)
+
+
 if __name__ == '__main__':
     nlp = spacy.load("en")
     bert_tknizer = BertTokenizer.from_pretrained(model_name)
-    projection_trainer(sys.argv[1], bert_tknizer)
-    # extract_linguistic_features("I'd say, this id a good sentence, mr. brian rudolf", bert_tknizer)
+    if not int(sys.argv[1]):
+        projection_trainer(sys.argv[2], bert_tknizer)
+    else:
+        project_sub_layers_trainer(sys.argv[2], bert_tknizer)
 
