@@ -8,11 +8,14 @@ from torch import optim
 from torch import nn
 import torch.nn.init as init
 import torch
-from transformers import BertTokenizer, BertForMaskedLM
 from pathlib import Path
 from tqdm import tqdm
 from textblob import TextBlob
 from nltk.wsd import lesk
+
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+from transformers import BertTokenizer, BertForMaskedLM
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -221,7 +224,8 @@ def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguist
             for ind in range(len(required_features_list))]
 
 
-def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list):
+def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
+                               save_model_name="project_sublayers.pt"):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
     """
@@ -240,7 +244,6 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
 
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     model = SubLayerED(D_in, Hs, D_out, [len(linguistic_vocab[f]) + 1 for f in required_features_list]).to(device)
-
     model.apply(weight_init)
     opt = optim.SGD(model.parameters(), lr=float(lr))
     for t in range(epochs):
@@ -250,14 +253,16 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
         for input_sentences in itr:
             sequences = [torch.tensor(bert_tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
-            features = map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer)
-            input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
+            features = map_sentences_to_vocab_ids(
+                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer)
+            input_ids = torch.nn.utils.rnn.pad_sequence(
+                sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
             embedded = outputs[desired_bert_layer].detach()
             for s in range(1, embedded.size(1)-1):
                 x = embedded.select(1, s)
                 features_selected = [f.select(1, s) for f in features]
-                pred, loss = model(x, features_selected)
+                _, loss = model(x, features_selected)
                 model.zero_grad()
                 loss.backward()
                 nn.utils.clip_grad_norm_(model.parameters(), max_norm)
@@ -265,14 +270,40 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
                 all_loss += loss.item()
                 all_tokens_count += x.size(0)
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
+        torch.save({'model': model}, save_model_name)
+
+
+def project_sub_layers_tester(input_sentences, bert_tokenizer, linguistic_vocab, required_features_list,
+                              load_model_name="project_sublayers.pt"):
+    bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    saved_obj = torch.load(load_model_name, map_location=lambda storage, loc: storage)
+    model = saved_obj['model'].to(device)
+    with torch.no_grad():
+        all_loss = 0.0
+        all_tokens_count = 0.0
+        sequences = [torch.tensor(bert_tokenizer.encode(input_sentence), device=device)
+                     for input_sentence in input_sentences]
+        features = map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer)
+        input_ids = torch.nn.utils.rnn.pad_sequence(
+            sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
+        outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+        embedded = outputs[desired_bert_layer].detach()
+        for s in range(1, embedded.size(1)-1):
+            x = embedded.select(1, s)
+            features_selected = [f.select(1, s) for f in features]
+            _, loss = model(x, features_selected)
+            all_loss += loss.item()
+            all_tokens_count += x.size(0)
+    print(("Average Test Loss: {:.2f}".format(all_loss / all_tokens_count)))
 
 
 if __name__ == '__main__':
     nlp = spacy.load("en")
     bert_tknizer = BertTokenizer.from_pretrained(model_name)
-    if not int(sys.argv[1]):
+    running_mode = int(sys.argv[1])
+    if running_mode == 0:
         projection_trainer(sys.argv[2], bert_tknizer)
-    else:
+    elif running_mode == 1:
         multi30k_linguistic_vocab = {
             'pos': {'X': 15, 'PUNCT': 2, 'DET': 9, 'ADV': 5, 'CCONJ': 11, 'NOUN': 3, 'PROPN': 13, 'NUM': 0, 'INTJ': 14,
                     'VERB': 8, 'SYM': 16, 'PRON': 12, 'SCONJ': 6, 'AUX': 4, 'ADP': 7, 'ADJ': 1, 'PART': 10},
@@ -306,4 +337,6 @@ if __name__ == '__main__':
         # 1 ../../.data/multi30k/train.en
         features_list = ['pos', 'shape', 'tag']
         project_sub_layers_trainer(sys.argv[2], bert_tknizer, multi30k_linguistic_vocab, features_list)
+        project_sub_layers_tester(["A little girl climbing into a wooden playhouse."],
+                                  bert_tknizer, multi30k_linguistic_vocab, features_list)
 
