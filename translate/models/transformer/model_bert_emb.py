@@ -11,6 +11,8 @@ from utils.containers import DecodingSearchNode
 from models.transformer.utils import clones, copy, subsequent_mask
 from models.transformer.modules import EncoderLayer, MultiHeadedAttention, PositionwiseFeedForward, PositionalEncoding, \
     LayerNorm, DecoderLayer, Embeddings, Generator
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
 from transformers import BertTokenizer, BertForMaskedLM
 
 from utils.evaluation import convert_target_batch_back
@@ -74,13 +76,14 @@ class Transformer(nn.Module):
             self.bert_bridge = nn.Linear(768, d_model, bias=False)
         else:
             self.bert_bridge = None
-        self.desired_bert_layer = 12
+        self.number_of_bert_layers = 13
+        self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers),
+                                                             requires_grad=True)
+        self.softmax = nn.Softmax(dim=-1)
 
-    def bert_embed(self, input_tensor, desired_bert_layer):
+    def bert_embed(self, input_tensor):
         """
         :param input_tensor: batch_size * max_seq_length
-        :param desired_bert_layer: can select one number from the range 0 (indicating the bert embedding),
-               or 1 to 12 pointing to each of the bert encoder_layers
         """
         # model_name = 'bert-base-uncased'
         # input_sentences = ["This is hassan", "This is hamid"]
@@ -90,8 +93,10 @@ class Transformer(nn.Module):
                      for input_sentence in input_sentences]
         input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True)
         input_mask = self.generate_src_mask(input_ids)
-        outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
-        embedded = outputs[desired_bert_layer].detach()
+        outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # 13 * (batch_size * [input_length + 2] * 768)
+        all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
+        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
+                                self.softmax(self.bert_weights_for_average_pooling))
         if self.bert_bridge is not None:
             embedded = self.bert_bridge(embedded)
 
@@ -124,7 +129,7 @@ class Transformer(nn.Module):
         input_tensor, input_lengths = input_tensor_with_lengths
         input_tensor = input_tensor.transpose(0, 1)
         if self.embed_src_with_bert:
-            x, input_mask = self.bert_embed(input_tensor, self.desired_bert_layer)
+            x, input_mask = self.bert_embed(input_tensor)
         else:
             input_mask = self.generate_src_mask(input_tensor)
             x = self.src_embed(input_tensor)
