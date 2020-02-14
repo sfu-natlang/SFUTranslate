@@ -181,6 +181,7 @@ def extract_linguistic_vocabs(file_adr, bert_tokenizer):
 class SubLayerED(torch.nn.Module):
     def __init__(self, D_in, Hs, D_out, feature_sizes, padding_index=0):
         super(SubLayerED, self).__init__()
+        self.equal_length_Hs = (sum([Hs[0] == h for h in Hs]) == len(Hs))
         self.encoders = nn.ModuleList([nn.Linear(D_in, h) for h in Hs])
         self.decoder = nn.Linear(sum(Hs), D_out)
         self.feature_classifiers = nn.ModuleList([nn.Linear(h, o) for h, o in zip(Hs[:-1], feature_sizes)])
@@ -188,6 +189,7 @@ class SubLayerED(torch.nn.Module):
         self.loss_fn = torch.nn.MSELoss(reduction='sum')
         self.class_loss_fn = nn.CrossEntropyLoss(ignore_index=padding_index, reduction='sum')
         self.pair_distance = nn.PairwiseDistance(p=2)
+        self.discriminator = nn.Linear(D_out, 1)
 
     def forward(self, x, features):
         encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
@@ -196,11 +198,23 @@ class SubLayerED(torch.nn.Module):
         loss = self.loss_fn(y_pred, x)
         for ind, lc in enumerate(ling_classes):
             loss += self.class_loss_fn(lc, features[ind])
-        # l = 0
-        # for i in range(len(self.encoders)-1): # see questions in LingEmb document for this part!
-        #    for j in range(i+1, len(self.encoders)-1):
-        #        l += self.pair_distance(encoded[i], encoded[j])
-        # TODO average l out and add it to loss
+        if self.equal_length_Hs:
+            # for the case of equal lengths this part makes sure that the vectors are different from each other
+            lss = 0
+            cnt = 0.0
+            for i in range(len(self.encoders)-1):  # see questions in LingEmb document for this part!
+                for j in range(i+1, len(self.encoders)-1):
+                    l = self.pair_distance(encoded[i], encoded[j])
+                    cnt += l.size(0)  # l is a one-dimensional tensor of size batch_size
+                    lss += l.sum()
+            if cnt > 0.0:
+                loss += lss / cnt
+        # Adversarial loss
+        fake_pred = self.discriminator(torch.empty(y_pred.size()).normal_(mean=0, std=1.0).to(device))
+        true_pred = self.discriminator(y_pred)
+        l_true = self.loss_fn(true_pred, torch.ones(true_pred.size(), device=device))
+        l_fake = self.loss_fn(fake_pred, torch.zeros(fake_pred.size(), device=device))
+        loss += l_true / true_pred.view(-1).size(0) + l_fake / fake_pred.view(-1).size(0)
         return y_pred, loss
 
 
@@ -225,7 +239,7 @@ def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguist
 
 
 def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
-                               save_model_name="project_sublayers.pt"):
+                               save_model_name="project_sublayers.pt", relative_sizing=False):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
     """
@@ -235,11 +249,16 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
     Hs = []
     for rfl in required_features_list:
         if rfl in linguistic_vocab:
-            Hs.append(len(linguistic_vocab[rfl]))
+            if relative_sizing:
+                print("This might not be supported in the multi-head implementation")
+                Hs.append(len(linguistic_vocab[rfl]))
+            else:
+                # TODO consider hierarchical encoding of features here
+                Hs.append(1.0)
     Hs.append(max(Hs))
     weight_ratio = int(float(H)/sum(Hs))
     assert weight_ratio > 1
-    Hs = [weight_ratio * ind for ind in Hs]
+    Hs = [int(weight_ratio * ind) for ind in Hs]
     Hs[-1] += max(0, (H - sum(Hs)))
 
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
