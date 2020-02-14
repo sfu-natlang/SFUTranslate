@@ -182,6 +182,7 @@ class SubLayerED(torch.nn.Module):
     def __init__(self, D_in, Hs, D_out, feature_sizes, padding_index=0):
         super(SubLayerED, self).__init__()
         self.equal_length_Hs = (sum([Hs[0] == h for h in Hs]) == len(Hs))
+        self.consider_adversarial_loss = False
         self.encoders = nn.ModuleList([nn.Linear(D_in, h) for h in Hs])
         self.decoder = nn.Linear(sum(Hs), D_out)
         self.feature_classifiers = nn.ModuleList([nn.Linear(h, o) for h, o in zip(Hs[:-1], feature_sizes)])
@@ -196,6 +197,7 @@ class SubLayerED(torch.nn.Module):
         y_pred = self.decoder(torch.cat(encoded, 1))
         ling_classes = [self.feature_classifiers[i](encoded[i]) for i in range(len(self.encoders)-1)]
         loss = self.loss_fn(y_pred, x)
+        feature_pred_correct = [(lc.argmax(dim=-1) == features[ind]) for ind, lc in enumerate(ling_classes)]
         for ind, lc in enumerate(ling_classes):
             loss += self.class_loss_fn(lc, features[ind])
         if self.equal_length_Hs:
@@ -209,13 +211,14 @@ class SubLayerED(torch.nn.Module):
                     lss += l.sum()
             if cnt > 0.0:
                 loss += lss / cnt
-        # Adversarial loss
-        fake_pred = self.discriminator(torch.empty(y_pred.size()).normal_(mean=0, std=1.0).to(device))
-        true_pred = self.discriminator(y_pred)
-        l_true = self.loss_fn(true_pred, torch.ones(true_pred.size(), device=device))
-        l_fake = self.loss_fn(fake_pred, torch.zeros(fake_pred.size(), device=device))
-        loss += l_true / true_pred.view(-1).size(0) + l_fake / fake_pred.view(-1).size(0)
-        return y_pred, loss
+        if self.consider_adversarial_loss:
+            # Adversarial loss
+            fake_pred = self.discriminator(torch.empty(y_pred.size()).normal_(mean=0, std=1.0).to(device))
+            true_pred = self.discriminator(y_pred)
+            l_true = self.loss_fn(true_pred, torch.ones(true_pred.size(), device=device))
+            l_fake = self.loss_fn(fake_pred, torch.zeros(fake_pred.size(), device=device))
+            loss += l_true / true_pred.view(-1).size(0) + l_fake / fake_pred.view(-1).size(0)
+        return y_pred, loss, feature_pred_correct
 
 
 def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer):
@@ -269,6 +272,8 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
         all_loss = 0.0
         all_tokens_count = 0.0
         itr = tqdm(get_next_batch(file_adr, batch_size))
+        feature_pred_corrects = [0 for _ in range(len(required_features_list))]
+        feature_pred_correct_all = 0.0
         for input_sentences in itr:
             sequences = [torch.tensor(bert_tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
@@ -281,14 +286,23 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
             for s in range(1, embedded.size(1)-1):
                 x = embedded.select(1, s)
                 features_selected = [f.select(1, s) for f in features]
-                _, loss = model(x, features_selected)
+                _, loss, feature_pred_correct = model(x, features_selected)
+                for ind, score in enumerate(feature_pred_correct):
+                    feature_pred_corrects[ind] += score.sum().item()
+                feature_pred_correct_all += feature_pred_correct[0].size(0)
                 model.zero_grad()
                 loss.backward()
                 nn.utils.clip_grad_norm_(model.parameters(), max_norm)
                 opt.step()
                 all_loss += loss.item()
                 all_tokens_count += x.size(0)
-                itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
+                classification_report = ["{}:{:.2f}%".format(feat.upper(), float(feature_pred_corrects[ind] * 100)
+                                         / feature_pred_correct_all) for ind, feat in enumerate(required_features_list)]
+                itr.set_description("Epoch: {}, Average Loss: {:.2f}, [{}]".format(t, all_loss / all_tokens_count,
+                                                                                   "; ".join(classification_report)))
+        for ind, feat in enumerate(required_features_list):
+            print("{} classification precision: {:.2f}%".format(
+                feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
         torch.save({'model': model}, save_model_name)
 
 
@@ -297,6 +311,8 @@ def project_sub_layers_tester(input_sentences, bert_tokenizer, linguistic_vocab,
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name, map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
+    feature_pred_corrects = [0 for _ in range(len(required_features_list))]
+    feature_pred_correct_all = 0.0
     with torch.no_grad():
         all_loss = 0.0
         all_tokens_count = 0.0
@@ -310,9 +326,15 @@ def project_sub_layers_tester(input_sentences, bert_tokenizer, linguistic_vocab,
         for s in range(1, embedded.size(1)-1):
             x = embedded.select(1, s)
             features_selected = [f.select(1, s) for f in features]
-            _, loss = model(x, features_selected)
+            _, loss, feature_pred_correct = model(x, features_selected)
+            for ind, score in enumerate(feature_pred_correct):
+                feature_pred_corrects[ind] += score.sum().item()
+            feature_pred_correct_all += feature_pred_correct[0].size(0)
             all_loss += loss.item()
             all_tokens_count += x.size(0)
+    for ind, feat in enumerate(required_features_list):
+        print("{} classification precision: {:.2f}%".format(
+            feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
     print(("Average Test Loss: {:.2f}".format(all_loss / all_tokens_count)))
 
 
