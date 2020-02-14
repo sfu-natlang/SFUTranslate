@@ -21,7 +21,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ###############################################CONFIGURATIONS########################################################
 model_name = 'bert-base-uncased'
-desired_bert_layer = 12
+number_of_bert_layers = 13
 D_in, H, D_out = 768, 1024, 768
 epochs = 10
 lr = 0.01
@@ -139,6 +139,8 @@ def projection_trainer(file_adr, bert_tokenizer):
     model = torch.nn.Sequential(nn.Linear(D_in, H), nn.Linear(H, D_out)).to(device)
 
     model.apply(weight_init)
+    bert_weights_for_average_pooling = nn.Parameter(torch.zeros(number_of_bert_layers), requires_grad=True)
+    softmax = nn.Softmax(dim=-1)
     opt = optim.SGD(model.parameters(), lr=float(lr))
     loss_fn = torch.nn.MSELoss(reduction='sum')
     for t in range(epochs):
@@ -150,7 +152,8 @@ def projection_trainer(file_adr, bert_tokenizer):
                          for input_sentence in input_sentences]
             input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
-            embedded = outputs[desired_bert_layer].detach()
+            all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
+            embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0), softmax(bert_weights_for_average_pooling))
             for s in range(embedded.size(1)):
                 x = embedded.select(1, s)
                 pred = model(x)
@@ -191,6 +194,9 @@ class SubLayerED(torch.nn.Module):
         self.class_loss_fn = nn.CrossEntropyLoss(ignore_index=padding_index, reduction='sum')
         self.pair_distance = nn.PairwiseDistance(p=2)
         self.discriminator = nn.Linear(D_out, 1)
+
+        self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(number_of_bert_layers), requires_grad=True)
+        self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, x, features):
         encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
@@ -282,7 +288,9 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
-            embedded = outputs[desired_bert_layer].detach()
+            all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
+            embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
+                                    model.softmax(model.bert_weights_for_average_pooling))
             for s in range(1, embedded.size(1)-1):
                 x = embedded.select(1, s)
                 features_selected = [f.select(1, s) for f in features]
@@ -291,7 +299,7 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
                     feature_pred_corrects[ind] += score.sum().item()
                 feature_pred_correct_all += feature_pred_correct[0].size(0)
                 model.zero_grad()
-                loss.backward()
+                loss.backward(retain_graph=True)
                 nn.utils.clip_grad_norm_(model.parameters(), max_norm)
                 opt.step()
                 all_loss += loss.item()
@@ -322,7 +330,9 @@ def project_sub_layers_tester(input_sentences, bert_tokenizer, linguistic_vocab,
         input_ids = torch.nn.utils.rnn.pad_sequence(
             sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
         outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
-        embedded = outputs[desired_bert_layer].detach()
+        all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
+        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
+                                model.softmax(model.bert_weights_for_average_pooling))
         for s in range(1, embedded.size(1)-1):
             x = embedded.select(1, s)
             features_selected = [f.select(1, s) for f in features]
