@@ -97,6 +97,7 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
     and returns the alignment fertilities from spacy to bert.
     the output will have a length equal to the size of spacy_doc each index of which indicates the number
     of times the spacy element characteristics must be copied to equal the length of the bert tokenized list.
+    This algorithm enforces the alignments in a strictly left-to-right order.
     """
     previous_spacy_token = None
     sp_len = len(spacy_doc)
@@ -144,7 +145,14 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
 
     curr_fertilities = [1]
     if seg_s_i == -1 or seg_bert_f_pointer == -1:
-        if best_left_candidate is not None:
+        if best_left_candidate is not None and best_right_candidate is not None:  # accounting for min distortion
+            seg_s_i_l, seg_bert_f_pointer_l = best_left_candidate
+            seg_s_i_r, seg_bert_f_pointer_r = best_right_candidate
+            if seg_bert_f_pointer_r - seg_s_i_r < seg_bert_f_pointer_l - seg_s_i_l:
+                seg_s_i, seg_bert_f_pointer = best_right_candidate
+            else:
+                seg_s_i, seg_bert_f_pointer = best_left_candidate
+        elif best_left_candidate is not None:
             seg_s_i, seg_bert_f_pointer = best_left_candidate
         elif best_right_candidate is not None:
             seg_s_i, seg_bert_f_pointer = best_right_candidate
