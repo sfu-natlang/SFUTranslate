@@ -12,6 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 from textblob import TextBlob
 from nltk.wsd import lesk
+import unidecode
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -56,50 +57,121 @@ def get_next_batch(file_adr, b_size):
     yield res
 
 
-def spacy_to_bert_aligner(spacy_doc, bert_doc):
+def check_tokens_equal(spacy_token, bert_token):
+    if spacy_token is None:
+        return bert_token is None
+    if bert_token is None:
+        return spacy_token is None
+    if bert_token == spacy_token.lower() or bert_token == spacy_token:
+        return True
+    spacy_token = unidecode.unidecode(spacy_token)  # remove accents and unicode emoticons
+    bert_token = unidecode.unidecode(bert_token)  # remove accents and unicode emoticons
+    if bert_token == spacy_token.lower() or bert_token == spacy_token:
+        return True
+    return False
+
+
+def check_for_inital_subword_sequence(spacy_doc, bert_doc):
+    seg_s_i = 0
+    spacy_token = spacy_doc[seg_s_i]
+    bert_f_pointer = 0
+    bert_token = bert_doc[bert_f_pointer]
+    while not check_tokens_equal(spacy_token, bert_token):
+        bert_f_pointer += 1
+        if bert_f_pointer < len(bert_doc):
+            tmp = bert_doc[bert_f_pointer]
+        else:
+            # print(spacy_doc)
+            # print(bert_doc)
+            # print(bert_f_pointer)
+            bert_f_pointer = 0
+            seg_s_i = -1
+            break
+        bert_token += tmp[2:] if tmp.startswith("##") else tmp
+    return seg_s_i, bert_f_pointer
+
+
+def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_alignments=False, level=0):
     """
     This function receives two lists extracted from spacy, and bert tokenizers on the same sentence,
     and returns the alignment fertilities from spacy to bert.
     the output will have a length equal to the size of spacy_doc each index of which indicates the number
     of times the spacy element characteristics must be copied to equal the length of the bert tokenized list.
     """
-    len_spacy = len(spacy_doc)
-    fertilities = [1] * len_spacy
-    bert_f_pointer = 0
-    spacy_legacy_token = ""
-    bert_legacy_token = ""
-    for s_i in range(len_spacy):
-        spacy_token = spacy_legacy_token + spacy_doc[s_i]
-        spacy_legacy_token = ""
-        if spacy_token == bert_legacy_token:
-            fertilities[s_i] = 0
-            bert_legacy_token = ""
-            continue
-        if not len(spacy_token.strip()):
-            fertilities[s_i] = 0
-            continue
-        if bert_f_pointer < len(bert_doc):
+    previous_spacy_token = None
+    sp_len = len(spacy_doc)
+    bt_len = len(bert_doc)
+    if not sp_len:
+        return []
+    elif not bt_len:
+        return [0] * len(spacy_doc)
+    elif sp_len == 1:  # one to one and one to many
+        return [bt_len]
+    elif bt_len == 1:  # many to one case
+        r = [0] * sp_len
+        r[0] = 1
+        return r
+    # many to many case is being handled in here:
+    seg_s_i = -1
+    seg_bert_f_pointer = -1
+    best_other_candidate = None
+    for s_i in range(sp_len):
+        spacy_token = spacy_doc[s_i]
+        next_spacy_token = spacy_doc[s_i + 1] if s_i < len(spacy_doc) - 1 else None
+        prev_eq = None
+        current_eq = None
+        next_eq = None
+        previous_bert_token = None
+        for bert_f_pointer in range(s_i, len(bert_doc)):
             bert_token = bert_doc[bert_f_pointer]
-        else:
-            raise ValueError()
-        bert_token = bert_token[2:] if bert_token.startswith("##") else bert_token
-        bert_token = bert_legacy_token + bert_token
-        bert_legacy_token = ""
-        if len(bert_token) > len(spacy_token):
-            spacy_legacy_token = spacy_token
-            bert_legacy_token = bert_token
-            bert_f_pointer += 1
-            continue
-        while bert_token != spacy_token.lower():
-            bert_f_pointer += 1
-            if bert_f_pointer < len(bert_doc):
-                tmp = bert_doc[bert_f_pointer]
-            else:
-                raise ValueError()
-            bert_token += tmp[2:] if tmp.startswith("##") else tmp
-            fertilities[s_i] += 1
-        bert_f_pointer += 1
-    assert sum(fertilities) == len(bert_doc), "Error:\n{}\n{}".format(spacy_doc, bert_doc)
+            next_bert_token = bert_doc[bert_f_pointer + 1] if bert_f_pointer < len(bert_doc) - 1 else None
+            prev_eq = check_tokens_equal(previous_spacy_token, previous_bert_token)
+            current_eq = check_tokens_equal(spacy_token, bert_token)
+            next_eq = check_tokens_equal(next_spacy_token, next_bert_token)
+            if prev_eq and current_eq and next_eq:
+                seg_bert_f_pointer = bert_f_pointer
+                break
+            elif prev_eq and current_eq:
+                best_other_candidate = (s_i, bert_f_pointer)
+            elif current_eq and next_eq and best_other_candidate is None:
+                best_other_candidate = (s_i, bert_f_pointer)
+            previous_bert_token = bert_token
+        if prev_eq and current_eq and next_eq:
+            seg_s_i = s_i
+            break
+        previous_spacy_token = spacy_token
+
+    curr_fertilities = [1]
+    if seg_s_i == -1 or seg_bert_f_pointer == -1:
+        if best_other_candidate is not None:
+            seg_s_i, seg_bert_f_pointer = best_other_candidate
+        else:  # multiple subworded tokens stuck together
+            seg_s_i, seg_bert_f_pointer = check_for_inital_subword_sequence(spacy_doc, bert_doc)
+            curr_fertilities = [seg_bert_f_pointer + 1]
+    if seg_s_i == -1 or seg_bert_f_pointer == -1 and len(spacy_doc[0]) < len(bert_doc[0]): # none identical tokenization
+        seg_s_i = 0
+        seg_bert_f_pointer = 0
+    if seg_s_i == -1 or seg_bert_f_pointer == -1:
+        print(spacy_doc)
+        print(bert_doc)
+        raise ValueError()
+    if seg_s_i > 0:  # seg_bert_f_pointer  is always in the correct range
+        left = spacy_to_bert_aligner(spacy_doc[:seg_s_i], bert_doc[:seg_bert_f_pointer], bert_unk_token, False, level+1)
+    else:
+        left = []
+    if seg_s_i < sp_len:  # seg_bert_f_pointer  is always in the correct range
+        right = spacy_to_bert_aligner(spacy_doc[seg_s_i+1:], bert_doc[seg_bert_f_pointer+1:], bert_unk_token, False, level+1)
+    else:
+        right = []
+    fertilities = left + curr_fertilities + right
+    if print_alignments and not level:
+        bert_ind = 0
+        for src_token, fertility in zip(spacy_doc, fertilities):
+            for b_f in range(fertility):
+                print("{} --> {}".format(src_token, bert_doc[bert_ind+b_f]))
+            bert_ind += fertility
+    if not level:
+        assert sum(fertilities) == len(bert_doc), "Error:\n{}\n{}\n{}\n{}".format(spacy_doc, bert_doc, sum(fertilities), len(bert_doc))
     return fertilities
 
 
@@ -355,6 +427,8 @@ if __name__ == '__main__':
     if running_mode == 0:
         projection_trainer(sys.argv[2], bert_tknizer)
     elif running_mode == 1:
+        print(extract_linguistic_vocabs(sys.argv[2], bert_tknizer))
+    elif running_mode == 2:
         multi30k_linguistic_vocab = {
             'pos': {'X': 15, 'PUNCT': 2, 'DET': 9, 'ADV': 5, 'CCONJ': 11, 'NOUN': 3, 'PROPN': 13, 'NUM': 0, 'INTJ': 14,
                     'VERB': 8, 'SYM': 16, 'PRON': 12, 'SCONJ': 6, 'AUX': 4, 'ADP': 7, 'ADJ': 1, 'PART': 10},
