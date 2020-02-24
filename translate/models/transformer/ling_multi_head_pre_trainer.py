@@ -59,16 +59,12 @@ def get_next_batch(file_adr, b_size):
 
 def find_token_index_in_list(spacy_token, bert_doc):
     if spacy_token is None or bert_doc is None or not len(bert_doc):
-        return -1
-    if spacy_token in bert_doc:
-        return bert_doc.index(spacy_token)
+        return []
     spacy_token_lower = spacy_token.lower()
-    if spacy_token_lower in bert_doc:
-        return bert_doc.index(spacy_token_lower)
     spacy_token_decoded = unidecode.unidecode(spacy_token)
-    if spacy_token_decoded in bert_doc:
-        return bert_doc.index(spacy_token_decoded)
-    return -1
+    inds = [i for i, val in enumerate(bert_doc) if val == spacy_token or val == spacy_token_lower or val == spacy_token_decoded]
+    # assert len(inds) == 1
+    return inds
 
 
 def check_tokens_equal(spacy_token, bert_token):
@@ -138,7 +134,18 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
         current_eq = None
         next_eq = None
         previous_bert_token = None
-        exact_expected_location_range = find_token_index_in_list(spacy_token, bert_doc)
+        exact_expected_location_range_list = find_token_index_in_list(spacy_token, bert_doc)
+        if not len(exact_expected_location_range_list):
+            exact_expected_location_range = -1
+        elif len(exact_expected_location_range_list) == 1:
+            exact_expected_location_range = exact_expected_location_range_list[0]
+        else:  # multiple options to choose from
+            selection_index = find_token_index_in_list(spacy_token, spacy_doc).index(s_i)
+            if selection_index < len(exact_expected_location_range_list):
+                # TODO account for distortion (if some other option has less distortion take it)
+                exact_expected_location_range = exact_expected_location_range_list[selection_index]
+            else:
+                raise ValueError("selection_index is greater than the available list")
         end_of_expected_location_range = exact_expected_location_range+1 if exact_expected_location_range > -1 else s_i+len(spacy_token)+2
         start_of_expected_location_range = exact_expected_location_range - 1 if exact_expected_location_range > -1 else s_i-1
         for bert_f_pointer in range(
