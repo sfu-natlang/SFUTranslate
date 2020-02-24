@@ -114,7 +114,8 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
     # many to many case is being handled in here:
     seg_s_i = -1
     seg_bert_f_pointer = -1
-    best_other_candidate = None
+    best_right_candidate = None
+    best_left_candidate = None
     for s_i in range(sp_len):
         spacy_token = spacy_doc[s_i]
         next_spacy_token = spacy_doc[s_i + 1] if s_i < len(spacy_doc) - 1 else None
@@ -122,7 +123,7 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
         current_eq = None
         next_eq = None
         previous_bert_token = None
-        for bert_f_pointer in range(s_i, len(bert_doc)):
+        for bert_f_pointer in range(s_i, min(len(bert_doc), s_i+len(spacy_token)+1)):
             bert_token = bert_doc[bert_f_pointer]
             next_bert_token = bert_doc[bert_f_pointer + 1] if bert_f_pointer < len(bert_doc) - 1 else None
             prev_eq = check_tokens_equal(previous_spacy_token, previous_bert_token)
@@ -131,10 +132,10 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
             if prev_eq and current_eq and next_eq:
                 seg_bert_f_pointer = bert_f_pointer
                 break
-            elif prev_eq and current_eq:
-                best_other_candidate = (s_i, bert_f_pointer)
-            elif current_eq and next_eq and best_other_candidate is None:
-                best_other_candidate = (s_i, bert_f_pointer)
+            elif prev_eq and current_eq and best_left_candidate is None:
+                best_left_candidate = (s_i, bert_f_pointer)
+            elif current_eq and next_eq and best_right_candidate is None:
+                best_right_candidate = (s_i, bert_f_pointer)
             previous_bert_token = bert_token
         if prev_eq and current_eq and next_eq:
             seg_s_i = s_i
@@ -143,8 +144,10 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
 
     curr_fertilities = [1]
     if seg_s_i == -1 or seg_bert_f_pointer == -1:
-        if best_other_candidate is not None:
-            seg_s_i, seg_bert_f_pointer = best_other_candidate
+        if best_left_candidate is not None:
+            seg_s_i, seg_bert_f_pointer = best_left_candidate
+        elif best_right_candidate is not None:
+            seg_s_i, seg_bert_f_pointer = best_right_candidate
         else:  # multiple subworded tokens stuck together
             seg_s_i, seg_bert_f_pointer = check_for_inital_subword_sequence(spacy_doc, bert_doc)
             curr_fertilities = [seg_bert_f_pointer + 1]
