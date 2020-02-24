@@ -138,10 +138,11 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, bert_unk_token='[UNK]', print_ali
         current_eq = None
         next_eq = None
         previous_bert_token = None
-        end_of_expected_location_range = find_token_index_in_list(spacy_token, bert_doc) + 1
-        if not end_of_expected_location_range:
-            end_of_expected_location_range = s_i+len(spacy_token)+2
-        for bert_f_pointer in range(s_i, min(len(bert_doc), end_of_expected_location_range)):
+        exact_expected_location_range = find_token_index_in_list(spacy_token, bert_doc)
+        end_of_expected_location_range = exact_expected_location_range+1 if exact_expected_location_range > -1 else s_i+len(spacy_token)+2
+        start_of_expected_location_range = exact_expected_location_range - 1 if exact_expected_location_range > -1 else s_i-1
+        for bert_f_pointer in range(
+                max(start_of_expected_location_range, 0), min(len(bert_doc), end_of_expected_location_range)):
             bert_token = bert_doc[bert_f_pointer]
             next_bert_token = bert_doc[bert_f_pointer + 1] if bert_f_pointer < len(bert_doc) - 1 else None
             prev_eq = check_tokens_equal(previous_spacy_token, previous_bert_token)
