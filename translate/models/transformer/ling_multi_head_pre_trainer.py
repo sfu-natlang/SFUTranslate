@@ -26,7 +26,7 @@ number_of_bert_layers = 13
 D_in, H, D_out = 768, 1024, 768
 epochs = 10
 lr = 0.01
-batch_size = 256
+batch_size = 64
 max_norm = 5
 
 # ###############################################REQUIRED FUNCTIONS####################################################
@@ -57,12 +57,14 @@ def get_next_batch(file_adr, b_size):
     yield res
 
 
-def find_token_index_in_list(spacy_token, bert_doc):
-    if spacy_token is None or bert_doc is None or not len(bert_doc):
+def find_token_index_in_list(spacy_token, tokens_doc, check_lowercased_doc_tokens=False):
+    if spacy_token is None or tokens_doc is None or not len(tokens_doc):
         return []
-    spacy_token_lower = spacy_token.lower()
-    spacy_token_decoded = unidecode.unidecode(spacy_token)
-    inds = [i for i, val in enumerate(bert_doc) if val == spacy_token or val == spacy_token_lower or val == spacy_token_decoded]
+    if check_lowercased_doc_tokens:
+        inds = [i for i, val in enumerate(tokens_doc) if check_tokens_equal(
+            spacy_token, val) or check_tokens_equal(spacy_token, val.lower())]
+    else:
+        inds = [i for i, val in enumerate(tokens_doc) if check_tokens_equal(spacy_token, val)]
     # assert len(inds) == 1
     return inds
 
@@ -140,7 +142,12 @@ def spacy_to_bert_aligner(spacy_doc, bert_doc, print_alignments=False, level=0):
         elif len(exact_expected_location_range_list) == 1:
             exact_expected_location_range = exact_expected_location_range_list[0]
         else:  # multiple options to choose from
-            selection_index = find_token_index_in_list(spacy_token, spacy_doc).index(s_i)
+            selection_index_list = find_token_index_in_list(spacy_token, spacy_doc, check_lowercased_doc_tokens=True)
+            # In cases like [hadn 't and had n't] or wrong [UNK] merges:
+            #       len(exact_expected_location_range_list) < len(selection_index_list)
+            # In cases like punctuations which will get separated in bert tokenizer and don't in spacy or subword breaks
+            #       len(exact_expected_location_range_list) > len(selection_index_list)
+            selection_index = selection_index_list.index(s_i)
             if selection_index < len(exact_expected_location_range_list):
                 # TODO account for distortion (if some other option has less distortion take it)
                 exact_expected_location_range = exact_expected_location_range_list[selection_index]
@@ -232,7 +239,7 @@ def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
                 if TextBlob(token.text).sentiment.polarity < -0.05 else 'none'
         else:
             sentiment = "none"
-        linguistic_features = {"pos": pos, "tag": tag, "shape": shape, "ent_type": ent_type,
+        linguistic_features = {"pos": pos, "tag": tag, "shape": unidecode.unidecode(shape), "ent_type": ent_type,
                                "ent_iob": ent_iob, "sense": sense, "sentiment": sentiment}
         for _ in range(fertility):
             linguistic_features["token"] = bert_doc[bert_doc_pointer]
@@ -495,14 +502,14 @@ if __name__ == '__main__':
                     'VBP': 4, 'DT': 9, ',': 2, 'NNPS': 28, 'EX': 26, 'RP': 18, 'VBN': 13, '$': 40, "''": 29}}
 
         iwlst_linguistic_vocab = {
-            'pos': {'PROPN': 1, 'PUNCT': 2, 'NOUN': 3, 'VERB': 4, 'PRON': 5, 'ADV': 6, 'CCONJ': 7, 'AUX': 8, 'DET': 9,
-                    'ADJ': 10, 'PART': 11, 'ADP': 12, 'SCONJ': 13, 'NUM': 14, 'INTJ': 15, 'SPACE': 16, 'SYM': 17, 'X': 0},
+            'pos': {'INTJ': 15, 'PROPN': 1, 'PUNCT': 2, 'NOUN': 3, 'VERB': 4, 'PRON': 5, 'ADV': 6, 'CCONJ': 7, 'AUX': 8,
+                    'X': 0, 'DET': 9, 'ADJ': 10, 'PART': 11, 'ADP': 12, 'SCONJ': 13, 'NUM': 14, 'SPACE': 16, 'SYM': 17},
             'tag': {'XX': 0, 'NNP': 1, '``': 2, 'NNS': 3, "''": 4, 'VBP': 5, 'PRP': 6, 'RB': 7, ',': 8, '.': 9,
-                    'CC': 10, 'VBZ': 11, 'DT': 12, 'JJ': 13, 'NN': 14, 'TO': 15, 'VB': 16, 'IN': 17, ':': 18, 'VBN': 19,
-                    'WP': 20, 'VBD': 21, 'PRP$': 22, 'CD': 23, 'RP': 24, 'MD': 25, 'UH': 26, 'VBG': 27, 'HYPH': 28,
-                    'EX': 29, 'POS': 30, 'NNPS': 31, 'JJR': 32, 'RBR': 33, 'WRB': 34, 'WDT': 35, 'JJS': 36, 'FW': 37,
-                    'RBS': 38, 'NFP': 39, 'PDT': 40, '_SP': 41, '$': 42, 'AFX': 43, 'WP$': 44, '-LRB-': 45, '-RRB-': 46,
-                    'LS': 47, 'ADD': 48, 'SYM': 49},
+                    'CC': 10, 'VBZ': 11, 'DT': 12, 'JJ': 13, 'NN': 14, 'TO': 15, 'VB': 16, 'IN': 17, ':': 18,
+                    'VBN': 19, 'WP': 20, 'VBD': 21, 'PRP$': 22, 'CD': 23, 'RP': 24, 'MD': 25, 'UH': 26, 'VBG': 27,
+                    'HYPH': 28, 'EX': 29, 'POS': 30, 'NNPS': 31, 'JJR': 32, 'RBR': 33, 'WRB': 34, 'WDT': 35, 'JJS': 36,
+                    'FW': 37, 'RBS': 38, 'NFP': 39, 'PDT': 40, '_SP': 41, '$': 42, 'AFX': 43, 'WP$': 44, '-LRB-': 45,
+                    '-RRB-': 46, 'LS': 47, 'ADD': 48, 'SYM': 49},
             'shape': {'<': 0, 'xxx': 1, 'xxxx="d': 2, '"': 3, 'xxxx="xxxx': 4, '>': 5, 'Xxxxx': 6, 'xx': 7, 'xxxx': 8,
                       ',': 9, '.': 10, 'Xxx': 11, "'x": 12, 'x': 13, ';': 14, 'X': 15, '!': 16, "'xx": 17, 'Xx': 18,
                       '--': 19, 'Xxxx': 20, 'dd': 21, '-': 22, '?': 23, 'X-dd': 24, 'ddd': 25, "x'x": 26, ':': 27,
@@ -526,85 +533,82 @@ if __name__ == '__main__':
                       'XxxxxXXX': 136, 'XxxxXxxxx': 137, '+': 138, 'dX': 139, 'XXXXxxx': 140, 'XXXxxxx': 141,
                       'xxx-ddx': 142, 'XXXXxxxx': 143, 'XxxxXxxx': 144, 'dd:dd': 145, 'XXXdd': 146, 'XxxxxXxxx': 147,
                       'XxxxxXxxxx': 148, 'ddd,ddd-xxxx': 149, 'XdXd': 150, 'xxx-ddddx': 151, 'XX-dd': 152, 'dX.': 153,
-                      'xxx/xx': 154, 'XxxXxx': 155, 'xxxx-d': 156, 'd,ddd,ddd-xxxx': 157, '♫': 158, "'Xxxxx": 159,
+                      'xxx/xx': 154, 'XxxXxx': 155, 'xxxx-d': 156, 'd,ddd,ddd-xxxx': 157, '': 158, "'Xxxxx": 159,
                       'dd-xx': 160, "Xxx'xxxx": 161, "XXX'X": 162, '--xxx': 163, '%': 164, 'X+': 165, 'xx-dd': 166,
                       'X.X.X.': 167, '  ': 168, 'xxxx="ddd': 169, 'XxxXxxx.xxx': 170, 'XxXxxx.xxx': 171, '#': 172,
                       'XxxXxxxx.xxx': 173, 'ddd.dd': 174, 'X.x': 175, 'Xxxxx.xxxx': 176, 'dxx': 177, 'd.dddd': 178,
                       "X'xxx": 179, 'Xd-Xd': 180, 'X-dXX': 181, 'd-X': 182, 'XdXxx': 183, '.d': 184, '=': 185,
-                      'XXXdddd': 186, '’x': 187, '’xx': 188, 'x’x': 189, "x'": 190, 'dddxx': 191, 'X&xxx;Xx': 192,
-                      'XxXX': 193, "Xxxxx'X": 194, '....': 195, '-d.d': 196, '.ddd': 197, 'XXxx': 198, 'XXXxxx': 199,
-                      "xxxx'xx": 200, 'Xxxx.xxx': 201, 'ddxx-': 202, 'dd-xx-dd-xxxx': 203, 'd,ddd,ddd': 204,
-                      'Xxxxx@xxxx': 205, 'XX-ddx': 206, 'd,ddd-xxx': 207, 'dd,ddd-xxx': 208, 'XxxxxXxxxXxxxx.xxx': 209,
-                      'd-xxxx': 210, 'dx': 211, 'XX&xxx;X': 212, '-d': 213, 'Xdx': 214, 'd-Xxxxx': 215, 'XXXX@xxxx': 216,
-                      'XdX': 217, 'Xxxx-d/dd': 218, 'ddxxxXx': 219, 'dd.dddd': 220, 'd,dddxx': 221, 'XXX.xxx': 222,
-                      'X-d': 223, 'XdXX': 224, 'dd:d': 225, "Xxx'x": 226, 'dXd': 227, "Xxxxx'x": 228, '---': 229,
-                      "X'xxxx": 230, 'd.d-xxxx': 231, 'XXxX': 232, 'XXdXd': 233, 'xxXXX': 234, '-dd': 235, '-ddd': 236,
-                      'd-Xx': 237, 'XxXxxxXxxxx.xxx': 238, 'XxxxXxxxx.xxx': 239, 'XdX.': 240, 'XxXx': 241,
-                      'd/dd/dddd': 242, 'xxxx--': 243, 'x--': 244, 'Xxxx"X"Xx': 245, 'xxxx-d/dd': 246, 'dd.d.dd': 247,
-                      'XXXX.xxx': 248, 'Xxxxxdddd': 249, 'ddX.': 250, 'dddx': 251, 'dd/ddxxx': 252, 'd/dxxx': 253,
-                      'XxxxxX.': 254, 'XxxxxX': 255, 'xx.': 256, '*': 257, 'Xxxxx-d': 258, '–': 259, '’': 260, '…': 261,
-                      'xxxx,"Xxx\'x': 262, 'xxx-d-xxxx-d-xx': 263, 'xxxx-d-xx': 264, '--X': 265, 'xxx-d-xxxx-d-xxxx': 266,
-                      'ddd-XXXX': 267, 'x-': 268, 'xxxXxxxx': 269, 'xxx--': 270, 'xXx': 271, 'Xddd': 272, 'xxxx-dd': 273,
-                      'X.X.x': 274, 'dxX': 275, "d'dd": 276, 'dd.dd': 277, '—': 278, 'xxxx/': 279, 'xxx/': 280, '^': 281,
-                      'XxxxXXXX': 282, 'xxxx./': 283, '@xxxx': 284, 'xxxx]-xxxx': 285, 'x.x.x': 286, "d'd": 287,
-                      'ddxxx': 288, 'x.xxxx': 289, 'XxxxXxxxxXxx': 290, 'XXddd': 291, 'd.dd-xxxx': 292,
-                      'xxx-dd-xxxx': 293, "Xxx'xx": 294, "xx'": 295, 'd/dxx': 296, 'd/dddxx': 297,
-                      'XxXxxxxXxxxx.xxx': 298, 'xxXX.xxx': 299, 'Xxxx.': 300, 'ddd-xxx': 301, 'xxx-dddd': 302,
-                      'XXXxx': 303, 'XX.xxx': 304, 'Xxxxx-': 305, 'XxxXxXx': 306, '£': 307, 'xx^d': 308, 'XXxxx': 309,
-                      "x'xxx": 310, 'XX-d': 311, 'dXxxxx': 312, 'ddd-Xxxxx': 313, 'xxx.xxxx.xxx': 314, 'xXxxXx': 315,
-                      'dd.ddd': 316, 'ddd.ddd': 317, 'X.X.xx': 318, 'XXXd': 319, 'xxxx,"Xxx': 320, 'dd/d/ddd': 321,
-                      'XXXXxx': 322, 'dd/ddd': 323, "dddd,'dd": 324, 'Xxxxxdd': 325, "X'xx": 326, 'xxxx.xxx.xx': 327,
-                      'XXXXxxx.xxx': 328, '+dd': 329, 'xxxx,"Xxxxx': 330, 'Xddx': 331, 'XXxxXXX': 332, 'XXXXxX': 333,
-                      'XXXXxX.': 334, 'XxXxXx': 335, 'XxXXXX': 336, 'XXXXxXX': 337, 'XXXxXx': 338,
-                      'XxxxxXxXxxxx.xxx': 339, "XXXX'x": 340, 'dxxxx': 341, '/x/.': 342, '/x/': 343,
-                      'xXXXX': 344, 'XXXxXXX': 345, 'XXdx': 346, 'ddd-XXX': 347, 'xx-ddd': 348,
-                      'ddXxxxx.xxx': 349, 'XXXXd': 350, "Xx'xxx": 351, 'd/d': 352, "xxx'xx": 353,
-                      'X-ddd': 354, "dddd-'dd": 355, "dd-'dd": 356, 'XXXxXxxxx': 357, 'ddd.d': 358,
-                      'xxxxdxxxx': 359, 'XXX-dd': 360, 'Xxxx+': 361, 'Xxxxx.xx': 362, 'Xd-xxxx': 363,
-                      'XXd-xxxx': 364, 'ddd-xx': 365, '♪': 366, '   ': 367, 'xxxx="dddd': 368, "x'Xxxxx": 369,
-                      'XxxxxXxxx.xxx': 370, 'XxxXxxxxXxxx.xxx': 371, 'ddddxxxx.xxx': 372, "xxx'x": 373, "xxxx'x": 374,
-                      'dd,dddd': 375, 'd:dd:dd': 376, "xxx'xxx": 377, 'xxxx-ddd': 378, 'xxd': 379, 'XXxxxx': 380,
-                      'X.X.X.X.X.': 381, 'XxxXxxxxXxxxx.xxx': 382, 'XxxxxXxxxxXxxXxxxx.xxx': 383, 'Xdxdxdx': 384,
-                      'xxXXXXxx': 385, 'dd-Xxxx': 386, 'Xxxxx+': 387, 'xxxx.xxx/x/xxx.xxx': 388, 'XdddXXddXXX': 389,
-                      'ddXXX': 390, 'xxxx.x.xx': 391, 'd,d': 392, 'Xxxxxddd': 393, 'XxxxxXX': 394,
-                      'xxxx@xxxx.xx.xx': 395, 'Xxxd': 396, 'ddddxddd-xxxx': 397, 'dddd/dddd': 398, 'XXX*X.': 399,
-                      'dd,ddd-xx': 400, 'X-ddX': 401, 'xdd': 402, 'XXXd-xxxx': 403, 'XxxXxxxxXxxx': 404,
-                      'x\x80\x94': 405, 'xxx-d': 406, 'XXX-d': 407, 'xxXXXX': 408, 'dd.ddd.ddd.ddd': 409,
-                      'X.X.-Xxxxx': 410, 'ddd,ddd,ddd': 411, 'dddX': 412, 'ddX': 413, 'xXX': 414, 'X&xxx;xxx;X': 415,
-                      'X&xxx;xxx;X.': 416, 'Xxxx-': 417, '+d.dddd': 418, '+d': 419, 'XxxxXXX': 420, '.dddd': 421,
-                      'xxxx-ddxx': 422, "Xxxxx'xx": 423, 'X.X.X.X.': 424, '    ': 425, 'XXXXdXxxxx': 426,
-                      'xxxx?Xxxxx': 427, 'xxxx?XX': 428, 'Xxxxx!XX': 429, 'd-xx-d': 430, '\xa0': 431, 'X.X': 432,
-                      '""Xx': 433, "xxxx,'Xxx": 434, 'xxxx?"Xxx': 435, 'xxxx?""Xxxxx': 436, 'Xxxxx?""Xxxxx': 437,
-                      '-xxxx': 438, 'xxxx.xxx.xxx': 439, 'dd,ddd-x': 440, 'xx?"X': 441, '""Xxx': 442, 'xxXxxx': 443,
-                      'xx?Xxxxx': 444, 'xxx.xxx': 445, 'Xxx][xxxx': 446, 'X.X./Xx': 447, 'XxXXXXxxxx': 448,
-                      'xxxxXxxxx': 449, 'XxxXXXXxxx': 450, 'xx่xxXxx': 451, 'xx่xx.': 452, '@': 453, 'XX-ddd': 454,
-                      'xxx?XX': 455, 'Xxxxx?XX': 456, 'XXX?XX': 457, '€': 458, 'dd,dddxx': 459, 'dd,ddd,ddd': 460,
-                      "XX'XX": 461, 'xxxxXxx': 462, 'XxxxxXxxXxxXXxxx': 463, 'Xxxxx_Xxxxx': 464, 'XXXXxxxxXxx': 465,
-                      'XxxxxXxxxdddd': 466, 'XxxXXX': 467, 'X.X.-Xxxx': 468, '@Xxxx': 469, '@Xxx': 470, '..': 471,
-                      'XxX.': 472, 'XXXxXxxXxxxx': 473, 'xxxxXXX.xxx': 474, 'X.-xxxx': 475, "Xx'Xxxxx": 476, 'xxX': 477,
-                      'xxx;xxxx;Xxx.&xxx;xxxx': 478, 'xxX.': 479, 'xxx;xxxx;Xx': 480, 'xxx.&xxx;xxxx': 481,
-                      'xxx;xxxx;Xxxxx': 482, 'Xxxxx.&xxx;xxxx': 483, 'XxxxxddXXX': 484, 'xxx;xxxx;XXX': 485,
-                      'xxxx.&xxx;xxxx': 486, 'xxx;xxxx;Xxxx': 487, 'xxx,&xxx;xxxx': 488, 'xxx;xxxx;xxx': 489,
-                      'Xxxxx,&xxx;xxxx': 490, 'XxxXXXX': 491, 'XxxxxX.xxx': 492, 'xxxx.xxxx.xxx': 493, 'XXX-': 494,
-                      'Xx-d': 495, '”': 496, 'x.x.—xxxx': 497, 'XXXxxxx/"Xxxxx': 498, 'XdXdd': 499, '‘': 500,
-                      'xxxx’x': 501, '“': 502, 'xx’xx': 503, 'Xxxxxd': 504, 'dddxxx': 505, 'xxxxdd.xxx': 506, '_': 507,
-                      '@XxxxxXxxxXxxxx': 508, 'xxxxXXXx': 509, 'xxxxXXX': 510, "Xxxxx'xxxx": 511, '¡': 512,
-                      'XXXxXxx': 513, 'xx-': 514, 'XXXXddd': 515, 'Xxxxx-dddx': 516, 'Xxxxx-ddx': 517, 'XxXxxXxx': 518,
-                      '.xxxx': 519, "x'Xx": 520, 'X-': 521, 'XxxxxXxxxx.xxxx': 522, "xxxx'Xxxxx": 523, 'xX.': 524,
-                      'xxxx-dx': 525, "'X": 526, 'Xxxxx-dx': 527, 'xxxxXXXX': 528, 'xxxxXxxx': 529},
-            'ent_type': {
-                'NONE': 0, 'ORG': 1, 'PRODUCT': 2, 'PERSON': 3, 'TIME': 4, 'DATE': 5, 'CARDINAL': 6, 'GPE': 7,
-                'QUANTITY': 8, 'FAC': 9, 'LOC': 10, 'ORDINAL': 11, 'NORP': 12, 'PERCENT': 13, 'WORK_OF_ART': 14,
-                'MONEY': 15, 'EVENT': 16, 'LAW': 17, 'LANGUAGE': 18},
+                      'XXXdddd': 186, "x'": 187, 'dddxx': 188, 'X&xxx;Xx': 189, 'XxXX': 190, "Xxxxx'X": 191,
+                      '....': 192, '-d.d': 193, '.ddd': 194, 'XXxx': 195, 'XXXxxx': 196, "xxxx'xx": 197,
+                      'Xxxx.xxx': 198, 'ddxx-': 199, 'dd-xx-dd-xxxx': 200, 'd,ddd,ddd': 201, 'Xxxxx@xxxx': 202,
+                      'XX-ddx': 203, 'd,ddd-xxx': 204, 'dd,ddd-xxx': 205, 'XxxxxXxxxXxxxx.xxx': 206, 'd-xxxx': 207,
+                      'dx': 208, 'XX&xxx;X': 209, '-d': 210, 'Xdx': 211, 'd-Xxxxx': 212, 'XXXX@xxxx': 213, 'XdX': 214,
+                      'Xxxx-d/dd': 215, 'ddxxxXx': 216, 'dd.dddd': 217, 'd,dddxx': 218, 'XXX.xxx': 219, 'X-d': 220,
+                      'XdXX': 221, 'dd:d': 222, "Xxx'x": 223, 'dXd': 224, "Xxxxx'x": 225, '---': 226, "X'xxxx": 227,
+                      'd.d-xxxx': 228, 'XXxX': 229, 'XXdXd': 230, 'xxXXX': 231, '-dd': 232, '-ddd': 233, 'd-Xx': 234,
+                      'XxXxxxXxxxx.xxx': 235, 'XxxxXxxxx.xxx': 236, 'XdX.': 237, 'XxXx': 238, 'd/dd/dddd': 239,
+                      'xxxx--': 240, 'x--': 241, 'Xxxx"X"Xx': 242, 'xxxx-d/dd': 243, 'dd.d.dd': 244, 'XXXX.xxx': 245,
+                      'Xxxxxdddd': 246, 'ddX.': 247, 'dddx': 248, 'dd/ddxxx': 249, 'd/dxxx': 250, 'XxxxxX.': 251,
+                      'XxxxxX': 252, 'xx.': 253, '*': 254, 'Xxxxx-d': 255, 'xxxx,"Xxx\'x': 256, 'xxx-d-xxxx-d-xx': 257,
+                      'xxxx-d-xx': 258, '--X': 259, 'xxx-d-xxxx-d-xxxx': 260, 'ddd-XXXX': 261, 'x-': 262,
+                      'xxxXxxxx': 263, 'xxx--': 264, 'xXx': 265, 'Xddd': 266, 'xxxx-dd': 267, 'X.X.x': 268,
+                      'dxX': 269, "d'dd": 270, 'dd.dd': 271, 'xxxx/': 272, 'xxx/': 273, '^': 274, 'XxxxXXXX': 275,
+                      'xxxx./': 276, '@xxxx': 277, 'xxxx]-xxxx': 278, 'x.x.x': 279, "d'd": 280, 'ddxxx': 281,
+                      'x.xxxx': 282, 'XxxxXxxxxXxx': 283, 'XXddd': 284, 'd.dd-xxxx': 285, 'xxx-dd-xxxx': 286,
+                      "Xxx'xx": 287, "xx'": 288, 'd/dxx': 289, 'd/dddxx': 290, 'XxXxxxxXxxxx.xxx': 291, 'xxXX.xxx': 292,
+                      'Xxxx.': 293, 'ddd-xxx': 294, 'xxx-dddd': 295, 'XXXxx': 296, 'XX.xxx': 297, 'Xxxxx-': 298,
+                      'XxxXxXx': 299, 'PS': 300, 'xx^d': 301, 'XXxxx': 302, "x'xxx": 303, 'XX-d': 304, 'dXxxxx': 305,
+                      'ddd-Xxxxx': 306, 'xxx.xxxx.xxx': 307, 'xXxxXx': 308, 'dd.ddd': 309, 'ddd.ddd': 310,
+                      'X.X.xx': 311, 'XXXd': 312, 'xxxx,"Xxx': 313, 'dd/d/ddd': 314, 'XXXXxx': 315, 'dd/ddd': 316,
+                      "dddd,'dd": 317, 'Xxxxxdd': 318, "X'xx": 319, 'xxxx.xxx.xx': 320, 'XXXXxxx.xxx': 321, '+dd': 322,
+                      'xxxx,"Xxxxx': 323, 'Xddx': 324, 'XXxxXXX': 325, 'XXXXxX': 326, 'XXXXxX.': 327, 'XxXxXx': 328,
+                      'XxXXXX': 329, 'XXXXxXX': 330, 'XXXxXx': 331, 'XxxxxXxXxxxx.xxx': 332, "XXXX'x": 333,
+                      'dxxxx': 334, '/x/.': 335, '/x/': 336, 'xXXXX': 337, 'XXXxXXX': 338, 'XXdx': 339, 'ddd-XXX': 340,
+                      'xx-ddd': 341, 'ddXxxxx.xxx': 342, 'XXXXd': 343, "Xx'xxx": 344, 'd/d': 345, "xxx'xx": 346,
+                      'X-ddd': 347, "dddd-'dd": 348, "dd-'dd": 349, 'XXXxXxxxx': 350, 'ddd.d': 351, 'xxxxdxxxx': 352,
+                      'XXX-dd': 353, 'Xxxx+': 354, 'Xxxxx.xx': 355, 'Xd-xxxx': 356, 'XXd-xxxx': 357, 'ddd-xx': 358,
+                      '   ': 359, 'xxxx="dddd': 360, "x'Xxxxx": 361, 'XxxxxXxxx.xxx': 362, 'XxxXxxxxXxxx.xxx': 363,
+                      'ddddxxxx.xxx': 364, "xxx'x": 365, "xxxx'x": 366, 'dd,dddd': 367, 'd:dd:dd': 368, "xxx'xxx": 369,
+                      'xxxx-ddd': 370, 'xxd': 371, 'XXxxxx': 372, 'X.X.X.X.X.': 373, 'XxxXxxxxXxxxx.xxx': 374,
+                      'XxxxxXxxxxXxxXxxxx.xxx': 375, 'Xdxdxdx': 376, 'xxXXXXxx': 377, 'dd-Xxxx': 378, 'Xxxxx+': 379,
+                      'xxxx.xxx/x/xxx.xxx': 380, 'XdddXXddXXX': 381, 'ddXXX': 382, 'xxxx.x.xx': 383, 'd,d': 384,
+                      'Xxxxxddd': 385, 'XxxxxXX': 386, 'xxxx@xxxx.xx.xx': 387, 'Xxxd': 388, 'ddddxddd-xxxx': 389,
+                      'dddd/dddd': 390, 'XXX*X.': 391, 'dd,ddd-xx': 392, 'X-ddX': 393, 'xdd': 394, 'XXXd-xxxx': 395,
+                      'XxxXxxxxXxxx': 396, 'xxx-d': 397, 'XXX-d': 398, 'xxXXXX': 399, 'dd.ddd.ddd.ddd': 400,
+                      'X.X.-Xxxxx': 401, 'ddd,ddd,ddd': 402, 'dddX': 403, 'ddX': 404, 'xXX': 405, 'X&xxx;xxx;X': 406,
+                      'X&xxx;xxx;X.': 407, 'Xxxx-': 408, '+d.dddd': 409, '+d': 410, 'XxxxXXX': 411, '.dddd': 412,
+                      'xxxx-ddxx': 413, "Xxxxx'xx": 414, 'X.X.X.X.': 415, '    ': 416, 'XXXXdXxxxx': 417,
+                      'xxxx?Xxxxx': 418, 'xxxx?XX': 419, 'Xxxxx!XX': 420, 'd-xx-d': 421, 'X.X': 422, '""Xx': 423,
+                      "xxxx,'Xxx": 424, 'xxxx?"Xxx': 425, 'xxxx?""Xxxxx': 426, 'Xxxxx?""Xxxxx': 427, '-xxxx': 428,
+                      'xxxx.xxx.xxx': 429, 'dd,ddd-x': 430, 'xx?"X': 431, '""Xxx': 432, 'xxXxxx': 433, 'xx?Xxxxx': 434,
+                      'xxx.xxx': 435, 'Xxx][xxxx': 436, 'X.X./Xx': 437, 'XxXXXXxxxx': 438, 'xxxxXxxxx': 439,
+                      'XxxXXXXxxx': 440, 'xxxxXxx': 441, 'xxxx.': 442, '@': 443, 'XX-ddd': 444, 'xxx?XX': 445,
+                      'Xxxxx?XX': 446, 'XXX?XX': 447, 'EUR': 448, 'dd,dddxx': 449, 'dd,ddd,ddd': 450, "XX'XX": 451,
+                      'XxxxxXxxXxxXXxxx': 452, 'Xxxxx_Xxxxx': 453, 'XXXXxxxxXxx': 454, 'XxxxxXxxxdddd': 455,
+                      'XxxXXX': 456, 'X.X.-Xxxx': 457, '@Xxxx': 458, '@Xxx': 459, '..': 460, 'XxX.': 461,
+                      'XXXxXxxXxxxx': 462, 'xxxxXXX.xxx': 463, 'X.-xxxx': 464, "Xx'Xxxxx": 465, 'xxX': 466,
+                      'xxx;xxxx;Xxx.&xxx;xxxx': 467, 'xxX.': 468, 'xxx;xxxx;Xx': 469, 'xxx.&xxx;xxxx': 470,
+                      'xxx;xxxx;Xxxxx': 471, 'Xxxxx.&xxx;xxxx': 472, 'XxxxxddXXX': 473, 'xxx;xxxx;XXX': 474,
+                      'xxxx.&xxx;xxxx': 475, 'xxx;xxxx;Xxxx': 476, 'xxx,&xxx;xxxx': 477, 'xxx;xxxx;xxx': 478,
+                      'Xxxxx,&xxx;xxxx': 479, 'XxxXXXX': 480, 'XxxxxX.xxx': 481, 'xxxx.xxxx.xxx': 482, 'XXX-': 483,
+                      'Xx-d': 484, 'x.x.--xxxx': 485, 'XXXxxxx/"Xxxxx': 486, 'XdXdd': 487, 'Xxxxxd': 488, 'dddxxx': 489,
+                      'xxxxdd.xxx': 490, '_': 491, '@XxxxxXxxxXxxxx': 492, 'xxxxXXXx': 493, 'xxxxXXX': 494,
+                      "Xxxxx'xxxx": 495, 'XXXxXxx': 496, 'xx-': 497, 'XXXXddd': 498, 'Xxxxx-dddx': 499,
+                      'Xxxxx-ddx': 500, 'XxXxxXxx': 501, '.xxxx': 502, "x'Xx": 503, 'X-': 504, 'XxxxxXxxxx.xxxx': 505,
+                      "xxxx'Xxxxx": 506, 'xX.': 507, 'xxxx-dx': 508, "'X": 509, 'Xxxxx-dx': 510, 'xxxxXXXX': 511,
+                      'xxxxXxxx': 512},
+            'ent_type': {'NONE': 0, 'ORG': 1, 'PRODUCT': 2, 'PERSON': 3, 'TIME': 4, 'DATE': 5, 'CARDINAL': 6, 'GPE': 7,
+                         'QUANTITY': 8, 'FAC': 9, 'LOC': 10, 'ORDINAL': 11, 'NORP': 12, 'PERCENT': 13,
+                         'WORK_OF_ART': 14, 'MONEY': 15, 'EVENT': 16, 'LAW': 17, 'LANGUAGE': 18},
             'ent_iob': {'O': 0, 'B': 1, 'I': 2},
-            'sense': {
-                'none': 0, '01': 1, '02': 2, '05': 3, '03': 4, '14': 5, '04': 6, '07': 7, '08': 8, '06': 9, '11': 10,
-                '09': 11, '12': 12, '10': 13, '15': 14, '19': 15, '34': 16, '46': 17, '13': 18, '38': 19, '43': 20,
-                '23': 21, '35': 22, '26': 23, '42': 24, '20': 25, '28': 26, '17': 27, '18': 28, '22': 29, '21': 30,
-                '24': 31, '30': 32, '33': 33, '25': 34, '27': 35, '32': 36, '16': 37, '48': 38, '29': 39, '49': 40,
-                '40': 41, '41': 42, '39': 43, '44': 44, '36': 45, '31': 46, '55': 47, '37': 48, '52': 49, '45': 50,
-                '47': 51, '50': 52, '51': 53, '59': 54},
-            'sentiment': {'none': 0}}
+            'sense': {'none': 0, '01': 1, '02': 2, '05': 3, '03': 4, '14': 5, '04': 6, '07': 7, '08': 8, '06': 9,
+                      '11': 10, '09': 11, '12': 12, '10': 13, '15': 14, '19': 15, '34': 16, '46': 17, '13': 18,
+                      '38': 19, '43': 20, '23': 21, '35': 22, '26': 23, '42': 24, '20': 25, '28': 26, '17': 27,
+                      '18': 28, '22': 29, '21': 30, '24': 31, '30': 32, '33': 33, '25': 34, '27': 35, '32': 36,
+                      '16': 37, '48': 38, '29': 39, '49': 40, '40': 41, '41': 42, '39': 43, '44': 44, '36': 45,
+                      '31': 46, '55': 47, '37': 48, '52': 49, '45': 50, '47': 51, '50': 52, '51': 53, '59': 54},
+            'sentiment': {'positive': 1, 'none': 0, 'negative': 2}}
+
 
         # TODO after being done with testing, you'd need to call extract_linguistic_vocabs() to extract the vocab
         # 1 ../../.data/iwslt/de-en/train.de-en.en
