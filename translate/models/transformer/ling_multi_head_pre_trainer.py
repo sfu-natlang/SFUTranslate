@@ -339,10 +339,10 @@ class SubLayerED(torch.nn.Module):
 
         self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(number_of_bert_layers), requires_grad=True)
         self.softmax = nn.Softmax(dim=-1)
+        self.verbose_debug_percentage = 0.0001
 
-    @staticmethod
-    def verbose_results(ling_classes, features, feature_weights):
-        if random() < 0.001:  # debug
+    def verbose_results(self, ling_classes, features, feature_weights):
+        if random() < self.verbose_debug_percentage:  # debug
             print("\n")
             for ind, lc in enumerate(ling_classes):
                 class_type = features_list[ind]  # TODO remove this line it is not safe
@@ -372,6 +372,7 @@ class SubLayerED(torch.nn.Module):
         ling_classes = [self.feature_classifiers[i](encoded[i]) for i in range(len(self.encoders)-1)]
         loss = self.loss_fn(y_pred, x)
         # feature_pred_correct = [(lc.argmax(dim=-1) == features[ind]) for ind, lc in enumerate(ling_classes)]
+        self.verbose_results(ling_classes, features, feature_weights)
         feature_pred_correct = []
         for ind, lc in enumerate(ling_classes):
             wrong_or_pad = lc.argmax(dim=-1) == features[ind]
@@ -381,7 +382,10 @@ class SubLayerED(torch.nn.Module):
                     continue  # Leave pad indices out of accuracy calculation
                 else:
                     res.append(wrong_or_pad[e])
-            feature_pred_correct.append(torch.cat([r.unsqueeze(0) for r in res]))
+            if len(res):
+                feature_pred_correct.append(torch.cat([r.unsqueeze(0) for r in res]))
+            else:
+                feature_pred_correct.append(torch.empty(0))
         for ind, lc in enumerate(ling_classes):
             mask = (feature_weights[ind] != 0.).float()
             c_loss = self.class_loss_fn(lc, features[ind])
