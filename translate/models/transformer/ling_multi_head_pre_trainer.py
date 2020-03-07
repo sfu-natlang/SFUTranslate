@@ -32,6 +32,9 @@ epochs = 10
 lr = 0.05
 batch_size = 32
 max_norm = 5
+scheduler_patience_steps = 60
+scheduler_min_lr = 0.001
+scheduler_decay_factor = 0.9
 
 # ###############################################REQUIRED FUNCTIONS####################################################
 
@@ -468,7 +471,8 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
     model = SubLayerED(D_in, Hs, D_out, [len(linguistic_vocab[f]) + 1 for f in required_features_list]).to(device)
     model.apply(weight_init)
     opt = optim.SGD(model.parameters(), lr=float(lr), momentum=0.9)
-    scheduler = ReduceLROnPlateau(opt, mode='min', patience=60, factor=0.9, threshold=0.001, verbose=True, min_lr=0.001)
+    scheduler = ReduceLROnPlateau(opt, mode='min', patience=scheduler_patience_steps, factor=scheduler_decay_factor,
+                                  threshold=0.001, verbose=True, min_lr=scheduler_min_lr)
     for t in range(epochs):
         all_loss = 0.0
         all_tokens_count = 0.0
