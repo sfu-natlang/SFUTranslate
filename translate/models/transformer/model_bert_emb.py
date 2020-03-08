@@ -68,9 +68,12 @@ class Transformer(nn.Module):
         self.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
 
         # #################################### BERT RELATED PARAMETERS #################################################
-        self.embed_src_with_bert = True
+        self.embed_src_with_bert = False
+        self.embed_src_with_ling_emb = False
         self.bert_tokenizer = None
         self.bert_lm = None
+        self.head_converter = None
+        self.d_model = d_model
         self.bert_position = c(position)
         if d_model != 768:
             self.bert_bridge = nn.Linear(768, d_model, bias=False)
@@ -91,7 +94,7 @@ class Transformer(nn.Module):
         # input_sentences = ["das ist ein arzt"]
         sequences = [torch.tensor(self.bert_tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                      for input_sentence in input_sentences]
-        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True)
+        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.pad_token_id)
         input_mask = self.generate_src_mask(input_ids)
         outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # 13 * (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
@@ -102,6 +105,30 @@ class Transformer(nn.Module):
 
         return self.bert_position(embedded), input_mask
 
+    def ling_embed(self, input_tensor):
+        """
+        :param input_tensor: batch_size * max_seq_length
+        """
+        # ####################################LOADING THE TRAINED SUB-LAYERS############################################
+        input_sentences = convert_target_batch_back(input_tensor.transpose(0, 1), self.SRC)
+        # ####################################CONVERTING INPUT SEQUENCE TO EMBEDDED BERT################################
+        sequences = [torch.tensor(self.bert_tokenizer.encode(input_sentence), device=device)
+                     for input_sentence in input_sentences]
+        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.pad_token_id)
+        outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+        all_layers_embedded = torch.cat([o.unsqueeze(0) for o in outputs], dim=0)
+        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
+                                self.softmax(self.bert_weights_for_average_pooling))
+        # ##############################################################################################################
+        # len(features_list) * batch_size * max_sequence_length, (H/ (len(features_list) + 1))
+        keys = [hc(embedded).detach() for hc in self.head_converter[:-1]]  # the last layer contains what we have not considered
+        input_mask = self.generate_src_mask(input_ids)
+        if self.bert_bridge is not None:
+            embedded = self.bert_bridge(embedded)
+
+        # return self.bert_position(embedded), input_mask
+        return self.src_embed(input_ids), input_mask
+
     def init_model_params(self):
         """
         Initialize parameters with Glorot / fan_avg
@@ -109,10 +136,23 @@ class Transformer(nn.Module):
         for p in self.parameters():
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
-        if self.embed_src_with_bert:
+        if self.embed_src_with_bert or self.embed_src_with_ling_emb:
+            print("Running the init params for bert [src=german]")
             model_name = 'bert-base-german-dbmdz-uncased'
             self.bert_tokenizer = BertTokenizer.from_pretrained(model_name)
             self.bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+        if self.embed_src_with_ling_emb:
+            print("Running the init params for ling_emb [src=german]")
+            self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.vocab_size), self.src_embed[1]).to(device)
+            # ling_emb_data_address = "iwslt_head_conv"
+            ling_emb_data_address = "models/transformer/multi30k_head_conv.de"
+            so = torch.load(ling_emb_data_address, map_location=lambda storage, loc: storage)
+            # features_list = so['features_list']
+            self.head_converter = so['head_converters'].to(device)
+            # for param in self.head_converter.parameters():
+            #    param.requires_grad = False
+            # self.head_converter.requires_grad = False
+            self.bert_weights_for_average_pooling = nn.Parameter(so['bert_weights'].to(device), requires_grad=True)
 
     def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """
@@ -128,7 +168,9 @@ class Transformer(nn.Module):
         """
         input_tensor, input_lengths = input_tensor_with_lengths
         input_tensor = input_tensor.transpose(0, 1)
-        if self.embed_src_with_bert:
+        if self.embed_src_with_ling_emb:
+            x, input_mask = self.ling_embed(input_tensor)
+        elif self.embed_src_with_bert:
             x, input_mask = self.bert_embed(input_tensor)
         else:
             input_mask = self.generate_src_mask(input_tensor)
