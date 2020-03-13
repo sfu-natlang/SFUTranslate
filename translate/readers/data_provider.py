@@ -7,9 +7,25 @@ import xml.etree.ElementTree as ET
 from torchtext import data, datasets
 from configuration import src_lan, tgt_lan, cfg, device
 from readers.utils import *
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+from transformers import BertTokenizer
 
 spacy_src = spacy.load(src_lan)
 spacy_tgt = spacy.load(tgt_lan)
+use_bert_tokenizer = False
+if src_lan == "de":
+    bert_model_name = 'bert-base-german-dbmdz-uncased'
+    bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name)
+elif src_lan == "en":
+    bert_model_name = 'bert-base-uncased'
+    bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name)
+elif use_bert_tokenizer:
+    raise ValueError("Bert tokenizer model address is not available for language ({})".format(src_lan))
+
+
+def bert_src_tokenizer(text):
+    return bert_tokenizer.tokenize(text)
 
 
 def src_tokenizer(text):
@@ -26,6 +42,8 @@ def temp_split(x): return x.split()
 if bool(cfg.debug_mode):
     src_tokenizer = temp_split
     tgt_tokenizer = temp_split
+elif use_bert_tokenizer:
+    src_tokenizer = bert_src_tokenizer
 
 global max_src_in_batch, max_tgt_in_batch
 
