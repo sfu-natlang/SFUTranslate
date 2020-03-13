@@ -13,7 +13,8 @@ from models.transformer.modules import EncoderLayer, MultiHeadedAttention, Posit
     LayerNorm, DecoderLayer, Embeddings, Generator
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
-from transformers import BertTokenizer, BertForMaskedLM
+from transformers import BertForMaskedLM
+from readers.data_provider import bert_model_name, bert_tokenizer, use_bert_tokenizer
 
 from utils.evaluation import convert_target_batch_back
 
@@ -70,7 +71,7 @@ class Transformer(nn.Module):
         # #################################### BERT RELATED PARAMETERS #################################################
         self.embed_src_with_bert = False
         self.embed_src_with_ling_emb = False
-        self.bert_tokenizer = None
+        self.bert_tokenizer = bert_tokenizer
         self.bert_lm = None
         self.head_converter = None
         self.d_model = d_model
@@ -105,12 +106,13 @@ class Transformer(nn.Module):
 
         return self.bert_position(embedded), input_mask
 
-    def ling_embed(self, input_tensor):
+    def get_ling_embed_attention_keys(self, input_tensor):
         """
         :param input_tensor: batch_size * max_seq_length
         """
         # ####################################LOADING THE TRAINED SUB-LAYERS############################################
         input_sentences = convert_target_batch_back(input_tensor.transpose(0, 1), self.SRC)
+        input_sentences = list(map(lambda x: x.replace(" ##", ""), input_sentences))
         # ####################################CONVERTING INPUT SEQUENCE TO EMBEDDED BERT################################
         sequences = [torch.tensor(self.bert_tokenizer.encode(input_sentence), device=device)
                      for input_sentence in input_sentences]
@@ -118,16 +120,11 @@ class Transformer(nn.Module):
         outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.unsqueeze(0) for o in outputs], dim=0)
         embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
-                                self.softmax(self.bert_weights_for_average_pooling))
+                                self.softmax(self.bert_weights_for_average_pooling))[:, 1:-1, :]
         # ##############################################################################################################
         # len(features_list) * batch_size * max_sequence_length, (H/ (len(features_list) + 1))
         keys = [hc(embedded).detach() for hc in self.head_converter[:-1]]  # the last layer contains what we have not considered
-        input_mask = self.generate_src_mask(input_ids)
-        if self.bert_bridge is not None:
-            embedded = self.bert_bridge(embedded)
-
-        # return self.bert_position(embedded), input_mask
-        return self.src_embed(input_ids), input_mask
+        return keys
 
     def init_model_params(self):
         """
@@ -137,10 +134,10 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
         if self.embed_src_with_bert or self.embed_src_with_ling_emb:
-            print("Running the init params for bert [src=german]")
-            model_name = 'bert-base-german-dbmdz-uncased'
-            self.bert_tokenizer = BertTokenizer.from_pretrained(model_name)
-            self.bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+            assert use_bert_tokenizer is True, \
+                "data provider should enforce bert tokenizer if bert language model is going to be used here"
+            print("Running the init params for bert language model")
+            self.bert_lm = BertForMaskedLM.from_pretrained(bert_model_name, output_hidden_states=True).to(device)
         if self.embed_src_with_ling_emb:
             print("Running the init params for ling_emb [src=german]")
             self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.vocab_size), self.src_embed[1]).to(device)
@@ -168,13 +165,14 @@ class Transformer(nn.Module):
         """
         input_tensor, input_lengths = input_tensor_with_lengths
         input_tensor = input_tensor.transpose(0, 1)
-        if self.embed_src_with_ling_emb:
-            x, input_mask = self.ling_embed(input_tensor)
-        elif self.embed_src_with_bert:
+        if self.embed_src_with_bert:
             x, input_mask = self.bert_embed(input_tensor)
         else:
             input_mask = self.generate_src_mask(input_tensor)
             x = self.src_embed(input_tensor)
+        if self.embed_src_with_ling_emb:
+            # TODO pass these keys to the self attention module
+            self_attention_key_list = self.get_ling_embed_attention_keys(input_tensor)
         for layer in self.enc_layers:
             x = layer(x, input_mask)
         return self.enc_norm(x), input_mask
