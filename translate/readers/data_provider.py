@@ -22,6 +22,9 @@ elif src_lan == "en":
     bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name)
 elif use_bert_tokenizer:
     raise ValueError("Bert tokenizer model address is not available for language ({})".format(src_lan))
+else:
+    bert_model_name = None
+    bert_tokenizer = None
 
 
 def bert_src_tokenizer(text):
