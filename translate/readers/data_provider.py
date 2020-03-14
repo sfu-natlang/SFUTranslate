@@ -14,10 +14,10 @@ from transformers import BertTokenizer
 spacy_src = spacy.load(src_lan)
 spacy_tgt = spacy.load(tgt_lan)
 use_bert_tokenizer = False
-if src_lan == "de":
+if use_bert_tokenizer and src_lan == "de":
     bert_model_name = 'bert-base-german-dbmdz-uncased'
     bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name)
-elif src_lan == "en":
+elif use_bert_tokenizer and src_lan == "en":
     bert_model_name = 'bert-base-uncased'
     bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name)
 elif use_bert_tokenizer:
@@ -64,7 +64,8 @@ print("Number of training examples: {}".format(len(train.examples)))
 print("Number of validation examples: {}".format(len(val.examples)))
 print("Number of testing examples: {}".format(len(test.examples)))
 
-SRC.build_vocab(train, max_size=int(cfg.max_vocab_src), min_freq=int(cfg.min_freq_src))
+SRC.build_vocab(train, max_size=int(cfg.max_vocab_src), min_freq=int(cfg.min_freq_src),
+                specials=[cfg.bos_token, cfg.eos_token])
 TGT.build_vocab(train, max_size=int(cfg.max_vocab_tgt), min_freq=int(cfg.min_freq_tgt))
 
 print("Unique tokens in source ({}) vocabulary: {}".format(src_lan, len(SRC.vocab)))

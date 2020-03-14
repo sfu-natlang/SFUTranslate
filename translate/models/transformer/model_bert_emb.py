@@ -44,13 +44,15 @@ class Transformer(nn.Module):
 
         # #################################### ENCODER INITIALIZATION ##################################################
         c = copy.deepcopy
-        attn = MultiHeadedAttention(h, d_model)
+        # ling_emb_feature_count should be equal to len(self.head_converter) -1
+        enc_attn = MultiHeadedAttention(h, d_model, ling_emb_key_size=256, ling_emb_feature_count=3)
         ff = PositionwiseFeedForward(d_model, d_ff, dropout)
-        encoder_layer = EncoderLayer(d_model, c(attn), c(ff), dropout)
+        encoder_layer = EncoderLayer(d_model, c(enc_attn), c(ff), dropout)
         self.enc_layers = clones(encoder_layer, N-3)
         self.enc_norm = LayerNorm(encoder_layer.size)
 
         # #################################### DECODER INITIALIZATION ##################################################
+        attn = MultiHeadedAttention(h, d_model)
         position = PositionalEncoding(d_model, dropout, max_len)
         decoder_layer = DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout)
         self.dec_layers = clones(decoder_layer, N)
@@ -112,15 +114,14 @@ class Transformer(nn.Module):
         """
         # ####################################LOADING THE TRAINED SUB-LAYERS############################################
         input_sentences = convert_target_batch_back(input_tensor.transpose(0, 1), self.SRC)
-        input_sentences = list(map(lambda x: x.replace(" ##", ""), input_sentences))
+        sequences = list(map(lambda x: torch.tensor(self.bert_tokenizer.convert_tokens_to_ids(
+            x.replace(self.SRC.unk_token, self.bert_tokenizer.unk_token).split()), device=device), input_sentences))
         # ####################################CONVERTING INPUT SEQUENCE TO EMBEDDED BERT################################
-        sequences = [torch.tensor(self.bert_tokenizer.encode(input_sentence), device=device)
-                     for input_sentence in input_sentences]
         input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.pad_token_id)
         outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.unsqueeze(0) for o in outputs], dim=0)
         embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
-                                self.softmax(self.bert_weights_for_average_pooling))[:, 1:-1, :]
+                                self.softmax(self.bert_weights_for_average_pooling)) # [:, 1:-1, :]
         # ##############################################################################################################
         # len(features_list) * batch_size * max_sequence_length, (H/ (len(features_list) + 1))
         keys = [hc(embedded).detach() for hc in self.head_converter[:-1]]  # the last layer contains what we have not considered
@@ -173,8 +174,10 @@ class Transformer(nn.Module):
         if self.embed_src_with_ling_emb:
             # TODO pass these keys to the self attention module
             self_attention_key_list = self.get_ling_embed_attention_keys(input_tensor)
+        else:
+            self_attention_key_list = []
         for layer in self.enc_layers:
-            x = layer(x, input_mask)
+            x = layer(x, input_mask, self_attention_key_list)
         return self.enc_norm(x), input_mask
 
     def decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, beam_size=1):
