@@ -1,6 +1,6 @@
 from torchtext import data, datasets
 from configuration import cfg
-from readers.dataset import IWSLT
+from readers.dataset import IWSLT, WMT19DeEn
 
 
 def batch_size_fn(new, count, sofar):
@@ -74,6 +74,17 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
         tgt_val_file_address = ".data/wmt14/{}.tok.bpe.32000.{}".format(dev_data, tgt_lan)
         src_test_file_address = ".data/wmt14/{}.tok.bpe.32000.{}".format(test_data, src_lan)
         tgt_test_file_address = ".data/wmt14/{}.tok.bpe.32000.{}".format(test_data, tgt_lan)
+    elif cfg.dataset_name == "wmt19_de_en_sample":
+        dev_data = dev_data if dev_data is not None else "newstest2018"
+        test_data = test_data if test_data is not None else "newstest2019"
+        train, val, test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                                            fields=(SRC, TGT), train='train.samll',
+                                            validation='{}-deen'.format(dev_data),
+                                            test='{}-deen'.format(test_data))
+        src_val_file_address = ".data/wmt19_en_de/{}-deen.{}".format(dev_data, src_lan)
+        tgt_val_file_address = ".data/wmt19_en_de/{}-deen.{}".format(dev_data, tgt_lan)
+        src_test_file_address = ".data/wmt19_en_de/{}-deen.{}".format(test_data, src_lan)
+        tgt_test_file_address = ".data/wmt19_en_de/{}-deen.{}".format(test_data, tgt_lan)
     else:
         raise ValueError("The dataset {} is not defined in torchtext or SFUTranslate!".format(cfg.dataset_name))
 
