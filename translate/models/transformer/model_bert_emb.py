@@ -71,8 +71,12 @@ class Transformer(nn.Module):
         self.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
 
         # #################################### BERT RELATED PARAMETERS #################################################
-        self.embed_src_with_bert = False
-        self.embed_src_with_ling_emb = False
+        self.embed_src_with_ling_emb = bool(cfg.embed_src_with_ling_emb)
+        if self.embed_src_with_ling_emb:
+            print("Augmenting Transformer model with linguistic embeddings module")
+        self.embed_src_with_bert = False if self.embed_src_with_ling_emb else bool(cfg.embed_src_with_bert)
+        if self.embed_src_with_bert:
+            print("Augmenting Transformer model with bert embeddings module")
         self.bert_tokenizer = bert_tokenizer
         self.bert_lm = None
         self.head_converter = None

@@ -13,7 +13,7 @@ from transformers import BertTokenizer
 
 spacy_src = spacy.load(src_lan)
 spacy_tgt = spacy.load(tgt_lan)
-use_bert_tokenizer = False
+use_bert_tokenizer = bool(cfg.use_bert_tokenizer) or bool(cfg.embed_src_with_bert) or bool(cfg.embed_src_with_ling_emb)
 if use_bert_tokenizer and src_lan == "de":
     bert_model_name = 'bert-base-german-dbmdz-uncased'
     bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name)

@@ -24,9 +24,9 @@ class MultiHeadedAttention(nn.Module):
         if ling_emb_feature_count > 0:
             self.ling_emb_bridges = clones(nn.Linear(ling_emb_key_size, self.d_k), ling_emb_feature_count)
         else:
-            self.ling_emb_bridges = None
+            self.ling_emb_bridges = nn.ModuleList([])
 
-    def forward(self, query, key, value, mask=None, self_attention_key_list=None):
+    def forward(self, query, key, value, mask=None, self_attention_key_list=()):
         """Implements Figure 2"""
         if mask is not None:
             # Same mask applied to all h heads.
@@ -36,9 +36,8 @@ class MultiHeadedAttention(nn.Module):
         # 1) Do all the linear projections in batch from d_model => h x d_k
         query, key, value = [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
                              for l, x in zip(self.linears, (query, key, value))]
-        if self_attention_key_list is not None:
-            for l_ind, (l, x) in enumerate(zip(self.ling_emb_bridges, self_attention_key_list)):
-                key[:, l_ind, :, :] = l(x)
+        for l_ind, (l, x) in enumerate(zip(self.ling_emb_bridges, self_attention_key_list)):
+            key[:, l_ind, :, :] = l(x)
 
         # 2) Apply attention on all the projected vectors in batch.
         x, self.attn = attention(query, key, value, mask=mask, dropout=self.dropout)
@@ -128,7 +127,7 @@ class EncoderLayer(nn.Module):
         self.sublayer = clones(SublayerConnection(size, dropout), 2)
         self.size = size
 
-    def forward(self, x, mask, self_attention_key_list):
+    def forward(self, x, mask, self_attention_key_list=()):
         """
         Follow Figure 1 (left) for connections [https://arxiv.org/pdf/1706.03762.pdf]
         """
