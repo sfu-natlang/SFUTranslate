@@ -199,7 +199,9 @@ def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, pri
                 # TODO account for distortion (if some other option has less distortion take it)
                 exact_expected_location_range = exact_expected_location_range_list[selection_index]
             else:
-                raise ValueError("selection_index is greater than the available list")
+                # raise ValueError("selection_index is greater than the available list")
+                # TODO obviously not the best choice but I have to select something after all
+                exact_expected_location_range = exact_expected_location_range_list[-1]
         end_of_expected_location_range = exact_expected_location_range+1 if exact_expected_location_range > -1 else s_i+len(sequence_1_token)+2
         start_of_expected_location_range = exact_expected_location_range - 1 if exact_expected_location_range > -1 else s_i-1
         for sequence_2_f_pointer in range(
