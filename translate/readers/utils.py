@@ -265,8 +265,13 @@ def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, pri
                 print("{} --> {}".format(src_token, sequence_2[sequence_2_ind + b_f]))
             sequence_2_ind += fertility
     if not level and sum(fertilities) != len(sequence_2):
-        print("Warning one sentence is not aligned properly:\n{}\n{}\n{}\n{}".format(
-            sequence_1, sequence_2, sum(fertilities), len(sequence_2)))
+        try:
+            print("Warning one sentence is not aligned properly:\n{}\n{}\n{}\n{}".format(
+                sequence_1, sequence_2, sum(fertilities), len(sequence_2)))
+        except UnicodeEncodeError:
+            outp = "Warning one sentence is not aligned properly:\n{}\n{}\n{}\n{}".format(
+                sequence_1, sequence_2, sum(fertilities), len(sequence_2))
+            print(outp.encode('ascii', 'ignore'))
     return fertilities
 
 
