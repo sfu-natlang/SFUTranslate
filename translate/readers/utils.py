@@ -278,8 +278,17 @@ def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, pri
 def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_name,
                       src_file_adr, tgt_file_adr, src_unk_token, m_unk_token="\u26F6"):
     from utils.evaluation import convert_target_batch_back
+
+    def _get_next_line(file_1_iter, file_2_iter):
+        for l1, l2 in zip(file_1_iter, file_2_iter):
+            l1 = l1.strip()
+            l2 = l2.strip()
+            if not len(l1) or not len(l2):
+                continue
+            yield l1, l2
     dt_iter = data.BucketIterator(dt_raw, batch_size=1, device=device, repeat=False, train=False, shuffle=False,
                                   sort=False, sort_within_batch=False)
+    # BucketIterator will ignore the lines one side of which is an empty line
     to_lower = bool(cfg.lowercase_data)
     src_originals = iter(open(src_file_adr, "r"))
     tgt_originals = iter(open(tgt_file_adr, "r"))
@@ -288,11 +297,11 @@ def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_na
     src_cnt = Counter()
     trg_cnt = Counter()
     print("Collecting UNK token/type statistics ...")
-    for dt, s, t in tqdm(zip(dt_iter, src_originals, tgt_originals)):
+    for dt, (s, t) in tqdm(zip(dt_iter, _get_next_line(src_originals, tgt_originals))):
         dt_src_proc = convert_target_batch_back(dt.src[0], SRC)[0].replace(cfg.unk_token, m_unk_token).replace(" ##","")
-        dt_src_orig = s.lower().strip() if to_lower else s.strip()
+        dt_src_orig = s.lower() if to_lower else s
         dt_trg_proc = convert_target_batch_back(dt.trg[0], TGT)[0].replace(cfg.unk_token, m_unk_token).replace(" ##","")
-        dt_trg_orig = t.lower().strip() if to_lower else t.strip()
+        dt_trg_orig = t.lower() if to_lower else t
         dt_src = src_tokenizer(dt_src_proc)
         dt_trg = tgt_tokenizer(dt_trg_proc)
         st = src_tokenizer(dt_src_orig)
