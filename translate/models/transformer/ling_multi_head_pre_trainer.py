@@ -22,6 +22,8 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 from transformers import BertTokenizer, BertForMaskedLM
 
+from readers.alignment import extract_monotonic_sequence_to_sequence_alignment
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ###############################################CONFIGURATIONS########################################################
@@ -66,165 +68,6 @@ def get_next_batch(file_adr, b_size):
     yield res
 
 
-def find_token_index_in_list(spacy_token, tokens_doc, check_lowercased_doc_tokens=False):
-    if spacy_token is None or tokens_doc is None or not len(tokens_doc):
-        return []
-    if check_lowercased_doc_tokens:
-        inds = [i for i, val in enumerate(tokens_doc) if check_tokens_equal(
-            spacy_token, val) or check_tokens_equal(spacy_token, val.lower())]
-    else:
-        inds = [i for i, val in enumerate(tokens_doc) if check_tokens_equal(spacy_token, val)]
-    # assert len(inds) == 1
-    return inds
-
-
-def check_tokens_equal(spacy_token, bert_token):
-    if spacy_token is None:
-        return bert_token is None
-    if bert_token is None:
-        return spacy_token is None
-    if bert_token == spacy_token.lower() or bert_token == spacy_token:
-        return True
-    spacy_token = unidecode.unidecode(spacy_token)  # remove accents and unicode emoticons
-    bert_token = unidecode.unidecode(bert_token)  # remove accents and unicode emoticons
-    if bert_token == spacy_token.lower() or bert_token == spacy_token:
-        return True
-    return False
-
-
-def check_for_inital_subword_sequence(spacy_doc, bert_doc):
-    seg_s_i = 0
-    spacy_token = spacy_doc[seg_s_i]
-    bert_f_pointer = 0
-    bert_token = bert_doc[bert_f_pointer]
-    while not check_tokens_equal(spacy_token, bert_token):
-        bert_f_pointer += 1
-        if bert_f_pointer < len(bert_doc):
-            tmp = bert_doc[bert_f_pointer]
-        else:
-            bert_f_pointer = 0
-            seg_s_i = -1
-            break
-        bert_token += tmp[2:] if tmp.startswith("##") else tmp
-    return seg_s_i, bert_f_pointer
-
-
-def spacy_to_bert_aligner(spacy_doc, bert_doc, print_alignments=False, level=0):
-    """
-    This function receives two lists extracted from spacy, and bert tokenizers on the same sentence,
-    and returns the alignment fertilities from spacy to bert.
-    the output will have a length equal to the size of spacy_doc each index of which indicates the number
-    of times the spacy element characteristics must be copied to equal the length of the bert tokenized list.
-    This algorithm enforces the alignments in a strictly left-to-right order.
-    """
-    previous_spacy_token = None
-    sp_len = len(spacy_doc)
-    bt_len = len(bert_doc)
-    if not sp_len:
-        return []
-    elif not bt_len:
-        return [0] * len(spacy_doc)
-    elif sp_len == 1:  # one to one and one to many
-        return [bt_len]
-    elif bt_len == 1:  # many to one case
-        r = [0] * sp_len
-        r[0] = 1
-        return r
-    # many to many case is being handled in here:
-    seg_s_i = -1
-    seg_bert_f_pointer = -1
-    best_right_candidate = None
-    best_left_candidate = None
-    for s_i in range(sp_len):
-        spacy_token = spacy_doc[s_i]
-        next_spacy_token = spacy_doc[s_i + 1] if s_i < len(spacy_doc) - 1 else None
-        prev_eq = None
-        current_eq = None
-        next_eq = None
-        previous_bert_token = None
-        exact_expected_location_range_list = find_token_index_in_list(spacy_token, bert_doc)
-        if not len(exact_expected_location_range_list):
-            exact_expected_location_range = -1
-        elif len(exact_expected_location_range_list) == 1:
-            exact_expected_location_range = exact_expected_location_range_list[0]
-        else:  # multiple options to choose from
-            selection_index_list = find_token_index_in_list(spacy_token, spacy_doc, check_lowercased_doc_tokens=True)
-            # In cases like [hadn 't and had n't] or wrong [UNK] merges:
-            #       len(exact_expected_location_range_list) < len(selection_index_list)
-            # In cases like punctuations which will get separated in bert tokenizer and don't in spacy or subword breaks
-            #       len(exact_expected_location_range_list) > len(selection_index_list)
-            selection_index = selection_index_list.index(s_i)
-            if selection_index < len(exact_expected_location_range_list):
-                # TODO account for distortion (if some other option has less distortion take it)
-                exact_expected_location_range = exact_expected_location_range_list[selection_index]
-            else:
-                raise ValueError("selection_index is greater than the available list")
-        end_of_expected_location_range = exact_expected_location_range+1 if exact_expected_location_range > -1 else s_i+len(spacy_token)+2
-        start_of_expected_location_range = exact_expected_location_range - 1 if exact_expected_location_range > -1 else s_i-1
-        for bert_f_pointer in range(
-                max(start_of_expected_location_range, 0), min(len(bert_doc), end_of_expected_location_range)):
-            bert_token = bert_doc[bert_f_pointer]
-            next_bert_token = bert_doc[bert_f_pointer + 1] if bert_f_pointer < len(bert_doc) - 1 else None
-            prev_eq = check_tokens_equal(previous_spacy_token, previous_bert_token)
-            current_eq = check_tokens_equal(spacy_token, bert_token)
-            next_eq = check_tokens_equal(next_spacy_token, next_bert_token)
-            if prev_eq and current_eq and next_eq:
-                seg_bert_f_pointer = bert_f_pointer
-                break
-            elif prev_eq and current_eq and best_left_candidate is None:
-                best_left_candidate = (s_i, bert_f_pointer)
-            elif current_eq and next_eq and best_right_candidate is None:
-                best_right_candidate = (s_i, bert_f_pointer)
-            previous_bert_token = bert_token
-        if prev_eq and current_eq and next_eq:
-            seg_s_i = s_i
-            break
-        previous_spacy_token = spacy_token
-
-    curr_fertilities = [1]
-    if seg_s_i == -1 or seg_bert_f_pointer == -1:
-        if best_left_candidate is not None and best_right_candidate is not None:  # accounting for min distortion
-            seg_s_i_l, seg_bert_f_pointer_l = best_left_candidate
-            seg_s_i_r, seg_bert_f_pointer_r = best_right_candidate
-            if seg_bert_f_pointer_r - seg_s_i_r < seg_bert_f_pointer_l - seg_s_i_l:
-                seg_s_i, seg_bert_f_pointer = best_right_candidate
-            else:
-                seg_s_i, seg_bert_f_pointer = best_left_candidate
-        elif best_left_candidate is not None:
-            seg_s_i, seg_bert_f_pointer = best_left_candidate
-        elif best_right_candidate is not None:
-            seg_s_i, seg_bert_f_pointer = best_right_candidate
-        else:  # multiple subworded tokens stuck together
-            seg_s_i, seg_bert_f_pointer = check_for_inital_subword_sequence(spacy_doc, bert_doc)
-            curr_fertilities = [seg_bert_f_pointer + 1]
-    if seg_s_i == -1 or seg_bert_f_pointer == -1 and len(spacy_doc[0]) < len(bert_doc[0]): # none identical tokenization
-        seg_s_i = 0
-        seg_bert_f_pointer = 0
-    if seg_s_i == -1 or seg_bert_f_pointer == -1:
-        print(spacy_doc)
-        print(bert_doc)
-        raise ValueError()
-    if seg_s_i > 0:  # seg_bert_f_pointer  is always in the correct range
-        left = spacy_to_bert_aligner(spacy_doc[:seg_s_i], bert_doc[:seg_bert_f_pointer], False, level+1)
-    else:
-        left = []
-    if seg_s_i < sp_len:  # seg_bert_f_pointer  is always in the correct range
-        right = spacy_to_bert_aligner(spacy_doc[seg_s_i+1:], bert_doc[seg_bert_f_pointer+1:], False, level+1)
-    else:
-        right = []
-    fertilities = left + curr_fertilities + right
-    if print_alignments and not level:
-        bert_ind = 0
-        for src_token, fertility in zip(spacy_doc, fertilities):
-            for b_f in range(fertility):
-                print("{} --> {}".format(src_token, bert_doc[bert_ind+b_f]))
-            bert_ind += fertility
-    if not level and sum(fertilities) != len(bert_doc):
-        print("Warning one sentence is not aligned properly:\n{}\n{}\n{}\n{}".format(
-            spacy_doc, bert_doc, sum(fertilities), len(bert_doc)))
-    return fertilities
-
-
 def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
     result = []
     lesk_queries = {"NOUN": 'n', "VERB": 'v', "ADJ": 'a', "ADV": 'r'}
@@ -234,7 +77,7 @@ def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
     sp_bert_doc = sp_bert(" ".join(bert_doc))
     spacy_labeled_bert_tokens = [token.text for token in sp_bert_doc]
     assert len(spacy_labeled_bert_tokens) == len(bert_doc), "{}\n{}".format(spacy_labeled_bert_tokens, bert_doc)
-    fertilities = spacy_to_bert_aligner(spacy_doc, bert_doc)
+    fertilities = extract_monotonic_sequence_to_sequence_alignment(spacy_doc, bert_doc)
     bert_doc_pointer = 0
     for token, fertility in zip(doc, fertilities):
         pos = token.pos_
@@ -576,9 +419,8 @@ if __name__ == '__main__':
         batch_size = 256
         print(extract_linguistic_vocabs(sys.argv[2], bert_tknizer))
     elif running_mode == 2:
-        # TODO after being done with testing, you'd need to call extract_linguistic_vocabs() to extract the vocab
-        # 1 ../../.data/iwslt/de-en/train.de-en.en
-        # 1 ../../.data/multi30k/train.en
+        # 2 ../../.data/iwslt/de-en/train.de-en.en
+        # 2 ../../.data/multi30k/train.en
         features_list = ['pos', 'shape', 'tag']
         dataset_address = sys.argv[2]
         if "iwslt" in dataset_address:
@@ -588,7 +430,7 @@ if __name__ == '__main__':
             # ling_vocab = multi30k_linguistic_vocab
             smn = "multi30k_head_conv" + language_extension
         else:
-            raise ValueError("For new datasets you need to train a new linguistic vocabulary")
+            raise ValueError("For new datasets you need to set the proper address name")
         ling_vocab = extract_linguistic_vocabs(sys.argv[2], bert_tknizer)
         reverse_linguistic_vocab = create_empty_linguistic_vocab()
         for key in ling_vocab:
