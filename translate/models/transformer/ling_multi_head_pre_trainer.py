@@ -17,6 +17,7 @@ from textblob import TextBlob
 from nltk.wsd import lesk
 import unidecode
 from random import random
+from sklearn.metrics import classification_report
 
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -221,6 +222,7 @@ class SubLayerED(torch.nn.Module):
         loss = self.loss_fn(y_pred, x)
         # feature_pred_correct = [(lc.argmax(dim=-1) == features[ind]) for ind, lc in enumerate(ling_classes)]
         self.verbose_results(ling_classes, features, feature_weights)
+        feat_predictions = torch.cat([lc.argmax(dim=-1).unsqueeze(0) for lc in ling_classes], dim=0).t()
         feature_pred_correct = []
         for ind, lc in enumerate(ling_classes):
             wrong_or_pad = lc.argmax(dim=-1) == features[ind]
@@ -258,7 +260,7 @@ class SubLayerED(torch.nn.Module):
             l_true = self.loss_fn(true_pred, torch.ones(true_pred.size(), device=device))
             l_fake = self.loss_fn(fake_pred, torch.zeros(fake_pred.size(), device=device))
             loss += l_true / true_pred.view(-1).size(0) + l_fake / fake_pred.view(-1).size(0)
-        return y_pred, loss, feature_pred_correct
+        return y_pred, loss, feature_pred_correct, feat_predictions
 
 
 def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer):
@@ -297,6 +299,16 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
     assert len(required_features_list) > 0, "You have to select some features"
     assert linguistic_vocab is not None and len(linguistic_vocab) > 0
 
+    def separate_bis_label(label):
+        if label.startswith("s_"):
+            return "single", label[2:]
+        elif label.startswith("b_"):
+            return "begin", label[2:]
+        elif label.startswith("i_"):
+            return "inside", label[2:]
+        else:
+            return "none", label
+
     Hs = []
     for rfl in required_features_list:
         if rfl in linguistic_vocab:
@@ -324,6 +336,8 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
         itr = tqdm(get_next_batch(file_adr, batch_size))
         feature_pred_corrects = [0 for _ in range(len(required_features_list))]
         feature_pred_correct_all = 0.0
+        all_prediction = [[] for _ in required_features_list]
+        all_actual = [[] for _ in required_features_list]
         for input_sentences in itr:
             sequences = [torch.tensor(bert_tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
@@ -335,6 +349,8 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
             all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
             embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
                                     model.softmax(model.bert_weights_for_average_pooling))
+            # sequence_length, batch_size, len(feats)
+            predictions = torch.zeros(embedded.size(1), embedded.size(0), len(required_features_list))
             for s in range(1, embedded.size(1)-1):
                 x = embedded.select(1, s)
                 features_selected = []
@@ -348,7 +364,8 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
                         permitted_to_continue = False
                 if not permitted_to_continue:
                     continue
-                _, loss, feature_pred_correct = model(x, features_selected, feature_weights_selected)
+                _, loss, feature_pred_correct, feat_predictions = model(x, features_selected, feature_weights_selected)
+                predictions[s] = feat_predictions
                 for ind, score in enumerate(feature_pred_correct):
                     feature_pred_corrects[ind] += score.sum().item()
                 feature_pred_correct_all += feature_pred_correct[0].size(0)
@@ -358,11 +375,33 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
                 opt.step()
                 all_loss += loss.item()
                 all_tokens_count += x.size(0)
-                classification_report = ["{}:{:.2f}%".format(feat.upper(), float(feature_pred_corrects[ind] * 100)
-                                         / feature_pred_correct_all) for ind, feat in enumerate(required_features_list)]
+                _classification_report_ = ["{}:{:.2f}%".format(feat.upper(), float(feature_pred_corrects[ind] * 100)
+                                           / feature_pred_correct_all) for ind, feat in enumerate(required_features_list)]
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}, [{}]".format(t, all_loss / all_tokens_count,
-                                                                                   "; ".join(classification_report)))
+                                                                                   "; ".join(_classification_report_)))
             scheduler.step(all_loss / all_tokens_count)
+            predictions = predictions.transpose(0, 1)
+            for b in range(predictions.size(0)):
+                for l in range(1, predictions.size(1)-1):
+                    classes = predictions[b][l]
+                    for idx in range(len(required_features_list)):
+                        pred_id = int(classes[idx].item()) - 1
+                        actual_id = int(features[idx][b][l].item()) - 1
+                        predicted_label = reverse_linguistic_vocab[required_features_list[idx]][pred_id] if pred_id > -1 else '__PAD__'
+                        actual_label = reverse_linguistic_vocab[required_features_list[idx]][actual_id] if actual_id > -1 else '__PAD__'
+                        # predicted_bis, predicted_label = separate_bis_label(predicted_label)
+                        # actual_bis, actual_label = separate_bis_label(actual_label)
+                        if actual_label != '__PAD__':
+                            all_actual[idx].append(actual_label)
+                            all_prediction[idx].append(predicted_label)
+                        # print(pred_tag, actual_label, actual_bis, predicted_label, predicted_bis, predicted_label == actual_label)
+        for idx in range(len(required_features_list)):
+            pred_tag = required_features_list[idx]
+            print('-' * 35 + pred_tag + '-' * 35)
+            # target_names = list(linguistic_vocab[pred_tag].keys())
+            print(classification_report(all_actual[idx], all_prediction[idx],
+                                        target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+            print('-' * 75)
         for ind, feat in enumerate(required_features_list):
             print("{} classification precision: {:.2f}%".format(
                 feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
@@ -395,7 +434,7 @@ def project_sub_layers_tester(input_sentences, bert_tokenizer, linguistic_vocab,
             x = embedded.select(1, s)
             features_selected = [f.select(1, s) for f in features]
             feature_weights_selected = [fw.select(1, s) for fw in feature_weights]
-            _, loss, feature_pred_correct = model(x, features_selected, feature_weights_selected)
+            _, loss, feature_pred_correct, feat_predictions = model(x, features_selected, feature_weights_selected)
             for ind, score in enumerate(feature_pred_correct):
                 feature_pred_corrects[ind] += score.sum().item()
             feature_pred_correct_all += feature_pred_correct[0].size(0)
