@@ -97,16 +97,15 @@ def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
                                "ent_iob": ent_iob, "sense": sense, "sentiment": sentiment}
         for f_index in range(fertility):
             if fertility == 1:
-                bis = "s_"  # short for "single"
+                bis = "single"
             elif f_index == 1:
-                bis = "b_"  # short for "begin"
+                bis = "begin"
             else:
-                bis = "i_"  # short for "inside"
+                bis = "inside"
             lfc = linguistic_features.copy()
             lfc["token"] = bert_doc[bert_doc_pointer]
             lfc["shape"] = unidecode.unidecode(sp_bert_doc[bert_doc_pointer].shape_)
-            lfc["pos"] = bis + lfc["pos"]
-            lfc["tag"] = bis + lfc["tag"]
+            lfc["bis"] = bis
             result.append(lfc)
             bert_doc_pointer += 1
         del linguistic_features
@@ -147,13 +146,13 @@ def projection_trainer(file_adr, bert_tokenizer):
 
 
 def create_empty_linguistic_vocab():
-    return {"pos": {}, "tag": {}, "shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}}
+    return {"pos": {}, "tag": {}, "shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}, "bis": {}}
 
 
 def extract_linguistic_vocabs(file_adr, bert_tokenizer):
     vocabs = create_empty_linguistic_vocab()
-    vocab_cnts = {"pos": Counter(), "tag": Counter(), "shape": Counter(), "ent_type": Counter(), "ent_iob": Counter(), "sense": Counter(), "sentiment": Counter()}
-    vocab_totals = {"pos": 0., "tag": 0., "shape": 0., "ent_type": 0., "ent_iob": 0., "sense": 0., "sentiment": 0.}
+    vocab_cnts = {"pos": Counter(), "tag": Counter(), "shape": Counter(), "ent_type": Counter(), "ent_iob": Counter(), "sense": Counter(), "sentiment": Counter(), "bis": Counter()}
+    vocab_totals = {"pos": 0., "tag": 0., "shape": 0., "ent_type": 0., "ent_iob": 0., "sense": 0., "sentiment": 0., "bis": 0.}
     itr = tqdm(get_next_batch(file_adr, batch_size))
     for input_sentences in itr:
         for sent in input_sentences:
@@ -298,16 +297,6 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
     """
     assert len(required_features_list) > 0, "You have to select some features"
     assert linguistic_vocab is not None and len(linguistic_vocab) > 0
-
-    def separate_bis_label(label):
-        if label.startswith("s_"):
-            return "single", label[2:]
-        elif label.startswith("b_"):
-            return "begin", label[2:]
-        elif label.startswith("i_"):
-            return "inside", label[2:]
-        else:
-            return "none", label
 
     Hs = []
     for rfl in required_features_list:
@@ -460,7 +449,7 @@ if __name__ == '__main__':
     elif running_mode == 2:
         # 2 ../../.data/iwslt/de-en/train.de-en.en
         # 2 ../../.data/multi30k/train.en
-        features_list = ['pos', 'shape', 'tag']
+        features_list = ['pos', 'shape', 'tag', 'bis']
         dataset_address = sys.argv[2]
         if "iwslt" in dataset_address:
             # ling_vocab =iwlst_linguistic_vocab
