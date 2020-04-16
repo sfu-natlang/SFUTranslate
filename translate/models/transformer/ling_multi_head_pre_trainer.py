@@ -338,17 +338,21 @@ class WordRepresentation:
         else:
             return self._actuals[tag][0] + "".join([x[2:] for x in self._actuals[tag][1:]])
 
-    def get_pred(self, tag):
+    def get_pred(self, tag, resolution_strategy="first"):
         if tag != "shape" or len(self._predictions[tag]) == 1:
-            # heuristically returning the prediction of the first token for accuracy calculation
-            return self._predictions[tag][0]
-            # heuristically returning the prediction of the last token for accuracy calculation
-            # return self._predictions[tag][-1]
+            if resolution_strategy == "first":
+                # heuristically returning the prediction of the first token for accuracy calculation
+                return self._predictions[tag][0]
+            elif resolution_strategy == "last":
+                # heuristically returning the prediction of the last token for accuracy calculation
+                return self._predictions[tag][-1]
+            else:
+                raise ValueError("Undefined resolution strategy: {}".format(resolution_strategy))
         else:
             return self._predictions[tag][0] + "".join([x[2:] for x in self._predictions[tag][1:]])
 
 
-def merge_subword_labels(actuals, predictions, required_features_list, tokens=None):
+def merge_subword_labels(actuals, predictions, required_features_list, tokens=None, resolution_strategy="first"):
     assert 'bis' in required_features_list
     bis_req_index = required_features_list.index('bis')
     word_boundaries = extract_word_boundaries(actuals[bis_req_index])
@@ -361,12 +365,12 @@ def merge_subword_labels(actuals, predictions, required_features_list, tokens=No
             predictions[idx] = ["single" for _ in words]
         else:
             actuals[idx] = [w.get_actual(p_tag) for w in words]
-            predictions[idx] = [w.get_pred(p_tag) for w in words]
+            predictions[idx] = [w.get_pred(p_tag, resolution_strategy) for w in words]
     return actuals, predictions
 
 
 def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
-                               save_model_name="project_sublayers.pt", relative_sizing=False):
+                               save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first"):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
     """
@@ -471,7 +475,7 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
             print("{} sub-word level classification precision [collected]: {:.2f}%".format(
                 feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
         print("reporting word-level classification accuracy scores")
-        all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list)
+        all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list, resolution_strategy=resolution_strategy)
         for idx in range(len(required_features_list)):
             pred_tag = required_features_list[idx]
             print('-' * 35 + pred_tag + '-' * 35)
@@ -486,7 +490,7 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
 
 
 def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
-                              load_model_name="project_sublayers.pt"):
+                              load_model_name="project_sublayers.pt", resolution_strategy="first"):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".module", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
@@ -536,7 +540,6 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
                         if actual_label != '__PAD__':
                             all_actual[idx].append(actual_label)
                             all_prediction[idx].append(predicted_label)
-    all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list, all_tokens)
     print("reporting sub-word-level classification accuracy scores")
     for idx in range(len(required_features_list)):
         pred_tag = required_features_list[idx]
@@ -549,7 +552,7 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
         print("{} sub-word level classification precision [collected]: {:.2f}%".format(
             feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
     print("reporting word-level classification accuracy scores")
-    all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list)
+    all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list, resolution_strategy=resolution_strategy)
     for idx in range(len(required_features_list)):
         pred_tag = required_features_list[idx]
         print('-' * 35 + pred_tag + '-' * 35)
@@ -586,11 +589,14 @@ if __name__ == '__main__':
             raise ValueError("For new datasets you need to set the proper address name")
         ling_vocab = extract_linguistic_vocabs(sys.argv[2], bert_tknizer)
         reverse_linguistic_vocab = create_empty_linguistic_vocab()
+        resolution_strategy = "first"
+        # resolution_strategy = "last"
+        # TODO support majority voting resolution strategy
         for key in ling_vocab:
             for key2 in ling_vocab[key]:
                 reverse_linguistic_vocab[key][ling_vocab[key][key2][0]] = key2
         project_sub_layers_trainer(dataset_address, bert_tknizer, ling_vocab, features_list, save_model_name=smn)
         print("Performing test on the training data ...")
-        project_sub_layers_tester(dataset_address,  # ["A little girl climbing into a wooden playhouse."],
-                                  bert_tknizer, ling_vocab, features_list, load_model_name=smn)
+        project_sub_layers_tester(dataset_address, bert_tknizer, ling_vocab, features_list,
+                                  load_model_name=smn, resolution_strategy=resolution_strategy)
 
