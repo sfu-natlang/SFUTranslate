@@ -27,20 +27,6 @@ from readers.alignment import extract_monotonic_sequence_to_sequence_alignment
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# ###############################################CONFIGURATIONS########################################################
-# model_name = 'bert-base-uncased'
-model_name = 'bert-base-german-dbmdz-uncased'
-language_extension = ".de"
-number_of_bert_layers = 13
-D_in, H, D_out = 768, 1024, 768
-epochs = 3
-lr = 0.05
-batch_size = 32
-max_norm = 5
-scheduler_patience_steps = 60
-scheduler_min_lr = 0.001
-scheduler_decay_factor = 0.9
-
 # ###############################################REQUIRED FUNCTIONS####################################################
 
 
@@ -564,30 +550,48 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
 
 
 if __name__ == '__main__':
-    nlp = spacy.load("en")
-    sp_bert = spacy.load("en")
+    # ###############################################CONFIGURATIONS#####################################################
+    running_mode = int(sys.argv[1])
+    language_extension = sys.argv[2]
+    dataset_address = sys.argv[3]
+    if language_extension == "de":
+        model_name = 'bert-base-german-dbmdz-uncased'
+    elif language_extension == "en":
+        model_name = 'bert-base-uncased'
+    else:
+        raise ValueError("Language extension \"{}\" is not supported yet!".format(language_extension))
+    number_of_bert_layers = 13
+    D_in, H, D_out = 768, 1024, 768
+    epochs = 3
+    lr = 0.05
+    batch_size = 32
+    max_norm = 5
+    scheduler_patience_steps = 60
+    scheduler_min_lr = 0.001
+    scheduler_decay_factor = 0.9
+    # 2 en ../../.data/iwslt/de-en/train.de-en.en
+    # 2 en ../../.data/multi30k/train.en
+    features_list = ['pos', 'shape', 'tag', 'bis']
+    # ###############################################SETTING UP MODELS##################################################
+    nlp = spacy.load(language_extension)
+    sp_bert = spacy.load(language_extension)
     sp_bert.tokenizer = Tokenizer(sp_bert.vocab)
     bert_tknizer = BertTokenizer.from_pretrained(model_name)
-    running_mode = int(sys.argv[1])
     if running_mode == 0:
-        projection_trainer(sys.argv[2], bert_tknizer)
+        projection_trainer(dataset_address, bert_tknizer)
     elif running_mode == 1:
         batch_size = 256
-        print(extract_linguistic_vocabs(sys.argv[2], bert_tknizer))
+        print(extract_linguistic_vocabs(dataset_address, bert_tknizer))
     elif running_mode == 2:
-        # 2 ../../.data/iwslt/de-en/train.de-en.en
-        # 2 ../../.data/multi30k/train.en
-        features_list = ['pos', 'shape', 'tag', 'bis']
-        dataset_address = sys.argv[2]
         if "iwslt" in dataset_address:
             # ling_vocab =iwlst_linguistic_vocab
-            smn = "iwslt_head_conv" + language_extension
+            smn = "iwslt_head_conv." + language_extension
         elif "multi30k" in dataset_address:
             # ling_vocab = multi30k_linguistic_vocab
-            smn = "multi30k_head_conv" + language_extension
+            smn = "multi30k_head_conv." + language_extension
         else:
             raise ValueError("For new datasets you need to set the proper address name")
-        ling_vocab = extract_linguistic_vocabs(sys.argv[2], bert_tknizer)
+        ling_vocab = extract_linguistic_vocabs(dataset_address, bert_tknizer)
         reverse_linguistic_vocab = create_empty_linguistic_vocab()
         resolution_strategy = "first"
         # resolution_strategy = "last"
