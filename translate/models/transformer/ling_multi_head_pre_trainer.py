@@ -98,7 +98,7 @@ def extract_linguistic_features(line, bert_tokenizer, extract_sentiment=False):
         for f_index in range(fertility):
             if fertility == 1:
                 bis = "single"
-            elif f_index == 1:
+            elif f_index == 0:
                 bis = "begin"
             else:
                 bis = "inside"
@@ -290,6 +290,81 @@ def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguist
             for ind in range(len(required_features_list))]
 
 
+def extract_word_boundaries(bis_array):
+    word_boundaries = []
+    latest_multipart_word_start = -1
+    latest_multipart_word_end = -1
+    for idx, bis in enumerate(bis_array):
+        if bis == "single":
+            if latest_multipart_word_start != -1:
+                assert latest_multipart_word_end != -1
+                word_boundaries.append((latest_multipart_word_start, latest_multipart_word_end))
+            # print("Single token word from [{}-{}]".format(idx, idx+1))
+            word_boundaries.append((idx, idx+1))
+            latest_multipart_word_start = -1
+            latest_multipart_word_end = -1
+        elif bis == "begin":
+            if latest_multipart_word_start != -1:
+                assert latest_multipart_word_end != -1
+                word_boundaries.append((latest_multipart_word_start, latest_multipart_word_end))
+            # print("Starting a new word from {}".format(idx))
+            latest_multipart_word_start = idx
+            latest_multipart_word_end = -1
+        else:
+            # print("Continuation of the word in {}".format(idx))
+            latest_multipart_word_end = idx+1
+    return word_boundaries
+
+
+class WordRepresentation:
+    def __init__(self, actuals, preds, begin, end, required_features_list, tokens=None):
+        self.rfl = required_features_list
+        self.features_size = len(required_features_list)
+        self._actuals = {}
+        self._predictions = {}
+        self._tokens = []
+        for idx in range(len(required_features_list)):
+            pred_tag = required_features_list[idx]
+            self._actuals[pred_tag] = actuals[idx][begin:end]
+            if pred_tag != "shape" and pred_tag != "bis":
+                assert all(x == self._actuals[pred_tag][0] for x in self._actuals[pred_tag])
+            self._predictions[pred_tag] = preds[idx][begin:end]
+        if tokens is not None:
+            self._tokens = tokens[begin:end]
+
+    def get_actual(self, tag):
+        if tag != "shape" or len(self._actuals[tag]) == 1:
+            return self._actuals[tag][0]
+        else:
+            return self._actuals[tag][0] + "".join([x[2:] for x in self._actuals[tag][1:]])
+
+    def get_pred(self, tag):
+        if tag != "shape" or len(self._predictions[tag]) == 1:
+            # heuristically returning the prediction of the first token for accuracy calculation
+            return self._predictions[tag][0]
+            # heuristically returning the prediction of the last token for accuracy calculation
+            # return self._predictions[tag][-1]
+        else:
+            return self._predictions[tag][0] + "".join([x[2:] for x in self._predictions[tag][1:]])
+
+
+def merge_subword_labels(actuals, predictions, required_features_list, tokens=None):
+    assert 'bis' in required_features_list
+    bis_req_index = required_features_list.index('bis')
+    word_boundaries = extract_word_boundaries(actuals[bis_req_index])
+    words = [WordRepresentation(actuals, predictions, b, e, required_features_list, tokens) for b, e in word_boundaries]
+    predictions = [[] for _ in required_features_list]
+    actuals = [[] for _ in required_features_list]
+    for idx, p_tag in enumerate(required_features_list):
+        if idx == bis_req_index:
+            actuals[idx] = ["single" for _ in words]
+            predictions[idx] = ["single" for _ in words]
+        else:
+            actuals[idx] = [w.get_actual(p_tag) for w in words]
+            predictions[idx] = [w.get_pred(p_tag) for w in words]
+    return actuals, predictions
+
+
 def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
                                save_model_name="project_sublayers.pt", relative_sizing=False):
     """
@@ -384,54 +459,104 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
                             all_actual[idx].append(actual_label)
                             all_prediction[idx].append(predicted_label)
                         # print(pred_tag, actual_label, actual_bis, predicted_label, predicted_bis, predicted_label == actual_label)
+        print("reporting sub-word-level classification accuracy scores")
         for idx in range(len(required_features_list)):
             pred_tag = required_features_list[idx]
             print('-' * 35 + pred_tag + '-' * 35)
             # target_names = list(linguistic_vocab[pred_tag].keys())
-            print(classification_report(all_actual[idx], all_prediction[idx],
+            print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
                                         target_names=list(set(all_prediction[idx]+all_actual[idx]))))
             print('-' * 75)
         for ind, feat in enumerate(required_features_list):
-            print("{} classification precision: {:.2f}%".format(
+            print("{} sub-word level classification precision [collected]: {:.2f}%".format(
                 feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
+        print("reporting word-level classification accuracy scores")
+        all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list)
+        for idx in range(len(required_features_list)):
+            pred_tag = required_features_list[idx]
+            print('-' * 35 + pred_tag + '-' * 35)
+            # target_names = list(linguistic_vocab[pred_tag].keys())
+            print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
+                                        target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+            print('-' * 75)
+
         torch.save({'model': model}, save_model_name+".module")
         torch.save({'features_list': features_list, 'softmax': nn.Softmax(dim=-1), 'head_converters': model.encoders,
                     'bert_weights': model.bert_weights_for_average_pooling}, save_model_name)
 
 
-def project_sub_layers_tester(input_sentences, bert_tokenizer, linguistic_vocab, required_features_list,
+def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
                               load_model_name="project_sublayers.pt"):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".module", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     feature_pred_corrects = [0 for _ in range(len(required_features_list))]
     feature_pred_correct_all = 0.0
-    with torch.no_grad():
-        all_loss = 0.0
-        all_tokens_count = 0.0
-        sequences = [torch.tensor(bert_tokenizer.encode(input_sentence), device=device)
-                     for input_sentence in input_sentences]
-        features, feature_weights = map_sentences_to_vocab_ids(
-            input_sentences, required_features_list, linguistic_vocab, bert_tokenizer)
-        input_ids = torch.nn.utils.rnn.pad_sequence(
-            sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
-        outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
-        all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
-        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
-                                model.softmax(model.bert_weights_for_average_pooling))
-        for s in range(1, embedded.size(1)-1):
-            x = embedded.select(1, s)
-            features_selected = [f.select(1, s) for f in features]
-            feature_weights_selected = [fw.select(1, s) for fw in feature_weights]
-            _, loss, feature_pred_correct, feat_predictions = model(x, features_selected, feature_weights_selected)
-            for ind, score in enumerate(feature_pred_correct):
-                feature_pred_corrects[ind] += score.sum().item()
-            feature_pred_correct_all += feature_pred_correct[0].size(0)
-            all_loss += loss.item()
-            all_tokens_count += x.size(0)
+    all_prediction = [[] for _ in required_features_list]
+    all_actual = [[] for _ in required_features_list]
+    all_tokens = []
+    itr = tqdm(get_next_batch(file_adr, batch_size))
+    for input_sentences in itr:
+        all_tokens.extend([tkn for input_sentence in input_sentences for tkn in bert_tokenizer.tokenize(input_sentence)])
+        with torch.no_grad():
+            all_loss = 0.0
+            all_tokens_count = 0.0
+            sequences = [torch.tensor(bert_tokenizer.encode(input_sentence), device=device)
+                         for input_sentence in input_sentences]
+            features, feature_weights = map_sentences_to_vocab_ids(
+                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer)
+            input_ids = torch.nn.utils.rnn.pad_sequence(
+                sequences, batch_first=True, padding_value=bert_tokenizer.pad_token_id)
+            outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+            all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
+            embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
+                                    model.softmax(model.bert_weights_for_average_pooling))
+            predictions = torch.zeros(embedded.size(1), embedded.size(0), len(required_features_list))
+            for s in range(1, embedded.size(1)-1):
+                x = embedded.select(1, s)
+                features_selected = [f.select(1, s) for f in features]
+                feature_weights_selected = [fw.select(1, s) for fw in feature_weights]
+                _, loss, feature_pred_correct, feat_predictions = model(x, features_selected, feature_weights_selected)
+                predictions[s] = feat_predictions
+                for ind, score in enumerate(feature_pred_correct):
+                    feature_pred_corrects[ind] += score.sum().item()
+                feature_pred_correct_all += feature_pred_correct[0].size(0)
+                all_loss += loss.item()
+                all_tokens_count += x.size(0)
+
+            predictions = predictions.transpose(0, 1)
+            for b in range(predictions.size(0)):
+                for l in range(1, predictions.size(1)-1):
+                    classes = predictions[b][l]
+                    for idx in range(len(required_features_list)):
+                        pred_id = int(classes[idx].item()) - 1
+                        actual_id = int(features[idx][b][l].item()) - 1
+                        predicted_label = reverse_linguistic_vocab[required_features_list[idx]][pred_id] if pred_id > -1 else '__PAD__'
+                        actual_label = reverse_linguistic_vocab[required_features_list[idx]][actual_id] if actual_id > -1 else '__PAD__'
+                        if actual_label != '__PAD__':
+                            all_actual[idx].append(actual_label)
+                            all_prediction[idx].append(predicted_label)
+    all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list, all_tokens)
+    print("reporting sub-word-level classification accuracy scores")
+    for idx in range(len(required_features_list)):
+        pred_tag = required_features_list[idx]
+        print('-' * 35 + pred_tag + '-' * 35)
+        # target_names = list(linguistic_vocab[pred_tag].keys())
+        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
+                                    target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+        print('-' * 75)
     for ind, feat in enumerate(required_features_list):
-        print("{} classification precision: {:.2f}%".format(
+        print("{} sub-word level classification precision [collected]: {:.2f}%".format(
             feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
+    print("reporting word-level classification accuracy scores")
+    all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list)
+    for idx in range(len(required_features_list)):
+        pred_tag = required_features_list[idx]
+        print('-' * 35 + pred_tag + '-' * 35)
+        # target_names = list(linguistic_vocab[pred_tag].keys())
+        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
+                                    target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+        print('-' * 75)
     print(("Average Test Loss: {:.2f}".format(all_loss / all_tokens_count)))
 
 
@@ -465,6 +590,7 @@ if __name__ == '__main__':
             for key2 in ling_vocab[key]:
                 reverse_linguistic_vocab[key][ling_vocab[key][key2][0]] = key2
         project_sub_layers_trainer(dataset_address, bert_tknizer, ling_vocab, features_list, save_model_name=smn)
-        project_sub_layers_tester(["A little girl climbing into a wooden playhouse."],
+        print("Performing test on the training data ...")
+        project_sub_layers_tester(dataset_address,  # ["A little girl climbing into a wooden playhouse."],
                                   bert_tknizer, ling_vocab, features_list, load_model_name=smn)
 
