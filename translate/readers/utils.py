@@ -86,15 +86,15 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
     elif cfg.dataset_name == "wmt19_de_en_sample":
         dev_data = dev_data if dev_data is not None else "newstest2018"
         test_data = test_data if test_data is not None else "newstest2019"
-        train_data = 'train.samll'
+        train_data = 'train.small'
         train, val, test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                             fields=(SRC, TGT), train=train_data,
-                                            validation='{}-deen'.format(dev_data),
-                                            test='{}-deen'.format(test_data))
-        src_val_file_address = ".data/wmt19_en_de/{}-deen.{}".format(dev_data, src_lan)
-        tgt_val_file_address = ".data/wmt19_en_de/{}-deen.{}".format(dev_data, tgt_lan)
-        src_test_file_address = ".data/wmt19_en_de/{}-deen.{}".format(test_data, src_lan)
-        tgt_test_file_address = ".data/wmt19_en_de/{}-deen.{}".format(test_data, tgt_lan)
+                                            validation='{}-ende.bpe'.format(dev_data),
+                                            test='{}-ende.bpe'.format(test_data))
+        src_val_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(dev_data, src_lan)
+        tgt_val_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(dev_data, tgt_lan)
+        src_test_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(test_data, src_lan)
+        tgt_test_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(test_data, tgt_lan)
         src_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, src_lan)
         tgt_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, tgt_lan)
     else:
