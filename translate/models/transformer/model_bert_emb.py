@@ -43,9 +43,10 @@ class Transformer(nn.Module):
                                         padding_idx=TGT.vocab.stoi[cfg.pad_token], smoothing=loss_smoothing)
 
         # #################################### ENCODER INITIALIZATION ##################################################
+        self.multi_head_d_k = d_model // h
         c = copy.deepcopy
         # ling_emb_feature_count should be equal to len(self.head_converter) -1
-        enc_attn = MultiHeadedAttention(h, d_model, ling_emb_key_size=256, ling_emb_feature_count=3)
+        enc_attn = MultiHeadedAttention(h, d_model)
         ff = PositionwiseFeedForward(d_model, d_ff, dropout)
         encoder_layer = EncoderLayer(d_model, c(enc_attn), c(ff), dropout)
         self.enc_layers = clones(encoder_layer, N-3)
@@ -155,6 +156,15 @@ class Transformer(nn.Module):
             #    param.requires_grad = False
             # self.head_converter.requires_grad = False
             self.bert_weights_for_average_pooling = nn.Parameter(so['bert_weights'].to(device), requires_grad=True)
+            ling_emb_key_size = self.head_converter[0].out_features
+            ling_emb_feature_count = 3
+            if ling_emb_feature_count > 0:
+                ling_emb_bridges = clones(nn.Linear(ling_emb_key_size, self.multi_head_d_k), ling_emb_feature_count)
+                c = copy.deepcopy
+                for layer in self.enc_layers:
+                    layer.self_attn.ling_emb_bridges = c(ling_emb_bridges).to(device)
+
+
 
     def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """

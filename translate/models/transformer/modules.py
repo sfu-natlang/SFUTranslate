@@ -9,7 +9,7 @@ from models.transformer.utils import clones, attention
 
 
 class MultiHeadedAttention(nn.Module):
-    def __init__(self, h, d_model, dropout=0.1, ling_emb_key_size=0, ling_emb_feature_count=0):
+    def __init__(self, h, d_model, dropout=0.1, ling_emb_bridges=None):
         """
         Implements Figure 2 (right) of the paper (https://arxiv.org/pdf/1706.03762.pdf)
         """
@@ -21,8 +21,8 @@ class MultiHeadedAttention(nn.Module):
         self.linears = clones(nn.Linear(d_model, d_model), 4)
         self.attn = None
         self.dropout = nn.Dropout(p=dropout)
-        if ling_emb_feature_count > 0:
-            self.ling_emb_bridges = clones(nn.Linear(ling_emb_key_size, self.d_k), ling_emb_feature_count)
+        if ling_emb_bridges is not None:
+            self.ling_emb_bridges = ling_emb_bridges
         else:
             self.ling_emb_bridges = nn.ModuleList([])
 
