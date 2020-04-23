@@ -247,6 +247,12 @@ class SubLayerED(torch.nn.Module):
             loss += l_true / true_pred.view(-1).size(0) + l_fake / fake_pred.view(-1).size(0)
         return y_pred, loss, feature_pred_correct, feat_predictions
 
+    def sanity_test(self, x, class_id):
+        encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
+        ling_classes = [self.feature_classifiers[class_id](encoded[i]) for i in range(len(self.encoders)-1) if i != class_id]
+        feat_predictions = torch.cat([lc.argmax(dim=-1).unsqueeze(0) for lc in ling_classes], dim=0).t()
+        return feat_predictions
+
 
 def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer):
     padding_value = 0
@@ -476,7 +482,8 @@ def project_sub_layers_trainer(file_adr, bert_tokenizer, linguistic_vocab, requi
 
 
 def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, required_features_list,
-                              load_model_name="project_sublayers.pt", resolution_strategy="first"):
+                              load_model_name="project_sublayers.pt", resolution_strategy="first",
+                              check_result_sanity=False):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".module", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
@@ -485,6 +492,9 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
     all_prediction = [[] for _ in required_features_list]
     all_actual = [[] for _ in required_features_list]
     all_tokens = []
+    if check_result_sanity:
+        sanity_all_prediction = [[] for _ in required_features_list]
+        sanity_all_actual = [[] for _ in required_features_list]
     itr = tqdm(get_next_batch(file_adr, batch_size))
     for input_sentences in itr:
         all_tokens.extend([tkn for input_sentence in input_sentences for tkn in bert_tokenizer.tokenize(input_sentence)])
@@ -502,12 +512,18 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
             embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
                                     model.softmax(model.bert_weights_for_average_pooling))
             predictions = torch.zeros(embedded.size(1), embedded.size(0), len(required_features_list))
+            if check_result_sanity:
+                sanity_predictions = [torch.zeros(embedded.size(1), embedded.size(0), len(required_features_list) - 1
+                                                  )] * len(required_features_list)
             for s in range(1, embedded.size(1)-1):
                 x = embedded.select(1, s)
                 features_selected = [f.select(1, s) for f in features]
                 feature_weights_selected = [fw.select(1, s) for fw in feature_weights]
                 _, loss, feature_pred_correct, feat_predictions = model(x, features_selected, feature_weights_selected)
                 predictions[s] = feat_predictions
+                if check_result_sanity:
+                    for sanity_ind in range(len(required_features_list)):
+                        sanity_predictions[sanity_ind][s] = model.sanity_test(x, sanity_ind)
                 for ind, score in enumerate(feature_pred_correct):
                     feature_pred_corrects[ind] += score.sum().item()
                 feature_pred_correct_all += feature_pred_correct[0].size(0)
@@ -526,13 +542,44 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
                         if actual_label != '__PAD__':
                             all_actual[idx].append(actual_label)
                             all_prediction[idx].append(predicted_label)
+            if check_result_sanity:
+                for sanity_ind in range(len(required_features_list)):
+                    sanity_preds = sanity_predictions[sanity_ind].transpose(0, 1)
+                    for b in range(sanity_preds.size(0)):
+                        for l in range(1, sanity_preds.size(1)-1):
+                            classes = sanity_preds[b][l]
+                            idx = -1
+                            for rf_idx in range(len(required_features_list)):
+                                if rf_idx == sanity_ind:
+                                    continue
+                                else:
+                                    idx += 1
+                                pred_id = int(classes[idx].item()) - 1
+                                actual_id = int(features[rf_idx][b][l].item()) - 1
+                                predicted_label = reverse_linguistic_vocab[required_features_list[rf_idx]][pred_id] \
+                                    if pred_id > -1 else '__PAD__'
+                                actual_label = reverse_linguistic_vocab[required_features_list[rf_idx]][actual_id] \
+                                    if actual_id > -1 else '__PAD__'
+                                if actual_label != '__PAD__':
+                                    sanity_all_actual[rf_idx].append(actual_label)
+                                    sanity_all_prediction[rf_idx].append(predicted_label)
+    if check_result_sanity:
+        print("reporting sanity classification accuracy scores [the scores are expected be really low!]")
+        for idx in range(len(required_features_list)):
+            pred_tag = required_features_list[idx]
+            print('-' * 35 + pred_tag + '-' * 35)
+            # target_names = list(linguistic_vocab[pred_tag].keys())
+            print(classification_report(sanity_all_actual[idx], sanity_all_prediction[idx], output_dict=True,
+                                        target_names=list(set(sanity_all_prediction[idx]+sanity_all_actual[idx])))['weighted avg'])
+            print('-' * 75)
+
     print("reporting sub-word-level classification accuracy scores")
     for idx in range(len(required_features_list)):
         pred_tag = required_features_list[idx]
         print('-' * 35 + pred_tag + '-' * 35)
         # target_names = list(linguistic_vocab[pred_tag].keys())
         print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                    target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
         print('-' * 75)
     for ind, feat in enumerate(required_features_list):
         print("{} sub-word level classification precision [collected]: {:.2f}%".format(
@@ -544,7 +591,7 @@ def project_sub_layers_tester(file_adr, bert_tokenizer, linguistic_vocab, requir
         print('-' * 35 + pred_tag + '-' * 35)
         # target_names = list(linguistic_vocab[pred_tag].keys())
         print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                    target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
         print('-' * 75)
     print(("Average Test Loss: {:.2f}".format(all_loss / all_tokens_count)))
 
@@ -602,5 +649,5 @@ if __name__ == '__main__':
         project_sub_layers_trainer(dataset_address, bert_tknizer, ling_vocab, features_list, save_model_name=smn)
         print("Performing test on the training data ...")
         project_sub_layers_tester(dataset_address, bert_tknizer, ling_vocab, features_list,
-                                  load_model_name=smn, resolution_strategy=resolution_strategy)
+                                  load_model_name=smn, resolution_strategy=resolution_strategy, check_result_sanity=True)
 
