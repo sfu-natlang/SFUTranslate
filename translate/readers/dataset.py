@@ -73,3 +73,39 @@ class IWSLT(datasets.TranslationDataset):
                     if not any(tag in l for tag in xml_tags):
                         fd_txt.write(l.strip() + '\n')
 
+
+class WMT19DeEn(datasets.TranslationDataset):
+    """The WMT 2019 English-German dataset, processed using the script in
+    https://drive.google.com/open?id=1rYNpc2VNXXGINPLd2CZvH3lf_w19O8-r"""
+
+    urls = [('https://drive.google.com/uc?export=download&'
+             'id=1rYNpc2VNXXGINPLd2CZvH3lf_w19O8-r', 'wmt19_en_de.zip')]
+    name = 'wmt19_en_de'
+    dirname = ''
+
+    @classmethod
+    def splits(cls, exts, fields, root='.data',
+               train='train',
+               validation='valid',
+               test='newstest2019', **kwargs):
+        """Create dataset objects for splits of the WMT 2014 dataset.
+        Arguments:
+            exts: A tuple containing the extensions for each language. Must be
+                either ('.en', '.de') or the reverse.
+            fields: A tuple containing the fields that will be used for data
+                in each language.
+            root: Root dataset storage directory. Default is '.data'.
+            train: The prefix of the train data.
+            validation: The prefix of the validation data.
+            test: The prefix of the test data.
+            Remaining keyword arguments: Passed to the splits method of Dataset.
+        """
+        if 'path' not in kwargs:
+            expected_folder = os.path.join(root, cls.name)
+            path = expected_folder if os.path.exists(expected_folder) else None
+        else:
+            path = kwargs['path']
+            del kwargs['path']
+
+        return super(WMT19DeEn, cls).splits(
+            exts, fields, path, root, train, validation, test, **kwargs)

@@ -14,6 +14,7 @@ max_vocab_src: 25000
 min_freq_src: 0
 max_vocab_tgt: 25000
 min_freq_tgt: 0
+extract_unk_stats: false
 
 emb_dropout: 0.3
 train_batch_size: 2500

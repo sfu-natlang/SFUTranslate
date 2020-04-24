@@ -1,5 +1,5 @@
 __package__ = "translate.readers"
-__all__ = ["data_provider", "dataset", "utils"]
+__all__ = ["data_provider", "dataset", "utils", "sequence_alignment"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]
