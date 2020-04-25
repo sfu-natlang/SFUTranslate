@@ -1,0 +1,19 @@
+Loading the data ...
+Number of training examples: 208351
+Number of validation examples: 888
+Number of testing examples: 1080
+Unique tokens in source (de) vocabulary: 50004
+Unique tokens in target (en) vocabulary: 50004
+Loading the best trained model
+Evaluation ....
+Sample Inp't: wir schriftsteller scheinen aber diese art von ruf zu haben. aber nicht nur die schriftsteller, sondern die kreativen aller genres, scheinen diesen ruf zu haben, mental ungeheuer instabil zu sein.
+Sample Pred : but we may seem to have this kind of reputation, but not just the writers, but the creative of all the time to have this reputation appears to be completely unstable.
+Model Expc'd: we writers , we kind of do have that reputation ,   and not just writers , but creative people across all genres ,   it seems , have this reputation for being enormously mentally unstable .
+Sample Act'l: we writers, we kind of do have that reputation,  and not just writers, but creative people across all genres,  it seems, have this reputation for being enormously mentally unstable.
+E VALIDATE ::: Average Loss 0.000 ::: Average BleuP1 27.515
+Evaluation ....
+Sample Inp't: und sie denken das, weil es ein gebã¤ude betrifft, das vor 2 500 jahren von den griechen erbaut wurde.
+Sample Pred : and you think it's because it's a building that was built two years ago by the greek.
+Model Expc'd: and i know you think that because it 's based on a building that was build 2,500 years ago by the greeks .
+Sample Act'l: and i know you think that because it's based on a building that was build 2,500 years ago by the greeks.
+E TEST ::: Average Loss 0.000 ::: Average BleuP1 25.267
