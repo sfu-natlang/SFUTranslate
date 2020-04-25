@@ -167,7 +167,7 @@ class Transformer(nn.Module):
 
         # #################################INITIALIZATION OF DECODING PARAMETERS#######################################
         init_ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)
-        nodes = [(init_ys, torch.zeros(batch_size, device=device), torch.zeros(batch_size, device=device).byte())]
+        nodes = [(init_ys, torch.zeros(batch_size, device=device), torch.zeros(batch_size, device=device).bool())]
         final_results = []
 
         for i in range(target_length-1):
