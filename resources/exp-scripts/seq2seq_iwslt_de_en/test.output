@@ -1,0 +1,19 @@
+Loading the data ...
+Number of training examples: 208351
+Number of validation examples: 888
+Number of testing examples: 1080
+Unique tokens in source (de) vocabulary: 50004
+Unique tokens in target (en) vocabulary: 50004
+Loading the best trained model
+Evaluation ....
+Sample Inp't: diese fl„ºsse nehmen rapide zu.
+Sample Pred : these rivers are taking place.
+Model Expc'd: these flows are increasing very rapidly .
+Sample Act'l: these flows are increasing very rapidly.
+E VALIDATE ::: Average Loss 0.000 ::: Average BleuP1 26.438
+Evaluation ....
+Sample Inp't: aber es dauert lang, ein geb„§ude zu bauen, drei bis vier jahre, und in der zwischenzeit entwirft ein architekt zwei, acht oder hundert andere geb„§ude, bevor er wei„ü, ob der bau, den er vor vier jahren entwarf, ein erfolg war oder nicht.
+Sample Pred : but it takes long to build a building, three to four years, and in the meantime, design an architect two or a hundred other buildings, before he knows whether it's designed for four years ago, a successful or not.
+Model Expc'd: it takes a long time to build a building , three or four years , and in the interim , an architect will design two or eight or a hundred other buildings before they know if that building that they designed four years ago was a success or not .
+Sample Act'l: it takes a long time to build a building, three or four years, and in the interim, an architect will design two or eight or a hundred other buildings before they know if that building that they designed four years ago was a success or not.
+E TEST ::: Average Loss 0.000 ::: Average BleuP1 23.604
