@@ -1,18 +1,20 @@
 Loading the data ...
-Loading Multi30k (a smaller dataset [MinLen:1;AvgLen:12;MaxLen:40]) instead of IWSLT
+Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]
 Number of training examples: 29000
 Number of validation examples: 1014
 Number of testing examples: 1000
-Unique tokens in source (de) vocabulary: 24331
-Unique tokens in target (en) vocabulary: 14450
+Unique tokens in source (de) vocabulary: 3004
+Unique tokens in target (en) vocabulary: 3004
 Loading the best trained model
 Evaluation ....
-Sample Pred : a group of men loading vons on a truck.
-Model Expc'd: a group of men are loading cotton onto a truck
-Sample Act'l: a group of men are loading cotton onto a truck
-E VALIDATE ::: Average Loss 0.000 ::: Average BleuP1 31.218
+Sample Inp't: eine person auf einem schneemobil mitten im sprung.
+Sample Pred : a person on a ski lift in the middle of a jump.
+Model Expc'd: a person on a <unk> in mid jump .
+Sample Act'l: a person on a snowmobile in mid jump.
+E VALIDATE ::: Average Loss 0.000 ::: Average BleuP1 33.504
 Evaluation ....
-Sample Pred : a black dog fetching a ball in the water.
-Model Expc'd: a black dog is retrieving a ball in water.
-Sample Act'l: a black dog is retrieving a ball in water.
-E TEST ::: Average Loss 0.000 ::: Average BleuP1 31.902
+Sample Inp't: ein cheerleaderteam macht eine ãœbung auf stã¼hlen.
+Sample Pred : a macht is performing a eine on chairs.
+Model Expc'd: a cheerleading team doing a routine on chairs .
+Sample Act'l: a cheerleading team doing a routine on chairs.
+E TEST ::: Average Loss 0.000 ::: Average BleuP1 33.840

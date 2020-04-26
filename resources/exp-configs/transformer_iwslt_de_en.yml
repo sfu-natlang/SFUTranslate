@@ -1,7 +1,7 @@
 debug_mode: false
 src_lang: de
 tgt_lang: en
-dataset_name: iwslt17
+dataset_name: iwslt17_de_en
 dataset_is_in_bpe: false
 lowercase_data: true
 pad_token: <pad>
@@ -14,6 +14,7 @@ max_vocab_src: 50000
 min_freq_src: 2
 max_vocab_tgt: 50000
 min_freq_tgt: 1
+extract_unk_stats: false
 
 emb_dropout: 0.3
 train_batch_size: 4096

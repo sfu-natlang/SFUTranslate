@@ -1,0 +1,20 @@
+Loading the data ...
+Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]
+Number of training examples: 29000
+Number of validation examples: 1014
+Number of testing examples: 1000
+Unique tokens in source (de) vocabulary: 3004
+Unique tokens in target (en) vocabulary: 3004
+Loading the best trained model
+Evaluation ....
+Sample Inp't: eine gruppe von kindern spielt im wasser unter einer brücke.
+Sample Pred : a group of children playing in the water under a bridge.
+Model Expc'd: a group of children play in the water under a bridge .
+Sample Act'l: a group of children play in the water under a bridge.
+E VALIDATE ::: Average Loss 0.000 ::: Average BleuP1 34.652
+Evaluation ....
+Sample Inp't: zwei personen fahren auf fahrrädern durch eine gebirgslandschaft.
+Sample Pred : two people are riding bikes through a <unk>.
+Model Expc'd: two people riding bikes through a mountainous <unk> .
+Sample Act'l: two people riding bikes through a mountainous region.
+E TEST ::: Average Loss 0.000 ::: Average BleuP1 34.727

@@ -1,0 +1,1097 @@
+Loading the data ...
+Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]
+downloading training.tar.gz
+downloading validation.tar.gz
+downloading mmt_task1_test2016.tar.gz
+Number of training examples: 29000
+Number of validation examples: 1014
+Number of testing examples: 1000
+Unique tokens in source (de) vocabulary: 3004
+Unique tokens in target (en) vocabulary: 3004
+Evaluation ....
+Sample Inp't: eine person beim parasailing auf einem wellenkamm.
+Sample Pred : a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a
+Model Expc'd: a person <unk> on the crest of a wave .
+Sample Act'l: a person parasails on the crest of a wave.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 0.781
+Evaluation ....
+Sample Inp't: ein frau in einer rosafarbenen bluse zeigt einem mann in einem gestreiften pullover, wie eine handarbeit aus garn hergestellt wird.
+Sample Pred : a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a
+Model Expc'd: a woman wearing a pink shirt showing a man with a striped sweater how to do some work with yarn .
+Sample Act'l: a woman wearing a pink shirt showing a man with a striped sweater how to do some work with yarn.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 0.781
+Evaluation ....
+Sample Inp't: ein junge in einem orangen t-shirt l„§chelt, w„§hrend ihn ein junge in einem blauen t-shirt ansieht.
+Sample Pred : a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a
+Model Expc'd: a boy with an orange shirt smiles , while a boy in a blue shirt looks on .
+Sample Act'l: a boy with an orange shirt smiles, while a boy in a blue shirt looks on.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 0.781
+Evaluation ....
+Sample Inp't: drei m„§dchen, von denen eines gerade trinkt, stehen in einer belebten stra„üe und schneiden grimassen.
+Sample Pred : a a a a a a a a a a a.
+Model Expc'd: three girls make faces as one takes a drink while they stand in a busy street .
+Sample Act'l: three girls make faces as one takes a drink while they stand in a busy street.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 3.955
+Evaluation ....
+Sample Inp't: zwei frauen stehen vor einer schulklasse und sprechen „ºber ein buch.
+Sample Pred : a a a a a a a a a a a a a a a a.
+Model Expc'd: two women are standing in front of a class of children talking about a book .
+Sample Act'l: two women are standing in front of a class of children talking about a book.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 2.362
+Evaluation ....
+Sample Inp't: eine junge frau fertigt im regenwald teppiche an
+Sample Pred : a a a a a a a a.
+Model Expc'd: a young woman is making rugs in the rain forest
+Sample Act'l: a young woman is making rugs in the rain forest
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 3.999
+Evaluation ....
+Sample Inp't: zwei kinder mit gelben jacken spielen im schlamm.
+Sample Pred : a a a a a.
+Model Expc'd: two children in yellow jackets are playing in mud .
+Sample Act'l: two children in yellow jackets are playing in mud.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 4.152
+Evaluation ....
+Sample Inp't: ein s„º„ües baby l„§chelt einem anderen kind zu.
+Sample Pred : a man in a man in a <unk>.
+Model Expc'd: a cute baby is smiling at another child .
+Sample Act'l: a cute baby is smiling at another child.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 5.879
+Evaluation ....
+Sample Inp't: ein halbnackter mann schl„§ft drau„üen auf seinem stuhl.
+Sample Pred : a man is is a man.
+Model Expc'd: a half naked man is sleeping on his chair outdoors .
+Sample Act'l: a half naked man is sleeping on his chair outdoors.
+E 0 ::: Average Loss 0.000 ::: Average BleuP1 6.320
+Evaluation ....
+Sample Inp't: ein asiatisches m„§dchen mit gr„ºnem hut und sch„ºrze serviert getr„§nke auf einem tablett.
+Sample Pred : a man in a man in a man in a man in a man in a man.
+Model Expc'd: an asian girl in a green hat and apron is serving drinks on a tray .
+Sample Act'l: an asian girl in a green hat and apron is serving drinks on a tray.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 6.380
+Evaluation ....
+Sample Inp't: einige m„§nner sitzen in einem boot in der n„§he eines strandes, der mit gestapelten holzst„§mmen und st„∂cken bedeckt ist.
+Sample Pred : a man in a <unk> and a <unk> and a <unk> and a <unk> and a <unk>.
+Model Expc'd: some men are sitting on a boat near a beach covered in stacked logs and sticks .
+Sample Act'l: some men are sitting on a boat near a beach covered in stacked logs and sticks.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 5.700
+Evaluation ....
+Sample Inp't: ein mann mit beginnender glatze, der eine rote rettungsweste tr„§gt, sitzt in einem kleinen boot.
+Sample Pred : a man in a man in a <unk> on a <unk>.
+Model Expc'd: a balding man wearing a red life jacket is sitting in a small boat .
+Sample Act'l: a balding man wearing a red life jacket is sitting in a small boat.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 7.528
+Evaluation ....
+Sample Inp't: ein mann br„§t burger auf einem schwarzen grill.
+Sample Pred : a man in a man is is on a <unk>.
+Model Expc'd: a man cooking <unk> on a black grill .
+Sample Act'l: a man cooking burgers on a black grill.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 7.976
+Evaluation ....
+Sample Inp't: ein hoteldiener in einem mantel schiebt eine ladung gep„§ck.
+Sample Pred : a man in a <unk> a <unk> of a <unk>.
+Model Expc'd: a <unk> <unk> man wearing a trench coat pushing a load of luggage .
+Sample Act'l: a motel valet man wearing a trench coat pushing a load of luggage.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 7.841
+Evaluation ....
+Sample Inp't: mehrere menschen stehen in der d„§mmerung in der n„§he einiger b„§ume.
+Sample Pred : people are walking in the street.
+Model Expc'd: several people are standing near trees at dusk .
+Sample Act'l: several people are standing near trees at dusk.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 8.844
+Evaluation ....
+Sample Inp't: eine band gibt ein rockkonzert vor zuschauern in einer bar.
+Sample Pred : a group of people are sitting in a <unk>.
+Model Expc'd: a band plays a rock show to a bar audience .
+Sample Act'l: a band plays a rock show to a bar audience.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 9.966
+Evaluation ....
+Sample Inp't: ein junge mit kopfh„∂rern sitzt auf den schultern einer frau.
+Sample Pred : a young boy is sitting on a woman.
+Model Expc'd: a boy wearing headphones sits on a woman 's shoulders .
+Sample Act'l: a boy wearing headphones sits on a woman's shoulders.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 8.842
+Evaluation ....
+Sample Inp't: ein kleines kind schwingt einen roten baseballschl„§ger nach hinten.
+Sample Pred : a child is playing a <unk>.
+Model Expc'd: a small child swings back a red baseball bat .
+Sample Act'l: a small child swings back a red baseball bat.
+E 1 ::: Average Loss 0.000 ::: Average BleuP1 10.120
+Evaluation ....
+Sample Inp't: drei menschen spielen musikinstrumente und eine andere person sieht so aus, als ob sie singen w„ºrde.
+Sample Pred : three people are playing a <unk> and one and one of the camera.
+Model Expc'd: there are 3 people playing musical instrument and one other person looks like she is singing .
+Sample Act'l: there are 3 people playing musical instrument and one other person looks like she is singing.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 11.712
+Evaluation ....
+Sample Inp't: ein braun-wei„üer hund rennt eine gelb-blaue rampe hinunter.
+Sample Pred : a black dog running down a dog is walking down a dog.
+Model Expc'd: a brown a white dog runs down a yellow and blue ramp .
+Sample Act'l: a brown a white dog runs down a yellow and blue ramp.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 11.631
+Evaluation ....
+Sample Inp't: ein traktor bewegt erde f„ºr den bau einer st„ºtzmauer.
+Sample Pred : a <unk> is <unk> the <unk> of a <unk>.
+Model Expc'd: a tractor is moving dirt to help <unk> up a <unk> wall .
+Sample Act'l: a tractor is moving dirt to help build up a retaining wall.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 13.062
+Evaluation ....
+Sample Inp't: ein mann schl„§ft in einem gr„ºnen raum auf einem sofa.
+Sample Pred : a man is holding a blue shirt is sitting on a red field.
+Model Expc'd: a man sleeping in a green room on a couch .
+Sample Act'l: a man sleeping in a green room on a couch.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 13.535
+Evaluation ....
+Sample Inp't: ein blauer jeep f„§hrt in tiefes, schlammiges wasser.
+Sample Pred : a blue shirt is riding a water water in water.
+Model Expc'd: a blue jeep drive into deep , muddy water .
+Sample Act'l: a blue jeep drive into deep, muddy water.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 15.467
+Evaluation ....
+Sample Inp't: eine frau in einem rotem mantel, die eine vermutlich aus asien stammende handtasche in einem blauen farbton h„§lt, springt f„ºr einen schnappschuss in die luft.
+Sample Pred : a woman in a red shirt is holding a blue shirt.
+Model Expc'd: a lady in a red coat , holding a <unk> hand bag <unk> of asian descent , jumping off the ground for a <unk> .
+Sample Act'l: a lady in a red coat, holding a bluish hand bag likely of asian descent, jumping off the ground for a snapshot.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 15.944
+Evaluation ....
+Sample Inp't: eine dunkelhaarige frau mit einer blauen bluse und sonnenbrille h„§lt ein spruchband, w„§hrend ein junges m„§dchen mit geflochtenem haar auf das spruchband schreibt.
+Sample Pred : a black - haired woman with a blue shirt and a girl is holding a red shirt.
+Model Expc'd: a dark - haired woman wearing a blue blouse and sunglasses holds a banner while a young girl with braided hair writes on the banner .
+Sample Act'l: a dark-haired woman wearing a blue blouse and sunglasses holds a banner while a young girl with braided hair writes on the banner.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 16.854
+Evaluation ....
+Sample Inp't: eine frau mit pinkfarbener tasche sitzt auf einer bank.
+Sample Pred : a woman wearing a pink hat is sitting on a bench.
+Model Expc'd: a woman with a pink purse is sitting on a bench .
+Sample Act'l: a woman with a pink purse is sitting on a bench.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 16.677
+Evaluation ....
+Sample Inp't: zwei bauarbeiter helfen beim beladen eines kippers auf einer innerst„§dtischen baustelle.
+Sample Pred : two workers are working on a <unk> of a <unk> <unk>.
+Model Expc'd: two construction workers <unk> in the loading of a dump truck at an urban construction site .
+Sample Act'l: two construction workers assist in the loading of a dump truck at an urban construction site.
+E 2 ::: Average Loss 0.000 ::: Average BleuP1 16.775
+Evaluation ....
+Sample Inp't: ein m„§dchen in einem rot-wei„üen t-shirt und blauen shorts macht sich bereit, einen ball zu werfen.
+Sample Pred : a girl in a white shirt and white shirt is jumping on the grass.
+Model Expc'd: a girl in a red and white shirt and blue shorts is getting ready to throw a ball .
+Sample Act'l: a girl in a red and white shirt and blue shorts is getting ready to throw a ball.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 17.572
+Evaluation ....
+Sample Inp't: ein mann spielt keyboard und singt in ein mikrofon.
+Sample Pred : a man is playing a guitar and singing into a microphone.
+Model Expc'd: a man playing a keyboard and singing into a microphone .
+Sample Act'l: a man playing a keyboard and singing into a microphone.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 20.950
+Evaluation ....
+Sample Inp't: eine frau und ein kind sitzen zusammen in einem t„ºrrahmen an einem grauen gehweg, w„§hrend ein mann und zwei frauen vorbeigehen.
+Sample Pred : a woman and a child sitting together in a <unk> and a man on a sidewalk.
+Model Expc'd: a woman and a child sit together in a door frame along a gray sidewalk , as a man and two women walk past .
+Sample Act'l: a woman and a child sit together in a door frame along a gray sidewalk, as a man and two women walk past.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 20.485
+Evaluation ....
+Sample Inp't: junge erwachsene in einer geraden linie, die rote, gelbe und schwarze t-shirts tragen, f„ºhren einen sketch auf.
+Sample Pred : young adults in a <unk> <unk>, wearing a yellow and red and black pants.
+Model Expc'd: young adults wearing red , yellow , and black shirts in a straight line perform a <unk> .
+Sample Act'l: young adults wearing red, yellow, and black shirts in a straight line perform a sketch.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 21.694
+Evaluation ....
+Sample Inp't: die frau mit einem schwarzen hut macht ein foto bei schneefall.
+Sample Pred : the woman with a black hat is doing a picture.
+Model Expc'd: the lady wearing a black hat is taking a picture while the <unk> .
+Sample Act'l: the lady wearing a black hat is taking a picture while the snowfalls.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 22.410
+Evaluation ....
+Sample Inp't: ein kleines kind und eine frau stehen um einen hahn im k„§fig herum.
+Sample Pred : a small child and a woman are standing around a <unk> in the background.
+Model Expc'd: a young child and a woman are standing around a <unk> <unk> .
+Sample Act'l: a young child and a woman are standing around a caged rooster.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 22.439
+Evaluation ....
+Sample Inp't: eine junge frau und eine „§ltere frau in traditionellen saris spinnen textilien, w„§hrend drei weitere personen in moderner kleidung nur von der taille abw„§rts auf dem bild zu sehen sind.
+Sample Pred : a young woman and an older woman in <unk> <unk> <unk> <unk> <unk>.
+Model Expc'd: a young woman and older woman wear traditional saris as they <unk> <unk> , three people are <unk> at only the <unk> , and wear modern clothes .
+Sample Act'l: a young woman and older woman wear traditional saris as they spin textiles, three people are pictured at only the waists, and wear modern clothes.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 21.864
+Evaluation ....
+Sample Inp't: ein junger mann tr„§gt etwas in einem gro„üen schwarzen plastikm„ºllsack.
+Sample Pred : a young man is carrying something in a large black black <unk>.
+Model Expc'd: a young man is carrying something in a large black plastic garbage bag .
+Sample Act'l: a young man is carrying something in a large black plastic garbage bag.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 23.410
+Evaluation ....
+Sample Inp't: ein junger mann mit blondem haar spricht in ein mikrofon.
+Sample Pred : a young man with blond - hair is talking to a microphone in a microphone.
+Model Expc'd: a young blond - haired man speaks into a microphone .
+Sample Act'l: a young blond-haired man speaks into a microphone.
+E 3 ::: Average Loss 0.000 ::: Average BleuP1 23.814
+Evaluation ....
+Sample Inp't: ein blonder junge in einem blauen t-shirt steht l„§chelnd vor einem boot aus gr„ºnem nylongewebe.
+Sample Pred : a blond boy in a blue shirt is standing in front of a green boat.
+Model Expc'd: a blond boy in a blue t - shirt stands smiling before a craft of green <unk> fabric .
+Sample Act'l: a blond boy in a blue t-shirt stands smiling before a craft of green nylon fabric.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 21.934
+Evaluation ....
+Sample Inp't: eine mutter und zwei kinder posieren mit lustigen gesichtern.
+Sample Pred : a mother and two children are posing with <unk>.
+Model Expc'd: a mother and two children are posing with funny faces .
+Sample Act'l: a mother and two children are posing with funny faces.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 25.454
+Evaluation ....
+Sample Inp't: ein kind steht neben einem kinderwagen und h„§lt ein spielzeugschwert.
+Sample Pred : a child standing next to a stroller holding a baby.
+Model Expc'd: a child standing by a stroller and holding a toy sword .
+Sample Act'l: a child standing by a stroller and holding a toy sword.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 24.872
+Evaluation ....
+Sample Inp't: ein kleiner junge springt in das wasser.
+Sample Pred : a little boy jumps into the water.
+Model Expc'd: a young boy jumps into water .
+Sample Act'l: a young boy jumps into water.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 25.871
+Evaluation ....
+Sample Inp't: ein mann mit rastalocken verstopft sein ohr, um ein telefongespr„§ch h„∂ren zu k„∂nnen.
+Sample Pred : a man with his <unk> his beard is <unk> a <unk>.
+Model Expc'd: a man with dreadlocks is <unk> his ear to <unk> a phone call .
+Sample Act'l: a man with dreadlocks is plugging his ear to hear a phone call.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 26.735
+Evaluation ....
+Sample Inp't: kleiner junge im tarnanzug krabbelt auf braunem fu„üboden
+Sample Pred : little boy in <unk> <unk> <unk> <unk> <unk>.
+Model Expc'd: little boy in <unk> <unk> on brown floor
+Sample Act'l: little boy in cami crawling on brown floor
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 25.672
+Evaluation ....
+Sample Inp't: ein fu„üballspieler in einem gr„ºnen trikot l„§uft vom spielfeld.
+Sample Pred : a soccer player in a green jersey is running.
+Model Expc'd: a soccer team player in a green shirt is running off the field .
+Sample Act'l: a soccer team player in a green shirt is running off the field.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 24.046
+Evaluation ....
+Sample Inp't: ein mann telefoniert in einem unaufger„§umten b„ºro
+Sample Pred : a man is talking in an office shop.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 26.715
+Evaluation ....
+Sample Inp't: ein halbnackter mann schl„§ft drau„üen auf seinem stuhl.
+Sample Pred : a man sleeping outside on his chair.
+Model Expc'd: a half naked man is sleeping on his chair outdoors .
+Sample Act'l: a half naked man is sleeping on his chair outdoors.
+E 4 ::: Average Loss 0.000 ::: Average BleuP1 24.983
+Evaluation ....
+Sample Inp't: eine person auf einem schneemobil mitten im sprung.
+Sample Pred : a person on a <unk> in the middle of a jump.
+Model Expc'd: a person on a <unk> in mid jump .
+Sample Act'l: a person on a snowmobile in mid jump.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 27.691
+Evaluation ....
+Sample Inp't: ein kleines kind steht allein auf einem zerkl„ºfteten felsen.
+Sample Pred : a small child stands alone on a rock.
+Model Expc'd: a young child is standing alone on some <unk> rocks .
+Sample Act'l: a young child is standing alone on some jagged rocks.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 27.650
+Evaluation ....
+Sample Inp't: drei kinder sehen zu, wie ein mann auf einer b„ºhne gitarre spielt.
+Sample Pred : three children are watching a man on a stage.
+Model Expc'd: three children watch a man on stage playing guitar .
+Sample Act'l: three children watch a man on stage playing guitar.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 23.737
+Evaluation ....
+Sample Inp't: ein junger mann tr„§gt etwas in einem gro„üen schwarzen plastikm„ºllsack.
+Sample Pred : a young man wearing a large black <unk>.
+Model Expc'd: a young man is carrying something in a large black plastic garbage bag .
+Sample Act'l: a young man is carrying something in a large black plastic garbage bag.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 27.159
+Evaluation ....
+Sample Inp't: zwei kleine schwarze jungen spielen mit plastikflaschen und haben dabei viel spa„ü.
+Sample Pred : two young black boys playing with <unk>.
+Model Expc'd: two little black boys are playing with plastic bottles and having a lot of fun .
+Sample Act'l: two little black boys are playing with plastic bottles and having a lot of fun.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 27.746
+Evaluation ....
+Sample Inp't: ein mann fotografiert wei„üe und gelbe tulpen.
+Sample Pred : a man is taking a picture of white and yellow <unk>.
+Model Expc'd: a man takes pictures of white and yellow <unk> .
+Sample Act'l: a man takes pictures of white and yellow tulips.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 28.100
+Evaluation ....
+Sample Inp't: frauen gehen durch den tiefschnee einen steilen abhang hinunter.
+Sample Pred : women walk through a steep steep steep <unk>.
+Model Expc'd: women walking through deep snow and down a steep hill .
+Sample Act'l: women walking through deep snow and down a steep hill.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 27.205
+Evaluation ....
+Sample Inp't: ein boot mit menschen und ihrem hab und gut befindet sich im wasser.
+Sample Pred : a boat with her <unk> and <unk> in the water.
+Model Expc'd: a boat with people and their belongings is in the water .
+Sample Act'l: a boat with people and their belongings is in the water.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 30.349
+Evaluation ....
+Sample Inp't: eine bunt gekleidete frau geht an einem wei„üen lastwagen vorbei, der mit flaschen gef„ºllt ist.
+Sample Pred : a woman dressed in colorful clothing walks by a white truck with <unk>.
+Model Expc'd: a woman in a colorful outfit is walking by a white truck filled with bottles .
+Sample Act'l: a woman in a colorful outfit is walking by a white truck filled with bottles.
+E 5 ::: Average Loss 0.000 ::: Average BleuP1 27.776
+Evaluation ....
+Sample Inp't: eine person wirft gerade eine gr„ºne bowlingkugel eine bowlingbahn entlang.
+Sample Pred : a person is throwing a green bowling down a bowling alley.
+Model Expc'd: a person about in the middle of throwing a green bowling ball down a bowling lane .
+Sample Act'l: a person about in the middle of throwing a green bowling ball down a bowling lane.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 27.003
+Evaluation ....
+Sample Inp't: ein hund geht mit einem tuch im maul durch einen kleinen bach.
+Sample Pred : a dog walks with a cloth in its mouth.
+Model Expc'd: a dog walking through a small stream with a rag in his mouth .
+Sample Act'l: a dog walking through a small stream with a rag in his mouth.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 26.544
+Evaluation ....
+Sample Inp't: ein hund geht mit einem tuch im maul durch einen kleinen bach.
+Sample Pred : a dog is walking through a small stream with a cloth.
+Model Expc'd: a dog walking through a small stream with a rag in his mouth .
+Sample Act'l: a dog walking through a small stream with a rag in his mouth.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 28.975
+Evaluation ....
+Sample Inp't: ein mann mit einer roten baseballkappe lehnt an einem laternenpfahl.
+Sample Pred : a man in a red and red hat is leaning against a <unk>.
+Model Expc'd: a man in a red baseball cap is leaning against a light pole .
+Sample Act'l: a man in a red baseball cap is leaning against a light pole.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 27.349
+Evaluation ....
+Sample Inp't: ein halbnackter mann schl„§ft drau„üen auf seinem stuhl.
+Sample Pred : a man sleeping outside on his chair.
+Model Expc'd: a half naked man is sleeping on his chair outdoors .
+Sample Act'l: a half naked man is sleeping on his chair outdoors.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 28.409
+Evaluation ....
+Sample Inp't: mehrere menschen stehen in der d„§mmerung in der n„§he einiger b„§ume.
+Sample Pred : several people stand at night near some trees.
+Model Expc'd: several people are standing near trees at dusk .
+Sample Act'l: several people are standing near trees at dusk.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 29.515
+Evaluation ....
+Sample Inp't: ein junger mann in einem gr„ºnen sweatshirt liest eine zeitung am strand.
+Sample Pred : a young man in a green sweatshirt reads a newspaper on the beach.
+Model Expc'd: a young man in a green sweatshirt reads a newspaper on the beach .
+Sample Act'l: a young man in a green sweatshirt reads a newspaper on the beach.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 30.248
+Evaluation ....
+Sample Inp't: zwei bauarbeiter helfen beim beladen eines kippers auf einer innerst„§dtischen baustelle.
+Sample Pred : two construction workers help a <unk>.
+Model Expc'd: two construction workers <unk> in the loading of a dump truck at an urban construction site .
+Sample Act'l: two construction workers assist in the loading of a dump truck at an urban construction site.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 25.637
+Evaluation ....
+Sample Inp't: eine junge frau und eine „§ltere frau in traditionellen saris spinnen textilien, w„§hrend drei weitere personen in moderner kleidung nur von der taille abw„§rts auf dem bild zu sehen sind.
+Sample Pred : a young woman and an elderly woman in traditional <unk> <unk> <unk>, while three people are in traditional clothes, are <unk>, while three <unk>, and three <unk>, and three <unk>, and three <unk>, and three <unk>, and three <unk>, and three <unk>, and three
+Model Expc'd: a young woman and older woman wear traditional saris as they <unk> <unk> , three people are <unk> at only the <unk> , and wear modern clothes .
+Sample Act'l: a young woman and older woman wear traditional saris as they spin textiles, three people are pictured at only the waists, and wear modern clothes.
+E 6 ::: Average Loss 0.000 ::: Average BleuP1 29.789
+Evaluation ....
+Sample Inp't: ein mann telefoniert in einem unaufger„§umten b„ºro
+Sample Pred : a man talks on the phone in an office.
+Model Expc'd: a man in a cluttered office is using the telephone
+Sample Act'l: a man in a cluttered office is using the telephone
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 30.265
+Evaluation ....
+Sample Inp't: menschen gehen auf einem gehweg, an dem ein freiluftmarkt stattfindet.
+Sample Pred : people walk on a sidewalk <unk> a <unk>.
+Model Expc'd: people are walking down a sidewalk where there is an outdoors market .
+Sample Act'l: people are walking down a sidewalk where there is an outdoors market.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 29.161
+Evaluation ....
+Sample Inp't: eine aufwendig kost„ºmierte figur vor einem pr„§chtig geschm„ºckten bauwerk.
+Sample Pred : a female athlete in costume in front of a <unk> structure.
+Model Expc'd: an elaborate <unk> figure is in front of a brightly decorated structure .
+Sample Act'l: an elaborate costumed figure is in front of a brightly decorated structure.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 30.132
+Evaluation ....
+Sample Inp't: mehrere menschen stehen in der d„§mmerung in der n„§he einiger b„§ume.
+Sample Pred : several people stand near some <unk> trees.
+Model Expc'd: several people are standing near trees at dusk .
+Sample Act'l: several people are standing near trees at dusk.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 29.901
+Evaluation ....
+Sample Inp't: eine gruppe von menschen steht vor einer bude auf einem parkplatz.
+Sample Pred : a group of people are standing in a parking lot.
+Model Expc'd: a group of people standing in front of a hut in a parking lot .
+Sample Act'l: a group of people standing in front of a hut in a parking lot.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 30.342
+Evaluation ....
+Sample Inp't: einige menschen schwimmen in einem gew„§sser.
+Sample Pred : some people are swimming in a body of water.
+Model Expc'd: several people swim in a body of water .
+Sample Act'l: several people swim in a body of water.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 31.482
+Evaluation ....
+Sample Inp't: ein mann sitzt im klaren, seichten wasser an einer gro„üen felswand.
+Sample Pred : a man sits on a large rock climbing towards a large rock.
+Model Expc'd: a man sitting in clear shallow water beside a large rock face .
+Sample Act'l: a man sitting in clear shallow water beside a large rock face.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 28.447
+Evaluation ....
+Sample Inp't: ein boot mit menschen und ihrem hab und gut befindet sich im wasser.
+Sample Pred : a boat with people and their <unk>, <unk>, in the water.
+Model Expc'd: a boat with people and their belongings is in the water .
+Sample Act'l: a boat with people and their belongings is in the water.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 29.767
+Evaluation ....
+Sample Inp't: zwei frauen stehen vor einer schulklasse und sprechen „ºber ein buch.
+Sample Pred : two women are standing in front of a <unk> and talking.
+Model Expc'd: two women are standing in front of a class of children talking about a book .
+Sample Act'l: two women are standing in front of a class of children talking about a book.
+E 7 ::: Average Loss 0.000 ::: Average BleuP1 28.882
+Evaluation ....
+Sample Inp't: ein mann schl„§ft in einem gr„ºnen raum auf einem sofa.
+Sample Pred : a man sleeping in a green room.
+Model Expc'd: a man sleeping in a green room on a couch .
+Sample Act'l: a man sleeping in a green room on a couch.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 29.569
+Evaluation ....
+Sample Inp't: ein kind macht sich bereit, ein buch zu lesen.
+Sample Pred : a child getting ready to read a book.
+Model Expc'd: a child is getting ready to read a book .
+Sample Act'l: a child is getting ready to read a book.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 29.819
+Evaluation ....
+Sample Inp't: ein mann mit einem gr„ºnen shirt k„ºsst ein weinendes kleinkind und sieht dabei den l„§ufern eines stra„üenrennens zu.
+Sample Pred : a man wearing a green shirt is kissing a <unk> of a <unk>.
+Model Expc'd: a man in a green shirt is kissing a crying toddler whilst watching runners in a road race .
+Sample Act'l: a man in a green shirt is kissing a crying toddler whilst watching runners in a road race.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 30.067
+Evaluation ....
+Sample Inp't: eine person in einem lilafarbenen oberteil malt ein bild von einer frau auf eine wei„üe wand.
+Sample Pred : a person in a purple shirt is painting a picture of a woman on a white wall.
+Model Expc'd: a person with a purple shirt is painting an image of a woman on a white wall .
+Sample Act'l: a person with a purple shirt is painting an image of a woman on a white wall.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 28.776
+Evaluation ....
+Sample Inp't: menschen gehen auf einem gehweg, an dem ein freiluftmarkt stattfindet.
+Sample Pred : people walk on a sidewalk, with a <unk>.
+Model Expc'd: people are walking down a sidewalk where there is an outdoors market .
+Sample Act'l: people are walking down a sidewalk where there is an outdoors market.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 29.490
+Evaluation ....
+Sample Inp't: frau im mantel bei schneefall vor einem haus
+Sample Pred : woman in a coat is outside a house in front of a house.
+Model Expc'd: woman in coat outside a house while <unk>
+Sample Act'l: woman in coat outside a house while snowing
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 29.504
+Evaluation ....
+Sample Inp't: ein polizist h„§lt ein fahrzeug am stra„üenrand an.
+Sample Pred : a policeman is holding a vehicle on the side of the road.
+Model Expc'd: a policeman <unk> a vehicle on the side of the road .
+Sample Act'l: a policeman stopping a vehicle on the side of the road.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 28.711
+Evaluation ....
+Sample Inp't: ein kleiner junge wirft einen stein in ruhiges wasser.
+Sample Pred : a little boy throws a rock into shallow water.
+Model Expc'd: a young boy , throwing a stone into calm water .
+Sample Act'l: a young boy, throwing a stone into calm water.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 30.502
+Evaluation ....
+Sample Inp't: ein brauner hund rennt dem schwarzen hund hinterher.
+Sample Pred : a brown dog is running after the black dog.
+Model Expc'd: a brown dog is running after the black dog .
+Sample Act'l: a brown dog is running after the black dog.
+E 8 ::: Average Loss 0.000 ::: Average BleuP1 31.780
+Evaluation ....
+Sample Inp't: eine frau in einem schwarzen kleid schiebt einen wagen mit thermoskannen einen gepflasterten fu„üg„§ngerweg entlang.
+Sample Pred : a woman in a black dress pushes a cart along a paved road.
+Model Expc'd: a woman in a black dress is pushing a cart with <unk> down a paved walkway .
+Sample Act'l: a woman in a black dress is pushing a cart with thermos down a paved walkway.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 30.325
+Evaluation ....
+Sample Inp't: ein mann sitzt auf dem boden und spielt gitarre.
+Sample Pred : a man is sitting on the ground playing a guitar.
+Model Expc'd: a man sitting on the ground , playing guitar .
+Sample Act'l: a man sitting on the ground, playing guitar.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 29.300
+Evaluation ....
+Sample Inp't: zwei frauen stehen vor einer schulklasse und sprechen „ºber ein buch.
+Sample Pred : two women stand in front of a <unk>, talking over a book.
+Model Expc'd: two women are standing in front of a class of children talking about a book .
+Sample Act'l: two women are standing in front of a class of children talking about a book.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 29.178
+Evaluation ....
+Sample Inp't: ein „§lterer mann geht mit einem braunen hund an einer roten leine spazieren.
+Sample Pred : an older man walking on a red dog.
+Model Expc'd: an elderly man is walking a brown dog using a red leash .
+Sample Act'l: an elderly man is walking a brown dog using a red leash.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 29.398
+Evaluation ....
+Sample Inp't: seeleute stehen oben an einer laufplanke, die auf ein gro„ües schiff f„ºhrt.
+Sample Pred : the <unk> is standing on top of a rock, which is doing a large ship.
+Model Expc'd: <unk> stand at the top of a <unk> to a large boat .
+Sample Act'l: sailors stand at the top of a gangplank to a large boat.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 30.538
+Evaluation ....
+Sample Inp't: ein kleines blondes m„§dchen h„§lt ein sandwich.
+Sample Pred : a young blond girl holding a sandwich.
+Model Expc'd: a small blond girl is holding a sandwich .
+Sample Act'l: a small blond girl is holding a sandwich.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 28.944
+Evaluation ....
+Sample Inp't: mann steht auf einem pier neben einem boot an einem ruhigen see.
+Sample Pred : man standing on a pier next to a boat calm lake.
+Model Expc'd: man standing on a pier next to a boat on a still lake .
+Sample Act'l: man standing on a pier next to a boat on a still lake.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 29.684
+Evaluation ....
+Sample Inp't: ein kleines baby, das in pinkfarbenen fleece gekleidet ist, liegt l„§chelnd inmitten von herbstbl„§ttern.
+Sample Pred : a little baby dressed in pink <unk> smiles off for <unk>.
+Model Expc'd: a young baby , dressed in a pink <unk> outfit , smiles while laying in autumn leaves .
+Sample Act'l: a young baby, dressed in a pink fleece outfit, smiles while laying in autumn leaves.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 31.126
+Evaluation ....
+Sample Inp't: ein polizist h„§lt ein fahrzeug am stra„üenrand an.
+Sample Pred : a policeman holds a vehicle on the side of the road.
+Model Expc'd: a policeman <unk> a vehicle on the side of the road .
+Sample Act'l: a policeman stopping a vehicle on the side of the road.
+E 9 ::: Average Loss 0.000 ::: Average BleuP1 30.052
+Evaluation ....
+Sample Inp't: eine junge frau fertigt im regenwald teppiche an
+Sample Pred : a young woman is <unk> in the <unk> <unk> <unk>.
+Model Expc'd: a young woman is making rugs in the rain forest
+Sample Act'l: a young woman is making rugs in the rain forest
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 29.691
+Evaluation ....
+Sample Inp't: eine bunt gekleidete frau geht an einem wei„üen lastwagen vorbei, der mit flaschen gef„ºllt ist.
+Sample Pred : a woman in colorful clothing walking past a white truck filled with bottles.
+Model Expc'd: a woman in a colorful outfit is walking by a white truck filled with bottles .
+Sample Act'l: a woman in a colorful outfit is walking by a white truck filled with bottles.
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.633
+Evaluation ....
+Sample Inp't: m„§nner in gelben anz„ºgen und ein klavier befinden sich auf der b„ºhne und ein mann spielt einen kontrabass.
+Sample Pred : men in yellow suits and a piano on stage playing a <unk> and a man playing a guitar.
+Model Expc'd: men wearing yellow suits are on stage with a piano and one man is playing an upright bass .
+Sample Act'l: men wearing yellow suits are on stage with a piano and one man is playing an upright bass.
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.995
+Evaluation ....
+Sample Inp't: ein m„§dchen sitzt in bequemer haltung an einem „∂ffentlichen ort und liest ein buch, das sie mit ihrer hand ge„∂ffnet h„§lt, an der sich ein ring mit einem schmetterling befindet.
+Sample Pred : a girl sits at a public place, holding a book and reads a book.
+Model Expc'd: sitting casually in a public place , a girl reads holding the book open with her hand on which is a butterfly ring .
+Sample Act'l: sitting casually in a public place, a girl reads holding the book open with her hand on which is a butterfly ring.
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.893
+Evaluation ....
+Sample Inp't: kinder fahren in einem kettenkarussell
+Sample Pred : children are riding in a <unk> <unk> <unk> - <unk> - <unk> <unk> <unk> - <unk> <unk> <unk> <unk>.
+Model Expc'd: kids are riding a swinging carnival ride
+Sample Act'l: kids are riding a swinging carnival ride
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 29.825
+Evaluation ....
+Sample Inp't: kinder fahren in einem kettenkarussell
+Sample Pred : children are riding in a <unk> <unk> <unk> <unk>.
+Model Expc'd: kids are riding a swinging carnival ride
+Sample Act'l: kids are riding a swinging carnival ride
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.901
+Evaluation ....
+Sample Inp't: eine gruppe von menschen wartet hinter einer absperrung und blickt nach rechts.
+Sample Pred : a group of people are waiting for a <unk> and looking at the right.
+Model Expc'd: a group of people wait behind a <unk> and look toward the right .
+Sample Act'l: a group of people wait behind a barricade and look toward the right.
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.410
+Evaluation ....
+Sample Inp't: die skier befinden sich vor der h„ºtte.
+Sample Pred : the <unk> <unk> <unk> before the hut.
+Model Expc'd: the skiers are in front of the <unk> .
+Sample Act'l: the skiers are in front of the lodge.
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.257
+Evaluation ....
+Sample Inp't: eine aufwendig kost„ºmierte figur vor einem pr„§chtig geschm„ºckten bauwerk.
+Sample Pred : a group of people in costume are outside a structure.
+Model Expc'd: an elaborate <unk> figure is in front of a brightly decorated structure .
+Sample Act'l: an elaborate costumed figure is in front of a brightly decorated structure.
+E 10 ::: Average Loss 0.000 ::: Average BleuP1 30.672
+Evaluation ....
+Sample Inp't: ein polizist h„§lt ein fahrzeug am stra„üenrand an.
+Sample Pred : a police officer is holding a vehicle on the street.
+Model Expc'd: a policeman <unk> a vehicle on the side of the road .
+Sample Act'l: a policeman stopping a vehicle on the side of the road.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 31.858
+Evaluation ....
+Sample Inp't: ein mann mit anzug und brille h„§lt einen gegenstand in den h„§nden.
+Sample Pred : a man with a suit and glasses holds an object in his hands.
+Model Expc'd: a man in a suit and glass has an object in his hands .
+Sample Act'l: a man in a suit and glass has an object in his hands.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 30.496
+Evaluation ....
+Sample Inp't: eine menschenmasse geht durch den park.
+Sample Pred : a <unk> walks through the park.
+Model Expc'd: a <unk> of people walk through the park .
+Sample Act'l: a mass of people walk through the park.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 31.239
+Evaluation ....
+Sample Inp't: ein kleiner junge mit einem giants-trikot schwingt einen baseballschl„§ger in richtung eines ankommenden balls.
+Sample Pred : a young boy wearing a baseball cap is swinging a baseball bat towards a <unk> ball.
+Model Expc'd: a young boy wearing a <unk> jersey swings a baseball bat at an <unk> pitch .
+Sample Act'l: a young boy wearing a giants jersey swings a baseball bat at an incoming pitch.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 30.325
+Evaluation ....
+Sample Inp't: ein mann in einem klettergurt klettert an einer felswand
+Sample Pred : a man in a <unk> jacket climbs a rock face.
+Model Expc'd: a man in a harness climbing a rock wall
+Sample Act'l: a man in a harness climbing a rock wall
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 31.759
+Evaluation ....
+Sample Inp't: ein braun-wei„üer hund rennt eine gelb-blaue rampe hinunter.
+Sample Pred : a brown and white dog running down a <unk> ramp.
+Model Expc'd: a brown a white dog runs down a yellow and blue ramp .
+Sample Act'l: a brown a white dog runs down a yellow and blue ramp.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 30.423
+Evaluation ....
+Sample Inp't: viele st„ºhle sind leer und nur einige wenige menschen genie„üen die sonne.
+Sample Pred : many people are enjoying <unk> and wearing only <unk>, enjoying the sun.
+Model Expc'd: many of the chairs are empty with only a few people enjoying the sun .
+Sample Act'l: many of the chairs are empty with only a few people enjoying the sun.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 31.565
+Evaluation ....
+Sample Inp't: eine gruppe von menschen sammelt sich um einen mann in einem anzug und einen kleinen jungen.
+Sample Pred : a group of people are picking around a man in a suit and a young boy.
+Model Expc'd: a group of people <unk> around a man in a suit and a little boy .
+Sample Act'l: a group of people collect around a man in a suit and a little boy.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 31.420
+Evaluation ....
+Sample Inp't: ein mann f„§hrt ein altmodisches rotes rennauto.
+Sample Pred : a man is driving a red race car.
+Model Expc'd: a man drives an old - fashioned red race car .
+Sample Act'l: a man drives an old-fashioned red race car.
+E 11 ::: Average Loss 0.000 ::: Average BleuP1 31.520
+Evaluation ....
+Sample Inp't: ein m„§dchen in einem rot-wei„üen t-shirt und blauen shorts macht sich bereit, einen ball zu werfen.
+Sample Pred : a girl in a red and white t - shirt is getting ready to throw a ball.
+Model Expc'd: a girl in a red and white shirt and blue shorts is getting ready to throw a ball .
+Sample Act'l: a girl in a red and white shirt and blue shorts is getting ready to throw a ball.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 31.005
+Evaluation ....
+Sample Inp't: menschen gehen auf einem gehweg, an dem ein freiluftmarkt stattfindet.
+Sample Pred : people walk on a sidewalk, one of the <unk>.
+Model Expc'd: people are walking down a sidewalk where there is an outdoors market .
+Sample Act'l: people are walking down a sidewalk where there is an outdoors market.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 31.395
+Evaluation ....
+Sample Inp't: eine band gibt ein rockkonzert vor zuschauern in einer bar.
+Sample Pred : a band is giving a <unk> in front of a bar.
+Model Expc'd: a band plays a rock show to a bar audience .
+Sample Act'l: a band plays a rock show to a bar audience.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 31.479
+Evaluation ....
+Sample Inp't: ein mann mit einem rock h„ºpft und jongliert dabei mit messern.
+Sample Pred : a man wearing a skirt is jumping while using <unk> equipment.
+Model Expc'd: a man in a skirt is jumping while juggling <unk> .
+Sample Act'l: a man in a skirt is jumping while juggling knives.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 32.016
+Evaluation ....
+Sample Inp't: ein kleiner junge mit einem giants-trikot schwingt einen baseballschl„§ger in richtung eines ankommenden balls.
+Sample Pred : a young boy wearing a baseball cap swings a baseball.
+Model Expc'd: a young boy wearing a <unk> jersey swings a baseball bat at an <unk> pitch .
+Sample Act'l: a young boy wearing a giants jersey swings a baseball bat at an incoming pitch.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 31.430
+Evaluation ....
+Sample Inp't: m„§nner in orangen anz„ºgen beobachten, wie eine maschine in der n„§he von etwas gr„§bt, das wie u-bahn-schienen aussieht.
+Sample Pred : men in orange suits watching something in <unk>.
+Model Expc'd: men in orange suits watching a machine <unk> near what looks to be subway tracks .
+Sample Act'l: men in orange suits watching a machine dig near what looks to be subway tracks.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 32.706
+Evaluation ....
+Sample Inp't: ein mann schl„§ft in einem gr„ºnen raum auf einem sofa.
+Sample Pred : a man is asleep on a couch in a green room.
+Model Expc'd: a man sleeping in a green room on a couch .
+Sample Act'l: a man sleeping in a green room on a couch.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 31.590
+Evaluation ....
+Sample Inp't: eine person in einem roten langarmshirt liegt auf sehr ungew„∂hnliche art auf einer mauer vor einem laternenpfahl.
+Sample Pred : a person in a red <unk> is laying on a wall in front of a <unk>.
+Model Expc'd: a person wearing a red long - sleeved shirt is lying down on a wall in front of a lamp post in a very unusual <unk> .
+Sample Act'l: a person wearing a red long-sleeved shirt is lying down on a wall in front of a lamp post in a very unusual manner.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 31.952
+Evaluation ....
+Sample Inp't: eine gruppe spielt vor einer menschenmenge musik auf einer b„ºhne.
+Sample Pred : a group of people playing music on a stage.
+Model Expc'd: a group is playing music on stage in front of a crowd of people .
+Sample Act'l: a group is playing music on stage in front of a crowd of people.
+E 12 ::: Average Loss 0.000 ::: Average BleuP1 30.736
+Evaluation ....
+Sample Inp't: ein mann mit anzug und brille h„§lt einen gegenstand in den h„§nden.
+Sample Pred : a man in a suit and glasses holds an object in his hands.
+Model Expc'd: a man in a suit and glass has an object in his hands .
+Sample Act'l: a man in a suit and glass has an object in his hands.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 32.466
+Evaluation ....
+Sample Inp't: eine frau in einer blauen bluse und jeans wirft etwas in einen m„ºllcontainer.
+Sample Pred : a woman in a blue shirt and jeans throwing something into a dumpster.
+Model Expc'd: a woman in a blue shirt and jeans is throwing something away in a dumpster .
+Sample Act'l: a woman in a blue shirt and jeans is throwing something away in a dumpster.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 30.733
+Evaluation ....
+Sample Inp't: m„§nner in gelben anz„ºgen und ein klavier befinden sich auf der b„ºhne und ein mann spielt einen kontrabass.
+Sample Pred : men in yellow suits and a piano are on stage playing a <unk> game of <unk>.
+Model Expc'd: men wearing yellow suits are on stage with a piano and one man is playing an upright bass .
+Sample Act'l: men wearing yellow suits are on stage with a piano and one man is playing an upright bass.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 32.010
+Evaluation ....
+Sample Inp't: ein mann mit einem rock h„ºpft und jongliert dabei mit messern.
+Sample Pred : a man wearing a skirt and juggles <unk>.
+Model Expc'd: a man in a skirt is jumping while juggling <unk> .
+Sample Act'l: a man in a skirt is jumping while juggling knives.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 32.651
+Evaluation ....
+Sample Inp't: ein kleines kind und eine frau stehen um einen hahn im k„§fig herum.
+Sample Pred : a small child and woman are standing around a toy in the cage.
+Model Expc'd: a young child and a woman are standing around a <unk> <unk> .
+Sample Act'l: a young child and a woman are standing around a caged rooster.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 32.203
+Evaluation ....
+Sample Inp't: ein brauner hund rennt dem schwarzen hund hinterher.
+Sample Pred : a brown dog runs after the black dog.
+Model Expc'd: a brown dog is running after the black dog .
+Sample Act'l: a brown dog is running after the black dog.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 31.375
+Evaluation ....
+Sample Inp't: ein mann und eine frau fischen am strand.
+Sample Pred : a man and a woman fish at the beach.
+Model Expc'd: a man and woman fishing at the beach .
+Sample Act'l: a man and woman fishing at the beach.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 31.508
+Evaluation ....
+Sample Inp't: eine junge frau fertigt im regenwald teppiche an
+Sample Pred : a young woman <unk> in the <unk>.
+Model Expc'd: a young woman is making rugs in the rain forest
+Sample Act'l: a young woman is making rugs in the rain forest
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 32.503
+Evaluation ....
+Sample Inp't: drei kleine hunde schn„ºffeln an etwas.
+Sample Pred : three small dogs are <unk> at something.
+Model Expc'd: three small dogs <unk> at something .
+Sample Act'l: three small dogs sniff at something.
+E 13 ::: Average Loss 0.000 ::: Average BleuP1 32.608
+Evaluation ....
+Sample Inp't: menschen gehen auf einem gehweg, an dem ein freiluftmarkt stattfindet.
+Sample Pred : people walking on a sidewalk, one of the <unk>.
+Model Expc'd: people are walking down a sidewalk where there is an outdoors market .
+Sample Act'l: people are walking down a sidewalk where there is an outdoors market.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 31.995
+Evaluation ....
+Sample Inp't: ein kleines m„§dchen spendet an einer ladenfront mit wei„üen plastikbeh„§ltern f„ºr die heilsarmee.
+Sample Pred : a little girl <unk> at a <unk> table for the <unk>.
+Model Expc'd: a little girl <unk> to the <unk> army near a storefront with white , plastic <unk> .
+Sample Act'l: a little girl donates to the salvation army near a storefront with white, plastic containers.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.379
+Evaluation ....
+Sample Inp't: ein rotes flugzeug fliegt „ºber einem boot und zieht dabei pinkfarbenen rauch hinter sich her.
+Sample Pred : a red airplane flies over a boat while carrying pink smoke behind it.
+Model Expc'd: a red plane flying over a boat as it <unk> pink smoke .
+Sample Act'l: a red plane flying over a boat as it trails pink smoke.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.964
+Evaluation ....
+Sample Inp't: vier m„§nner stehen bei einem gelben auto.
+Sample Pred : four men standing near a yellow car.
+Model Expc'd: four men standing near a yellow car .
+Sample Act'l: four men standing near a yellow car.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.040
+Evaluation ....
+Sample Inp't: eine frau spielt ein lied auf ihrer geige.
+Sample Pred : a woman is playing a song on her violin.
+Model Expc'd: a female playing a song on her violin .
+Sample Act'l: a female playing a song on her violin.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.626
+Evaluation ....
+Sample Inp't: eine frau sitzt bei ihrem trockenblumensortiment auf einem freiluftmarkt.
+Sample Pred : a woman sitting on a <unk> in her <unk>.
+Model Expc'd: a woman is sitting by her <unk> flower display at an outside market .
+Sample Act'l: a woman is sitting by her dried flower display at an outside market.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.289
+Evaluation ....
+Sample Inp't: eine person beim parasailing „ºber einem gro„üen gew„§sser.
+Sample Pred : a person is parasailing over a large body of water.
+Model Expc'd: a person is parasailing over a large body of water .
+Sample Act'l: a person is parasailing over a large body of water.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.167
+Evaluation ....
+Sample Inp't: ein mann in einem rot-wei„ü gestreiften hemd sitzt auf einem hocker an einem hotdog-stand.
+Sample Pred : a man in a red and white striped shirt sitting on a stool at a <unk>.
+Model Expc'd: a man in a red and white striped shirts sits on a stool at a hotdog stand .
+Sample Act'l: a man in a red and white striped shirts sits on a stool at a hotdog stand.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 31.874
+Evaluation ....
+Sample Inp't: ein mann mit beginnender glatze, der eine rote rettungsweste tr„§gt, sitzt in einem kleinen boot.
+Sample Pred : a bald man with a <unk> wearing a red <unk> is sitting in a small boat.
+Model Expc'd: a balding man wearing a red life jacket is sitting in a small boat .
+Sample Act'l: a balding man wearing a red life jacket is sitting in a small boat.
+E 14 ::: Average Loss 0.000 ::: Average BleuP1 32.229
+Evaluation ....
+Sample Inp't: eine frau mit einer domino-maske und streng frisiertem haar auf einer party.
+Sample Pred : a woman with a <unk> and <unk> hair at a party.
+Model Expc'd: a woman in a <unk> mask and <unk> hair is at a party .
+Sample Act'l: a woman in a domino mask and severe hair is at a party.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 33.216
+Evaluation ....
+Sample Inp't: eine gruppe von m„§nnern, frauen und kindern, die alle h„ºte tragen, unterh„§lt sich am strand.
+Sample Pred : a group of men and children wearing hats are talking on the beach.
+Model Expc'd: a group of men , women , and children , all wearing hats , talk on the beach .
+Sample Act'l: a group of men, women, and children, all wearing hats, talk on the beach.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.468
+Evaluation ....
+Sample Inp't: ein mann und eine frau unterhalten sich, w„§hrend sie neben einem baum stehen.
+Sample Pred : a man and a woman are standing near a tree.
+Model Expc'd: a man and a woman talk while standing next to a tree .
+Sample Act'l: a man and a woman talk while standing next to a tree.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.190
+Evaluation ....
+Sample Inp't: ein polizist h„§lt ein fahrzeug am stra„üenrand an.
+Sample Pred : a police officer is holding a vehicle on the side of the road.
+Model Expc'd: a policeman <unk> a vehicle on the side of the road .
+Sample Act'l: a policeman stopping a vehicle on the side of the road.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.085
+Evaluation ....
+Sample Inp't: ein mann im wei„üen hemd macht schaschlik.
+Sample Pred : a man in a white shirt is doing <unk>.
+Model Expc'd: a man in a white shirt is making <unk> <unk> .
+Sample Act'l: a man in a white shirt is making shish kabob.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.584
+Evaluation ....
+Sample Inp't: eine frau mit einer domino-maske und streng frisiertem haar auf einer party.
+Sample Pred : a woman with a <unk> and <unk> hair at a party.
+Model Expc'd: a woman in a <unk> mask and <unk> hair is at a party .
+Sample Act'l: a woman in a domino mask and severe hair is at a party.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.690
+Evaluation ....
+Sample Inp't: drei menschen auf zwei gel„§ndemotorr„§dern und einem quad fahren durch braunes gras.
+Sample Pred : three people on two <unk> and a quad through brown grass.
+Model Expc'd: three people on two dirt - bikes and one four - wheeler are riding through brown grass .
+Sample Act'l: three people on two dirt-bikes and one four-wheeler are riding through brown grass.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.915
+Evaluation ....
+Sample Inp't: ein mann schl„§ft in einem gr„ºnen raum auf einem sofa.
+Sample Pred : a man is sleeping on a couch in a green room.
+Model Expc'd: a man sleeping in a green room on a couch .
+Sample Act'l: a man sleeping in a green room on a couch.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 32.882
+Evaluation ....
+Sample Inp't: ein junger mann mit blondem haar spricht in ein mikrofon.
+Sample Pred : a young man with blond - hair is speaking into a microphone.
+Model Expc'd: a young blond - haired man speaks into a microphone .
+Sample Act'l: a young blond-haired man speaks into a microphone.
+E 15 ::: Average Loss 0.000 ::: Average BleuP1 33.212
+Evaluation ....
+Sample Inp't: zwei m„§nner bauen eine blaue eisfischerh„ºtte auf einem zugefrorenen see auf
+Sample Pred : two men are building a blue <unk> on a lake.
+Model Expc'd: two men setting up a blue ice fishing hut on an <unk> over lake
+Sample Act'l: two men setting up a blue ice fishing hut on an iced over lake
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 33.446
+Evaluation ....
+Sample Inp't: drei m„§nner gehen auf einer stra„üe in den bergen.
+Sample Pred : three men walking on a street in the mountains.
+Model Expc'd: three men are walking on a road in the mountains .
+Sample Act'l: three men are walking on a road in the mountains.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 32.692
+Evaluation ....
+Sample Inp't: ein kleiner junge mit einem giants-trikot schwingt einen baseballschl„§ger in richtung eines ankommenden balls.
+Sample Pred : a young boy wearing a baseball mitt swings a baseball a bat at a ball.
+Model Expc'd: a young boy wearing a <unk> jersey swings a baseball bat at an <unk> pitch .
+Sample Act'l: a young boy wearing a giants jersey swings a baseball bat at an incoming pitch.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 33.402
+Evaluation ....
+Sample Inp't: ein mann und zwei frauen in shorts gehen die stra„üe entlang.
+Sample Pred : a man and two women in shorts are walking down the street.
+Model Expc'd: one man and two women wearing shorts , walk down the street .
+Sample Act'l: one man and two women wearing shorts, walk down the street.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 32.729
+Evaluation ....
+Sample Inp't: eine frau mit einer domino-maske und streng frisiertem haar auf einer party.
+Sample Pred : a woman with a <unk> and <unk> hair and <unk> hair at a party.
+Model Expc'd: a woman in a <unk> mask and <unk> hair is at a party .
+Sample Act'l: a woman in a domino mask and severe hair is at a party.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 32.534
+Evaluation ....
+Sample Inp't: ein kind macht einen r„ºckw„§rtssalto, w„§hrend es auf einem trampolin h„ºpft.
+Sample Pred : a child jumps a <unk> while it on a trampoline.
+Model Expc'd: a child is doing a back flip whilst jumping on a trampoline .
+Sample Act'l: a child is doing a back flip whilst jumping on a trampoline.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 32.350
+Evaluation ....
+Sample Inp't: zwei m„§nner beim milit„§r spielen baseball.
+Sample Pred : two men are playing baseball.
+Model Expc'd: two men in the military are playing baseball .
+Sample Act'l: two men in the military are playing baseball.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 32.069
+Evaluation ....
+Sample Inp't: drei kleine kinder stehen um ein blau-wei„ües fass herum.
+Sample Pred : three little kids are around a <unk> barrel.
+Model Expc'd: three young children stand around a blue and white barrel .
+Sample Act'l: three young children stand around a blue and white barrel.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 33.658
+Evaluation ....
+Sample Inp't: ein junges m„§dchen l„§uft allein durch einen park.
+Sample Pred : a young girl walks alone in a park.
+Model Expc'd: a young girl running by herself in a park .
+Sample Act'l: a young girl running by herself in a park.
+E 16 ::: Average Loss 0.000 ::: Average BleuP1 33.602
+Evaluation ....
+Sample Inp't: zwei frauen l„§cheln bei einer veranstaltung.
+Sample Pred : two women smiling at an event.
+Model Expc'd: two women are smiling at an event .
+Sample Act'l: two women are smiling at an event.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 32.675
+Evaluation ....
+Sample Inp't: ein mann und eine frau fischen am strand.
+Sample Pred : a man and a woman are fishing on the beach.
+Model Expc'd: a man and woman fishing at the beach .
+Sample Act'l: a man and woman fishing at the beach.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 32.489
+Evaluation ....
+Sample Inp't: junge macht kunstst„ºcke auf einem skateboard
+Sample Pred : boy doing tricks on a skateboard on a skateboard.
+Model Expc'd: boy doing tricks on a skateboard
+Sample Act'l: boy doing tricks on a skateboard
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 32.690
+Evaluation ....
+Sample Inp't: f„ºnf mitglieder einer band spielen ein lied.
+Sample Pred : five members of a band are playing a song.
+Model Expc'd: five members of a band are playing a song .
+Sample Act'l: five members of a band are playing a song.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 33.308
+Evaluation ....
+Sample Inp't: eine person „ºberquert die stra„üe und meidet dabei die ausgelaufene farbe.
+Sample Pred : a person crossing the street while <unk> paint.
+Model Expc'd: a person crosses the street and <unk> the <unk> of paint .
+Sample Act'l: a person crosses the street and avoids the spill of paint.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 32.937
+Evaluation ....
+Sample Inp't: eine person mit hut und schal blickt nach rechts.
+Sample Pred : a person in a hat and scarf looks to the right.
+Model Expc'd: a person wearing a hat and scarf looks to the right .
+Sample Act'l: a person wearing a hat and scarf looks to the right.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 33.553
+Evaluation ....
+Sample Inp't: mann arbeitet an den schienen in einem bahnhof.
+Sample Pred : man working on the <unk> at a train station.
+Model Expc'd: man working on the railroad in a railroad station .
+Sample Act'l: man working on the railroad in a railroad station.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 32.475
+Evaluation ....
+Sample Inp't: drei m„§nner gehen auf einer stra„üe in den bergen.
+Sample Pred : three men are walking on a city street.
+Model Expc'd: three men are walking on a road in the mountains .
+Sample Act'l: three men are walking on a road in the mountains.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 33.236
+Evaluation ....
+Sample Inp't: kind spielt auf einem spielplatz und h„§ngt dabei an stangen.
+Sample Pred : a child is playing on a playground equipment while hanging on poles.
+Model Expc'd: child playing on a playground , hanging from bars .
+Sample Act'l: child playing on a playground, hanging from bars.
+E 17 ::: Average Loss 0.000 ::: Average BleuP1 33.597
+Evaluation ....
+Sample Inp't: ein schwarzer hund springt durch das wasser und tr„§gt dabei einen stock in seinem maul.
+Sample Pred : a black dog jumps through the water while carrying a stick in its mouth.
+Model Expc'd: a black dog is jumping through some water , while holding a stick in his mouth .
+Sample Act'l: a black dog is jumping through some water, while holding a stick in his mouth.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 32.693
+Evaluation ....
+Sample Inp't: ein mann in einem schwarzen neoprenanzug surft auf einer welle.
+Sample Pred : a man in a black wetsuit is surfing on a wave.
+Model Expc'd: a man in a black wetsuit is surfing on a wave .
+Sample Act'l: a man in a black wetsuit is surfing on a wave.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 33.765
+Evaluation ....
+Sample Inp't: ein mann in einem schwarzen neoprenanzug surft auf einer welle.
+Sample Pred : a man in a black wetsuit surfing on a wave.
+Model Expc'd: a man in a black wetsuit is surfing on a wave .
+Sample Act'l: a man in a black wetsuit is surfing on a wave.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 33.586
+Evaluation ....
+Sample Inp't: ein asiatisches m„§dchen mit gr„ºnem hut und sch„ºrze serviert getr„§nke auf einem tablett.
+Sample Pred : an asian girl in a green hat and apron serves drinks on a tray.
+Model Expc'd: an asian girl in a green hat and apron is serving drinks on a tray .
+Sample Act'l: an asian girl in a green hat and apron is serving drinks on a tray.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 33.015
+Evaluation ....
+Sample Inp't: asiatin in postbotenuniform schiebt einen gro„üen paketstapel.
+Sample Pred : asian woman in <unk> pushing a large <unk>.
+Model Expc'd: asian woman in <unk> <unk> uniform is pushing a large pile of <unk> .
+Sample Act'l: asian woman in postal delivery uniform is pushing a large pile of packages.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 33.511
+Evaluation ....
+Sample Inp't: drei kleine hunde schn„ºffeln an etwas.
+Sample Pred : three small dogs <unk> something.
+Model Expc'd: three small dogs <unk> at something .
+Sample Act'l: three small dogs sniff at something.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 32.917
+Evaluation ....
+Sample Inp't: die frau mit einem schwarzen hut macht ein foto bei schneefall.
+Sample Pred : the woman in a black hat is taking a picture at the statue of a dance.
+Model Expc'd: the lady wearing a black hat is taking a picture while the <unk> .
+Sample Act'l: the lady wearing a black hat is taking a picture while the snowfalls.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 32.901
+Evaluation ....
+Sample Inp't: eine gruppe von menschen steht in einer lockeren reihe auf einem steinboden.
+Sample Pred : a group of people standing in a <unk> line on a <unk>.
+Model Expc'd: a group of people stand in a <unk> line on a brick ground .
+Sample Act'l: a group of people stand in a loose line on a brick ground.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 33.538
+Evaluation ....
+Sample Inp't: baby sieht sich die bl„§tter am zweig eines baumes an.
+Sample Pred : baby looks at leaves on the tree from a tree.
+Model Expc'd: baby looking at the leaves on a branch of a tree .
+Sample Act'l: baby looking at the leaves on a branch of a tree.
+E 18 ::: Average Loss 0.000 ::: Average BleuP1 34.083
+Evaluation ....
+Sample Inp't: vier menschen protestieren gegen die behandlung junger arbeiter durch equinox.
+Sample Pred : four people <unk> on the roof of the young workers.
+Model Expc'd: four people are protesting the <unk> of young workers by <unk> .
+Sample Act'l: four people are protesting the treatment of young workers by equinox.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 32.790
+Evaluation ....
+Sample Inp't: eine band spielt auf einer freilichtb„ºhne am fluss.
+Sample Pred : a band plays on a wooden bridge by the river.
+Model Expc'd: a band playing in an outdoor theater , along the river .
+Sample Act'l: a band playing in an outdoor theater, along the river.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 33.531
+Evaluation ....
+Sample Inp't: frau und mann gehen „ºber h„∂lzerne h„§ngebr„ºcke mit warnschild daneben.
+Sample Pred : woman and man walking on <unk> with <unk> nearby.
+Model Expc'd: woman and man walking across wooden rope bridge with a <unk> sign beside it .
+Sample Act'l: woman and man walking across wooden rope bridge with a caution sign beside it.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 32.464
+Evaluation ....
+Sample Inp't: eine gruppe von kindern sitzt hinten in einem van und sieht sich ein buch an.
+Sample Pred : a group of children sitting in the back of a truck looking at a book.
+Model Expc'd: a group of kids sitting in the back of a van together looking at a book .
+Sample Act'l: a group of kids sitting in the back of a van together looking at a book.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 32.911
+Evaluation ....
+Sample Inp't: eine gruppe von kindern spielt im wasser unter einer br„ºcke.
+Sample Pred : a group of children play in the water under a bridge.
+Model Expc'd: a group of children play in the water under a bridge .
+Sample Act'l: a group of children play in the water under a bridge.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 33.557
+Evaluation ....
+Sample Inp't: der fedex-fahrer h„∂rt dem arbeiter mit dem gr„ºnen schutzhelm zu, w„§hrend die zu versendende ausr„ºstung eingeladen wird.
+Sample Pred : the <unk> <unk> is listening to the worker with the green hard hat while <unk> equipment.
+Model Expc'd: the <unk> driver listens to the workman in the green hard hat while the equipment to ship is being loaded .
+Sample Act'l: the fedex driver listens to the workman in the green hard hat while the equipment to ship is being loaded.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 33.857
+Evaluation ....
+Sample Inp't: ein mann mit goldfarbener kleidung steht neben seinem goldfarbenen fahrrad.
+Sample Pred : a man wearing <unk> clothing is standing next to his gold bike.
+Model Expc'd: a man is wearing a gold outfit while standing with his gold bike .
+Sample Act'l: a man is wearing a gold outfit while standing with his gold bike.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 34.053
+Evaluation ....
+Sample Inp't: ein mann und eine frau fischen am strand.
+Sample Pred : a man and a woman fish at the beach.
+Model Expc'd: a man and woman fishing at the beach .
+Sample Act'l: a man and woman fishing at the beach.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 33.508
+Evaluation ....
+Sample Inp't: ein hund rennt durch das gras auf die kamera zu.
+Sample Pred : a dog runs through the grass towards the camera.
+Model Expc'd: a dog runs through the grass towards the camera .
+Sample Act'l: a dog runs through the grass towards the camera.
+E 19 ::: Average Loss 0.000 ::: Average BleuP1 32.445
+Loading the best validated model with validation bleu score of 34.083
+Evaluation ....
+Sample Inp't: ein gro„üer brauner hund h„§lt sein gesicht in den rasensprenger.
+Sample Pred : a large brown dog is holding his face in the <unk>.
+Model Expc'd: a large brown dog is sticking his face in the sprinkler .
+Sample Act'l: a large brown dog is sticking his face in the sprinkler.
+E LAST ::: Average Loss 0.000 ::: Average BleuP1 34.083

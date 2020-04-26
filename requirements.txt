@@ -1,4 +1,4 @@
-torch==1.1.0
+torch==1.4.0
 torchtext==0.4.0
 sacrebleu==1.3.7
 sacremoses==0.0.35
@@ -6,3 +6,4 @@ spacy==2.2.3
 PyYAML==5.1
 tqdm==4.41.0
 zipp==1.0.0
+Unidecode==1.1.1

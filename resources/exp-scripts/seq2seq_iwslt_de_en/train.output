@@ -1,0 +1,1138 @@
+Loading the data ...
+downloading de-en.tgz
+.data/iwslt/de-en/IWSLT17.TED.tst2011.de-en.en.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2011.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2012.de-en.en.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2010.de-en.en.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2013.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2012.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2014.de-en.en.xml
+.data/iwslt/de-en/IWSLT17.TED.dev2010.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2010.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2014.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2015.de-en.de.xml
+.data/iwslt/de-en/IWSLT17.TED.dev2010.de-en.en.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2015.de-en.en.xml
+.data/iwslt/de-en/IWSLT17.TED.tst2013.de-en.en.xml
+.data/iwslt/de-en/train.tags.de-en.de
+.data/iwslt/de-en/train.tags.de-en.en
+Number of training examples: 208351
+Number of validation examples: 888
+Number of testing examples: 1080
+Unique tokens in source (de) vocabulary: 50004
+Unique tokens in target (en) vocabulary: 50004
+Creating the Seq2Seq Model with Bahdanau attention
+Coverage model (See et al. definition [P17-1099]) is also considered
+Evaluation ....
+Sample Inp't: und diese interaktiven portraits nehmen sich gegenseitig wahr.
+Sample Pred : and then, and then, and then, and the world.
+Model Expc'd: and these interactive portraits are aware of each other .
+Sample Act'l: and these interactive portraits are aware of each other.
+E 0 ::: Average Loss 8.141 ::: Average BleuP1 2.683
+Evaluation ....
+Sample Inp't: wir glauben, sie ist sauber -- und riecht auch noch gut
+Sample Pred : we're going to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be able to be
+Model Expc'd: we think it 's clean --   smells good , too .
+Sample Act'l: we think it's clean --  smells good, too.
+E 0 ::: Average Loss 6.923 ::: Average BleuP1 5.296
+Evaluation ....
+Sample Inp't: und heute hatte ich zeit, ihnen einen teil dieser neuen design-welt und einige der m„∂glichkeiten dessen zu zeigen, woran wir in unserem labor arbeiten.
+Sample Pred : and today, i had to time you, and i'm going to be able to show you a new way of the world war ii in our lab.
+Model Expc'd: and today , i had time to show you one point in this new design space ,   and a few of the possibilities that we 're working to bring out of the laboratory .
+Sample Act'l: and today, i had time to show you one point in this new design space,  and a few of the possibilities that we're working to bring out of the laboratory.
+E 0 ::: Average Loss 8.275 ::: Average BleuP1 5.699
+Evaluation ....
+Sample Inp't: letztes jahr habe ich diese beiden folien gezeigt, um zu veranschaulichen, dass die arktische eiskappe, die f„ºr ann„§hernd drei millionen jahre die gr„∂sse der unteren 48 staaten hatte, um 40 prozent geschrumpft ist.
+Sample Pred : and last year, i've been able to make these two weeks ago to make sure that the most important thing that was the three - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year - year
+Model Expc'd: last year i showed these two slides so that   demonstrate that the arctic ice cap ,   which for most of the last three million years   has been the size of the lower 48 states ,   has shrunk by 40 percent .
+Sample Act'l: last year i showed these two slides so that  demonstrate that the arctic ice cap,  which for most of the last three million years  has been the size of the lower 48 states,  has shrunk by 40 percent.
+E 0 ::: Average Loss 7.439 ::: Average BleuP1 9.921
+Evaluation ....
+Sample Inp't: versorge amerika neu. finden sie mehr heraus.
+Sample Pred : < doc america.
+Model Expc'd: <unk> america . find out more .
+Sample Act'l: repower america. find out more.
+E 0 ::: Average Loss 7.146 ::: Average BleuP1 11.321
+Evaluation ....
+Sample Inp't: und sie so anordnen k„∂nnten, wie wir es wollen?
+Sample Pred : and they could n't like this, how do we want to do it?
+Model Expc'd: arranging it the way we wanted ?
+Sample Act'l: arranging it the way we wanted?
+E 0 ::: Average Loss 7.157 ::: Average BleuP1 12.215
+Evaluation ....
+Sample Inp't: aber wir beginnen, eine ver„§nderung zu sehen.
+Sample Pred : but we start to see a change.
+Model Expc'd: but we 're beginning to see a sea change .
+Sample Act'l: but we're beginning to see a sea change.
+E 0 ::: Average Loss 7.157 ::: Average BleuP1 13.297
+Evaluation ....
+Sample Inp't: ungef„§hr eine woche sp„§ter gab es ein problem mit der maschine welches mit diesen dr„§hten hier zu tun hatte -- diese goldenen dr„§hte hier
+Sample Pred : and a half later, there was a problem with a machine that was a problem with this machine here -- this particular idea here.
+Model Expc'd: about a week later we had a problem with the machine ,   related actually to these bits of wire here -- these gold wires .
+Sample Act'l: about a week later we had a problem with the machine,  related actually to these bits of wire here -- these gold wires.
+E 0 ::: Average Loss 7.136 ::: Average BleuP1 14.157
+Evaluation ....
+Sample Inp't: die n„§chste folie, die ich ihnen zeige, ist eine zeitrafferaufnahme was in den letzten 25 jahren passiert ist.
+Sample Pred : the next slide i'm showing you, is a half - dimensional thing in the last 25 years.
+Model Expc'd: the next slide i show you will be   a rapid fast - forward of what 's happened over the last 25 years .
+Sample Act'l: the next slide i show you will be  a rapid fast-forward of what's happened over the last 25 years.
+E 0 ::: Average Loss 7.027 ::: Average BleuP1 14.199
+Evaluation ....
+Sample Inp't: dies passierte um weihnachten.
+Sample Pred : this happened to be done.
+Model Expc'd: this happened around christmas .
+Sample Act'l: this happened around christmas.
+E 1 ::: Average Loss 6.943 ::: Average BleuP1 16.384
+Evaluation ....
+Sample Inp't: wenn sie voneinader umgeben sind, bemerken sie das auch und k„∂nnen etwas nerv„∂s werden.
+Sample Pred : if you're surrounded, you can see that they can be able to be done.
+Model Expc'd: if they get surrounded , they notice that too ,   they might get a little flustered .
+Sample Act'l: if they get surrounded, they notice that too,  they might get a little flustered.
+E 1 ::: Average Loss 7.121 ::: Average BleuP1 16.518
+Evaluation ....
+Sample Inp't: einer der werbespots der kohleindustrie um weihnachten war dieser.
+Sample Pred : one of the commercials of the most famous was produced was.
+Model Expc'd: one of the coal industry 's ads around christmas was this one .
+Sample Act'l: one of the coal industry's ads around christmas was this one.
+E 1 ::: Average Loss 6.183 ::: Average BleuP1 17.300
+Evaluation ....
+Sample Inp't: dies ist in unserem ganzen land der zweitgr„∂sste abfallfluss amerikas.
+Sample Pred : this is in our whole country of the world's population growth.
+Model Expc'd: this , all over the country , is the second largest waste stream in america .
+Sample Act'l: this, all over the country, is the second largest waste stream in america.
+E 1 ::: Average Loss 6.928 ::: Average BleuP1 17.169
+Evaluation ....
+Sample Inp't: der m„§chtigste bergarbeiter ist der leiter von massey coal.
+Sample Pred : the most important thing is the ladder of the most expensive of the brain.
+Model Expc'd: the largest mountaintop miner is the head of massey coal .
+Sample Act'l: the largest mountaintop miner is the head of massey coal.
+E 1 ::: Average Loss 7.136 ::: Average BleuP1 17.087
+Evaluation ....
+Sample Inp't: schon heute sprudelt in einigen flachen seen in alaska methan von selbst aus dem wasser.
+Sample Pred : now, today, in a few hundred thousand tedtalks in alaska, from the water.
+Model Expc'd: already in some shallow lakes in alaska ,   methane is actively bubbling up out of the water .
+Sample Act'l: already in some shallow lakes in alaska,  methane is actively bubbling up out of the water.
+E 1 ::: Average Loss 6.726 ::: Average BleuP1 19.054
+Evaluation ....
+Sample Inp't: ich weiss nicht, ob dies den gr„∂„üten jubel erzeugte, oder dies, als jemand die google seite besuchte und die startseite so vorfand.
+Sample Pred : i do n't know if this is the biggest asset, or this is someone who google the google side and the other way.
+Model Expc'd: i do n't know whether this got the biggest cheer ,   or this , when someone went onto google   and saw the front page was like that .
+Sample Act'l: i don't know whether this got the biggest cheer,  or this, when someone went onto google  and saw the front page was like that.
+E 1 ::: Average Loss 6.733 ::: Average BleuP1 18.523
+Evaluation ....
+Sample Inp't: und trotzdem das verbrennen von kohle einer der hauptgr„ºnde f„ºr die globale erw„§rmung ist, die bemerkenswert saubere kohletechnologie, die sie hier sehen, „§ndert alles.
+Sample Pred : and yet, coal burning coal, the global warming of the world is the most important asset that you see, the most important crop that you see here.
+Model Expc'd: and while burning coal is one of the leading causes of global warming ,   the remarkable clean coal technology you see here   changes everything .
+Sample Act'l: and while burning coal is one of the leading causes of global warming,  the remarkable clean coal technology you see here  changes everything.
+E 1 ::: Average Loss 7.201 ::: Average BleuP1 19.108
+Evaluation ....
+Sample Inp't: professor katey walter der universit„§t in alaska ist mit einer weiteren arbeitsgruppe zu einem anderen flachen see letzten winter gereist.
+Sample Pred : the professor tobias of the university of alaska university alaska alaska is a single one another, a single - sea slug of the last winter.
+Model Expc'd: professor <unk> walter from the university of alaska   went out with another team to another shallow lake last winter .
+Sample Act'l: professor katey walter from the university of alaska  went out with another team to another shallow lake last winter.
+E 1 ::: Average Loss 7.094 ::: Average BleuP1 19.499
+Evaluation ....
+Sample Inp't: mann: die zukunft ist hier. wind, sonne und ein neues energiesystem.
+Sample Pred : man: the future is here. wind, sun and a new paradigm shift.
+Model Expc'd: man : future 's over here . wind , sun , a new energy grid .
+Sample Act'l: man: future's over here. wind, sun, a new energy grid.
+E 2 ::: Average Loss 7.069 ::: Average BleuP1 19.542
+Evaluation ....
+Sample Inp't: ich kann die sequenz w„§hrend sie abl„§uft umstellen.
+Sample Pred : i can rearrange the sequence as well as they're looking at the same time.
+Model Expc'd: video :    dm : i can rearrange the sequence while it plays .
+Sample Act'l: video:   dm: i can rearrange the sequence while it plays.
+E 2 ::: Average Loss 7.003 ::: Average BleuP1 20.058
+Evaluation ....
+Sample Inp't: als ich das h„∂rte dachte ich ‚Äûdas ist unheimlich ‚Äì das ist genau, wie mein kreativer prozess abl„§uft.‚Äú
+Sample Pred : when i heard that, i thought, "this is -- i just like my creative process."
+Model Expc'd: so when i heard that i was like -- that 's uncanny ,   that 's exactly what my creative process is like .
+Sample Act'l: so when i heard that i was like -- that's uncanny,  that's exactly what my creative process is like.
+E 2 ::: Average Loss 6.566 ::: Average BleuP1 20.320
+Epoch    21: reducing learning rate of group 0 to 9.0000e-04.
+Evaluation ....
+Sample Inp't: man verbindet ihn mit einem bestimmten ton und neigt ihn dann zum einstellen.
+Sample Pred : you put it with a certain sound, and then you put it up to the front page.
+Model Expc'd: you attach it to a particular sound and then tilt to adjust it .
+Sample Act'l: you attach it to a particular sound and then tilt to adjust it.
+E 2 ::: Average Loss 6.778 ::: Average BleuP1 19.896
+Evaluation ....
+Sample Inp't: und man kann diese t„∂ne in die sequenz einspeisen, die man wiederum in beliebigen mustern anordnen kann.
+Sample Pred : and you can put these notes into the sequence motifs that can be able to delve into the patterns.
+Model Expc'd: and you can inject these sounds into a sequence   that you can assemble into the pattern that you want .
+Sample Act'l: and you can inject these sounds into a sequence  that you can assemble into the pattern that you want.
+E 2 ::: Average Loss 6.632 ::: Average BleuP1 20.439
+Evaluation ....
+Sample Inp't: deshalb haben wir es uns zum obersten zeil gesetzt, eine betr„§chtliche geldsumme auszugeben um eine werbeaktion auf den weg zu bringen, um die wahrheit „ºber kohle.
+Sample Pred : so we've got to the most successful - term - authoring, a national security council to get a petition on the way to get the truth on charcoal.
+Model Expc'd: that 's why we 've made it our primary goal   to spend a large sum of money   on an advertising effort to help bring out and complicate   the truth about coal .
+Sample Act'l: that's why we've made it our primary goal  to spend a large sum of money  on an advertising effort to help bring out and complicate  the truth about coal.
+E 2 ::: Average Loss 6.644 ::: Average BleuP1 21.641
+Evaluation ....
+Sample Inp't: der k„ºnstler des altertums war vor gewissen dingen gesch„ºtzt, wie, zum beispiel, zu viel narzissmus, richtig?
+Sample Pred : the artist's artist was a lot of stuff, especially, for example, to say, much more complex, right?
+Model Expc'd: so the ancient artist was protected from certain things ,   like , for example , too much narcissism , right ?
+Sample Act'l: so the ancient artist was protected from certain things,  like, for example, too much narcissism, right?
+E 2 ::: Average Loss 7.289 ::: Average BleuP1 20.320
+Evaluation ....
+Sample Inp't: verglichen mit dem gesamten betrag an klimaver„§ndernden stoffen in der atmosph„§re, k„∂nnte sich dieser betrag verdoppeln, wenn wir diesen kritischen punkt „ºberschreiten.
+Sample Pred : and compared to the entire northwestern of the sun at the atmosphere of the atmosphere, and this is double - double, if we're going to go down this critical period.
+Model Expc'd: compared to the total amount of global warming pollution in the atmosphere ,   that amount could double if we cross this tipping point .
+Sample Act'l: compared to the total amount of global warming pollution in the atmosphere,  that amount could double if we cross this tipping point.
+E 2 ::: Average Loss 6.948 ::: Average BleuP1 20.933
+Evaluation ....
+Sample Inp't: in den anden ist dieser gletscher die trinkwasserquelle f„ºr diese stadt.
+Sample Pred : in the andes, this glaciers is the most famous for these city.
+Model Expc'd: in the andes , this glacier is the   source of drinking water for this city .
+Sample Act'l: in the andes, this glacier is the  source of drinking water for this city.
+E 2 ::: Average Loss 6.884 ::: Average BleuP1 20.038
+Evaluation ....
+Sample Inp't: wenn sie dies im historischen zusammenhang betrachten, k„∂nnen sie sehen, was es anrichtet.
+Sample Pred : if you look at this in the context, you can see what it's going on.
+Model Expc'd: if you look at in the context of history   you can see what this is doing .
+Sample Act'l: if you look at in the context of history  you can see what this is doing.
+E 3 ::: Average Loss 6.800 ::: Average BleuP1 21.359
+Evaluation ....
+Sample Inp't: das r„§umliche denken ist eng damit verbunden, wie wir einen gro„üteil unserer umgebung verstehen.
+Sample Pred : the spatial thinking is connected to how we understand a lot of our environment.
+Model Expc'd: spatial reasoning is deeply connected   to how we understand a lot of the world around us .
+Sample Act'l: spatial reasoning is deeply connected  to how we understand a lot of the world around us.
+E 3 ::: Average Loss 6.314 ::: Average BleuP1 22.079
+Evaluation ....
+Sample Inp't: und die vorhersagen, wie sie sie gelesen haben, sind ernst.
+Sample Pred : and the predictions, as you have read, are serious.
+Model Expc'd: and the predictions , as you 've read , are serious .
+Sample Act'l: and the predictions, as you've read, are serious.
+E 3 ::: Average Loss 6.957 ::: Average BleuP1 20.883
+Epoch    30: reducing learning rate of group 0 to 8.1000e-04.
+Evaluation ....
+Sample Inp't: letzten monat meldeten forscher, dass der gesamte kontinent nun eine negative eisbilanz hat.
+Sample Pred : last month, researchers planted researchers that the entire continent has a negative impact.
+Model Expc'd: last month scientists reported the entire continent   is now in negative ice balance .
+Sample Act'l: last month scientists reported the entire continent  is now in negative ice balance.
+E 3 ::: Average Loss 6.914 ::: Average BleuP1 20.942
+Evaluation ....
+Sample Inp't: also, machen sie sich keine sorgen um die klimaver„§nderung.
+Sample Pred : so do n't worry about the climate change.
+Model Expc'd: so do n't worry about climate change .
+Sample Act'l: so don't worry about climate change.
+E 3 ::: Average Loss 6.973 ::: Average BleuP1 21.719
+Evaluation ....
+Sample Inp't: wir haben vor 15 jahren damit begonnen.
+Sample Pred : we started terrafugia about 15 years ago.
+Model Expc'd: we started this over 15 years ago .
+Sample Act'l: we started this over 15 years ago.
+E 3 ::: Average Loss 7.141 ::: Average BleuP1 21.396
+Evaluation ....
+Sample Inp't: ihn gibt es in h„ºlle und f„ºlle in amerika, und er hilft unserer wirtschaft zu wachsen.
+Sample Pred : and there's a lot of sand in the skin and the way in america, and it's growing our economy.
+Model Expc'd: he 's abundant here in america ,   and he helps our economy grow .
+Sample Act'l: he's abundant here in america,  and he helps our economy grow.
+E 3 ::: Average Loss 6.928 ::: Average BleuP1 21.624
+Evaluation ....
+Sample Inp't: hier sind die, die in den letzten jahren gestrichen wurden, mit einigen gr„ºnen alternativen, die vorgeschlagen wurden.
+Sample Pred : here are the ones that have been rejected in the last few years with some green alternatives that were proposed.
+Model Expc'd: here are the ones that have been cancelled in the last few years   with some green alternatives proposed .
+Sample Act'l: here are the ones that have been cancelled in the last few years  with some green alternatives proposed.
+E 3 ::: Average Loss 6.876 ::: Average BleuP1 21.918
+Evaluation ....
+Sample Inp't: in kalifornien wurde eine 40 prozentige verringerung der schneedecke der sierra gesehen.
+Sample Pred : in california, a 40 percent reduction in the world's population explosion saw.
+Model Expc'd: in california there has been a 40 percent   decline in the sierra <unk> .
+Sample Act'l: in california there has been a 40 percent  decline in the sierra snowpack.
+E 3 ::: Average Loss 6.865 ::: Average BleuP1 21.593
+Epoch    36: reducing learning rate of group 0 to 7.2900e-04.
+Evaluation ....
+Sample Inp't: der m„§chtigste bergarbeiter ist der leiter von massey coal.
+Sample Pred : the most powerful thing is the director of self - assembly.
+Model Expc'd: the largest mountaintop miner is the head of massey coal .
+Sample Act'l: the largest mountaintop miner is the head of massey coal.
+E 4 ::: Average Loss 6.768 ::: Average BleuP1 21.813
+Evaluation ....
+Sample Inp't: die elektronikindustrie hatte ein dutzend komponenten und sehen sie sich die vielfalt an die daraus entstand.
+Sample Pred : the most popular tv had a dozen components, and look at the diversity that it was coming from.
+Model Expc'd: the electronics industry only had a dozen or so components ,   and look at the diversity that came out of that .
+Sample Act'l: the electronics industry only had a dozen or so components,  and look at the diversity that came out of that.
+E 4 ::: Average Loss 6.615 ::: Average BleuP1 21.747
+Evaluation ....
+Sample Inp't: am anderen ende des planeten, die antarktis, die gr„∂sste eismasse auf dem planeten.
+Sample Pred : on the other end of the planet, antarctica, the largest predatory on the planet.
+Model Expc'd: at the other end of the planet , antarctica   the largest mass of ice on the planet .
+Sample Act'l: at the other end of the planet, antarctica  the largest mass of ice on the planet.
+E 4 ::: Average Loss 6.633 ::: Average BleuP1 22.143
+Evaluation ....
+Sample Inp't: die n„§chste folie, die ich ihnen zeige, ist eine zeitrafferaufnahme was in den letzten 25 jahren passiert ist.
+Sample Pred : the next slide i'm showing you is a random jumble in the last 25 years.
+Model Expc'd: the next slide i show you will be   a rapid fast - forward of what 's happened over the last 25 years .
+Sample Act'l: the next slide i show you will be  a rapid fast-forward of what's happened over the last 25 years.
+E 4 ::: Average Loss 6.916 ::: Average BleuP1 22.053
+Evaluation ....
+Sample Inp't: aber nun gibt es eine mutige, neue l„∂sung, um uns aus dieser misslichen lage zu befreien.
+Sample Pred : but now there's a bold to new solution to get us from this disenchanted bio - free situation.
+Model Expc'd: but now there is a bold new solution to get us out of this mess .
+Sample Act'l: but now there is a bold new solution to get us out of this mess.
+E 4 ::: Average Loss 6.829 ::: Average BleuP1 22.549
+Evaluation ....
+Sample Inp't: in einer der verbindungen, zwischen „ºber neuntausend magneten im lhc, gab es einen manufakturdefekt.
+Sample Pred : in one of the connections between the magnet in eastern tibet, there were a huge outbreak.
+Model Expc'd: in one of the joints between over 9,000 magnets in lhc ,   there was a manufacturing defect .
+Sample Act'l: in one of the joints between over 9,000 magnets in lhc,  there was a manufacturing defect.
+E 4 ::: Average Loss 6.556 ::: Average BleuP1 22.066
+Epoch    42: reducing learning rate of group 0 to 6.5610e-04.
+Evaluation ....
+Sample Inp't: gegen ende m„§rz wird der lhc wieder funktionsf„§hig sein.
+Sample Pred : in march, the lhc will be huge.
+Model Expc'd: by the end of march the lhc will be intact again .
+Sample Act'l: by the end of march the lhc will be intact again.
+E 4 ::: Average Loss 6.767 ::: Average BleuP1 22.467
+Evaluation ....
+Sample Inp't: im himalaya, der drittgr„∂ssten eismasse, sehen sie oben neue seen, die vor ein paar jahren gletscher waren.
+Sample Pred : in the himalayas, the drittgr„∂ssten, the drittgr„∂ssten, the new york city, who were actually flown up, a few years ago.
+Model Expc'd: in the himalayas , the third largest mass of ice :   at the top you see new lakes , which a few years ago were glaciers .
+Sample Act'l: in the himalayas, the third largest mass of ice:  at the top you see new lakes, which a few years ago were glaciers.
+E 4 ::: Average Loss 6.759 ::: Average BleuP1 21.676
+Evaluation ....
+Sample Inp't: ihn gibt es in h„ºlle und f„ºlle in amerika, und er hilft unserer wirtschaft zu wachsen.
+Sample Pred : there are in the skin and abundance in america, and it helps us grow our economy.
+Model Expc'd: he 's abundant here in america ,   and he helps our economy grow .
+Sample Act'l: he's abundant here in america,  and he helps our economy grow.
+E 4 ::: Average Loss 6.260 ::: Average BleuP1 22.588
+Evaluation ....
+Sample Inp't: trotzdessen gibt es eine politische auseinandersetzung in unserem land.
+Sample Pred : there are political political discourse in our country.
+Model Expc'd: however there is a political battle   in our country .
+Sample Act'l: however there is a political battle  in our country.
+E 5 ::: Average Loss 6.654 ::: Average BleuP1 21.594
+Evaluation ....
+Sample Inp't: ein plan, amerika zur„ºck zur arbeit zu bringen, uns sicherer zu machen und zu helfen, die globale erw„§rmung zu stoppen.
+Sample Pred : a plan to bring america back to work, and to help us stop signs global warming.
+Model Expc'd: a plan to put america back to work ,   make us more secure , and help stop global warming .
+Sample Act'l: a plan to put america back to work,  make us more secure, and help stop global warming.
+E 5 ::: Average Loss 6.722 ::: Average BleuP1 22.415
+Evaluation ....
+Sample Inp't: ich werde wahrscheinlich nicht alle von ihnen auf diese reise mitnehmen k„∂nnen.
+Sample Pred : i'm not going to take all of you on the journey to you.
+Model Expc'd: i 'm not , probably , going to bring you all along with me on this .
+Sample Act'l: i'm not, probably, going to bring you all along with me on this.
+E 5 ::: Average Loss 6.600 ::: Average BleuP1 22.250
+Epoch    48: reducing learning rate of group 0 to 5.9049e-04.
+Evaluation ....
+Sample Inp't: in anderen worten, als wir dieses bild am 10. september sahen, wussten wir, dass die maschine funktioniert, was ein gro„üer triumph ist.
+Sample Pred : in other words, when we saw this image at september 10th september, we knew that machine was working on what was a big triumph.
+Model Expc'd: in other words , when we saw that picture on september 10th   we knew the machine worked ,   which is a great triumph .
+Sample Act'l: in other words, when we saw that picture on september 10th  we knew the machine worked,  which is a great triumph.
+E 5 ::: Average Loss 6.431 ::: Average BleuP1 22.956
+Evaluation ....
+Sample Inp't: wir wollten ein lernmittel f„ºr sprachlerner entwickeln.
+Sample Pred : we wanted to develop a more transparent system for development goals.
+Model Expc'd: and we wanted to build a learning tool for language learners .
+Sample Act'l: and we wanted to build a learning tool for language learners.
+E 5 ::: Average Loss 6.760 ::: Average BleuP1 23.059
+Evaluation ....
+Sample Inp't: aber, wenn es ums schreiben geht denke ich seit kurzem dar„ºber nach und frage mich: warum?
+Sample Pred : but, when it comes to write, i think, for a minute, and i wonder, why?
+Model Expc'd: but , when it comes to writing ,   the thing that i 've been sort of thinking about lately , and wondering about lately , is why ?
+Sample Act'l: but, when it comes to writing,  the thing that i've been sort of thinking about lately, and wondering about lately, is why?
+E 5 ::: Average Loss 6.648 ::: Average BleuP1 22.787
+Evaluation ....
+Sample Inp't: dies betrifft die speicherbecken.
+Sample Pred : this is the most basic unit of the world.
+Model Expc'd: this is hitting the reservoirs .
+Sample Act'l: this is hitting the reservoirs.
+E 5 ::: Average Loss 6.672 ::: Average BleuP1 22.315
+Evaluation ....
+Sample Inp't: „ñl ist ein problem, und kohle ist das gleichwohl gr„∂sste problem.
+Sample Pred : oil is a problem, and coal is the biggest biggest problem.
+Model Expc'd: oil is a problem , and coal is the most serious problem .
+Sample Act'l: oil is a problem, and coal is the most serious problem.
+E 5 ::: Average Loss 6.240 ::: Average BleuP1 22.160
+Evaluation ....
+Sample Inp't: und ich versprach zur„ºck zu kommen, um ihnen zu erkl„§ren wie die maschine funktioniert.
+Sample Pred : and i promised to come to you, how to make the machine works.
+Model Expc'd: and i promised to come back and give you an update   on how that machine worked .
+Sample Act'l: and i promised to come back and give you an update  on how that machine worked.
+E 5 ::: Average Loss 6.406 ::: Average BleuP1 23.043
+Epoch    54: reducing learning rate of group 0 to 5.3144e-04.
+Evaluation ....
+Sample Inp't: video: schauspieler: saueber kohle, sie haben viel davon geh„∂rt.
+Sample Pred : video: actor coal: you've heard a lot of it.
+Model Expc'd: video : actor : clean coal -- you 've heard a lot about it .
+Sample Act'l: video: actor: clean coal -- you've heard a lot about it.
+E 6 ::: Average Loss 6.309 ::: Average BleuP1 22.683
+Evaluation ....
+Sample Inp't: versorge amerika mit 100 prozent sauberer elektrizit„§t neu, innerhalb der n„§chsten 10 jahre
+Sample Pred : sixty - five america with 100 percent cleaner clean electricity, within the next 10 years.
+Model Expc'd: <unk> america with 100 percent clean electricity   within 10 years .
+Sample Act'l: repower america with 100 percent clean electricity  within 10 years.
+E 6 ::: Average Loss 6.384 ::: Average BleuP1 22.312
+Evaluation ....
+Sample Inp't: und die katastrophen „ºberall auf der welt haben in einem wirklich ausserordentlichen und vorher nie dagewesenen ausmass zugenommen.
+Sample Pred : and the disasters around the world have been done in a really shy, and never before mr. teszler.
+Model Expc'd: and the disasters around the world   have been increasing at an absolutely extraordinary   and unprecedented rate .
+Sample Act'l: and the disasters around the world  have been increasing at an absolutely extraordinary  and unprecedented rate.
+E 6 ::: Average Loss 5.987 ::: Average BleuP1 22.376
+Evaluation ....
+Sample Inp't: also: sie rennt zum haus und sucht nach dem papier und das gedicht f„§hrt durch sie hindurch und sie greift einen stift gerade als es durch sie hindurchgeht und dann ‚Äì sagte sie ‚Äì war es so als w„ºrde mit ihrer anderen hand danach greifen und es zu packen kriegen.
+Sample Pred : so she went to the house, and she was looking for the paper, and she was taking her a lot of them through the paper, and she turned a pencil as she walked through it, and she said, "it was as if you were going to reach out with your other hand and then get it into the air."
+Model Expc'd: so , she 's running to the house and she 's looking for the paper   and the poem passes through her ,   and she grabs a pencil just as it 's going through her ,   and then she said , it was like she would reach out with her other hand   and she would catch it .
+Sample Act'l: so, she's running to the house and she's looking for the paper  and the poem passes through her,  and she grabs a pencil just as it's going through her,  and then she said, it was like she would reach out with her other hand  and she would catch it.
+E 6 ::: Average Loss 6.632 ::: Average BleuP1 22.189
+Evaluation ....
+Sample Inp't: deshalb haben wir es uns zum obersten zeil gesetzt, eine betr„§chtliche geldsumme auszugeben um eine werbeaktion auf den weg zu bringen, um die wahrheit „ºber kohle.
+Sample Pred : so we started to the top of the top five senses theory, a very careful branding to put a feasibility study on the way to tell the truth about coal.
+Model Expc'd: that 's why we 've made it our primary goal   to spend a large sum of money   on an advertising effort to help bring out and complicate   the truth about coal .
+Sample Act'l: that's why we've made it our primary goal  to spend a large sum of money  on an advertising effort to help bring out and complicate  the truth about coal.
+E 6 ::: Average Loss 6.538 ::: Average BleuP1 23.137
+Evaluation ....
+Sample Inp't: schauen sie es sich genau an, dies ist die heutige, saubere kohletechnologie.
+Sample Pred : look at this, this is the most important, clean kohletechnologie.
+Model Expc'd: take a good long look : this is today 's clean coal technology .
+Sample Act'l: take a good long look: this is today's clean coal technology.
+E 6 ::: Average Loss 6.616 ::: Average BleuP1 23.295
+Epoch    60: reducing learning rate of group 0 to 4.7830e-04.
+Evaluation ....
+Sample Inp't: verglichen mit dem gesamten betrag an klimaver„§ndernden stoffen in der atmosph„§re, k„∂nnte sich dieser betrag verdoppeln, wenn wir diesen kritischen punkt „ºberschreiten.
+Sample Pred : so compared to the entire amount of metropolitan in the atmosphere, in this atmosphere, if we're going to move this critical period.
+Model Expc'd: compared to the total amount of global warming pollution in the atmosphere ,   that amount could double if we cross this tipping point .
+Sample Act'l: compared to the total amount of global warming pollution in the atmosphere,  that amount could double if we cross this tipping point.
+E 6 ::: Average Loss 6.346 ::: Average BleuP1 23.364
+Evaluation ....
+Sample Inp't: er ist bezahlbar und liebenswert, und arbeiter bleiben in lohn und brot.
+Sample Pred : it's affordable, and it's staying in the case of the day and the head remain locked into the bread.
+Model Expc'd: he 's affordable and adorable , and workers keep their pay .
+Sample Act'l: he's affordable and adorable, and workers keep their pay.
+E 6 ::: Average Loss 6.431 ::: Average BleuP1 23.547
+Evaluation ....
+Sample Inp't: und sie f„ºhlen ebenso ihre bewegungen und neigung.
+Sample Pred : and they feel their movements and their own movements.
+Model Expc'd: and they can also sense their motion and tilt .
+Sample Act'l: and they can also sense their motion and tilt.
+E 6 ::: Average Loss 6.487 ::: Average BleuP1 23.247
+Evaluation ....
+Sample Inp't: sie w„§chst im winter und schrumpft im sommer.
+Sample Pred : they're growing in winter and central summer.
+Model Expc'd: it expands in winter and contracts in summer .
+Sample Act'l: it expands in winter and contracts in summer.
+E 7 ::: Average Loss 6.571 ::: Average BleuP1 23.187
+Evaluation ....
+Sample Inp't: am anderen ende des planeten, die antarktis, die gr„∂sste eismasse auf dem planeten.
+Sample Pred : at the other end of the planet, antarctica, the largest predatory gaze on the planet.
+Model Expc'd: at the other end of the planet , antarctica   the largest mass of ice on the planet .
+Sample Act'l: at the other end of the planet, antarctica  the largest mass of ice on the planet.
+E 7 ::: Average Loss 6.437 ::: Average BleuP1 23.188
+Evaluation ....
+Sample Inp't: hier ein spektakul„§res bild des atlas in der konstruktion damit sie die gr„∂„üenverh„§ltnisse sehen.
+Sample Pred : so here's a spectacular picture of the atlas in the construction so that you see the scale.
+Model Expc'd: spectacular picture here of atlas under construction   so you can see the scale .
+Sample Act'l: spectacular picture here of atlas under construction  so you can see the scale.
+E 7 ::: Average Loss 6.043 ::: Average BleuP1 22.278
+Epoch    66: reducing learning rate of group 0 to 4.3047e-04.
+Evaluation ....
+Sample Inp't: ja, ich habe angst vor all diesen dingen.
+Sample Pred : yeah, i'm afraid of all these things.
+Model Expc'd: yes , i 'm afraid of all those things .
+Sample Act'l: yes, i'm afraid of all those things.
+E 7 ::: Average Loss 6.398 ::: Average BleuP1 23.073
+Evaluation ....
+Sample Inp't: tatsache ist, kohle ist nicht dreckig.
+Sample Pred : in fact, coal is not dirty.
+Model Expc'd: the fact is , coal is n't dirty .
+Sample Act'l: the fact is, coal isn't dirty.
+E 7 ::: Average Loss 6.383 ::: Average BleuP1 22.980
+Evaluation ....
+Sample Inp't: die vereinigten staaten sind eine der beiden gr„∂ssten verschmutzer, zusammen mit china.
+Sample Pred : the united states is one of the two biggest squares, together with china.
+Model Expc'd: the united states is one of the two   largest emitters , along with china .
+Sample Act'l: the united states is one of the two  largest emitters, along with china.
+E 7 ::: Average Loss 6.443 ::: Average BleuP1 22.879
+Evaluation ....
+Sample Inp't: in gewissem sinne ist die arktische eiskappe das schlagende herz unseres globalen klimasystems.
+Sample Pred : in a sense, the arctic sea is the u.s. heart of our global warming system.
+Model Expc'd: the arctic ice cap is , in a sense ,   the beating heart of the global climate system .
+Sample Act'l: the arctic ice cap is, in a sense,  the beating heart of the global climate system.
+E 7 ::: Average Loss 6.271 ::: Average BleuP1 22.621
+Evaluation ....
+Sample Inp't: einer der schnellsten wege, unsere abh„§ngigkeit von alten, dreckigen kraftstoffen, die unsere welt ersticken, zu reduzieren.
+Sample Pred : one of the fastest ways we use our old - time dependence upon old, our educational outcomes, our world, to reduce.
+Model Expc'd: one of the fastest ways to cut our dependence   on old dirty fuels that are killing our planet .
+Sample Act'l: one of the fastest ways to cut our dependence  on old dirty fuels that are killing our planet.
+E 7 ::: Average Loss 6.512 ::: Average BleuP1 23.760
+Evaluation ....
+Sample Inp't: kurz gesagt, ein siftable ist ein interaktiver computer in der gr„∂„üe eines kekses.
+Sample Pred : in short, a computer - old computer is a major computer in size of a football field.
+Model Expc'd: in a nutshell , a <unk> is an interactive computer   the size of a cookie .
+Sample Act'l: in a nutshell, a siftable is an interactive computer  the size of a cookie.
+E 7 ::: Average Loss 6.688 ::: Average BleuP1 23.185
+Epoch    72: reducing learning rate of group 0 to 3.8742e-04.
+Evaluation ....
+Sample Inp't: al gore: also hat die allianz f„ºr klimaschutz zwei kampagnen ins leben gerufen.
+Sample Pred : al gore: so the alliance for president has been doing two things.
+Model Expc'd: al gore : so the alliance for climate protection   has launched two campaigns .
+Sample Act'l: al gore: so the alliance for climate protection  has launched two campaigns.
+E 8 ::: Average Loss 6.330 ::: Average BleuP1 23.144
+Evaluation ....
+Sample Inp't: aber dies dr„ºckt nicht stark genug die ernsthaftigkeit dieses speziellen problems aus, da es nicht die dicke des eises zeigt.
+Sample Pred : but this does n't really strongly enough the seriousness of this particular problem because it does n't show the thickness of the ice.
+Model Expc'd: but this <unk> the seriousness of this particular problem   because it does n't show the thickness of the ice .
+Sample Act'l: but this understates the seriousness of this particular problem  because it doesn't show the thickness of the ice.
+E 8 ::: Average Loss 6.431 ::: Average BleuP1 22.990
+Evaluation ....
+Sample Inp't: viel wichtiger: sind sind k„∂rperlich, weshalb man sie wie baukl„∂tze lediglich durch das ausstrecken der h„§nde und zugreifen bewegen kann.
+Sample Pred : more importantly, are they physically, why are they just like to merely monitor, like the only person's hands, and move forward.
+Model Expc'd: most importantly , they 're physical ,   so like the blocks , you can move them just by reaching out and grasping .
+Sample Act'l: most importantly, they're physical,  so like the blocks, you can move them just by reaching out and grasping.
+E 8 ::: Average Loss 6.436 ::: Average BleuP1 22.564
+Evaluation ....
+Sample Inp't: erz„§hler: versorge amerika neu. es ist zeit, realit„§t zu akzeptieren.
+Sample Pred : narrator: amerika america is time. it's time to accept reality.
+Model Expc'd: narrator : <unk> america . it 's time to get real .
+Sample Act'l: narrator: repower america. it's time to get real.
+E 8 ::: Average Loss 6.470 ::: Average BleuP1 23.450
+Evaluation ....
+Sample Inp't: und das ist gro„üartig, denn wir brauchen das.
+Sample Pred : and that's great, because we need it.
+Model Expc'd: which is great , because we need that .
+Sample Act'l: which is great, because we need that.
+E 8 ::: Average Loss 6.456 ::: Average BleuP1 23.133
+Evaluation ....
+Sample Inp't: wenn sie wissen m„∂chten, wie der meeresspiegel durch landeisschmelze steigt hier fliesst sie ins meer.
+Sample Pred : if you want to know how sea level rises through sea ice shelf here, you're going to see them in the ocean.
+Model Expc'd: if you want to know how sea level rises   from land - base ice melting   this is where it reaches the sea .
+Sample Act'l: if you want to know how sea level rises  from land-base ice melting  this is where it reaches the sea.
+E 8 ::: Average Loss 6.512 ::: Average BleuP1 22.581
+Epoch    78: reducing learning rate of group 0 to 3.4868e-04.
+Evaluation ....
+Sample Inp't: aber dies dr„ºckt nicht stark genug die ernsthaftigkeit dieses speziellen problems aus, da es nicht die dicke des eises zeigt.
+Sample Pred : but this does n't really strongly enough the seriousness of this particular problem, because it does n't show the thickness of the ice.
+Model Expc'd: but this <unk> the seriousness of this particular problem   because it does n't show the thickness of the ice .
+Sample Act'l: but this understates the seriousness of this particular problem  because it doesn't show the thickness of the ice.
+E 8 ::: Average Loss 6.510 ::: Average BleuP1 22.803
+Evaluation ....
+Sample Inp't: in den anden ist dieser gletscher die trinkwasserquelle f„ºr diese stadt.
+Sample Pred : in the andes, this glacier is the main source of these city.
+Model Expc'd: in the andes , this glacier is the   source of drinking water for this city .
+Sample Act'l: in the andes, this glacier is the  source of drinking water for this city.
+E 8 ::: Average Loss 6.298 ::: Average BleuP1 23.039
+Evaluation ....
+Sample Inp't: frosty, der kohlenmann wird jeden tag sauberer.
+Sample Pred : frosty, the kohlenmann, is going to clean every day.
+Model Expc'd: <unk> the coal man is getting cleaner everyday .
+Sample Act'l: frosty the coal man is getting cleaner everyday.
+E 8 ::: Average Loss 6.420 ::: Average BleuP1 23.158
+Evaluation ....
+Sample Inp't: letztes jahr habe ich diese beiden folien gezeigt, um zu veranschaulichen, dass die arktische eiskappe, die f„ºr ann„§hernd drei millionen jahre die gr„∂sse der unteren 48 staaten hatte, um 40 prozent geschrumpft ist.
+Sample Pred : last year i showed these two slides to illustrate that the arctic sea ice shelf the size of the lower manhattan in the last 48 million years to get 40 percent.
+Model Expc'd: last year i showed these two slides so that   demonstrate that the arctic ice cap ,   which for most of the last three million years   has been the size of the lower 48 states ,   has shrunk by 40 percent .
+Sample Act'l: last year i showed these two slides so that  demonstrate that the arctic ice cap,  which for most of the last three million years  has been the size of the lower 48 states,  has shrunk by 40 percent.
+E 9 ::: Average Loss 6.520 ::: Average BleuP1 23.754
+Evaluation ....
+Sample Inp't: und ich erwarte nicht, dass sich das je „§ndern wird.
+Sample Pred : and i do n't expect that the ever will change.
+Model Expc'd: and i do n't expect that that 's ever going to change .
+Sample Act'l: and i don't expect that that's ever going to change.
+E 9 ::: Average Loss 5.654 ::: Average BleuP1 23.215
+Evaluation ....
+Sample Inp't: am 10. september letzen jahres lief die maschine zum ersten mal an.
+Sample Pred : on september 10th, last year, the machine begins for the first time.
+Model Expc'd: on the 10th of september last year we turned the machine on for the first time .
+Sample Act'l: on the 10th of september last year we turned the machine on for the first time.
+E 9 ::: Average Loss 6.266 ::: Average BleuP1 23.103
+Epoch    84: reducing learning rate of group 0 to 3.1381e-04.
+Evaluation ....
+Sample Inp't: diese fl„ºsse nehmen rapide zu.
+Sample Pred : these rivers are taking place.
+Model Expc'd: these flows are increasing very rapidly .
+Sample Act'l: these flows are increasing very rapidly.
+E 9 ::: Average Loss 6.323 ::: Average BleuP1 23.357
+Evaluation ....
+Sample Inp't: sie w„§chst im winter und schrumpft im sommer.
+Sample Pred : it grows in the winter and summer in summer.
+Model Expc'd: it expands in winter and contracts in summer .
+Sample Act'l: it expands in winter and contracts in summer.
+E 9 ::: Average Loss 6.325 ::: Average BleuP1 23.359
+Evaluation ....
+Sample Inp't: es verursachte immensen jubel im kontrollraum.
+Sample Pred : it was a huge amount of control in the control.
+Model Expc'd: it caused immense celebration in the control room .
+Sample Act'l: it caused immense celebration in the control room.
+E 9 ::: Average Loss 6.322 ::: Average BleuP1 23.445
+Evaluation ....
+Sample Inp't: in gewissem sinne ist die arktische eiskappe das schlagende herz unseres globalen klimasystems.
+Sample Pred : in a sense, the arctic sea is the u.s. heart of our global warming system.
+Model Expc'd: the arctic ice cap is , in a sense ,   the beating heart of the global climate system .
+Sample Act'l: the arctic ice cap is, in a sense,  the beating heart of the global climate system.
+E 9 ::: Average Loss 6.342 ::: Average BleuP1 23.263
+Evaluation ....
+Sample Inp't: verglichen mit dem gesamten betrag an klimaver„§ndernden stoffen in der atmosph„§re, k„∂nnte sich dieser betrag verdoppeln, wenn wir diesen kritischen punkt „ºberschreiten.
+Sample Pred : compared to the entire amount of water in the atmosphere, in this atmosphere, double - double burgers, if we cross that critical period.
+Model Expc'd: compared to the total amount of global warming pollution in the atmosphere ,   that amount could double if we cross this tipping point .
+Sample Act'l: compared to the total amount of global warming pollution in the atmosphere,  that amount could double if we cross this tipping point.
+E 9 ::: Average Loss 6.344 ::: Average BleuP1 23.638
+Evaluation ....
+Sample Inp't: „ñl ist ein problem, und kohle ist das gleichwohl gr„∂sste problem.
+Sample Pred : oil is a problem, and coal is the biggest problem.
+Model Expc'd: oil is a problem , and coal is the most serious problem .
+Sample Act'l: oil is a problem, and coal is the most serious problem.
+E 9 ::: Average Loss 6.561 ::: Average BleuP1 23.367
+Epoch    90: reducing learning rate of group 0 to 2.8243e-04.
+Evaluation ....
+Sample Inp't: sie sind nun alle wieder auf ihrem weg zur„ºck.
+Sample Pred : they're all right back to their way back.
+Model Expc'd: they 're all on their way back underground now .
+Sample Act'l: they're all on their way back underground now.
+E 10 ::: Average Loss 6.493 ::: Average BleuP1 23.246
+Evaluation ....
+Sample Inp't: der m„§chtigste bergarbeiter ist der leiter von massey coal.
+Sample Pred : the most powerful principle is the head of coal.
+Model Expc'd: the largest mountaintop miner is the head of massey coal .
+Sample Act'l: the largest mountaintop miner is the head of massey coal.
+E 10 ::: Average Loss 6.298 ::: Average BleuP1 23.563
+Evaluation ....
+Sample Inp't: und diese interaktiven portraits nehmen sich gegenseitig wahr.
+Sample Pred : and these interactive portraits are each other.
+Model Expc'd: and these interactive portraits are aware of each other .
+Sample Act'l: and these interactive portraits are aware of each other.
+E 10 ::: Average Loss 6.398 ::: Average BleuP1 23.290
+Evaluation ....
+Sample Inp't: dies entspricht 20 fu„ü meeresh„∂he, so wie gr„∂nland.
+Sample Pred : this is equivalent to 20 feet, like greenland.
+Model Expc'd: that 's equal to 20 feet of sea level , as is greenland .
+Sample Act'l: that's equal to 20 feet of sea level, as is greenland.
+E 10 ::: Average Loss 6.306 ::: Average BleuP1 23.303
+Evaluation ....
+Sample Inp't: also lassen sie uns eine tour dieser modernen, sauberen kohlefabrik machen.
+Sample Pred : so let's make a tour of these modern, clean - dimensional service.
+Model Expc'd: so let 's take a tour of this state - of - the - art clean coal facility .
+Sample Act'l: so let's take a tour of this state-of-the-art clean coal facility.
+E 10 ::: Average Loss 6.371 ::: Average BleuP1 22.953
+Evaluation ....
+Sample Inp't: in den letzten 5 jahren haben wir 70 millionen tonnen an co2 produziert alle 24 stunden -- 25 millionen tonnen jeden tag in die ozeane.
+Sample Pred : in the last 5 years, we've spent 70 million tons of co2 every 24 hours, 25 million tons every day.
+Model Expc'd: in the last five years   we 've added 70 million tons of co2   every 24 hours --   25 million tons every day to the oceans .
+Sample Act'l: in the last five years  we've added 70 million tons of co2  every 24 hours --  25 million tons every day to the oceans.
+E 10 ::: Average Loss 6.008 ::: Average BleuP1 23.124
+Epoch    96: reducing learning rate of group 0 to 2.5419e-04.
+Evaluation ....
+Sample Inp't: wie sie sehen, w„§chst es auf das dunkelblau markierte. dies ist das j„§hrliche eis im winter; und es schrumpft im sommer.
+Sample Pred : as you can see, it's in the front of the world, and this is the annual ice in the winter, and it's in summer.
+Model Expc'd: as you see , it expands to the dark blue --   that 's the annual ice in winter ,   and it contracts in summer .
+Sample Act'l: as you see, it expands to the dark blue --  that's the annual ice in winter,  and it contracts in summer.
+E 10 ::: Average Loss 6.350 ::: Average BleuP1 23.497
+Evaluation ....
+Sample Inp't: trotzdessen gibt es eine politische auseinandersetzung in unserem land.
+Sample Pred : there's political politics in our country.
+Model Expc'd: however there is a political battle   in our country .
+Sample Act'l: however there is a political battle  in our country.
+E 10 ::: Average Loss 6.395 ::: Average BleuP1 23.510
+Evaluation ....
+Sample Inp't: dann, nach ungef„§hr 30 sekunden, wird wieder gemischt und man hat eine neue buchstabenkombination und neue m„∂glichkeiten auszuprobieren.
+Sample Pred : then, about 30 seconds, you're going to get mixed again, and you're going to try and find a new set of new and new opportunities.
+Model Expc'd: then , after about 30 seconds , it <unk> ,   and you have a new set of letters and new possibilities to try .
+Sample Act'l: then, after about 30 seconds, it reshuffles,  and you have a new set of letters and new possibilities to try.
+E 10 ::: Average Loss 6.345 ::: Average BleuP1 23.475
+Evaluation ....
+Sample Inp't: ich kann die sequenz w„§hrend sie abl„§uft umstellen.
+Sample Pred : i can put the sequence while you're using it.
+Model Expc'd: video :    dm : i can rearrange the sequence while it plays .
+Sample Act'l: video:   dm: i can rearrange the sequence while it plays.
+E 11 ::: Average Loss 6.355 ::: Average BleuP1 23.260
+Evaluation ....
+Sample Inp't: man verbindet ihn mit einem bestimmten ton und neigt ihn dann zum einstellen.
+Sample Pred : you connect it with a particular tone, and then you'll let it go to the hire.
+Model Expc'd: you attach it to a particular sound and then tilt to adjust it .
+Sample Act'l: you attach it to a particular sound and then tilt to adjust it.
+E 11 ::: Average Loss 6.302 ::: Average BleuP1 23.596
+Evaluation ....
+Sample Inp't: dies war das ergebnis.
+Sample Pred : this was the result.
+Model Expc'd: this was the result .
+Sample Act'l: this was the result.
+E 11 ::: Average Loss 6.318 ::: Average BleuP1 23.438
+Epoch   102: reducing learning rate of group 0 to 2.2877e-04.
+Evaluation ....
+Sample Inp't: aber dies dr„ºckt nicht stark genug die ernsthaftigkeit dieses speziellen problems aus, da es nicht die dicke des eises zeigt.
+Sample Pred : but this does n't really strongly much enough the seriousness of this particular problem, because it does n't show the thickness of the ice.
+Model Expc'd: but this <unk> the seriousness of this particular problem   because it does n't show the thickness of the ice .
+Sample Act'l: but this understates the seriousness of this particular problem  because it doesn't show the thickness of the ice.
+E 11 ::: Average Loss 6.235 ::: Average BleuP1 23.180
+Evaluation ....
+Sample Inp't: kurz gesagt, ein siftable ist ein interaktiver computer in der gr„∂„üe eines kekses.
+Sample Pred : in short, a computer - old computer is a major computer in size of a football field.
+Model Expc'd: in a nutshell , a <unk> is an interactive computer   the size of a cookie .
+Sample Act'l: in a nutshell, a siftable is an interactive computer  the size of a cookie.
+E 11 ::: Average Loss 6.270 ::: Average BleuP1 23.370
+Evaluation ....
+Sample Inp't: jetzt werde ich noch etwas schlagzeug dazu tun.
+Sample Pred : now i'm going to do something more about that.
+Model Expc'd: video :    dm : now i 'll put some percussion in .
+Sample Act'l: video:   dm: now i'll put some percussion in.
+E 11 ::: Average Loss 6.426 ::: Average BleuP1 23.420
+Evaluation ....
+Sample Inp't: sie f„ºhlte, wenn es kam, denn es w„ºrde die erde unter ihren f„º„üen zum beben bringen.
+Sample Pred : they felt, if it came, because the earth would carry below their feet to the sea.
+Model Expc'd: and she felt it coming , because it would shake the earth under her feet .
+Sample Act'l: and she felt it coming, because it would shake the earth under her feet.
+E 11 ::: Average Loss 6.341 ::: Average BleuP1 23.794
+Evaluation ....
+Sample Inp't: gute arbeit! ja!
+Sample Pred : good job! yeah!
+Model Expc'd: good job ! yeah !
+Sample Act'l: good job! yeah!
+E 11 ::: Average Loss 6.445 ::: Average BleuP1 23.422
+Evaluation ....
+Sample Inp't: und trotzdem das verbrennen von kohle einer der hauptgr„ºnde f„ºr die globale erw„§rmung ist, die bemerkenswert saubere kohletechnologie, die sie hier sehen, „§ndert alles.
+Sample Pred : and yet, burning of coal's one of the main reasons for global warming, the remarkable clean government, which you see here, changes everything.
+Model Expc'd: and while burning coal is one of the leading causes of global warming ,   the remarkable clean coal technology you see here   changes everything .
+Sample Act'l: and while burning coal is one of the leading causes of global warming,  the remarkable clean coal technology you see here  changes everything.
+E 11 ::: Average Loss 6.366 ::: Average BleuP1 23.675
+Epoch   108: reducing learning rate of group 0 to 2.0589e-04.
+Evaluation ....
+Sample Inp't: aber wenn sie versiegen, wird auch das meiste trinkwasser wegfallen.
+Sample Pred : but if you're going to go out, it's going to be most of the drinking water.
+Model Expc'd: but when they go away , so does much of the drinking water .
+Sample Act'l: but when they go away, so does much of the drinking water.
+E 12 ::: Average Loss 6.378 ::: Average BleuP1 23.625
+Evaluation ....
+Sample Inp't: und selbst diejenigen, die nicht tats„§chlich suizid begingen, schienen von ihren talenten wirklich vernachl„§ssigt worden zu sein.
+Sample Pred : and even those who did n't actually have been trained to be heard from their talents.
+Model Expc'd: and even the ones who did n't literally commit suicide   seem to be really <unk> by their gifts , you know .
+Sample Act'l: and even the ones who didn't literally commit suicide  seem to be really undone by their gifts, you know.
+E 12 ::: Average Loss 5.988 ::: Average BleuP1 23.564
+Evaluation ....
+Sample Inp't: aber die volumen sind wesentlich gr„∂sser als je zuvor.
+Sample Pred : but the volume are significantly bigger than ever before.
+Model Expc'd: but the volumes are much larger than ever .
+Sample Act'l: but the volumes are much larger than ever.
+E 12 ::: Average Loss 6.214 ::: Average BleuP1 23.188
+Evaluation ....
+Sample Inp't: das r„§umliche denken ist eng damit verbunden, wie wir einen gro„üteil unserer umgebung verstehen.
+Sample Pred : the spatial thinking is connected to how we understand a lot of our environment.
+Model Expc'd: spatial reasoning is deeply connected   to how we understand a lot of the world around us .
+Sample Act'l: spatial reasoning is deeply connected  to how we understand a lot of the world around us.
+E 12 ::: Average Loss 6.303 ::: Average BleuP1 23.100
+Evaluation ....
+Sample Inp't: in 25 jahren wird es von hier nach hier verschwunden sein.
+Sample Pred : in 25 years it's going to be gone from here.
+Model Expc'd: in 25 years it 's gone from this , to this .
+Sample Act'l: in 25 years it's gone from this, to this.
+E 12 ::: Average Loss 6.398 ::: Average BleuP1 23.522
+Evaluation ....
+Sample Inp't: am anderen ende des planeten, die antarktis, die gr„∂sste eismasse auf dem planeten.
+Sample Pred : at the other end of the planet, antarctica, the largest oil companies on the planet.
+Model Expc'd: at the other end of the planet , antarctica   the largest mass of ice on the planet .
+Sample Act'l: at the other end of the planet, antarctica  the largest mass of ice on the planet.
+E 12 ::: Average Loss 6.418 ::: Average BleuP1 23.720
+Epoch   114: reducing learning rate of group 0 to 1.8530e-04.
+Evaluation ....
+Sample Inp't: in diesem fall haben wir drei siftables als farbt„∂pfe konfiguriert und ich kann sie nutzen, um farbe in den in der mitte zu gie„üen, wo sie dann vermischt werden.
+Sample Pred : in this case, we have three laser - dimensional imagining technologies, and i can use it to turn color into the middle, where you're going to be mixed.
+Model Expc'd: so in this case , we 've got three <unk> configured to be paint buckets   and i can use them to pour color into that central one ,   where they get mixed .
+Sample Act'l: so in this case, we've got three siftables configured to be paint buckets  and i can use them to pour color into that central one,  where they get mixed.
+E 12 ::: Average Loss 6.370 ::: Average BleuP1 23.612
+Evaluation ....
+Sample Inp't: wir wussten von einem mechanismus der homologe rekombination genannt wird, den die biologie verwendet um dna zu reparieren, die solche st„ºcke zusammenf„ºgen kann.
+Sample Pred : we knew about one mechanism called the rekombination ground that we use to fix dna, to extract these kinds of dna that can capture spiral of these pieces.
+Model Expc'd: we knew there 's a mechanism called homologous recombination   that biology uses to repair dna   that can put pieces together .
+Sample Act'l: we knew there's a mechanism called homologous recombination  that biology uses to repair dna  that can put pieces together.
+E 12 ::: Average Loss 6.356 ::: Average BleuP1 23.467
+Evaluation ....
+Sample Inp't: dann, nach ungef„§hr 30 sekunden, wird wieder gemischt und man hat eine neue buchstabenkombination und neue m„∂glichkeiten auszuprobieren.
+Sample Pred : then, about 30 seconds, again, you're going to get mixed again and you're going to try and figure out a new set of new and new capability.
+Model Expc'd: then , after about 30 seconds , it <unk> ,   and you have a new set of letters and new possibilities to try .
+Sample Act'l: then, after about 30 seconds, it reshuffles,  and you have a new set of letters and new possibilities to try.
+E 12 ::: Average Loss 6.472 ::: Average BleuP1 23.701
+Evaluation ....
+Sample Inp't: ich denke die tatsache, dass es so schwer ist, die tatsache, dass wir „ºber unsere grenzen hinaus greifen, bildet den wert von dingen wie dem lhc.
+Sample Pred : i think the fact that it's so hard to think that we're going beyond our limits, and it's worth the value of things like the lhc.
+Model Expc'd: i think that the fact that it 's so difficult ,   the fact that we 're overreaching , is the value of things like the lhc .
+Sample Act'l: i think that the fact that it's so difficult,  the fact that we're overreaching, is the value of things like the lhc.
+E 13 ::: Average Loss 6.415 ::: Average BleuP1 23.837
+Evaluation ....
+Sample Inp't: also, machen sie sich keine sorgen um die klimaver„§nderung.
+Sample Pred : so do n't worry about climate change.
+Model Expc'd: so do n't worry about climate change .
+Sample Act'l: so don't worry about climate change.
+E 13 ::: Average Loss 6.441 ::: Average BleuP1 23.627
+Evaluation ....
+Sample Inp't: dies ist der kangerlussuaq fluss in s„ºdwest gr„∂nland.
+Sample Pred : this is the river river in southwest france.
+Model Expc'd: this is the <unk> river in southwest greenland .
+Sample Act'l: this is the kangerlussuaq river in southwest greenland.
+E 13 ::: Average Loss 6.362 ::: Average BleuP1 23.378
+Evaluation ....
+Sample Inp't: dies ist in unserem ganzen land der zweitgr„∂sste abfallfluss amerikas.
+Sample Pred : this is in our entire country of america's america.
+Model Expc'd: this , all over the country , is the second largest waste stream in america .
+Sample Act'l: this, all over the country, is the second largest waste stream in america.
+E 13 ::: Average Loss 6.426 ::: Average BleuP1 23.592
+Evaluation ....
+Sample Inp't: und die siftables sind ein beispiel einer neuen generation von hilfsmitteln zur manipulation digitaler daten.
+Sample Pred : and the most amazing thing is, an example of a new generation of data to manipulation is the data.
+Model Expc'd: and <unk> are an example of a new ecosystem   of tools for manipulating digital information .
+Sample Act'l: and siftables are an example of a new ecosystem  of tools for manipulating digital information.
+E 13 ::: Average Loss 6.414 ::: Average BleuP1 23.618
+Evaluation ....
+Sample Inp't: dies ist in unserem ganzen land der zweitgr„∂sste abfallfluss amerikas.
+Sample Pred : this is in our entire country of america's america.
+Model Expc'd: this , all over the country , is the second largest waste stream in america .
+Sample Act'l: this, all over the country, is the second largest waste stream in america.
+E 13 ::: Average Loss 6.460 ::: Average BleuP1 23.497
+Evaluation ....
+Sample Inp't: und ich versprach zur„ºck zu kommen, um ihnen zu erkl„§ren wie die maschine funktioniert.
+Sample Pred : and i promised to come back to explain to the show of the machine.
+Model Expc'd: and i promised to come back and give you an update   on how that machine worked .
+Sample Act'l: and i promised to come back and give you an update  on how that machine worked.
+E 13 ::: Average Loss 6.483 ::: Average BleuP1 23.706
+Epoch   124: reducing learning rate of group 0 to 1.6677e-04.
+Evaluation ....
+Sample Inp't: ich denke die tatsache, dass es so schwer ist, die tatsache, dass wir „ºber unsere grenzen hinaus greifen, bildet den wert von dingen wie dem lhc.
+Sample Pred : i think the fact that it's so hard to think that we're going beyond our limits, and we value the value of things like the lhc.
+Model Expc'd: i think that the fact that it 's so difficult ,   the fact that we 're overreaching , is the value of things like the lhc .
+Sample Act'l: i think that the fact that it's so difficult,  the fact that we're overreaching, is the value of things like the lhc.
+E 13 ::: Average Loss 6.477 ::: Average BleuP1 23.630
+Evaluation ....
+Sample Inp't: sie haben es warscheinlich in den nachrichten gesehen.
+Sample Pred : you saw it in the news reports.
+Model Expc'd: you probably saw it on the news .
+Sample Act'l: you probably saw it on the news.
+E 13 ::: Average Loss 6.567 ::: Average BleuP1 23.625
+Evaluation ....
+Sample Inp't: die n„§chste folie, die ich ihnen zeige, ist eine zeitrafferaufnahme was in den letzten 25 jahren passiert ist.
+Sample Pred : the next slide i'm showing you is a major fortune 500 thing that happened in the last 25 years.
+Model Expc'd: the next slide i show you will be   a rapid fast - forward of what 's happened over the last 25 years .
+Sample Act'l: the next slide i show you will be  a rapid fast-forward of what's happened over the last 25 years.
+E 14 ::: Average Loss 6.462 ::: Average BleuP1 23.621
+Evaluation ....
+Sample Inp't: wenn sie dies im historischen zusammenhang betrachten, k„∂nnen sie sehen, was es anrichtet.
+Sample Pred : if you look at this in the historical context, you can see what it's going to be.
+Model Expc'd: if you look at in the context of history   you can see what this is doing .
+Sample Act'l: if you look at in the context of history  you can see what this is doing.
+E 14 ::: Average Loss 6.292 ::: Average BleuP1 23.988
+Evaluation ....
+Sample Inp't: fantastisch! diese maschine ist ziemlich laut.
+Sample Pred : fantastic! this machine is quite loud.
+Model Expc'd: amazing ! the machinery is kind of loud .
+Sample Act'l: amazing! the machinery is kind of loud.
+E 14 ::: Average Loss 6.385 ::: Average BleuP1 23.522
+Evaluation ....
+Sample Inp't: und der vorschlag war, viele weitere kohlefabriken zu bauen.
+Sample Pred : and the proposal was to build many more privacy.
+Model Expc'd: and the proposal has been to build a lot more coal plants .
+Sample Act'l: and the proposal has been to build a lot more coal plants.
+E 14 ::: Average Loss 5.997 ::: Average BleuP1 23.599
+Epoch   130: reducing learning rate of group 0 to 1.5009e-04.
+Evaluation ....
+Sample Inp't: dies ist ein vollkommen unhaltbares entwicklungsmuster.
+Sample Pred : this is a completely new york city.
+Model Expc'd: this is a completely unsustainable pattern .
+Sample Act'l: this is a completely unsustainable pattern.
+E 14 ::: Average Loss 6.354 ::: Average BleuP1 23.403
+Evaluation ....
+Sample Inp't: es bedeutet, dass wir einen kulturellen einfluss neben dem wissenschaftlichen erreichten.
+Sample Pred : it means we have a cultural impact next to the scientific system.
+Model Expc'd: it means we made cultural impact   as well as scientific impact .
+Sample Act'l: it means we made cultural impact  as well as scientific impact.
+E 14 ::: Average Loss 6.354 ::: Average BleuP1 23.471
+Evaluation ....
+Sample Inp't: al gore: dies ist die letzte.
+Sample Pred : al gore: this is the last one.
+Model Expc'd: al gore : this is the last one .
+Sample Act'l: al gore: this is the last one.
+E 14 ::: Average Loss 6.368 ::: Average BleuP1 23.496
+Evaluation ....
+Sample Inp't: sie w„§chst im winter und schrumpft im sommer.
+Sample Pred : it grows in the winter and summer in summer.
+Model Expc'd: it expands in winter and contracts in summer .
+Sample Act'l: it expands in winter and contracts in summer.
+E 14 ::: Average Loss 6.378 ::: Average BleuP1 23.718
+Evaluation ....
+Sample Inp't: endlich, eine l„∂sung, die gro„ü genug ist, unsere probleme zu l„∂sen.
+Sample Pred : finally, a solution to big enough to solve our problems.
+Model Expc'd: finally , a solution that 's big enough to solve our problems .
+Sample Act'l: finally, a solution that's big enough to solve our problems.
+E 14 ::: Average Loss 5.982 ::: Average BleuP1 23.690
+Evaluation ....
+Sample Inp't: aber dies dr„ºckt nicht stark genug die ernsthaftigkeit dieses speziellen problems aus, da es nicht die dicke des eises zeigt.
+Sample Pred : but this does n't really strongly enough the way that the problem of this particular problem is because it does n't show the thickness of the ice.
+Model Expc'd: but this <unk> the seriousness of this particular problem   because it does n't show the thickness of the ice .
+Sample Act'l: but this understates the seriousness of this particular problem  because it doesn't show the thickness of the ice.
+E 15 ::: Average Loss 6.292 ::: Average BleuP1 23.753
+Epoch   136: reducing learning rate of group 0 to 1.3509e-04.
+Evaluation ....
+Sample Inp't: letztes jahr habe ich diese beiden folien gezeigt, um zu veranschaulichen, dass die arktische eiskappe, die f„ºr ann„§hernd drei millionen jahre die gr„∂sse der unteren 48 staaten hatte, um 40 prozent geschrumpft ist.
+Sample Pred : last year, i showed these two slides to illustrate that the arctic drilling, which had been sold for nearly three million years worth of the lower 48 of the lower 48, 40 percent.
+Model Expc'd: last year i showed these two slides so that   demonstrate that the arctic ice cap ,   which for most of the last three million years   has been the size of the lower 48 states ,   has shrunk by 40 percent .
+Sample Act'l: last year i showed these two slides so that  demonstrate that the arctic ice cap,  which for most of the last three million years  has been the size of the lower 48 states,  has shrunk by 40 percent.
+E 15 ::: Average Loss 6.358 ::: Average BleuP1 24.160
+Evaluation ....
+Sample Inp't: im himalaya, der drittgr„∂ssten eismasse, sehen sie oben neue seen, die vor ein paar jahren gletscher waren.
+Sample Pred : in the himalayas, the eismasse, the eismasse, the new york city, were actually up there, a few years ago.
+Model Expc'd: in the himalayas , the third largest mass of ice :   at the top you see new lakes , which a few years ago were glaciers .
+Sample Act'l: in the himalayas, the third largest mass of ice:  at the top you see new lakes, which a few years ago were glaciers.
+E 15 ::: Average Loss 6.358 ::: Average BleuP1 23.991
+Evaluation ....
+Sample Inp't: also lassen sie uns eine tour dieser modernen, sauberen kohlefabrik machen.
+Sample Pred : so let's make a tour of these modern, clean energy efficient.
+Model Expc'd: so let 's take a tour of this state - of - the - art clean coal facility .
+Sample Act'l: so let's take a tour of this state-of-the-art clean coal facility.
+E 15 ::: Average Loss 6.279 ::: Average BleuP1 23.651
+Evaluation ....
+Sample Inp't: video: erz„§hler: es geht um eine neuversorgung von amerika.
+Sample Pred : video: narrator: it's about a chain of america.
+Model Expc'd: video : narrator : it 's about <unk> america .
+Sample Act'l: video: narrator: it's about repowering america.
+E 15 ::: Average Loss 6.503 ::: Average BleuP1 23.361
+Evaluation ....
+Sample Inp't: hier l„§sst er die sonne aufgehen.
+Sample Pred : and here he leaves the sun.
+Model Expc'd: here , he 's bringing the sun out .
+Sample Act'l: here, he's bringing the sun out.
+E 15 ::: Average Loss 6.454 ::: Average BleuP1 23.448
+Evaluation ....
+Sample Inp't: aber wenn sie versiegen, wird auch das meiste trinkwasser wegfallen.
+Sample Pred : but if you're going to go out, it's most likely to get rid of the drinking water.
+Model Expc'd: but when they go away , so does much of the drinking water .
+Sample Act'l: but when they go away, so does much of the drinking water.
+E 15 ::: Average Loss 6.411 ::: Average BleuP1 23.573
+Epoch   142: reducing learning rate of group 0 to 1.2158e-04.
+Evaluation ....
+Sample Inp't: es ist einfach nur atemberaubend ehrgeizig.
+Sample Pred : it's just breathtaking ambitious.
+Model Expc'd: it 's nothing if not ambitious .
+Sample Act'l: it's nothing if not ambitious.
+E 15 ::: Average Loss 6.417 ::: Average BleuP1 23.674
+Evaluation ....
+Sample Inp't: wenn wir es „ºbertreiben, k„∂nnen wir ein wenig zur„ºcksch„ºtten.
+Sample Pred : if we overdo it, we can make a bit of a little bit more ambitious.
+Model Expc'd: if we overshoot , we can pour a little bit back .
+Sample Act'l: if we overshoot, we can pour a little bit back.
+E 15 ::: Average Loss 6.359 ::: Average BleuP1 23.829
+Evaluation ....
+Sample Inp't: in anderen worten, als wir dieses bild am 10. september sahen, wussten wir, dass die maschine funktioniert, was ein gro„üer triumph ist.
+Sample Pred : in other words, when we saw this picture on september 10th, we knew that machine was working on what the big triumph was.
+Model Expc'd: in other words , when we saw that picture on september 10th   we knew the machine worked ,   which is a great triumph .
+Sample Act'l: in other words, when we saw that picture on september 10th  we knew the machine worked,  which is a great triumph.
+E 16 ::: Average Loss 6.457 ::: Average BleuP1 23.410
+Evaluation ....
+Sample Inp't: der m„§chtigste bergarbeiter ist der leiter von massey coal.
+Sample Pred : the most powerful principle is the head of coal.
+Model Expc'd: the largest mountaintop miner is the head of massey coal .
+Sample Act'l: the largest mountaintop miner is the head of massey coal.
+E 16 ::: Average Loss 6.484 ::: Average BleuP1 23.368
+Evaluation ....
+Sample Inp't: hier l„§sst er die sonne aufgehen.
+Sample Pred : and here he leaves the sun.
+Model Expc'd: here , he 's bringing the sun out .
+Sample Act'l: here, he's bringing the sun out.
+E 16 ::: Average Loss 6.391 ::: Average BleuP1 23.685
+Evaluation ....
+Sample Inp't: tats„§chlich, die nasa hat gezeigt dass es vieles davon dort drau„üen gibt.
+Sample Pred : in fact, nasa screwed that there are many things out there.
+Model Expc'd: in fact , nasa has shown a lot of this is out there .
+Sample Act'l: in fact, nasa has shown a lot of this is out there.
+E 16 ::: Average Loss 6.377 ::: Average BleuP1 23.272
+Epoch   148: reducing learning rate of group 0 to 1.0942e-04.
+Evaluation ....
+Sample Inp't: video: erz„§hler: amerika ist in einer krise, die wirtschaft, die nationale sicherheit, die klimakrise.
+Sample Pred : video: narrator: in america, america, the economy, the national security crisis, climate crisis.
+Model Expc'd: video : narrator : america is in crisis -- the economy ,   national security , the climate crisis .
+Sample Act'l: video: narrator: america is in crisis -- the economy,  national security, the climate crisis.
+E 16 ::: Average Loss 6.341 ::: Average BleuP1 23.324
+Evaluation ....
+Sample Inp't: und die kohleindustrien und „ñlindustrien haben eine viertelmilliarde dollar letztes kalendarjahr ausgegeben, um saubere kohle zu bewerben, was an sich schon ein widerspruch in sich ist.
+Sample Pred : and the most expensive and the „ñlindustrien have been spent a $10,000 dollars on the clean coal mining industry, which is a contradiction in itself.
+Model Expc'd: and the coal industries and the oil industries   spent a quarter of a billion dollars in the last calendar year   promoting clean coal ,   which is an oxymoron .
+Sample Act'l: and the coal industries and the oil industries  spent a quarter of a billion dollars in the last calendar year  promoting clean coal,  which is an oxymoron.
+E 16 ::: Average Loss 6.428 ::: Average BleuP1 23.407
+Evaluation ....
+Sample Inp't: al gore: endlich vermischt sich die positive alternative mit unserer wirtschaftlichen herausforderung und unserer herausforderung der nationalen sicherheit.
+Sample Pred : al gore: finally, the positive alternative with our economic challenge and our challenge of national security.
+Model Expc'd: al gore : finally , the positive alternative   <unk> with our economic challenge   and our national security challenge .
+Sample Act'l: al gore: finally, the positive alternative  meshes with our economic challenge  and our national security challenge.
+E 16 ::: Average Loss 6.307 ::: Average BleuP1 23.868
+Evaluation ....
+Sample Inp't: und die hatte ich immer.
+Sample Pred : and i always had.
+Model Expc'd: and i always have been .
+Sample Act'l: and i always have been.
+E 16 ::: Average Loss 6.390 ::: Average BleuP1 23.073
+Evaluation ....
+Sample Inp't: in gewissem sinne ist die arktische eiskappe das schlagende herz unseres globalen klimasystems.
+Sample Pred : in a sense, the arctic sea is the u.s. heart of our global warming system.
+Model Expc'd: the arctic ice cap is , in a sense ,   the beating heart of the global climate system .
+Sample Act'l: the arctic ice cap is, in a sense,  the beating heart of the global climate system.
+E 16 ::: Average Loss 6.404 ::: Average BleuP1 23.368
+Evaluation ....
+Sample Inp't: die vereinigten staaten sind eine der beiden gr„∂ssten verschmutzer, zusammen mit china.
+Sample Pred : the united states is one of the two major demographic categories, along with china.
+Model Expc'd: the united states is one of the two   largest emitters , along with china .
+Sample Act'l: the united states is one of the two  largest emitters, along with china.
+E 17 ::: Average Loss 6.401 ::: Average BleuP1 23.579
+Epoch   154: reducing learning rate of group 0 to 9.8477e-05.
+Evaluation ....
+Sample Inp't: und die siftables sind ein beispiel einer neuen generation von hilfsmitteln zur manipulation digitaler daten.
+Sample Pred : and the most compelling ones are an example of a new generation of science to manipulation science.
+Model Expc'd: and <unk> are an example of a new ecosystem   of tools for manipulating digital information .
+Sample Act'l: and siftables are an example of a new ecosystem  of tools for manipulating digital information.
+E 17 ::: Average Loss 6.427 ::: Average BleuP1 23.366
+Evaluation ....
+Sample Inp't: und sie f„ºhlen ebenso ihre bewegungen und neigung.
+Sample Pred : and they feel their movements and their own movements.
+Model Expc'd: and they can also sense their motion and tilt .
+Sample Act'l: and they can also sense their motion and tilt.
+E 17 ::: Average Loss 6.304 ::: Average BleuP1 23.253
+Evaluation ....
+Sample Inp't: frosty, der kohlenmann wird jeden tag sauberer.
+Sample Pred : frosty, the kohlenmann is going to clean every day.
+Model Expc'd: <unk> the coal man is getting cleaner everyday .
+Sample Act'l: frosty the coal man is getting cleaner everyday.
+E 17 ::: Average Loss 6.330 ::: Average BleuP1 23.285
+Evaluation ....
+Sample Inp't: aber nun gibt es eine mutige, neue l„∂sung, um uns aus dieser misslichen lage zu befreien.
+Sample Pred : but now there's a bold, new solution to bring us out of this fossil fuels.
+Model Expc'd: but now there is a bold new solution to get us out of this mess .
+Sample Act'l: but now there is a bold new solution to get us out of this mess.
+E 17 ::: Average Loss 6.348 ::: Average BleuP1 23.177
+Evaluation ....
+Sample Inp't: dadurch erhitzen sich die dr„§hte geringf„ºgig und 13-tausend ampere begegneten pl„∂tzlich elektrischem widerstand.
+Sample Pred : and it's a bit of heat that the wires wrapped up and the most efficient of the sudden, suddenly, suddenly, resistance.
+Model Expc'd: so the wire heated up slightly ,   and its 13,000 <unk> suddenly encountered electrical resistance .
+Sample Act'l: so the wire heated up slightly,  and its 13,000 amps suddenly encountered electrical resistance.
+E 17 ::: Average Loss 6.164 ::: Average BleuP1 23.265
+Evaluation ....
+Sample Inp't: aber wenn sie versiegen, wird auch das meiste trinkwasser wegfallen.
+Sample Pred : but if you're going to be doing, the most famous drinking water will continue.
+Model Expc'd: but when they go away , so does much of the drinking water .
+Sample Act'l: but when they go away, so does much of the drinking water.
+E 17 ::: Average Loss 6.320 ::: Average BleuP1 23.546
+Epoch   160: reducing learning rate of group 0 to 8.8629e-05.
+Evaluation ....
+Sample Inp't: dies betrifft die speicherbecken.
+Sample Pred : this is the most important juncture.
+Model Expc'd: this is hitting the reservoirs .
+Sample Act'l: this is hitting the reservoirs.
+E 17 ::: Average Loss 6.448 ::: Average BleuP1 23.335
+Evaluation ....
+Sample Inp't: er ist bezahlbar und liebenswert, und arbeiter bleiben in lohn und brot.
+Sample Pred : he's affordable and he's a conversation, and he remain staying in the room and bread.
+Model Expc'd: he 's affordable and adorable , and workers keep their pay .
+Sample Act'l: he's affordable and adorable, and workers keep their pay.
+E 17 ::: Average Loss 6.384 ::: Average BleuP1 23.499
+Evaluation ....
+Sample Inp't: eine interessante folge der interaktionen, die wir zu erkennen begannen, war, dass wir allt„§gliche gesten auf daten anwenden k„∂nnten, wie etwa farben so zu sch„ºtten, wie man dies mit fl„ºssigkeiten tut.
+Sample Pred : a interesting consequence of interactions that we started to realize that we could apply to gestures the data on data, like how much color would be to do with it.
+Model Expc'd: one of the interesting implications on interaction , we started to realize ,   was that we could use everyday gestures on data ,   like pouring a color the way we might pour a liquid .
+Sample Act'l: one of the interesting implications on interaction, we started to realize,  was that we could use everyday gestures on data,  like pouring a color the way we might pour a liquid.
+E 18 ::: Average Loss 6.405 ::: Average BleuP1 23.810
+Evaluation ....
+Sample Inp't: al gore: dies ist die letzte.
+Sample Pred : al gore: this is the last one.
+Model Expc'd: al gore : this is the last one .
+Sample Act'l: al gore: this is the last one.
+E 18 ::: Average Loss 6.380 ::: Average BleuP1 23.546
+Evaluation ....
+Sample Inp't: letztes jahr habe ich diese beiden folien gezeigt, um zu veranschaulichen, dass die arktische eiskappe, die f„ºr ann„§hernd drei millionen jahre die gr„∂sse der unteren 48 staaten hatte, um 40 prozent geschrumpft ist.
+Sample Pred : last year, i showed these two slides to illustrate that the arctic drilling, which had been sold for nearly three million years worth of the lower 48 of the lower 48, 40 percent.
+Model Expc'd: last year i showed these two slides so that   demonstrate that the arctic ice cap ,   which for most of the last three million years   has been the size of the lower 48 states ,   has shrunk by 40 percent .
+Sample Act'l: last year i showed these two slides so that  demonstrate that the arctic ice cap,  which for most of the last three million years  has been the size of the lower 48 states,  has shrunk by 40 percent.
+E 18 ::: Average Loss 6.422 ::: Average BleuP1 23.586
+Evaluation ....
+Sample Inp't: eine au„üerordentliche aussage, die sie „ºber ihr lebenswerk machen k„∂nnen.
+Sample Pred : a very statement statement that you can do about her life.
+Model Expc'd: an extraordinary statement to make about your life 's work .
+Sample Act'l: an extraordinary statement to make about your life's work.
+E 18 ::: Average Loss 6.425 ::: Average BleuP1 23.357
+Epoch   166: reducing learning rate of group 0 to 7.9766e-05.
+Evaluation ....
+Sample Inp't: um weihnachten herum liefen, bei mir zu hause in tennessee, eine milliarde tonnen kohleschlamm aus.
+Sample Pred : in fact, christmas morning, at home, at the end of my country, a billion tons of carbon dioxide out.
+Model Expc'd: around christmas , in my home in tennessee ,   a billion gallons of coal sludge was spilled .
+Sample Act'l: around christmas, in my home in tennessee,  a billion gallons of coal sludge was spilled.
+E 18 ::: Average Loss 6.386 ::: Average BleuP1 23.588
+Evaluation ....
+Sample Inp't: ein plan, amerika zur„ºck zur arbeit zu bringen, uns sicherer zu machen und zu helfen, die globale erw„§rmung zu stoppen.
+Sample Pred : a plan to get america back to work and help us stop worrying and global warming.
+Model Expc'd: a plan to put america back to work ,   make us more secure , and help stop global warming .
+Sample Act'l: a plan to put america back to work,  make us more secure, and help stop global warming.
+E 18 ::: Average Loss 6.384 ::: Average BleuP1 23.710
+Evaluation ....
+Sample Inp't: und diese interaktiven portraits nehmen sich gegenseitig wahr.
+Sample Pred : and these interactive portraits are each other.
+Model Expc'd: and these interactive portraits are aware of each other .
+Sample Act'l: and these interactive portraits are aware of each other.
+E 18 ::: Average Loss 6.297 ::: Average BleuP1 23.676
+Evaluation ....
+Sample Inp't: wenn sie voneinader umgeben sind, bemerken sie das auch und k„∂nnen etwas nerv„∂s werden.
+Sample Pred : if you're surrounded, you'll notice that too, and you can get nervous.
+Model Expc'd: if they get surrounded , they notice that too ,   they might get a little flustered .
+Sample Act'l: if they get surrounded, they notice that too,  they might get a little flustered.
+E 18 ::: Average Loss 6.352 ::: Average BleuP1 23.381
+Evaluation ....
+Sample Inp't: am anderen ende des planeten, die antarktis, die gr„∂sste eismasse auf dem planeten.
+Sample Pred : on the other end of the planet, the antarctica, the largest oil companies on the planet.
+Model Expc'd: at the other end of the planet , antarctica   the largest mass of ice on the planet .
+Sample Act'l: at the other end of the planet, antarctica  the largest mass of ice on the planet.
+E 18 ::: Average Loss 6.361 ::: Average BleuP1 23.470
+Evaluation ....
+Sample Inp't: jetzt werde ich noch etwas schlagzeug dazu tun.
+Sample Pred : now i'm going to do something else.
+Model Expc'd: video :    dm : now i 'll put some percussion in .
+Sample Act'l: video:   dm: now i'll put some percussion in.
+E 19 ::: Average Loss 6.365 ::: Average BleuP1 23.544
+Epoch   172: reducing learning rate of group 0 to 7.1790e-05.
+Evaluation ....
+Sample Inp't: wenn sie wissen m„∂chten, wie der meeresspiegel durch landeisschmelze steigt hier fliesst sie ins meer.
+Sample Pred : if you want to know how sea levels goes through sea level here, you're going to see the ocean sea.
+Model Expc'd: if you want to know how sea level rises   from land - base ice melting   this is where it reaches the sea .
+Sample Act'l: if you want to know how sea level rises  from land-base ice melting  this is where it reaches the sea.
+E 19 ::: Average Loss 6.017 ::: Average BleuP1 23.501
+Evaluation ....
+Sample Inp't: die leute sagten: ‚Äûhast du keine angst, niemals erfolg zu haben?
+Sample Pred : people said, "did n't you have any afraid to succeed?
+Model Expc'd: and people would say , " are n't you afraid you 're never going to have any success ?
+Sample Act'l: and people would say, "aren't you afraid you're never going to have any success?
+E 19 ::: Average Loss 6.387 ::: Average BleuP1 23.582
+Evaluation ....
+Sample Inp't: in gewissem sinne ist die arktische eiskappe das schlagende herz unseres globalen klimasystems.
+Sample Pred : in a sense, the arctic sea is the u.s. heart of our global warming system.
+Model Expc'd: the arctic ice cap is , in a sense ,   the beating heart of the global climate system .
+Sample Act'l: the arctic ice cap is, in a sense,  the beating heart of the global climate system.
+E 19 ::: Average Loss 6.350 ::: Average BleuP1 23.576
+Evaluation ....
+Sample Inp't: diese austrocknung in der ganzen welt f„ºhrt zu einer dramatischen steigerung an feuern.
+Sample Pred : these branching patterns all over the world are a dramatic increase in fire.
+Model Expc'd: this drying around the world has lead to   a dramatic increase in fires .
+Sample Act'l: this drying around the world has lead to  a dramatic increase in fires.
+E 19 ::: Average Loss 6.428 ::: Average BleuP1 23.494
+Evaluation ....
+Sample Inp't: viermal so viele in den letzten 30 jahren wie in den vorhergegangenen 75.
+Sample Pred : and so, for example, in the last 30 years, like in the most 30 years, 75 years.
+Model Expc'd: four times as many in the last 30 years   as in the previous 75 .
+Sample Act'l: four times as many in the last 30 years  as in the previous 75.
+E 19 ::: Average Loss 6.405 ::: Average BleuP1 23.417
+Evaluation ....
+Sample Inp't: hier ein spektakul„§res bild des atlas in der konstruktion damit sie die gr„∂„üenverh„§ltnisse sehen.
+Sample Pred : so, here's a spectacular picture of the atlas in the construction to see the scale.
+Model Expc'd: spectacular picture here of atlas under construction   so you can see the scale .
+Sample Act'l: spectacular picture here of atlas under construction  so you can see the scale.
+E 19 ::: Average Loss 6.429 ::: Average BleuP1 23.368
+Epoch   178: reducing learning rate of group 0 to 6.4611e-05.
+Evaluation ....
+Sample Inp't: in 25 jahren wird es von hier nach hier verschwunden sein.
+Sample Pred : in 25 years it's going to be gone from here to be here.
+Model Expc'd: in 25 years it 's gone from this , to this .
+Sample Act'l: in 25 years it's gone from this, to this.
+E 19 ::: Average Loss 6.417 ::: Average BleuP1 23.316
+Evaluation ....
+Sample Inp't: 40 prozent aller menschen auf der welt bekommen die h„§lfte ihres trinkwassers aus diesem schmelzwasser.
+Sample Pred : forty percent of all the people in the world are getting half of their food waste from this kind of carbon fiber.
+Model Expc'd: 40 percent of all the people in the world   get half of their drinking water from that melting flow .
+Sample Act'l: 40 percent of all the people in the world  get half of their drinking water from that melting flow.
+E 19 ::: Average Loss 6.400 ::: Average BleuP1 23.630
+Loading the best validated model with validation bleu score of 24.160
+Evaluation ....
+Sample Inp't: video: schauspieler: bei der coalergy sehen wir klimaver„§nderung als eine ernste gefahr f„ºr unser gesch„§ft.
+Sample Pred : video: actor: we're seeing climate change as a serious threat to our business.
+Model Expc'd: video : actor : at <unk> we view climate change as a very serious   threat to our business .
+Sample Act'l: video: actor: at coalergy we view climate change as a very serious  threat to our business.
+E LAST ::: Average Loss 6.358 ::: Average BleuP1 24.160

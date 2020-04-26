@@ -150,7 +150,7 @@ class STS(nn.Module):
         else:
             encoder_memory = self.attention_W(encoder_output).permute(1, 2, 0)
         attention_context = torch.zeros(batch_size, self.encoder_actual_hidden, device=device)
-        eos_predicted = torch.zeros(batch_size, device=device).byte()
+        eos_predicted = torch.zeros(batch_size, device=device).bool()
         coverage_vectors = torch.zeros(batch_size, input_sequence_length, 1, device=device).float() \
             if self.coverage else None
         max_attention_indices = torch.zeros(target_length, batch_size, device=device)
