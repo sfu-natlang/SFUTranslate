@@ -53,7 +53,11 @@ print("Unique tokens in target ({}) vocabulary: {}".format(tgt_lan, len(TGT.voca
 if cfg.extract_unk_stats:
     m_unk_token = "\u26F6"
     src_unk_token = m_unk_token
-    collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, train, "train", src_train_file_address,
+    if cfg.dataset_name == "iwslt17_de_en":
+        trn, _, _, _, _, _, _, _, _ = get_dataset(src_lan, tgt_lan, SRC, TGT, filter_for_max_length=False)
+    else:
+        trn = train
+    collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, trn, "train", src_train_file_address,
                       tgt_train_file_address, src_unk_token, m_unk_token)
     collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, val, "validation", src_val_file_address,
                       tgt_val_file_address, src_unk_token, m_unk_token)

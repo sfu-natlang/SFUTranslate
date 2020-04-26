@@ -44,7 +44,8 @@ class MyIterator(data.Iterator):
                 self.batches.append(sorted(b, key=self.sort_key))
 
 
-def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=None, test_data=None):
+def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=None, test_data=None,
+                filter_for_max_length=True):
     # TODO support multiple test sets all at once
     if cfg.dataset_name == "multi30k16":
         print("Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]")
@@ -59,11 +60,16 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
     elif cfg.dataset_name == "iwslt17_de_en":
         dev_data = dev_data if dev_data is not None else "dev2010"
         test_data = test_data if test_data is not None else "tst2015"
-        train, val, test = IWSLT.splits(
-            filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
-                vars(x)['trg']) <= cfg.max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-            fields=(SRC, TGT), test='IWSLT17.TED.{}'.format(test_data), validation='IWSLT17.TED.{}'.format(dev_data),
-            debug_mode=bool(cfg.debug_mode))
+        if filter_for_max_length:
+            train, val, test = IWSLT.splits(
+                filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
+                    vars(x)['trg']) <= cfg.max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                fields=(SRC, TGT), test='IWSLT17.TED.{}'.format(test_data), validation='IWSLT17.TED.{}'.format(dev_data),
+                debug_mode=bool(cfg.debug_mode))
+        else:
+            train, val, test = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT),
+                                            test='IWSLT17.TED.{}'.format(test_data), debug_mode=bool(cfg.debug_mode),
+                                            validation='IWSLT17.TED.{}'.format(dev_data))
         src_val_file_address = ".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{0}".format(src_lan, tgt_lan, dev_data)
         tgt_val_file_address = ".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{1}".format(src_lan, tgt_lan, dev_data)
         src_test_file_address = ".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{0}".format(src_lan, tgt_lan, test_data)
@@ -71,6 +77,7 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
         src_train_file_address = ".data/iwslt/de-en/train.de-en.{}".format(src_lan)
         tgt_train_file_address = ".data/iwslt/de-en/train.de-en.{}".format(tgt_lan)
     elif cfg.dataset_name == "wmt19_de_en" or cfg.dataset_name == "wmt19_de_en_small":
+        # TODO support cfg.max_sequence_length / filter_for_max_length
         dev_data = dev_data if dev_data is not None else "valid"
         test_data = test_data if test_data is not None else "newstest2019"
         train_data = 'train.small' if cfg.dataset_name == "wmt19_de_en_small" else "train"
@@ -89,6 +96,7 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
         src_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, src_lan)
         tgt_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, tgt_lan)
     elif cfg.dataset_name == "wmt14":
+        # TODO support cfg.max_sequence_length / filter_for_max_length
         dev_data = dev_data if dev_data is not None else "newstest2009"
         test_data = test_data if test_data is not None else "newstest2016"
         train, val, test = datasets.WMT14.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
@@ -105,7 +113,7 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
         raise ValueError("The dataset {} is not defined in torchtext or SFUTranslate!".format(cfg.dataset_name))
 
     return train, val, test, src_val_file_address, tgt_val_file_address, src_test_file_address, tgt_test_file_address, \
-           src_train_file_address, tgt_train_file_address
+        src_train_file_address, tgt_train_file_address
 
 
 def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_name,
