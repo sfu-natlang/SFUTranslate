@@ -3,9 +3,9 @@ pip3 install virtualenv
 virtualenv sfutranslate
 source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
-git clone -b augmented https://github.com/sfu-natlang/SFUTranslate.git
+git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout b0b83a76a155c0d5a84a2f73a886b999af801c96
+git checkout b415c39f7fda23cb0783bf922368fd41c51940ee
 python setup.py install
 python -m spacy download en
 python -m spacy download de
