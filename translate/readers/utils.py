@@ -83,7 +83,7 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
         train_data = 'train.small' if cfg.dataset_name == "wmt19_de_en_small" else "train"
         train, val, test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                             fields=(SRC, TGT), train=train_data,
-                                            validation='{}-ende.bpe'.format(dev_data),
+                                            validation="valid" if dev_data == "valid" else '{}-ende.bpe'.format(dev_data),
                                             test='{}-ende.bpe'.format(test_data))
         if dev_data == "valid":
             src_val_file_address = ".data/wmt19_en_de/valid.{}".format(src_lan)
