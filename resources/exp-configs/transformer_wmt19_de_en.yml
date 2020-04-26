@@ -18,7 +18,7 @@ extract_unk_stats: false
 
 emb_dropout: 0.1
 train_batch_size: 4096
-valid_batch_size: 4096
+valid_batch_size: 162
 encoder_emb_size: 600
 encoder_hidden_size: 600
 encoder_layers: 1
