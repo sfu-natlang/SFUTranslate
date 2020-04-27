@@ -29,16 +29,18 @@ if __name__ == '__main__':
         train, val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                                 fields=(SRC, TGT))
     elif dataset_name == "iwslt17":
-        train, val, test = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT))
+        train, val, *test_list = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT))
     elif dataset_name == "wmt14":
-        train, val, test = datasets.WMT14.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                                 fields=(SRC, TGT), train='train.tok.clean.bpe.32000')
+        train, val, test_single = datasets.WMT14.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                                                        fields=(SRC, TGT), train='train.tok.clean.bpe.32000')
+        test_list = [test_single]
     else:
         raise ValueError("The dataset {} is not defined!".format(dataset_name))
 
     print("Number of training examples: {}".format(len(train.examples)))
     print("Number of validation examples: {}".format(len(val.examples)))
-    print("Number of testing examples: {}".format(len(test.examples)))
+    for test in test_list:
+        print("Number of testing [set name: {}] examples: {}".format(test.name, len(test.examples)))
 
     SRC.build_vocab(train, max_size=2000000, min_freq=0)
     TGT.build_vocab(train, max_size=2000000, min_freq=0)

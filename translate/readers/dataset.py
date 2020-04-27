@@ -21,7 +21,8 @@ class IWSLT(datasets.TranslationDataset):
     @classmethod
     def splits(cls, exts, fields, root='.data',
                train='train', validation='IWSLT17.TED.dev2010',
-               test='IWSLT17.TED.tst2015', **kwargs):
+               test_list=('IWSLT17.TED.tst2010', 'IWSLT17.TED.tst2011', 'IWSLT17.TED.tst2012', 'IWSLT17.TED.tst2013',
+                          'IWSLT17.TED.tst2014', 'IWSLT17.TED.tst2015'), **kwargs):
         debug_mode = False
         if "debug_mode" in kwargs:
             debug_mode = kwargs["debug_mode"]
@@ -33,22 +34,30 @@ class IWSLT(datasets.TranslationDataset):
 
         train = '.'.join([train, cls.dirname])
         validation = '.'.join([validation, cls.dirname])
-        if test is not None:
-            test = '.'.join([test, cls.dirname])
+        tests = []
+        if test_list is not None:
+            for t in test_list:
+                tests.append('.'.join([t, cls.dirname]))
 
         if not os.path.exists(os.path.join(path, train) + exts[0]):
             cls.clean(path)
-
+        print("    [torchtext] Loading train examples ...")
         train_data = None if train is None else cls(
             os.path.join(path, train), exts, fields, **kwargs)
         # Here is the line that have been added.
         if not debug_mode:
             kwargs['filter_pred'] = None
+        print("    [torchtext] Loading validation examples ...")
         val_data = None if validation is None else cls(
             os.path.join(path, validation), exts, fields, **kwargs)
-        test_data = None if test is None else cls(
-            os.path.join(path, test), exts, fields, **kwargs)
-        return tuple(d for d in (train_data, val_data, test_data)
+        val_data.name = validation
+        print("    [torchtext] Loading test examples ...")
+        test_data_list = [None if test is None else cls(
+            os.path.join(path, test), exts, fields, **kwargs) for test in tests]
+        if len(tests):
+            for d, n in zip(test_data_list, test_list):
+                d.name = n
+        return tuple(d for d in (train_data, val_data, *test_data_list)
                      if d is not None)
 
     @staticmethod
@@ -84,10 +93,9 @@ class WMT19DeEn(datasets.TranslationDataset):
     dirname = ''
 
     @classmethod
-    def splits(cls, exts, fields, root='.data',
-               train='train',
-               validation='valid',
-               test='newstest2019', **kwargs):
+    def splits(cls, exts, fields, root='.data', train='train', validation='valid',
+               test_list=('newstest2014', 'newstest2015', 'newstest2016',
+                          'newstest2017', 'newstest2018', 'newstest2019'), **kwargs):
         """Create dataset objects for splits of the WMT 2014 dataset.
         Arguments:
             exts: A tuple containing the extensions for each language. Must be
@@ -97,9 +105,13 @@ class WMT19DeEn(datasets.TranslationDataset):
             root: Root dataset storage directory. Default is '.data'.
             train: The prefix of the train data.
             validation: The prefix of the validation data.
-            test: The prefix of the test data.
+            test_list: The prefix of the test data.
             Remaining keyword arguments: Passed to the splits method of Dataset.
         """
+        debug_mode = False
+        if "debug_mode" in kwargs:
+            debug_mode = kwargs["debug_mode"]
+            del kwargs["debug_mode"]
         if 'path' not in kwargs:
             expected_folder = os.path.join(root, cls.name)
             path = expected_folder if os.path.exists(expected_folder) else None
@@ -107,5 +119,20 @@ class WMT19DeEn(datasets.TranslationDataset):
             path = kwargs['path']
             del kwargs['path']
 
-        return super(WMT19DeEn, cls).splits(
-            exts, fields, path, root, train, validation, test, **kwargs)
+        if path is None:
+            path = cls.download(root)
+        print("    [torchtext] Loading train examples ...")
+        train_data = None if train is None else cls(
+            os.path.join(path, train), exts, fields, **kwargs)
+        print("    [torchtext] Loading validation examples ...")
+        val_data = None if validation is None else cls(
+            os.path.join(path, validation), exts, fields, **kwargs)
+        val_data.name = validation
+        print("    [torchtext] Loading test examples ...")
+        test_data_list = [None if test is None else cls(
+            os.path.join(path, test), exts, fields, **kwargs) for test in test_list]
+        if len(test_list):
+            for d, n in zip(test_data_list, test_list):
+                d.name = n
+        return tuple(d for d in (train_data, val_data, *test_data_list)
+                     if d is not None)
