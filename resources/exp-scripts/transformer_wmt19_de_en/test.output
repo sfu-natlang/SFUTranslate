@@ -1,0 +1,57 @@
+Loading the data ...
+    [torchtext] Loading train examples ...
+    [torchtext] Loading validation examples ...
+    [torchtext] Loading test examples ...
+Number of training examples: 3961179
+Number of validation [set name: valid] examples: 40058
+Number of testing [set name: newstest2014-ende.bpe] examples: 3003
+Number of testing [set name: newstest2015-ende.bpe] examples: 2169
+Number of testing [set name: newstest2016-ende.bpe] examples: 2999
+Number of testing [set name: newstest2017-ende.bpe] examples: 3004
+Number of testing [set name: newstest2018-ende.bpe] examples: 2998
+Number of testing [set name: newstest2019-ende.bpe] examples: 1997
+Unique tokens in source (de) vocabulary: 33571
+Unique tokens in target (en) vocabulary: 33118
+Loading the best trained model
+Evaluation ....
+Sample Inp't: ich appelliere auch an den ã¶sterreichischen prã¤sidenten , noch alle mã¶glichkeiten auszu@@ l@@ oten , damit eine regierung aus demokratischen krã¤ften gebildet werden kann .
+Sample Pred : i also appeal to the austrian president to make every possible effort so that a government can be formed out of democratic forces.
+Model Expc'd: i also appeal to the austrian president , that he might yet look into all the possibilities for forming a government made up of democratic forces .
+Sample Act'l: i also appeal to the austrian president , that he might yet look into all the possibilities for forming a government made up of democratic forces .
+E VALID.valid ::: Average Loss 0.000 ::: Average BleuP1 27.208
+Evaluation ....
+Sample Inp't: die besten momente hat der abend, wenn gesungen wird - die bandbreite reicht von deep purple bis zu volkstã¼mlichem liedgut.
+Sample Pred : the best moments of the evening, when singing - the bandwidth is sufficient from deep purple to volkmule liedwell.
+Model Expc'd: the best moments of the evening is when the singing starts - tracks range from deep pur@@ ple to traditional folk songs .
+Sample Act'l: the best moments of the evening is when the singing starts - tracks range from deep purple to traditional folk songs.
+E TEST.newstest2014-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 20.408
+Evaluation ....
+Sample Inp't: die forschungsleiterin susan jordan vom qimr berghofer medical research institute sagte, dass fã¼r diejenigen, die in lã¤ndlichen und abgelegenen regionen des staates lebten, das sterblichkeitsrisiko wã¤hrend der studie um 20 prozent hã¶her lag als fã¼r diejenigen in stadtgebieten.
+Sample Pred : the research director susan jordan from qimr bergofer medical research institute said that for those who lived in rural and remote regions of the state, the mortality risk during the study was 20% higher than for those in urban areas.
+Model Expc'd: le@@ ad resear@@ cher sus@@ an jordan , of the q@@ im@@ r bergh@@ o@@ fer medical research institute , said those living in regional and remote areas of the state were about 20 per cent more likely to die during the study than those in urban areas .
+Sample Act'l: lead researcher susan jordan, of the qimr berghofer medical research institute, said those living in regional and remote areas of the state were about 20 per cent more likely to die during the study than those in urban areas.
+E TEST.newstest2015-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 21.034
+Evaluation ....
+Sample Inp't: lamb war es wichtig zu betonen, dass sein "sã¼ãŸer hund" aber noch lebe und wahrscheinlich aufgeregt sei, und er sagte, die familienkontakte der toten frau kã¶nnten auf dem handy gefunden werden.
+Sample Pred : lamb was important to stress that his & quot; south dog & quot; was still leftovers, and he said that the family contacts of the toten women could be found on the mobile phone.
+Model Expc'd: lam@@ b made a point to say his & quot ; sweet dog & quot ; was there alive and probably up@@ set , and said the dead woman & apos;s family contacts could be found on her phone .
+Sample Act'l: lamb made a point to say his "sweet dog" was there alive and probably upset, and said the dead woman's family contacts could be found on her phone.
+E TEST.newstest2016-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 24.078
+Evaluation ....
+Sample Inp't: "ich werde immer in schubladen gesteckt oder bekomme von auãŸen label aufgeklebt, die mit mir und der realitã¤t meist wenig zu tun haben."
+Sample Pred : & quot; i & apos;ll always put in schubload or come from outside label glued, which, with me and the reality, usually have little to do. & quot;
+Model Expc'd: & quot ; i & apos;m always pi@@ ge@@ on@@ hol@@ ed , or labelled by someone who has little , if anything , to do with me and reality . & quot ;
+Sample Act'l: "i'm always pigeonholed, or labelled by someone who has little, if anything, to do with me and reality."
+E TEST.newstest2017-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 21.317
+Evaluation ....
+Sample Inp't: die bomben der alliierten rissen im dezember 1944 viele lã¶cher in die innenstadt.
+Sample Pred : the bombs of the allied rissen in december 1944 many holes in the city centre.
+Model Expc'd: the bombs of the al@@ lies t@@ ore many holes in the city centre in december 1944 .
+Sample Act'l: the bombs of the allies tore many holes in the city centre in december 1944.
+E TEST.newstest2018-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 25.098
+Evaluation ....
+Sample Inp't: hinweis fã¼r den leser: â€žtwpâ€œ im walisischen bedeutet â€žbescheuertâ€œ und â€žpwpâ€œ bedeutet â€žkackeâ€œ.
+Sample Pred : note for the reader: the twp in the wounds means euvered and pwp. it means kacke.
+Model Expc'd: for readers outside of wales : in wel@@ sh tw@@ p means da@@ ft and p@@ wp means po@@ o .
+Sample Act'l: for readers outside of wales: in welsh twp means daft and pwp means poo.
+E TEST.newstest2019-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 23.304

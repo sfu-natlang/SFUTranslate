@@ -19,7 +19,7 @@ extract_unk_stats: false
 model_name: sts
 emb_dropout: 0.3
 train_batch_size: 4500
-valid_batch_size: 4500
+valid_batch_size: 512
 encoder_emb_size: 600
 encoder_hidden_size: 600
 encoder_layers: 1
