@@ -5,7 +5,7 @@ source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout b415c39f7fda23cb0783bf922368fd41c51940ee
+git checkout 7957c261434bc0ea806ba750811d3a8030a510b9
 python setup.py install
 python -m spacy download en
 python -m spacy download de
