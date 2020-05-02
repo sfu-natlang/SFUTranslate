@@ -1,0 +1,353 @@
+Loading the data ...
+    [torchtext] Loading train examples ...
+    [torchtext] Loading validation examples ...
+    [torchtext] Loading test examples ...
+Number of training examples: 3961179
+Number of validation [set name: valid] examples: 40058
+Number of testing [set name: newstest2014-ende.bpe] examples: 3003
+Number of testing [set name: newstest2015-ende.bpe] examples: 2169
+Number of testing [set name: newstest2016-ende.bpe] examples: 2999
+Number of testing [set name: newstest2017-ende.bpe] examples: 3004
+Number of testing [set name: newstest2018-ende.bpe] examples: 2998
+Number of testing [set name: newstest2019-ende.bpe] examples: 1997
+Unique tokens in source (de) vocabulary: 35161
+Unique tokens in target (en) vocabulary: 33118
+Creating the Seq2Seq Model with Bahdanau attention
+Coverage model (See et al. definition [P17-1099]) is also considered
+Evaluation ....
+Sample Inp't: kl@@ ingt es nicht path@@ eti@@ sch zu sagen &quot; die welt blickt zu europa auf &quot; ?
+Sample Pred : do not allow me to say & apos; the world & apos; s world & apos;?
+Model Expc'd: is it not rather melo@@ dramatic to say that & quot ; the world looks up to europe & quot ; ?
+Sample Act'l: is it not rather melodramatic to say that &quot; the world looks up to europe &quot; ?
+E 0 ::: Average Loss 7.389 ::: Average BleuP1 11.669
+Evaluation ....
+Sample Inp't: wenn sie diese entwicklung unterst„ºtzen , unterst„ºtzen sie eine entwicklung der union zu einer organisation , die die souver„§nit„§t und die freiheit der nationen der mitgliedstaaten verletzt , und es bleibt uns dann keine andere wahl mehr , als aus dieser union auszu@@ treten .
+Sample Pred : if you support this development, you will be a development of the union on a organisation which sovereignty the sovereignty and freedom of nations nations, and it remains then no longer be another choice for the union.
+Model Expc'd: if you ratify this development , then you are rati@@ fying the development of the union into a body which viol@@ ates the sovereignty and the freedom of the member states , and we should then have no option but to withdraw from such a union .
+Sample Act'l: if you ratify this development , then you are ratifying the development of the union into a body which violates the sovereignty and the freedom of the member states , and we should then have no option but to withdraw from such a union .
+E 0 ::: Average Loss 7.621 ::: Average BleuP1 15.809
+Evaluation ....
+Sample Inp't: wir haben uns bem„ºht , materielle hilfe zu leisten .
+Sample Pred : we have endeavoured to help us help aid.
+Model Expc'd: we have endeav@@ oured to provide material help .
+Sample Act'l: we have endeavoured to provide material help .
+E 0 ::: Average Loss 7.327 ::: Average BleuP1 17.841
+Evaluation ....
+Sample Inp't: denn trotz dieser zahlreichen richtlinien , trotz der wiederholten erkl„§rungen „ºber die im wasser@@ schutz@@ bereich erforderlichen anstrengungen ist hinsichtlich des umwelt@@ zu@@ standes in europa festzustellen , da„ü die ziele nicht erreicht worden sind .
+Sample Pred : because despite this numerous directives, despite repeated repeated on the water protection, the environmental protection of europe has been made in the fact that the objectives have not been achieved.
+Model Expc'd: for despite these directives and frequent declarations about the effort which must be made in terms of water protection , when we look at the state of the environment in europe we can see that the objectives have not been achieved .
+Sample Act'l: for despite these directives and frequent declarations about the effort which must be made in terms of water protection , when we look at the state of the environment in europe we can see that the objectives have not been achieved .
+E 0 ::: Average Loss 7.313 ::: Average BleuP1 19.252
+Evaluation ....
+Sample Inp't: abschlie„üend halte ich es f„ºr ziemlich gravier@@ end , da„ü den territorialen besch„§ftig@@ ungsp@@ akten und vor allem den modalit„§ten zur bek„§mpfung der frau@@ en- und ju@@ gen@@ dar@@ bei@@ ts@@ losigkeit in der mitteilung der kommission wenig beachtung geschenkt worden ist .
+Sample Pred : finally, i think it is quite clear that the territorial employment pact and the most important contribution to the fight against women and youth unemployment has been made little in the commission communication.
+Model Expc'd: i will conclude , mr president , by saying that the failure of the commission & apos ; s communication to focus on territorial p@@ acts and , especially , methods of combating unemployment among women and young people , is cause for serious concern .
+Sample Act'l: i will conclude , mr president , by saying that the failure of the commission &apos; s communication to focus on territorial pacts and , especially , methods of combating unemployment among women and young people , is cause for serious concern .
+E 0 ::: Average Loss 7.447 ::: Average BleuP1 20.079
+Evaluation ....
+Sample Inp't: vor@@ sicht@@ sh@@ al@@ ber h„§tte ich gern noch die best„§tigung daf„ºr , da„ü die kommission den vorschlag von jacob s@@ „∂der@@ man bez„ºglich der kommission und der guten verwaltung@@ spraxis wirklich in allen teilen f„ºr akzeptabel h„§lt .
+Sample Pred : i would like to confirm the fact that the commission proposal is proposing the proposal from jacob sˆderman on the commission and the good practice of all the same parts of the commission.
+Model Expc'd: for safety & apos ; s sake , i should like to have confirmation that it really is the case that , where the commission and good administration are concerned , there is no part of jacob s@@ ˆder@@ man & apos ; s proposal which the commission thinks is unacceptable .
+Sample Act'l: for safety &apos; s sake , i should like to have confirmation that it really is the case that , where the commission and good administration are concerned , there is no part of jacob s„∂derman &apos; s proposal which the commission thinks is unacceptable .
+E 0 ::: Average Loss 7.396 ::: Average BleuP1 20.803
+Evaluation ....
+Sample Inp't: ich appelliere auch an den „∂sterreichischen pr„§sidenten , noch alle m„∂glichkeiten auszu@@ l@@ oten , damit eine regierung aus demokratischen kr„§ften gebildet werden kann .
+Sample Pred : i also appeal to the austrian president, nor all the possibilities to be able to be elected from democratic forces.
+Model Expc'd: i also appeal to the austrian president , that he might yet look into all the possibilities for forming a government made up of democratic forces .
+Sample Act'l: i also appeal to the austrian president , that he might yet look into all the possibilities for forming a government made up of democratic forces .
+E 0 ::: Average Loss 7.047 ::: Average BleuP1 21.635
+Evaluation ....
+Sample Inp't: herr pr„§sident ! dem bericht von frau sch@@ ier@@ hu@@ ber „ºber die nahrungsmittel@@ hilfe stimme ich ausdr„ºcklich zu .
+Sample Pred : mr president, i am expressly grateful to mrs schierhuber & apos;s report on food aid.
+Model Expc'd: mr president , i strongly support mrs sch@@ ier@@ hu@@ ber & apos ; s report on food aid .
+Sample Act'l: mr president , i strongly support mrs schierhuber &apos; s report on food aid .
+E 0 ::: Average Loss 7.223 ::: Average BleuP1 21.817
+Evaluation ....
+Sample Inp't: das haben wir zu sp„ºren bekommen , als wir den fl@@ „©@@ ch@@ ard @-@ fall untersuchen sollten , dem wir „ºbrigens bei weitem noch nicht auf den grund gekommen sind .
+Sample Pred : we have seen this as we should investigate the flÈchard case, which we have not yet arrived at the moment.
+Model Expc'd: we noticed this when we had to investigate the fle@@ ch@@ ard affair , which , as it happens , has still not been sorted out .
+Sample Act'l: we noticed this when we had to investigate the flechard affair , which , as it happens , has still not been sorted out .
+E 0 ::: Average Loss 7.162 ::: Average BleuP1 22.299
+Evaluation ....
+Sample Inp't: seit 1988 besitzt die kommission einen aktionsplan f„ºr die gleichstellung von frauen und m„§nnern .
+Sample Pred : since 1988, the commission has been a action plan for equality between women and men.
+Model Expc'd: in 1988 , the commission introduced an action plan to promote equal opportunities for women and men .
+Sample Act'l: in 1988 , the commission introduced an action plan to promote equal opportunities for women and men .
+E 1 ::: Average Loss 6.522 ::: Average BleuP1 22.739
+Evaluation ....
+Sample Inp't: auf einer solchen grundlage ist es „§u„üerst zweifel@@ haft , ob die regionalpolitik zu einer ausgewogenen gestaltung der territ@@ orien der mitgliedstaaten der europ„§ischen union beitragen kann .
+Sample Pred : on this basis, it is extremely doubtful whether regional policy can contribute to a balanced development of the territories of the member states of the european union.
+Model Expc'd: based as it is on such choices , it is to be doub@@ ted whether regional policy can contribute to harmonious regional planning within the member states of the european union .
+Sample Act'l: based as it is on such choices , it is to be doubted whether regional policy can contribute to harmonious regional planning within the member states of the european union .
+E 1 ::: Average Loss 6.897 ::: Average BleuP1 23.257
+Evaluation ....
+Sample Inp't: entschei@@ dend ist , da„ü die reformen nicht auf die kommission beschr„§nkt bleiben .
+Sample Pred : the crucial thing is that reforms are not limited to the commission.
+Model Expc'd: cru@@ cially , reforms must not be limited to the commission .
+Sample Act'l: crucially , reforms must not be limited to the commission .
+E 1 ::: Average Loss 6.435 ::: Average BleuP1 23.079
+Evaluation ....
+Sample Inp't: drittens : die erweiterung der rechte des parlaments in diesem kontext .
+Sample Pred : thirdly, parliament & apos;s rights in this context are.
+Model Expc'd: thirdly : the extension to parliament & apos ; s rights in this context .
+Sample Act'l: thirdly : the extension to parliament &apos; s rights in this context .
+E 1 ::: Average Loss 6.863 ::: Average BleuP1 23.513
+Evaluation ....
+Sample Inp't: nur unter diesen bedingungen k„∂nnten wir eine verschiebung unserer verordnung f„ºr die drittl„§nder akzeptieren .
+Sample Pred : only under these conditions we could accept a shift in our regulation on third countries.
+Model Expc'd: only under these circumstances could we accept a delay in our regulation for third countries .
+Sample Act'l: only under these circumstances could we accept a delay in our regulation for third countries .
+E 1 ::: Average Loss 6.852 ::: Average BleuP1 23.795
+Evaluation ....
+Sample Inp't: die immer umwelt@@ bewu@@ „ü@@ tere auto@@ industrie hatte sich bestimmt schon auf eine solche entwicklung eingestellt .
+Sample Pred : the ever-increasing environmental car industry has already set itself to such a development.
+Model Expc'd: the car industry , increasingly more respec@@ tful of the environment , has , i am sure , anticipated this kind of increasing awareness .
+Sample Act'l: the car industry , increasingly more respectful of the environment , has , i am sure , anticipated this kind of increasing awareness .
+E 1 ::: Average Loss 6.846 ::: Average BleuP1 24.003
+Epoch    15: reducing learning rate of group 0 to 1.8000e-04.
+Evaluation ....
+Sample Inp't: doch gehen wir hin@@ unter auf die ebene des einzelnen menschen , so bedeutet dies : unterst„ºtzung f„ºr diejenigen , die von den drogen los@@ kommen wollen , sowie geeignete kontrollen und mechanismen zu deren rehabili@@ tation ; zweitens , die koordinierung der polizei und der justiz in bezug auf einheitliche strafen und gesetze ; drittens , die durchf„ºhrung einer informations- und auf@@ kl„§r@@ ungs@@ kamp@@ agne f„ºr junge menschen sowie die endg„ºltige streichung der gef„§hrlichen worte &quot; normali@@ sierung &quot; und &quot; schadens@@ reduzi@@ erung &quot; . ferner m„ºssen wir aufzeigen , da„ü unser entsch@@ lu„ü , die leg@@ alisierung von drogen zu verhindern , nur dem woh@@ le aller b„ºrger dient .
+Sample Pred : but we are moving towards the individual level of the individual, and this means: support for those who want to get rid of drugs, as well as appropriate controls and mechanisms to rehabilitation; secondly, the coordination of the police and justice on uniform penalties and laws; thirdly, the implementation of information and awareness campaign for young people, and the final deletion of dangerous words & apos; normalisation & apos; and & apos; harm reduction & apos;, and we must also ensure that our firm to prevent the legalization of drugs is only the benefit
+Model Expc'd: but to bring it down to a more human level : to give assistance to those people who are trying to come off drugs , and give them proper controls and proper mechanisms for rehabilitation ; secondly , to coordinate amongst the police forces and the judiciary with regard to common penalties and common laws ; thirdly , to undertake an information and awareness campaign for young people ; and once and for all to put an end to these very dangerous words of & quot ; normali@@ sation & quot ; and & quot ; harm reduction & quot ; and show that any weakening of our resolve in making sure that drugs are not leg@@ alised must be for the good of all our people .
+Sample Act'l: but to bring it down to a more human level : to give assistance to those people who are trying to come off drugs , and give them proper controls and proper mechanisms for rehabilitation ; secondly , to coordinate amongst the police forces and the judiciary with regard to common penalties and common laws ; thirdly , to undertake an information and awareness campaign for young people ; and once and for all to put an end to these very dangerous words of &quot; normalisation &quot; and &quot; harm reduction &quot; and show that any weakening of our resolve in making sure that drugs are not legalised must be for the good of all our people .
+E 1 ::: Average Loss 6.539 ::: Average BleuP1 24.199
+Evaluation ....
+Sample Inp't: das ist auch f„ºr die bedingungen des binnenmarktes von wichtigkeit .
+Sample Pred : this is also important for the conditions of the internal market.
+Model Expc'd: this is also important where the prerequi@@ sites for the internal market are concerned .
+Sample Act'l: this is also important where the prerequisites for the internal market are concerned .
+E 1 ::: Average Loss 6.239 ::: Average BleuP1 24.595
+Evaluation ....
+Sample Inp't: so etwa hat sich die sache nach dem einsatz von waffen mit ab@@ gerei@@ cher@@ tem u@@ ran im golf@@ krieg dargestellt .
+Sample Pred : for example, the cause of weapons has been portrayed after the use of weapons depleted uranium in the gulf war.
+Model Expc'd: this seems to be the pattern of events that has emerged after the use of deple@@ ted uranium weapons in the gulf war .
+Sample Act'l: this seems to be the pattern of events that has emerged after the use of depleted uranium weapons in the gulf war .
+E 1 ::: Average Loss 6.288 ::: Average BleuP1 24.609
+Evaluation ....
+Sample Inp't: als mitglied des ausschusses f„ºr entwicklung und zusammenarbeit halte ich beispielsweise koh„§renz in bereichen f„ºr erforderlich , in denen sie bei einigen mitgliedern des ausschusses f„ºr landwirtschaft oder des ausschusses f„ºr fischerei blan@@ kes ents@@ etzen hervorrufen w„ºrden .
+Sample Pred : as a member of the committee on development and cooperation, i believe that, for example, consistency in areas where they would be able to be disposed by some members of the committee on agriculture and the committee on fisheries.
+Model Expc'd: there are areas of coherence i would like to see as a member of the committee on development that would probably horri@@ fy some of the members of the committee on agriculture or committee on fisheries .
+Sample Act'l: there are areas of coherence i would like to see as a member of the committee on development that would probably horrify some of the members of the committee on agriculture or committee on fisheries .
+E 2 ::: Average Loss 5.929 ::: Average BleuP1 24.905
+Evaluation ....
+Sample Inp't: ( die sitzung wird um 11.@@ 10 uhr geschlossen . )
+Sample Pred : (the sitting was closed at 11.10 a.m.)
+Model Expc'd: ( the sitting was closed at 11.@@ 10 a.m. )
+Sample Act'l: ( the sitting was closed at 11.10 a.m. )
+E 2 ::: Average Loss 6.341 ::: Average BleuP1 25.016
+Evaluation ....
+Sample Inp't: derzeit vertrauen wir darauf , da„ü die kommission diese ehrgeizigen vorschl„§ge unterbreiten wird , was aber nicht zwangsl„§ufig der fall ist .
+Sample Pred : at the moment we trust that the commission will make these ambitious proposals, which is not necessarily the case.
+Model Expc'd: at present , we trust that the commission will produce these sound proposals , but it is not a fo@@ reg@@ one conclusion that it will do so .
+Sample Act'l: at present , we trust that the commission will produce these sound proposals , but it is not a foregone conclusion that it will do so .
+E 2 ::: Average Loss 6.264 ::: Average BleuP1 24.510
+Evaluation ....
+Sample Inp't: es ist notwendig , da„ü s„§mtliche daten j„§hrlich „ºbermittelt werden und die kommission regelm„§„üig „ºber die ag@@ gre@@ gi@@ erten resultate informiert .
+Sample Pred : it is necessary that all data should be transmitted annually and inform the commission regularly informed about the aggregated results.
+Model Expc'd: it is essential that all the data is sent on an annual basis and that the commission should produce regular reports of the ag@@ greg@@ ated results .
+Sample Act'l: it is essential that all the data is sent on an annual basis and that the commission should produce regular reports of the aggregated results .
+E 2 ::: Average Loss 6.636 ::: Average BleuP1 25.176
+Evaluation ....
+Sample Inp't: denn aufgrund dieser entscheidung k„∂nnen sich die gleichen mitgliedstaaten auf der regierungskonferenz keinen mi@@ „üer@@ folg leisten , wenn die frage an@@ steht , dem schutz und der f„∂rderung der grundrechte eine praxis@@ bezogene bedeutung zu verleihen .
+Sample Pred : because of this decision, the same member states can not afford to make a failure at the intergovernmental conference if the question is to give substance to the protection and promotion of fundamental rights.
+Model Expc'd: it makes it impossible for those same member states , at the igc , to fail to give operational meaning to the protection and advan@@ cement of fundamental rights .
+Sample Act'l: it makes it impossible for those same member states , at the igc , to fail to give operational meaning to the protection and advancement of fundamental rights .
+E 2 ::: Average Loss 6.378 ::: Average BleuP1 25.055
+Epoch    23: reducing learning rate of group 0 to 1.6200e-04.
+Evaluation ....
+Sample Inp't: der vorschlag , eine europ„§ische staatsanwal@@ tschaft einzurichten , ist „§u„üerst vern„ºnftig .
+Sample Pred : the proposal to set up a european public prosecutor is extremely reasonable.
+Model Expc'd: the proposal to set up a european public prosec@@ utor service is a very sensitive one .
+Sample Act'l: the proposal to set up a european public prosecutor service is a very sensitive one .
+E 2 ::: Average Loss 6.422 ::: Average BleuP1 25.524
+Evaluation ....
+Sample Inp't: wir unterst„ºtzen kleine und mittlere events , nicht die gro„üen events , wir erlauben dem einzelnen b„ºrger und auch kleineren akteuren einen leich@@ teren zugang ; ich denke , die tatsache , da„ü kultur heute eben zusammen mit bildung und jugend in einer kommiss@@ ar@@ sh@@ and ist , b„ºr@@ gt auch daf„ºr , da„ü mehr syn@@ ergie geschaffen wird zwischen diesen drei programmen , die ja aus@@ ges@@ prochene programme f„ºr die b„ºrgerinnen und b„ºrger in der europ„§ischen union sind .
+Sample Pred : we support small and medium events, not the large events, we allow for individual citizens and also smaller actors to be easier access; i think the fact that culture is now being held in a commissioner and is also a member of the commission, is also making sure that more synergy is created between these three programmes, which are indeed programmes for the citizens of the european union.
+Model Expc'd: we will support small and medium @-@ sized events , not the large ones , and we will afford individual citizens and also the smaller operators easier access . i believe that the fact that culture and , fit@@ t@@ ingly , education and youth now fall within the same commissioner & apos ; s remit , will also serve to guarantee more syn@@ ergy between these three programmes , which are certainly worthwhile programmes for the citizens of the european union .
+Sample Act'l: we will support small and medium @-@ sized events , not the large ones , and we will afford individual citizens and also the smaller operators easier access . i believe that the fact that culture and , fittingly , education and youth now fall within the same commissioner &apos; s remit , will also serve to guarantee more synergy between these three programmes , which are certainly worthwhile programmes for the citizens of the european union .
+E 2 ::: Average Loss 6.460 ::: Average BleuP1 25.462
+Evaluation ....
+Sample Inp't: drittens : die erweiterung der rechte des parlaments in diesem kontext .
+Sample Pred : thirdly, the extension of parliament & apos;s rights in this context.
+Model Expc'd: thirdly : the extension to parliament & apos ; s rights in this context .
+Sample Act'l: thirdly : the extension to parliament &apos; s rights in this context .
+E 2 ::: Average Loss 6.245 ::: Average BleuP1 25.545
+Evaluation ....
+Sample Inp't: die immer umwelt@@ bewu@@ „ü@@ tere auto@@ industrie hatte sich bestimmt schon auf eine solche entwicklung eingestellt .
+Sample Pred : the increasingly environmental car industry has already set itself up to such a development.
+Model Expc'd: the car industry , increasingly more respec@@ tful of the environment , has , i am sure , anticipated this kind of increasing awareness .
+Sample Act'l: the car industry , increasingly more respectful of the environment , has , i am sure , anticipated this kind of increasing awareness .
+E 2 ::: Average Loss 6.514 ::: Average BleuP1 25.634
+Evaluation ....
+Sample Inp't: daraus l„§„üt sich ab@@ leiten , da„ü wir breite , indi@@ k@@ ative und flexible leitlinien anstreben m„ºssen , auf die sich sowohl unsere programm @-@ manager als auch die beg@@ „ºnsti@@ gten st„ºtzen k„∂nnen und die zu einer maximalen er@@ schlie„üung des pot@@ enti@@ als der neuen bereiche der wirtschaftlichen erneuerung beitragen .
+Sample Pred : this implies that we must strive to have broad, indicative and flexible guidelines, both in which our managers and beneficiaries can be supported, and which will contribute to the maximum possible extent of the new economic recovery.
+Model Expc'd: the conclusion is that we must make the case for guidelines to be broad , indic@@ ative and flexible to assist our programme managers and fund @-@ users and to get the maximum potential out of our new fields of re@@ generation .
+Sample Act'l: the conclusion is that we must make the case for guidelines to be broad , indicative and flexible to assist our programme managers and fund @-@ users and to get the maximum potential out of our new fields of regeneration .
+E 3 ::: Average Loss 5.940 ::: Average BleuP1 25.556
+Evaluation ....
+Sample Inp't: wor@@ an es ha@@ per@@ t , ist die anwendung der bereits existierenden regelungen .
+Sample Pred : what is permissible is the application of existing regulations.
+Model Expc'd: where the scheme fal@@ ters is in the enforcement of existing legislation .
+Sample Act'l: where the scheme falters is in the enforcement of existing legislation .
+E 3 ::: Average Loss 6.286 ::: Average BleuP1 25.738
+Epoch    29: reducing learning rate of group 0 to 1.4580e-04.
+Evaluation ....
+Sample Inp't: wenn sie falsch umgesetzt wird , werden die hier beschriebenen dro@@ h@@ bilder sicher wahr .
+Sample Pred : if you are wrong, the pictures described here are certainly true.
+Model Expc'd: w@@ ron@@ g@@ ly done , the threatening images that have been described here will certainly become a reality .
+Sample Act'l: wrongly done , the threatening images that have been described here will certainly become a reality .
+E 3 ::: Average Loss 6.203 ::: Average BleuP1 25.977
+Evaluation ....
+Sample Inp't: dies ist ein gef„ºhl , das die m„§nner niemals haben werden , und ein wesentlicher unterschied .
+Sample Pred : this is a feeling that men will never have, and a substantial difference.
+Model Expc'd: this is a feeling which men will never have and it is an important difference .
+Sample Act'l: this is a feeling which men will never have and it is an important difference .
+E 3 ::: Average Loss 6.218 ::: Average BleuP1 25.982
+Evaluation ....
+Sample Inp't: bei der praktischen umsetzung ist die einbeziehung von unternehmen , organisationen und anderer akteure von entscheidender bedeutung .
+Sample Pred : in practical implementation, the involvement of companies, organisations and other players is crucial.
+Model Expc'd: it is of decisive importance to get local business , organisations and other players involved in the practical implementation of programmes .
+Sample Act'l: it is of decisive importance to get local business , organisations and other players involved in the practical implementation of programmes .
+E 3 ::: Average Loss 6.502 ::: Average BleuP1 26.137
+Evaluation ....
+Sample Inp't: deshalb will ich daran erinnern , da„ü bergen ein ganz wichtiges beispiel daf„ºr darstellt , wie die schaffung einer wirklichen meeres@@ politik aussehen mu„ü .
+Sample Pred : i would therefore like to remind you that bergen is an important example of how to create a genuine maritime policy.
+Model Expc'd: however , i will just remind you that the meeting in bergen showed very significantly that a proper policy on the sea must be created .
+Sample Act'l: however , i will just remind you that the meeting in bergen showed very significantly that a proper policy on the sea must be created .
+E 3 ::: Average Loss 6.068 ::: Average BleuP1 25.941
+Evaluation ....
+Sample Inp't: ich hoffe , die mitglieder dieses hauses haben verst„§ndnis daf„ºr .
+Sample Pred : i hope that members of this house understand that.
+Model Expc'd: so i hope i can count on the understanding of the house on this occasion .
+Sample Act'l: so i hope i can count on the understanding of the house on this occasion .
+E 3 ::: Average Loss 6.539 ::: Average BleuP1 26.122
+Evaluation ....
+Sample Inp't: zwei jahre fast hat das r@@ ingen um einen trag@@ f„§higen kompromi„ü ge@@ dauert , bis das europ„§ische parlament jetzt endlich gr„ºn@@ es licht geben kann .
+Sample Pred : two years almost, the struggle for a sustainable compromise has been taken, until the european parliament can finally give green light.
+Model Expc'd: the battle for a workable compromise lasted almost two years , and now , at long last , the european parliament can give the go @-@ ahead .
+Sample Act'l: the battle for a workable compromise lasted almost two years , and now , at long last , the european parliament can give the go @-@ ahead .
+E 3 ::: Average Loss 6.128 ::: Average BleuP1 26.165
+Epoch    35: reducing learning rate of group 0 to 1.3122e-04.
+Evaluation ....
+Sample Inp't: die rechtssicherheit der kmu liegt der kommission ganz besonders am herzen .
+Sample Pred : the commission & apos;s legal certainty is particularly close to the commission.
+Model Expc'd: the commission is paying particular attention to legal certainty for smes .
+Sample Act'l: the commission is paying particular attention to legal certainty for smes .
+E 3 ::: Average Loss 6.330 ::: Average BleuP1 26.440
+Evaluation ....
+Sample Inp't: wenn diese kriterien nicht eingehalten werden , dann hat entwicklung keine chance .
+Sample Pred : if these criteria are not adhered to development, then there is no chance of development.
+Model Expc'd: if these criteria are not adher@@ ed to , then development does not stand a chance
+Sample Act'l: if these criteria are not adhered to , then development does not stand a chance
+E 4 ::: Average Loss 6.367 ::: Average BleuP1 26.388
+Evaluation ....
+Sample Inp't: frau pr„§sidentin , ich m„∂chte lediglich darauf aufmerksam machen , da„ü w„§hrend des verfahrens im ausschu„ü weder „Ñnderungsantr„§ge eingereicht werden dur@@ ften noch demzufolge dar„ºber abgestimmt werden durfte .
+Sample Pred : madam president, i would simply like to draw attention to the fact that neither amendments nor amendments were to be voted during the committee procedure were tabled.
+Model Expc'd: madam president , i would simply like to point out that during the procedure , we were not allowed either to table or , consequently , adopt amendments in the committee .
+Sample Act'l: madam president , i would simply like to point out that during the procedure , we were not allowed either to table or , consequently , adopt amendments in the committee .
+E 4 ::: Average Loss 6.400 ::: Average BleuP1 26.443
+Evaluation ....
+Sample Inp't: es ist schlicht und einfach schein@@ hei@@ lig , die menschenrechtsverletzungen in der dritten welt aufs sch„§r@@ f@@ ste zu verurteilen , wenn wir nicht gleichzeitig bereit sind , den echten fl„ºchtlingen und asyl@@ such@@ enden , deren lage in der union gegenw„§rtig schwieriger wird , unsere hand zu reichen .
+Sample Pred : it is simply hypocritical to condemn the human rights violations in the third world, if we are not at the same time ready to give our real hand to the real refugees and asylum seekers whose situation in the union is currently becoming more difficult.
+Model Expc'd: it is nothing less than hypo@@ critical to condemn the fla@@ grant violation of human rights that occurs in non @-@ eu countries if we are not prepared to extend a helping hand to those genuine refugees and asylum @-@ seekers , whose position is now becoming more difficult in the eu .
+Sample Act'l: it is nothing less than hypocritical to condemn the flagrant violation of human rights that occurs in non @-@ eu countries if we are not prepared to extend a helping hand to those genuine refugees and asylum @-@ seekers , whose position is now becoming more difficult in the eu .
+E 4 ::: Average Loss 6.342 ::: Average BleuP1 26.483
+Evaluation ....
+Sample Inp't: mir ist klar , da„ü das eine sehr zeit@@ aufwendi@@ ge „úbung ist , dennoch meine ich , da„ü die rechtsetzung auf der grundlage von stellungnahmen der beh„∂rde der richtige weg ist .
+Sample Pred : i realise that this is a very timely exercise, but i believe that the legislation is the right way to legislate.
+Model Expc'd: i realise that this is a somewhat time @-@ consuming exercise but , nonetheless , the establishment of legislation arising out of the opinions of the authority is - i believe - the way forward .
+Sample Act'l: i realise that this is a somewhat time @-@ consuming exercise but , nonetheless , the establishment of legislation arising out of the opinions of the authority is - i believe - the way forward .
+E 4 ::: Average Loss 6.315 ::: Average BleuP1 26.360
+Evaluation ....
+Sample Inp't: die zielsetzung einhei@@ tlicher mindest@@ normen f„ºhrt hingegen dazu , dort an@@ zusetzen , wo es den geringsten widerstand gibt , und sich auf den kleinsten gemeinsamen nenn@@ er zu einigen , was alle wettbewerbs@@ politischen ziele ver@@ w„§s@@ sert .
+Sample Pred : the objective minimum standards is, however, to be where there is the slightest resistance and agree on the lowest common denominator, which waterfalls down all the competitive objectives.
+Model Expc'd: a@@ im@@ ing instead at harmonised minimum standards will easily lead to a situation where we leap over the lowest hur@@ dle and end up with the lowest common denom@@ in@@ ator , which will water down all the aims of competition policy .
+Sample Act'l: aiming instead at harmonised minimum standards will easily lead to a situation where we leap over the lowest hurdle and end up with the lowest common denominator , which will water down all the aims of competition policy .
+E 4 ::: Average Loss 6.400 ::: Average BleuP1 26.546
+Epoch    41: reducing learning rate of group 0 to 1.1810e-04.
+Evaluation ....
+Sample Inp't: derzeit vertrauen wir darauf , da„ü die kommission diese ehrgeizigen vorschl„§ge unterbreiten wird , was aber nicht zwangsl„§ufig der fall ist .
+Sample Pred : at the moment, we are confident that the commission will make these ambitious proposals, but this is not necessarily the case.
+Model Expc'd: at present , we trust that the commission will produce these sound proposals , but it is not a fo@@ reg@@ one conclusion that it will do so .
+Sample Act'l: at present , we trust that the commission will produce these sound proposals , but it is not a foregone conclusion that it will do so .
+E 4 ::: Average Loss 6.201 ::: Average BleuP1 26.474
+Evaluation ....
+Sample Inp't: eine hilfre@@ iche l„∂sung w„§re , wenn sie meine fragen zur finanziellen vorausschau bis 2004 und zur rubrik b@@ 7 positiv beantworten oder zumindest zum ausdruck bringen w„ºrden , da„ü - wie auch der herr kommissar in der kommission versuchen wird , dies hinzu@@ bekommen - die portugiesische ratspr„§sidentschaft die absicht hat , die mangelnde koh„§renz von damals durch eine solche anstrengung auszugleichen .
+Sample Pred : a helpful solution would be to answer my questions about the financial perspectives up to 2004 and to heading b7, or at least to say that, as the commissioner will try to do, the portuguese presidency intends to balance the lack of coherence of the time at such time.
+Model Expc'd: it would be helpful if you could give a positive answer to my questions on the financial perspective up until 2004 and on heading b@@ 7 , or if you could at least confirm that the portuguese council presidency intends to make efforts of this kind to make good the aforementioned lack of coherence , which is something the commissioner will also seek to achieve on the part of the commission .
+Sample Act'l: it would be helpful if you could give a positive answer to my questions on the financial perspective up until 2004 and on heading b7 , or if you could at least confirm that the portuguese council presidency intends to make efforts of this kind to make good the aforementioned lack of coherence , which is something the commissioner will also seek to achieve on the part of the commission .
+E 4 ::: Average Loss 6.829 ::: Average BleuP1 26.664
+Evaluation ....
+Sample Inp't: das war der beschlu„ü .
+Sample Pred : that was the decision.
+Model Expc'd: that was the decision .
+Sample Act'l: that was the decision .
+E 4 ::: Average Loss 6.572 ::: Average BleuP1 26.692
+Evaluation ....
+Sample Inp't: herr pr„§sident , herr kommissar , meine sehr geehrten kolleginnen und kollegen , der bericht „ºber zusatz@@ stoffe in der tier@@ ern„§hr@@ ung befa„üt sich mit einem wirtschaftlich @-@ technischen problem zur wiederherstellung des wettbewerbs@@ gleich@@ gewichts zwischen den einzelnen zusatz@@ stoffen f„ºr tier@@ fut@@ ter und den herstellern dieser zusatz@@ stoffe .
+Sample Pred : mr president, commissioner, ladies and gentlemen, the report on additives in animal feed is dealing with an economically technical problem for the competitive equilibrium between the additives of animal feed and the manufacturers of these additives.
+Model Expc'd: mr president , commissioner , ladies and gentlemen , the report on additives in animal fe@@ ed@@ ing@@ stuffs concerns the technical and economic problem of restoring the competitive balance between different additives in fe@@ ed@@ ing@@ stuffs and between producers of these additives .
+Sample Act'l: mr president , commissioner , ladies and gentlemen , the report on additives in animal feedingstuffs concerns the technical and economic problem of restoring the competitive balance between different additives in feedingstuffs and between producers of these additives .
+E 4 ::: Average Loss 6.236 ::: Average BleuP1 26.704
+Evaluation ....
+Sample Inp't: doch gehen wir hin@@ unter auf die ebene des einzelnen menschen , so bedeutet dies : unterst„ºtzung f„ºr diejenigen , die von den drogen los@@ kommen wollen , sowie geeignete kontrollen und mechanismen zu deren rehabili@@ tation ; zweitens , die koordinierung der polizei und der justiz in bezug auf einheitliche strafen und gesetze ; drittens , die durchf„ºhrung einer informations- und auf@@ kl„§r@@ ungs@@ kamp@@ agne f„ºr junge menschen sowie die endg„ºltige streichung der gef„§hrlichen worte &quot; normali@@ sierung &quot; und &quot; schadens@@ reduzi@@ erung &quot; . ferner m„ºssen wir aufzeigen , da„ü unser entsch@@ lu„ü , die leg@@ alisierung von drogen zu verhindern , nur dem woh@@ le aller b„ºrger dient .
+Sample Pred : but we are heading down to the individual level of support, for example: support for those who want to get rid of drugs, and appropriate controls and mechanisms for rehabilitation; secondly, coordination of police and judiciary in terms of uniform penalties and laws; thirdly, the implementation of an information campaign and awareness campaign for young people, and the final deletion of the dangerous words & apos; normalisation & apos; and & apos; harm reduction & apos;, and we must also demonstrate that our decision to prevent the legalisation of drugs is only the benefit
+Model Expc'd: but to bring it down to a more human level : to give assistance to those people who are trying to come off drugs , and give them proper controls and proper mechanisms for rehabilitation ; secondly , to coordinate amongst the police forces and the judiciary with regard to common penalties and common laws ; thirdly , to undertake an information and awareness campaign for young people ; and once and for all to put an end to these very dangerous words of & quot ; normali@@ sation & quot ; and & quot ; harm reduction & quot ; and show that any weakening of our resolve in making sure that drugs are not leg@@ alised must be for the good of all our people .
+Sample Act'l: but to bring it down to a more human level : to give assistance to those people who are trying to come off drugs , and give them proper controls and proper mechanisms for rehabilitation ; secondly , to coordinate amongst the police forces and the judiciary with regard to common penalties and common laws ; thirdly , to undertake an information and awareness campaign for young people ; and once and for all to put an end to these very dangerous words of &quot; normalisation &quot; and &quot; harm reduction &quot; and show that any weakening of our resolve in making sure that drugs are not legalised must be for the good of all our people .
+E 5 ::: Average Loss 6.510 ::: Average BleuP1 26.848
+Evaluation ....
+Sample Inp't: das k„∂nnte vor@@ l„§ufig beispielsweise bedeuten , da„ü die kommission in den ausschu„ü f„ºr politik und sicherheits@@ fragen eingebunden wird , da„ü die zust„§ndigkeit der gemeinschaft f„ºr das nicht@@ milit„§rische krisen@@ management gest„§rkt wird , ein rat der verteidigungs@@ minister geschaffen wird und eu @-@ vertrag , nato @-@ vertrag und w@@ eu aufeinander abgestimmt werden ; weitere fragen w„§ren die rechts@@ f„§higkeit der europ„§ischen union , die verst„§rkte zusammenarbeit auch in diesem bereich , die parlamentarische kontrolle und schlie„ülich die finanz@@ ausstattung .
+Sample Pred : this could mean, for example, that the commission will be involved in the committee on policy and security issues, that the community competence for non-military crisis management will be strengthened, a council of defence ministers will be created and the eu treaty, nato treaty and weu are coordinated; more questions would be the european union & apos;s legal capacity, enhanced cooperation in this area, parliamentary control and finally, financial resources.
+Model Expc'd: at this stage , this could include , for example , collaboration between the commission and the political committee , the consolidation of community responsibility for non @-@ military crisis management , the creation of a council of ministers for defence , coordination of the treaty on european union , the nato charter and the w@@ eu , the legal personality of the european union , reinforced cooperation in this area as well , parliamentary control and , la@@ stly , financing .
+Sample Act'l: at this stage , this could include , for example , collaboration between the commission and the political committee , the consolidation of community responsibility for non @-@ military crisis management , the creation of a council of ministers for defence , coordination of the treaty on european union , the nato charter and the weu , the legal personality of the european union , reinforced cooperation in this area as well , parliamentary control and , lastly , financing .
+E 5 ::: Average Loss 6.706 ::: Average BleuP1 26.713
+Epoch    47: reducing learning rate of group 0 to 1.0629e-04.
+Evaluation ....
+Sample Inp't: ich denke aber , wir sollten die chance nutzen , da„ü europa auch ein zeichen setzen kann f„ºr weniger b„ºrokratie .
+Sample Pred : however, i think we should take the opportunity that europe can also set a sign for less bureaucracy.
+Model Expc'd: however i believe that we should use this opportunity for europe to set down a mark@@ er for less red tape .
+Sample Act'l: however i believe that we should use this opportunity for europe to set down a marker for less red tape .
+E 5 ::: Average Loss 6.402 ::: Average BleuP1 26.936
+Evaluation ....
+Sample Inp't: sinn der gemeinschafts@@ initiative ist es , da„ü sich die b„ºrger an ihr beteiligen , denn zu den aktiv@@ sten und engagi@@ er@@ testen bef„ºr@@ wortern und vertretern des wandels in unseren st„§dten z„§hlt die „∂rtliche bev„∂lkerung .
+Sample Pred : the purpose of the community initiative is to involve the citizens, because the most active and committed supporters of the change in our cities include the local population.
+Model Expc'd: the community initiative means community involvement . some of the most active and committed prop@@ onents and agents of change in our urban areas are local residents .
+Sample Act'l: the community initiative means community involvement . some of the most active and committed proponents and agents of change in our urban areas are local residents .
+E 5 ::: Average Loss 6.580 ::: Average BleuP1 26.979
+Evaluation ....
+Sample Inp't: herr pr„§sident ! ich bin belgi@@ er , und ich bin nicht gegen den gemeinsamen standpunkt .
+Sample Pred : mr president, i am belgian, and i am not opposed to the common position.
+Model Expc'd: mr president , i am belgian and i am not opposed to the common position .
+Sample Act'l: mr president , i am belgian and i am not opposed to the common position .
+E 5 ::: Average Loss 6.398 ::: Average BleuP1 26.995
+Evaluation ....
+Sample Inp't: deshalb m„∂chte ich den herrn kommissar bitten , f„ºr ein ausgewogenes verh„§ltnis zwischen diesen einzelnen gruppen zu sorgen .
+Sample Pred : i would therefore ask the commissioner to ensure that there is a balance between these groups.
+Model Expc'd: i would , therefore , ask the commissioner to ensure that a balance is struck between these different groups .
+Sample Act'l: i would , therefore , ask the commissioner to ensure that a balance is struck between these different groups .
+E 5 ::: Average Loss 6.483 ::: Average BleuP1 27.091
+Evaluation ....
+Sample Inp't: die entwicklung der sozialen und wirtschaftlichen lage ist schlie„ülich entscheidend daf„ºr , wie die b„ºrger europas den erfolg unserer arbeit bewerten .
+Sample Pred : the development of the social and economic situation is, in the final analysis, decisive for how european citizens assess the success of our work.
+Model Expc'd: this issue , which has an impact on their everyday life , is a key issue as regards eu credibility .
+Sample Act'l: this issue , which has an impact on their everyday life , is a key issue as regards eu credibility .
+E 5 ::: Average Loss 6.510 ::: Average BleuP1 27.149
+Evaluation ....
+Sample Inp't: rahmenbedingungen sind zur verhinderung von mi„ü@@ brauch uner@@ l„§„ülich , zum beispiel durch das kart@@ ell@@ recht .
+Sample Pred : the framework conditions are essential for preventing abuse, for example by cartel law.
+Model Expc'd: framework conditions are indispensable when it comes to preventing abuses , monopolies law being one example .
+Sample Act'l: framework conditions are indispensable when it comes to preventing abuses , monopolies law being one example .
+E 5 ::: Average Loss 6.586 ::: Average BleuP1 26.987
+Evaluation ....
+Sample Inp't: die zielsetzung einhei@@ tlicher mindest@@ normen f„ºhrt hingegen dazu , dort an@@ zusetzen , wo es den geringsten widerstand gibt , und sich auf den kleinsten gemeinsamen nenn@@ er zu einigen , was alle wettbewerbs@@ politischen ziele ver@@ w„§s@@ sert .
+Sample Pred : the objective of uniform minimum standards, however, leads to where there is a resistance to the lowest common denominator, and to agree on the lowest common denominator, which is watered down all the competition policy objectives.
+Model Expc'd: a@@ im@@ ing instead at harmonised minimum standards will easily lead to a situation where we leap over the lowest hur@@ dle and end up with the lowest common denom@@ in@@ ator , which will water down all the aims of competition policy .
+Sample Act'l: aiming instead at harmonised minimum standards will easily lead to a situation where we leap over the lowest hurdle and end up with the lowest common denominator , which will water down all the aims of competition policy .
+E 5 ::: Average Loss 6.366 ::: Average BleuP1 27.050
+Loading the best validated model with validation bleu score of 27.149
+Evaluation ....
+Sample Inp't: ich erinnere herrn jon@@ ck@@ he@@ er daran , da„ü irische unternehmen bzw. ausl„§ndische unternehmen in irland vom kontinent@@ al@@ europ„§ischen markt immerhin durch zwei gr„∂„üere meere getrennt sind .
+Sample Pred : i would remind mr jonckheer that irish companies or foreign companies in ireland are separated from two continental seas by ireland & apos;s continental market.
+Model Expc'd: i remind mr jon@@ ck@@ he@@ er that irish companies or foreign companies in ireland still have to cross two sea masses to reach the mainland european marketplace .
+Sample Act'l: i remind mr jonckheer that irish companies or foreign companies in ireland still have to cross two sea masses to reach the mainland european marketplace .
+E LAST ::: Average Loss 6.510 ::: Average BleuP1 27.149

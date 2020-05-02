@@ -1,0 +1,57 @@
+Loading the data ...
+    [torchtext] Loading train examples ...
+    [torchtext] Loading validation examples ...
+    [torchtext] Loading test examples ...
+Number of training examples: 3961179
+Number of validation [set name: valid] examples: 40058
+Number of testing [set name: newstest2014-ende.bpe] examples: 3003
+Number of testing [set name: newstest2015-ende.bpe] examples: 2169
+Number of testing [set name: newstest2016-ende.bpe] examples: 2999
+Number of testing [set name: newstest2017-ende.bpe] examples: 3004
+Number of testing [set name: newstest2018-ende.bpe] examples: 2998
+Number of testing [set name: newstest2019-ende.bpe] examples: 1997
+Unique tokens in source (de) vocabulary: 35161
+Unique tokens in target (en) vocabulary: 33118
+Loading the best trained model
+Evaluation ....
+Sample Inp't: deswegen glauben wir , da„ü fahrzeuge , die in zukunft eindrucks@@ voll und nachweis@@ bar leicht@@ bau@@ methoden verwenden , weniger co2 produzieren und diese eine sonder@@ pr„§@@ ferenz bei der ver@@ brennungs@@ quote erhalten .
+Sample Pred : that is why we believe that vehicles that are able to use impressive and demonstrably lightweight methods in the future will produce less co2, and that they receive a preferential preference in the incineration quota.
+Model Expc'd: we therefore consider that , in future , vehicles which clearly and effectively use lightweight construction methods will produce less co2 and should receive preferential treatment in their combustion quotas .
+Sample Act'l: we therefore consider that , in future , vehicles which clearly and effectively use lightweight construction methods will produce less co2 and should receive preferential treatment in their combustion quotas .
+E VALID.valid ::: Average Loss 0.000 ::: Average BleuP1 28.487
+Evaluation ....
+Sample Inp't: collage aus prosatexten gerhard fresacher stellt f„ºr seine auff„ºhrung "wetterleuchten auf der zungenspitze", die nun in der garage x am petersplatz zu sehen ist, daher eine collage aus prosatexten zusammen.
+Sample Pred : collage from prosexgerhard gerhard fresacher is for his performance & quot; wettershine on the tongue of the tongue & quot; which is now seen in the garage x am petersplatz, therefore a collage from prosatexten together.
+Model Expc'd: in a col@@ lage of pro@@ se texts for his performance piece , & quot ; wetter@@ leu@@ chten auf der zun@@ gen@@ spitze & quot ; ( summer ligh@@ tn@@ ing on the tip of your tongue ) , which can now be seen in garage x on peter@@ splatz , gerhard fres@@ acher , creates a col@@ lage of pro@@ se texts .
+Sample Act'l: in a collage of prose texts for his performance piece, "wetterleuchten auf der zungenspitze" (summer lightning on the tip of your tongue), which can now be seen in garage x on petersplatz, gerhard fresacher ,creates a collage of prose texts.
+E TEST.newstest2014-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 21.046
+Evaluation ....
+Sample Inp't: innerhalb eines monats wird eine anh„∂rung f„ºr den richter angesetzt, um f„ºr das gesetz eine dauerhaftere entscheidung herbeizuf„ºhren.
+Sample Pred : within the month of a month, a hearing will be set for the judges to make a more permanent decision for the law.
+Model Expc'd: a hearing will be scheduled within a month for the judge to make a more permanent ruling on the law .
+Sample Act'l: a hearing will be scheduled within a month for the judge to make a more permanent ruling on the law.
+E TEST.newstest2015-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 21.767
+Evaluation ....
+Sample Inp't: amy und rogelio solis berichteten aus cleveland, mississippi.
+Sample Pred : amy and rogelio solis reported from cleveland, mississippi.
+Model Expc'd: a@@ my and ro@@ ge@@ lio soli@@ s reported from cle@@ vel@@ and , mis@@ si@@ ssi@@ ppi .
+Sample Act'l: amy and rogelio solis reported from cleveland, mississippi.
+E TEST.newstest2016-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 25.274
+Evaluation ....
+Sample Inp't: die ausnahme ist ein wachmann vor der t„ºr.
+Sample Pred : the exception is a guard against the door.
+Model Expc'd: the exception is a bo@@ dy@@ guard on the door .
+Sample Act'l: the exception is a bodyguard on the door.
+E TEST.newstest2017-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 22.337
+Evaluation ....
+Sample Inp't: von den gesamtkosten in h„∂he von 71 500 euro wurde die h„§lfte „ºber leader gef„∂rdert, ein viertel trug die gemeinde fischerbach.
+Sample Pred : of the total cost of eur 71 500, half was promoted via leader, a quarter of the municipality of fishing.
+Model Expc'd: of the total costs , to the tune of 7@@ 1,@@ 500 euros , half was funded via leader , and a quarter was borne by the community of fischer@@ bach .
+Sample Act'l: of the total costs, to the tune of 71,500 euros, half was funded via leader, and a quarter was borne by the community of fischerbach.
+E TEST.newstest2018-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 26.566
+Evaluation ....
+Sample Inp't: „úber 1000 menschen wurden get„∂tet, und zehntausende wurden aus ihren h„§usern vertrieben, als sich christliche und muslimische banden stra„üenk„§mpfe mit macheten, pfeil und bogen und anderen primitiven waffen lieferten.
+Sample Pred : more than 1000 people have been killed, tens of thousands of homes have been displaced from their homes, when christian and muslim gangs delivered the fighting with machetes, arrow and arches and other primitive weapons.
+Model Expc'd: more than 1,000 people were killed and tens of thousands dis@@ located from their homes as christian and muslim gangs batt@@ led on the streets , using mach@@ etes , bo@@ ws and ar@@ rows , and other cru@@ de weapons .
+Sample Act'l: more than 1,000 people were killed and tens of thousands dislocated from their homes as christian and muslim gangs battled on the streets, using machetes, bows and arrows, and other crude weapons.
+E TEST.newstest2019-ende.bpe ::: Average Loss 0.000 ::: Average BleuP1 24.261
