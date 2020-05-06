@@ -57,4 +57,4 @@ class TransformerScheduler:
         """Implement `lrate` above"""
         if step is None:
             step = self._step
-        return self.factor * (self.model_size ** (-0.5) * min(step ** (-0.5), step * self.warmup ** (-1.5)))
+        return max(self.factor * (self.model_size ** (-0.5) * min(step ** (-0.5), step * self.warmup ** (-1.5))), 1e-09)
