@@ -7,3 +7,4 @@ PyYAML==5.1
 tqdm==4.41.0
 zipp==1.0.0
 Unidecode==1.1.1
+tokenizers==0.7.0

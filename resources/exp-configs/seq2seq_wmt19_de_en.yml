@@ -4,6 +4,8 @@ tgt_lang: en
 dataset_name: wmt19_de_en
 dataset_is_in_bpe: true
 lowercase_data: true
+src_tokenizer: spacy
+tgt_tokenizer: spacy
 pad_token: <pad>
 bos_token: <bos>
 eos_token: <eos>

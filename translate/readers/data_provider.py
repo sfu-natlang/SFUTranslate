@@ -2,30 +2,23 @@ import glob
 import os
 import io
 import codecs
-import spacy
 import xml.etree.ElementTree as ET
 from torchtext import data, datasets
 from configuration import src_lan, tgt_lan, cfg, device
 from readers.utils import *
+from readers.tokenizers import get_tokenizer_from_configs
 
-spacy_src = spacy.load(src_lan)
-spacy_tgt = spacy.load(tgt_lan)
+src_tokenizer_obj = get_tokenizer_from_configs(cfg.src_tokenizer, src_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
+tgt_tokenizer_obj = get_tokenizer_from_configs(cfg.tgt_tokenizer, tgt_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
 
 
 def src_tokenizer(text):
-    return [tok.text for tok in spacy_src.tokenizer(text)]
+    return src_tokenizer_obj.tokenize(text)
 
 
 def tgt_tokenizer(text):
-    return [tok.text for tok in spacy_tgt.tokenizer(text)]
+    return tgt_tokenizer_obj.tokenize(text)
 
-
-def temp_split(x): return x.split()
-
-
-if bool(cfg.debug_mode):
-    src_tokenizer = temp_split
-    tgt_tokenizer = temp_split
 
 global max_src_in_batch, max_tgt_in_batch
 
