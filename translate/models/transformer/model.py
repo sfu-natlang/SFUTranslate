@@ -55,6 +55,11 @@ class Transformer(nn.Module):
         self.tgt_embed = nn.Sequential(Embeddings(d_model, len(TGT.vocab)), c(position))
         # #################################### GENERATOR INITIALIZATION ################################################
         self.generator = Generator(d_model, len(TGT.vocab))
+        if cfg.share_all_embeddings:
+            assert cfg.share_vocabulary, "For sharing embeddings, you need to set the share_vocabulary flag as well!"
+            print("Sharing all embedding layers in source and target side ...")
+            self.src_embed[0].lut.weight = self.tgt_embed[0].lut.weight
+            self.generator.proj.weight = self.tgt_embed[0].lut.weight
 
         # #################################### BEAM SEARCH PARAMETERS ##################################################
         self.beam_search_decoding = False

@@ -15,6 +15,7 @@ min_freq_src: 0
 max_vocab_tgt: 50000
 min_freq_tgt: 0
 extract_unk_stats: false
+share_vocabulary: false
 
 model_name: sts
 emb_dropout: 0.3
@@ -30,6 +31,7 @@ decoder_layers: 1
 decoder_dropout_rate: 0.1
 out_dropout: 0.2
 coverage_dropout: 0.2
+share_all_embeddings: false
 
 maximum_decoding_length: 100
 bahdanau_attention: true
