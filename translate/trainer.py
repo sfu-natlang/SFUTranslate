@@ -51,8 +51,8 @@ def main(model_name):
         all_perp = 0.0
         all_tokens_count = 0.0
         ds = tqdm(train_iter, total=size_train)
+        optimizer.zero_grad()
         for ind, instance in enumerate(ds):
-            optimizer.zero_grad()
             if instance.src[0].size(0) < 2:
                 continue
             pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg)
@@ -61,14 +61,17 @@ def main(model_name):
             all_tokens_count += n_tokens
             all_perp += math.exp(itm / max(n_tokens, 1.0))
             batch_count += 1.0
-            lss /= max(decoded_length, 1)
+            assert cfg.update_freq > 0
+            lss /= (max(decoded_length, 1) * cfg.update_freq)
             lss.backward()
             if grad_clip:
                 nn.utils.clip_grad_norm_(model.parameters(), float(cfg.max_grad_norm))
             # scheduler.step()
-            optimizer.step()
-            if not step_only_at_eval:
-                scheduler.step()
+            if ind % cfg.update_freq == 0:
+                optimizer.step()
+                if not step_only_at_eval:
+                    scheduler.step()
+                optimizer.zero_grad()
             current_perp = all_perp / batch_count
             if current_perp < 1500:
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}, Average Perplexity: {:.2f}".format(

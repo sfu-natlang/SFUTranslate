@@ -50,6 +50,7 @@ lr_decay_patience_steps: 5
 lr_decay_factor: 0.9
 lr_decay_threshold: 0.1
 lr_decay_min: 0.00001
+update_freq: 1
 
 beam_size: 10
 beam_search_length_norm_factor: 0.65
