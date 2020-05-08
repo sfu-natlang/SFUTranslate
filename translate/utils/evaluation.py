@@ -86,6 +86,8 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
                 if bool(cfg.dataset_is_in_bpe):
                     decoded = decoded.replace("@@ ", "")
                     reference_sentence = reference_sentence.replace("@@ ", "")
+                if cfg.tgt_tokenizer == "pre_trained":
+                    decoded = decoded.replace(" ##", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:
