@@ -62,8 +62,18 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
              src_file: str, gold_tgt_file: str, eph: str):
     print("Evaluation ....")
     model.eval()
+
+    def _get_next_line(file_1_iter, file_2_iter):
+        for l1, l2 in zip(file_1_iter, file_2_iter):
+            l1 = l1.strip()
+            l2 = l2.strip()
+            if not len(l1) or not len(l2):
+                continue
+            yield l1, l2
+
     src_originals = iter(open(src_file, "r"))
     tgt_originals = iter(open(gold_tgt_file, "r"))
+    originals = _get_next_line(src_originals, tgt_originals)
     random_sample_created = False
     with torch.no_grad():
         lall_valid = 0.0
@@ -76,8 +86,7 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
             lcount_valid += n_tokens
             for d_id, (decoded, model_expected) in enumerate(zip(
                     convert_target_batch_back(pred, TGT), convert_target_batch_back(valid_instance.trg[0], TGT))):
-                source_sentence = next(src_originals).strip()
-                reference_sentence = next(tgt_originals).strip()
+                source_sentence, reference_sentence = next(originals)
                 if bool(cfg.lowercase_data):
                     source_sentence = source_sentence.lower()
                     reference_sentence = reference_sentence.lower()
