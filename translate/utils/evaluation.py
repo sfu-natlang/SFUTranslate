@@ -84,8 +84,8 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
                 decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id)
                                               if max_attention_idcs is not None else None)
                 if bool(cfg.dataset_is_in_bpe):
-                    decoded = decoded.replace("@@ ", "")
-                    reference_sentence = reference_sentence.replace("@@ ", "")
+                    decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
+                    reference_sentence = reference_sentence.replace("@@ ", "").replace(" @-@ ", "-")
                 if cfg.tgt_tokenizer == "pre_trained":
                     decoded = decoded.replace(" ##", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score

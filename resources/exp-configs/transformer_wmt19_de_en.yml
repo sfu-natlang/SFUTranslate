@@ -5,7 +5,7 @@ dataset_name: wmt19_de_en
 dataset_is_in_bpe: true
 lowercase_data: true
 src_tokenizer: pre_trained
-tgt_tokenizer: spacy
+tgt_tokenizer: pre_trained
 pad_token: <pad>
 bos_token: <bos>
 eos_token: <eos>
@@ -17,7 +17,7 @@ min_freq_src: 2
 max_vocab_tgt: 50000
 min_freq_tgt: 1
 extract_unk_stats: false
-share_vocabulary: false
+share_vocabulary: true
 
 emb_dropout: 0.1
 train_batch_size: 4096
@@ -43,14 +43,14 @@ transformer_N: 6
 transformer_loss_smoothing: 0.1
 transformer_opt_factor: 1
 transformer_opt_warmup: 4000
-share_all_embeddings: false
+share_all_embeddings: true
 
 maximum_decoding_length: 100
 bahdanau_attention: true
 coverage_required: true
 coverage_lambda: 1.0
 
-n_epochs: 6
+n_epochs: 7
 init_optim: adagrad
 init_learning_rate: 0.01
 init_epochs: 0
@@ -66,7 +66,7 @@ lr_decay_threshold: 0.1
 lr_decay_min: 0.00001
 update_freq: 8
 
-beam_size: 5
-beam_search_length_norm_factor: 0.65
+beam_size: 4
+beam_search_length_norm_factor: 0.6
 beam_search_coverage_penalty_factor: 0.4
 checkpoint_name: transformer_wmt19_de_en.pt

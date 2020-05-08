@@ -88,8 +88,8 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=Non
                                              validation="valid" if dev_data == "valid" else '{}-ende.bpe'.format(dev_data),
                                              test_list=['{}-ende.bpe'.format(test_data) for test_data in test_data_list])
         if dev_data == "valid":
-            src_val_file_address = ".data/wmt19_en_de/valid.{}".format(src_lan)
-            tgt_val_file_address = ".data/wmt19_en_de/valid.{}".format(tgt_lan)
+            src_val_file_address = ".data/wmt19_en_de/valid-original.{}".format(src_lan)
+            tgt_val_file_address = ".data/wmt19_en_de/valid-original.{}".format(tgt_lan)
         else:
             src_val_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(dev_data, src_lan)
             tgt_val_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(dev_data, tgt_lan)
