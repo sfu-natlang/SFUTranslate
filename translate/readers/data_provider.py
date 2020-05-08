@@ -13,11 +13,11 @@ tgt_tokenizer_obj = get_tokenizer_from_configs(cfg.tgt_tokenizer, tgt_lan, cfg.l
 
 
 def src_tokenizer(text):
-    return src_tokenizer_obj.tokenize(text)
+    return src_tokenizer_obj.tokenize(text if cfg.src_tokenizer != "pre_trained" or not cfg.dataset_is_in_bpe else text.replace("@@ ", ""))
 
 
 def tgt_tokenizer(text):
-    return tgt_tokenizer_obj.tokenize(text)
+    return tgt_tokenizer_obj.tokenize(text if cfg.tgt_tokenizer != "pre_trained" or not cfg.dataset_is_in_bpe else text.replace("@@ ", ""))
 
 
 global max_src_in_batch, max_tgt_in_batch
