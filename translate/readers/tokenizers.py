@@ -1,3 +1,8 @@
+"""
+Implementation of different tokenizers to be used by the data provider. The pre-trained tokenizers are intended to use
+  the pre-trained vocabulary files distributed by huggingface.tokenizers which are trained over big corpora
+    in each supported language.
+"""
 from tokenizers import BertWordPieceTokenizer
 from requests import get
 import spacy
@@ -47,19 +52,17 @@ class PreTrainedTokenizer:
         """
         You can recover the output of this function using " ".join(encoded_list).replace(" ##", "")
         :param text: one line of text in type of str
+        :return a list of tokenized "str"s
         """
-        encoding = self.tokenizer.encode(text, add_special_tokens=False)
-        # print(f"IDS: {encoding.ids}")
-        # print(f"TOKENS: {encoding.tokens}")
-        # print(f"OFFSETS: {encoding.offsets}")
+        encoding = self.tokenizer.encode(text, add_special_tokens=False) # results contains "ids", "tokens", and "offsets"
         return encoding.tokens
 
     def decode(self, encoded_ids_list):
         """
         :param encoded_ids_list: list of int ids
+        :return a decoded str
         """
         decoded = self.tokenizer.decode(encoded_ids_list)
-        # print(f"DECODED: {decoded}")
         return decoded
 
     @staticmethod
@@ -84,6 +87,9 @@ class PreTrainedTokenizer:
 
 
 class SpacyTokenizer:
+    """
+    The tokenizer which loads and uses spacy pre-trained language resources
+    """
     def __init__(self, tokeniztion_lang):
         self.tokenizer = spacy.load(tokeniztion_lang)
 
@@ -92,12 +98,18 @@ class SpacyTokenizer:
 
 
 class SplitTokenizer:
+    """
+    The very basic tokenizer mainly for debugging purposes
+    """
     @staticmethod
     def tokenize(text):
         return text.split()
 
 
 def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
+    """
+    A stand-alone function which will create and return the proper tokenizer object given requested configs
+    """
     print("Loading tokenizer of type {} for {} language".format(tokenizer_name, lang))
     if tokenizer_name == "spacy":
         return SpacyTokenizer(lang)

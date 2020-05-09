@@ -71,7 +71,10 @@ debug_mode: [true/false] if true spacy tokenizer is deactivated and Multi30k dat
 src_lang: the bi-letter language identifier for source langugage
 tgt_lang: the bi-letter language identifier for target langugage
 dataset_name: the name of the torchtext datasetname
+dataset_is_in_bpe: indicates whether the input text files have already be converted to bpe format (which needs recovery for comparison use cases)
 lowercase_data: [true/false] whether the dataset setences need to be lowercased or not
+src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "split"|"spacy"|"pre_trained"] 
+tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "split"|"spacy"|"pre_trained"]
 pad_token: special pad token used in data transformation
 bos_token: special begin of sentence token used in data transformation
 eos_token: special end of sentence token used in data transformation
@@ -83,6 +86,7 @@ min_freq_src: minimum considrable source vocabulary, words with less freqency th
 max_vocab_tgt: maximum size of target side vocabulary
 min_freq_tgt: minimum considrable target vocabulary, words with less freqency than this are replaced with ``unk_token``
 extract_unk_stats: the flag which enables the code to perform type/token analysis on the ratio of <UNK> tokens in the current vocabulary settings
+share_vocabulary: the flag which enables merging the source and target vocabulary into a single object, assigning unique ids to the same token in both source and target space 
 
 model_name: `transformer` or `sts`
 train_batch_size: the average number of words expected to be put in a batch while training [4000 to 5000 seem to be a reasonable defalt]
@@ -115,6 +119,7 @@ transformer_N: the number of encoder and decoder layers in the transformer model
 transformer_loss_smoothing: the soothing factor in KL divergance loss calculation
 transformer_opt_factor: the NoamOpt scheduler learning rate multiplicatin factor
 transformer_opt_warmup: the number of NoamOpt scheduler warmup steps
+share_all_embeddings: the flag indicating the embeddings are required to be shared in encoder/decoder modules
 
 n_epochs: number of iterations over the all of training data 
 init_optim: the optimizer with which model is initialized [normally for just a few iterations] 
@@ -129,7 +134,12 @@ val_slices: number of expected validations in one epoch
 lr_decay_patience_steps: number of patience validation slices after which the learning rate scheduler will decay the learning rate
 lr_decay_factor: the learning rate decay factor which is being used by the learning rate scheduler
 lr_decay_threshold: the improvement threshold in validation bleu score below which will be a decay indicator signal to the learning rate scheduler
-lr_decay_min: min value of learning rate which the decayed learning rate might approach 
+lr_decay_min: min value of learning rate which the decayed learning rate might approach
+update_freq: a non-negative integer indicating the number of batches, the gradient of which are accumulated before calling optimizer.step() [for more details see https://arxiv.org/pdf/1806.00187.pdf]
+
+beam_size: the size of each bucket considered in beam search
+beam_search_length_norm_factor: the length normalization factor in beam search based on Google's NMT system paper [https://arxiv.org/pdf/1609.08144.pdf]
+beam_search_coverage_penalty_factor: the coverage penalty factor in beam search based on Google's NMT system paper [https://arxiv.org/pdf/1609.08144.pdf] 
 checkpoint_name: the name of the checkpoint which is being saved/loaded  
 ```
 

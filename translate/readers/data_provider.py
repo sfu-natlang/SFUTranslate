@@ -40,14 +40,14 @@ for test in test_list:
 SRC.build_vocab(train, max_size=int(cfg.max_vocab_src), min_freq=int(cfg.min_freq_src),
                 specials=[cfg.bos_token, cfg.eos_token])
 TGT.build_vocab(train, max_size=int(cfg.max_vocab_tgt), min_freq=int(cfg.min_freq_tgt))
+print("Unique tokens in source ({}) vocabulary: {}".format(src_lan, len(SRC.vocab)))
+print("Unique tokens in target ({}) vocabulary: {}".format(tgt_lan, len(TGT.vocab)))
 if cfg.share_vocabulary:
+    print("Vocabulary sharing requested, merging the vocabulary")
     SRC.vocab.extend(TGT.vocab)
     TGT.vocab = SRC.vocab
     assert len(SRC.vocab) == len(TGT.vocab)
     print("Unique tokens in shared ({}-{}) vocabulary: {}".format(src_lan, tgt_lan, len(SRC.vocab)))
-else:
-    print("Unique tokens in source ({}) vocabulary: {}".format(src_lan, len(SRC.vocab)))
-    print("Unique tokens in target ({}) vocabulary: {}".format(tgt_lan, len(TGT.vocab)))
 
 if cfg.extract_unk_stats:
     m_unk_token = "\u26F6"

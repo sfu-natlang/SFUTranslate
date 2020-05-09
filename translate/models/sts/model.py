@@ -22,7 +22,7 @@ class STS(nn.Module):
         # You may create the loss computation object from any other type. The direct access through the model,
         # guarantees a minimal communication and memory overhead.
         self.criterion = nn.CrossEntropyLoss(ignore_index=TGT.vocab.stoi[cfg.pad_token], reduction='sum')
-
+        assert not cfg.share_all_embeddings, "Embedding sharing is not currently supported in STS model."
         # ##############################################################################################################
         self.bahdanau_attention = bool(cfg.bahdanau_attention)
         print("Creating the Seq2Seq Model with {} attention".format("Bahdanau" if self.bahdanau_attention else "Loung"))

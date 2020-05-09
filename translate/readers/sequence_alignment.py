@@ -1,3 +1,7 @@
+"""
+The implementation of a heuristic monotonic sequence to sequence aligner in cases aligning two different tokenization
+  sequences of the same sequence need to be aligned
+"""
 import unidecode
 
 

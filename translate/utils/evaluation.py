@@ -64,6 +64,10 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
     model.eval()
 
     def _get_next_line(file_1_iter, file_2_iter):
+        """
+        torchtext.data.BucketIterator ignores the parallel lines one side of which is an empty sequenece.
+        We need this function to keep our original files in par with torchtext approach.
+        """
         for l1, l2 in zip(file_1_iter, file_2_iter):
             l1 = l1.strip()
             l2 = l2.strip()

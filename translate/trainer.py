@@ -43,6 +43,7 @@ def main(model_name):
     if bool(cfg.debug_mode):
         evaluate(val_iter, TGT, model, src_val_file_address, tgt_val_file_address, "INIT")
     best_val_score = 0.0
+    assert cfg.update_freq > 0, "update_freq must be a non-negative integer"
     for epoch in range(int(cfg.n_epochs)):
         if epoch == int(cfg.init_epochs) and model_name == "sts":
             optimizer, scheduler = get_a_new_optimizer(cfg.optim, cfg.learning_rate, model.parameters())
@@ -61,13 +62,12 @@ def main(model_name):
             all_tokens_count += n_tokens
             all_perp += math.exp(itm / max(n_tokens, 1.0))
             batch_count += 1.0
-            assert cfg.update_freq > 0
             lss /= (max(decoded_length, 1) * cfg.update_freq)
             lss.backward()
             if grad_clip:
                 nn.utils.clip_grad_norm_(model.parameters(), float(cfg.max_grad_norm))
-            # scheduler.step()
             if ind % cfg.update_freq == 0:
+                """Implementation of gradient accumulation as suggested in https://arxiv.org/pdf/1806.00187.pdf"""
                 optimizer.step()
                 if not step_only_at_eval:
                     scheduler.step()

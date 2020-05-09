@@ -4,6 +4,8 @@ tgt_lang: en
 dataset_name: multi30k16
 dataset_is_in_bpe: false
 lowercase_data: true
+src_tokenizer: split
+tgt_tokenizer: split
 pad_token: <pad>
 bos_token: <bos>
 eos_token: <eos>
@@ -15,6 +17,7 @@ min_freq_src: 0
 max_vocab_tgt: 10000
 min_freq_tgt: 0
 extract_unk_stats: false
+share_vocabulary: false
 
 model_name: sts
 emb_dropout: 0.3
@@ -30,6 +33,7 @@ decoder_layers: 1
 decoder_dropout_rate: 0.1
 out_dropout: 0.2
 coverage_dropout: 0.2
+share_all_embeddings: false
 
 transformer_d_model: 0
 transformer_h: 0
@@ -60,6 +64,7 @@ lr_decay_patience_steps: 5
 lr_decay_factor: 0.9
 lr_decay_threshold: 0.1
 lr_decay_min: 0.00001
+update_freq: 1
 
 beam_size: 5
 beam_search_length_norm_factor: 0.65
