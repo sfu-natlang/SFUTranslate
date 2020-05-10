@@ -123,7 +123,8 @@ class WMT19DeEn(datasets.TranslationDataset):
 
         if path is None:
             path = cls.download(root)
-        print("    [torchtext] Loading train examples ...")
+        if train is not None:
+            print("    [torchtext] Loading train examples ...")
         train_data = None if train is None else cls(
             os.path.join(path, train), exts, fields, **kwargs)
         print("    [torchtext] Loading validation examples ...")
