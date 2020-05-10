@@ -32,18 +32,20 @@ class IWSLT(datasets.TranslationDataset):
         check = os.path.join(root, cls.name, cls.dirname)
         path = cls.download(root, check=check)
 
-        train = '.'.join([train, cls.dirname])
+        if train is not None:
+            train = '.'.join([train, cls.dirname])
         validation = '.'.join([validation, cls.dirname])
         tests = []
         if test_list is not None:
             for t in test_list:
                 tests.append('.'.join([t, cls.dirname]))
-
-        if not os.path.exists(os.path.join(path, train) + exts[0]):
-            cls.clean(path)
-        print("    [torchtext] Loading train examples ...")
-        train_data = None if train is None else cls(
-            os.path.join(path, train), exts, fields, **kwargs)
+        if train is not None:
+            if not os.path.exists(os.path.join(path, train) + exts[0]):
+                cls.clean(path)
+            print("    [torchtext] Loading train examples ...")
+            train_data = cls(os.path.join(path, train), exts, fields, **kwargs)
+        else:
+            train_data = None
         # Here is the line that have been added.
         if not debug_mode:
             kwargs['filter_pred'] = None
