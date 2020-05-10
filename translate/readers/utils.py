@@ -44,7 +44,7 @@ class MyIterator(data.Iterator):
                 self.batches.append(sorted(b, key=self.sort_key))
 
 
-def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, dev_data=None, test_data_list=None,
+def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_data, dev_data=None, test_data_list=None,
                 filter_for_max_length=True):
     if cfg.dataset_name == "multi30k16":
         print("Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]")

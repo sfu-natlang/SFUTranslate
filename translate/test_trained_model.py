@@ -1,7 +1,6 @@
 import torch
 from configuration import cfg, device
-from readers.data_provider import val_iter, src_val_file_address, tgt_val_file_address
-from readers.data_provider import test_iters, src_test_file_addresses, tgt_test_file_addresses
+from readers.data_provider import DataProvider
 from utils.evaluation import evaluate
 
 
@@ -13,10 +12,11 @@ def test_trained_model():
     model.beam_size = int(cfg.beam_size)
     model.beam_search_length_norm_factor = float(cfg.beam_search_length_norm_factor)
     model.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
-    # SRC = saved_obj['field_src']
+    SRC = saved_obj['field_src']
     TGT = saved_obj['field_tgt']
-    evaluate(val_iter, TGT, model, src_val_file_address, tgt_val_file_address, "VALID.{}".format(val_iter.dataset.name))
-    for test_iter, s, t in zip(test_iters, src_test_file_addresses, tgt_test_file_addresses):
+    dp = DataProvider(SRC, TGT, load_train_data=False)
+    evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, "VALID.{}".format(dp.val_iter.dataset.name))
+    for test_iter, s, t in zip(dp.test_iters, dp.src_test_file_addresses, dp.tgt_test_file_addresses):
         evaluate(test_iter, TGT, model, s, t, "TEST.{}".format(test_iter.dataset.name))
 
 

@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from tqdm import tqdm
 from configuration import cfg, device
-from readers.data_provider import train_iter, val_iter, src_val_file_address, tgt_val_file_address
+from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
 from models.transformer.model import Transformer
@@ -30,18 +30,18 @@ def create_transformer_model(SRC, TGT):
 
 
 def main(model_name):
-    from readers.data_provider import SRC, TGT
+    dp = DataProvider()
     if model_name == "sts":
-        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_sts_model(SRC, TGT)
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_sts_model(dp.SRC, dp.TGT)
     elif model_name == "transformer":
-        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(SRC, TGT)
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(dp.SRC, dp.TGT)
     else:
         raise ValueError("Model name {} is not defined.".format(model_name))
-    torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)
-    size_train = len([_ for _ in train_iter])
-    val_indices = [int(size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
+    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
+
+    val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
     if bool(cfg.debug_mode):
-        evaluate(val_iter, TGT, model, src_val_file_address, tgt_val_file_address, "INIT")
+        evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, "INIT")
     best_val_score = 0.0
     assert cfg.update_freq > 0, "update_freq must be a non-negative integer"
     for epoch in range(int(cfg.n_epochs)):
@@ -51,7 +51,7 @@ def main(model_name):
         batch_count = 0.0
         all_perp = 0.0
         all_tokens_count = 0.0
-        ds = tqdm(train_iter, total=size_train)
+        ds = tqdm(dp.train_iter, total=dp.size_train)
         optimizer.zero_grad()
         for ind, instance in enumerate(ds):
             if instance.src[0].size(0) < 2:
@@ -79,9 +79,9 @@ def main(model_name):
             else:
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}".format(epoch, all_loss / all_tokens_count))
             if ind in val_indices:
-                val_l, val_bleu = evaluate(val_iter, TGT, model, src_val_file_address, tgt_val_file_address, str(epoch))
+                val_l, val_bleu = evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, str(epoch))
                 if val_bleu > best_val_score:
-                    torch.save({'model': model, 'field_src': SRC, 'field_tgt': TGT}, cfg.checkpoint_name)
+                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
                     best_val_score = val_bleu
                 if step_only_at_eval:
                     scheduler.step(val_bleu)
@@ -93,7 +93,8 @@ def main(model_name):
         # it might not correctly overwrite the vocabulary objects
         SRC = saved_obj['field_src']
         TGT = saved_obj['field_tgt']
-    evaluate(val_iter, TGT, model, src_val_file_address, tgt_val_file_address, "LAST")
+        dp.replace_fields(SRC, TGT)
+    evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, "LAST")
 
 
 if __name__ == "__main__":
