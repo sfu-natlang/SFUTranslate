@@ -10,6 +10,7 @@ __pycache__/
 .Python
 .idea/
 translate/.data/
+translate/.output/
 env/
 build/
 develop-eggs/

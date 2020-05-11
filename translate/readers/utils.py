@@ -55,6 +55,8 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_d
             val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                              fields=(SRC, TGT), train=None)
             train = None
+        val.name = "multi30k.dev"
+        test.name = "multi30k.test"
         test = [test]
         src_val_file_address = ".data/multi30k/val.{}".format(src_lan)
         tgt_val_file_address = ".data/multi30k/val.{}".format(tgt_lan)

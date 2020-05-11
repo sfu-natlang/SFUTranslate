@@ -1,6 +1,7 @@
 import string
 import random
 import torch
+import os
 from torch import nn
 from torchtext import data
 import sacrebleu
@@ -58,10 +59,17 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
     return detokenizer.detokenize(result)
 
 
-def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
-             src_file: str, gold_tgt_file: str, eph: str):
+def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, src_file: str, gold_tgt_file: str,
+             eph: str, save_decoded_sentences: bool = False, output_dir: str = '.output'):
     print("Evaluation ....")
     model.eval()
+    result_file = None
+    if save_decoded_sentences:
+        print("Storing decoding results for {}".format(data_iter.dataset.name))
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+        output_path = os.path.join(output_dir, data_iter.dataset.name)
+        result_file = open(output_path, "w")
 
     def _get_next_line(file_1_iter, file_2_iter):
         """
@@ -102,6 +110,8 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module,
                 if cfg.tgt_tokenizer == "pre_trained":
                     decoded = decoded.replace(" ##", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
+                if save_decoded_sentences:
+                    result_file.write(decoded+"\n")
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:
                     random_sample_created = True
