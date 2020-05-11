@@ -69,7 +69,7 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
         output_path = os.path.join(output_dir, data_iter.dataset.name)
-        result_file = open(output_path, "w")
+        result_file = open(output_path, "w", encoding='utf-8')
 
     def _get_next_line(file_1_iter, file_2_iter):
         """
@@ -111,7 +111,7 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
                     decoded = decoded.replace(" ##", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 if save_decoded_sentences:
-                    result_file.write(decoded.encode("utf-8")+"\n")
+                    result_file.write(decoded+"\n")
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:
                     random_sample_created = True
@@ -129,5 +129,7 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
         average_bleu = all_bleu_score / max(sent_count, 1)
         print("E {} ::: Average Loss {:.3f} ::: Average BleuP1 {:.3f}".format(eph, average_loss, average_bleu))
     model.train()
+    if save_decoded_sentences:
+        result_file.close()
     return average_loss, average_bleu
 
