@@ -38,28 +38,25 @@ def convert_target_batch_back(btch, TGT):
 
 
 def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
+    replacement_pairs = [("& apos;", "\'"), (" - ", "-"), (" / ", "/"), ("a. m.", "a.m."), ("p. m.", "p.m."),
+                         ("i. e.", "i.e."), ("& quot;", "\"")]
     if attention_scores is None:
-        decoded = detokenizer.detokenize(decoded_sentence.split())
-        # TODO refactor this
-        if bool(cfg.dataset_is_in_bpe):
-            decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
-        if cfg.tgt_tokenizer == "pre_trained":
-            decoded = decoded.replace(" ##", "")
-        return decoded
-    source_sentence_tokenized = src_tokenizer(input_sentence)
-    max_input_sentence_length = len(source_sentence_tokenized)
-    max_decode_length = attention_scores.size(0)
-    decoded_sentence_tokens = decoded_sentence.split()
-    result = []
-    for tgt_id, tgt_token in enumerate(decoded_sentence_tokens):
-        if tgt_token == cfg.unk_token and tgt_id < max_decode_length:
-            input_sentence_id = int(attention_scores[tgt_id].item())
-            if input_sentence_id < max_input_sentence_length:
-                lex = source_sentence_tokenized[input_sentence_id]
-                # TODO try lexical translation first
-                result.append(lex)
-                continue
-        result.append(tgt_token)
+        result = decoded_sentence.split()
+    else:
+        source_sentence_tokenized = src_tokenizer(input_sentence)
+        max_input_sentence_length = len(source_sentence_tokenized)
+        max_decode_length = attention_scores.size(0)
+        decoded_sentence_tokens = decoded_sentence.split()
+        result = []
+        for tgt_id, tgt_token in enumerate(decoded_sentence_tokens):
+            if tgt_token == cfg.unk_token and tgt_id < max_decode_length:
+                input_sentence_id = int(attention_scores[tgt_id].item())
+                if input_sentence_id < max_input_sentence_length:
+                    lex = source_sentence_tokenized[input_sentence_id]
+                    # TODO try lexical translation first
+                    result.append(lex)
+                    continue
+            result.append(tgt_token)
     # Naive detokenization
     # return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in result]).strip()
     decoded = detokenizer.detokenize(result)
@@ -67,6 +64,8 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
         decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
     if cfg.tgt_tokenizer == "pre_trained":
         decoded = decoded.replace(" ##", "")
+    for r_pair in replacement_pairs:
+        decoded = decoded.replace(r_pair[0], r_pair[1])
     return decoded
 
 
