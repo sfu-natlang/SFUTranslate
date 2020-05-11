@@ -111,7 +111,7 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
                     decoded = decoded.replace(" ##", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 if save_decoded_sentences:
-                    result_file.write(decoded+"\n")
+                    result_file.write(decoded.encode("utf-8")+"\n")
                 sent_count += 1.0
                 if not random_sample_created and random.random() < 0.01:
                     random_sample_created = True
