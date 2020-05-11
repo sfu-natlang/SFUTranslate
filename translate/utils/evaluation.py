@@ -39,7 +39,13 @@ def convert_target_batch_back(btch, TGT):
 
 def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
     if attention_scores is None:
-        return detokenizer.detokenize(decoded_sentence.split())
+        decoded = detokenizer.detokenize(decoded_sentence.split())
+        # TODO refactor this
+        if bool(cfg.dataset_is_in_bpe):
+            decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
+        if cfg.tgt_tokenizer == "pre_trained":
+            decoded = decoded.replace(" ##", "")
+        return decoded
     source_sentence_tokenized = src_tokenizer(input_sentence)
     max_input_sentence_length = len(source_sentence_tokenized)
     max_decode_length = attention_scores.size(0)
@@ -85,6 +91,8 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
             l1 = l1.strip()
             l2 = l2.strip()
             if not len(l1) or not len(l2):
+                if save_decoded_sentences:
+                    result_file.write("\n")
                 continue
             yield l1, l2
 
