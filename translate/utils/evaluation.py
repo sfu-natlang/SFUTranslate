@@ -56,7 +56,12 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
         result.append(tgt_token)
     # Naive detokenization
     # return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in result]).strip()
-    return detokenizer.detokenize(result)
+    decoded = detokenizer.detokenize(result)
+    if bool(cfg.dataset_is_in_bpe):
+        decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
+    if cfg.tgt_tokenizer == "pre_trained":
+        decoded = decoded.replace(" ##", "")
+    return decoded
 
 
 def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, src_file: str, gold_tgt_file: str,
@@ -104,11 +109,6 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
                     reference_sentence = reference_sentence.lower()
                 decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id)
                                               if max_attention_idcs is not None else None)
-                if bool(cfg.dataset_is_in_bpe):
-                    decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
-                    reference_sentence = reference_sentence.replace("@@ ", "").replace(" @-@ ", "-")
-                if cfg.tgt_tokenizer == "pre_trained":
-                    decoded = decoded.replace(" ##", "")
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 if save_decoded_sentences:
                     result_file.write(decoded+"\n")
