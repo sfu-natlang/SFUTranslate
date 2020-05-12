@@ -1,6 +1,6 @@
 from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
-from readers.utils import batch_size_fn, get_dataset, collect_unk_stats, MyIterator
+from readers.utils import batch_size_fn, get_dataset, collect_unk_stats, MyIterator, extract_exclusive_immediate_neighbours
 from readers.tokenizers import get_tokenizer_from_configs
 
 src_tokenizer_obj = get_tokenizer_from_configs(cfg.src_tokenizer, src_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
@@ -53,6 +53,8 @@ class DataProvider:
             print("Unique tokens in shared ({}-{}) vocabulary: {}".format(src_lan, tgt_lan, len(SRC.vocab)))
         self.TGT = TGT
         self.SRC = SRC
+        self.ei_before_hyphen_list, self.ei_after_hyphen_list = extract_exclusive_immediate_neighbours(
+            self.tgt_train_file_address, "-", cfg.dataset_is_in_bpe)
         if cfg.extract_unk_stats:
             m_unk_token = "\u26F6"
             src_unk_token = m_unk_token

@@ -5,11 +5,9 @@ import os
 from torch import nn
 from torchtext import data
 import sacrebleu
-from sacremoses import MosesDetokenizer
 from configuration import cfg
-from readers.data_provider import src_tokenizer
-
-detokenizer = MosesDetokenizer(lang=cfg.tgt_lang)
+from readers.data_provider import DataProvider, src_tokenizer
+from readers.detokenizers import detokenize
 
 
 def convert_target_batch_back(btch, TGT):
@@ -37,9 +35,7 @@ def convert_target_batch_back(btch, TGT):
     #                  for w in range(s_len) if btch[w, b] not in non_desired__ids]) for b in range(batch_size)]
 
 
-def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
-    replacement_pairs = [("& apos;", "\'"), (" - ", "-"), (" / ", "/"), ("a. m.", "a.m."), ("p. m.", "p.m."),
-                         ("i. e.", "i.e."), ("& quot;", "\"")]
+def postprocess_decoded(decoded_sentence, input_sentence, attention_scores, dp):
     if attention_scores is None:
         result = decoded_sentence.split()
     else:
@@ -57,19 +53,10 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
                     result.append(lex)
                     continue
             result.append(tgt_token)
-    # Naive detokenization
-    # return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in result]).strip()
-    decoded = detokenizer.detokenize(result)
-    if bool(cfg.dataset_is_in_bpe):
-        decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
-    if cfg.tgt_tokenizer == "pre_trained":
-        decoded = decoded.replace(" ##", "")
-    for r_pair in replacement_pairs:
-        decoded = decoded.replace(r_pair[0], r_pair[1])
-    return decoded
+    return detokenize(result, dp)
 
 
-def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, src_file: str, gold_tgt_file: str,
+def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str,
              eph: str, save_decoded_sentences: bool = False, output_dir: str = '.output'):
     print("Evaluation ....")
     model.eval()
@@ -109,13 +96,13 @@ def evaluate(data_iter: data.BucketIterator, TGT: data.field, model: nn.Module, 
             lall_valid += lss.item()
             lcount_valid += n_tokens
             for d_id, (decoded, model_expected) in enumerate(zip(
-                    convert_target_batch_back(pred, TGT), convert_target_batch_back(valid_instance.trg[0], TGT))):
+                    convert_target_batch_back(pred, dp.TGT), convert_target_batch_back(valid_instance.trg[0], dp.TGT))):
                 source_sentence, reference_sentence = next(originals)
                 if bool(cfg.lowercase_data):
                     source_sentence = source_sentence.lower()
                     reference_sentence = reference_sentence.lower()
                 decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id)
-                                              if max_attention_idcs is not None else None)
+                                              if max_attention_idcs is not None else None, dp)
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 if save_decoded_sentences:
                     result_file.write(decoded+"\n")

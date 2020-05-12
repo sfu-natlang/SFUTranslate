@@ -185,3 +185,35 @@ def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_na
         sum(src_unk_cnt.values())) * 100.0 / sum(src_cnt.values())))
     print("UNK percentage of target vocabulary tokens over {} data: {:.2f}% ".format(dataset_name, float(
         sum(trg_unk_cnt.values())) * 100.0 / sum(trg_cnt.values())))
+
+
+def extract_exclusive_immediate_neighbours(data_file, dtoken="-", file_is_in_bpe=False, consider_intersect_as_well=False):
+    """
+    given a :param data_file: , this function looks through the tokens of each line and extracts the list of tokens that
+      have strictly been seen before or after :param dtoken: but not in a single token with it.
+    """
+    info = {"inside": {"before": set(), "after": set()}, "separate": {"before": set(), "after": set()}}
+    for f_line in open(data_file, "r", encoding="utf-8"):
+        if file_is_in_bpe:  # recover the original sentence
+            f_line = f_line.replace("@@ ", "").replace(" @-@ ", "-").lower()
+        if dtoken not in f_line:
+            continue
+        ls = f_line.split()
+        for tind, t in enumerate(ls):  # look at each of the tokens
+            if dtoken == t:
+                if tind > 0:
+                    info["separate"]["before"].add(ls[tind-1])
+                if tind < len(ls)-1:
+                    info["separate"]["after"].add(ls[tind+1])
+            elif dtoken in t:
+                ws = t.split("-")
+                for w_ind in range(len(ws)-1):
+                    info["inside"]["before"].add(ws[w_ind])
+                    info["inside"]["after"].add(ws[w_ind+1])
+    if consider_intersect_as_well:
+        befores = [k for k in info["separate"]["before"]]
+        afters = [k for k in info["separate"]["after"]]
+    else:
+        befores = [k for k in info["separate"]["before"] if k not in info["inside"]["before"]]
+        afters = [k for k in info["separate"]["after"] if k not in info["inside"]["after"]]
+    return befores, afters

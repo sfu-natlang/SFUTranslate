@@ -15,10 +15,10 @@ def test_trained_model():
     SRC = saved_obj['field_src']
     TGT = saved_obj['field_tgt']
     dp = DataProvider(SRC, TGT, load_train_data=False)
-    evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address,
+    evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address,
              "VALID.{}".format(dp.val_iter.dataset.name), save_decoded_sentences=True)
     for test_iter, s, t in zip(dp.test_iters, dp.src_test_file_addresses, dp.tgt_test_file_addresses):
-        evaluate(test_iter, TGT, model, s, t, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True)
+        evaluate(test_iter, dp, model, s, t, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True)
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@ def main(model_name):
 
     val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
     if bool(cfg.debug_mode):
-        evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, "INIT")
+        evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, "INIT")
     best_val_score = 0.0
     assert cfg.update_freq > 0, "update_freq must be a non-negative integer"
     for epoch in range(int(cfg.n_epochs)):
@@ -79,7 +79,7 @@ def main(model_name):
             else:
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}".format(epoch, all_loss / all_tokens_count))
             if ind in val_indices:
-                val_l, val_bleu = evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, str(epoch))
+                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, str(epoch))
                 if val_bleu > best_val_score:
                     torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
                     best_val_score = val_bleu
@@ -94,7 +94,7 @@ def main(model_name):
         SRC = saved_obj['field_src']
         TGT = saved_obj['field_tgt']
         dp.replace_fields(SRC, TGT)
-    evaluate(dp.val_iter, dp.TGT, model, dp.src_val_file_address, dp.tgt_val_file_address, "LAST")
+    evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, "LAST")
 
 
 if __name__ == "__main__":
