@@ -99,13 +99,13 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_d
         if load_train_data:
             train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                  fields=(SRC, TGT), train=train_data,
-                                                 validation="valid" if dev_data == "valid" else '{}-ende.bpe'.format(dev_data),
-                                                 test_list=['{}-ende.bpe'.format(test_data) for test_data in test_data_list])
+                                                 validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
+                                                 test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
         else:
             val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                           fields=(SRC, TGT), train=None,
-                                          validation="valid" if dev_data == "valid" else '{}-ende.bpe'.format(dev_data),
-                                          test_list=['{}-ende.bpe'.format(test_data) for test_data in test_data_list])
+                                          validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
+                                          test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
             train = None
         if dev_data == "valid":
             src_val_file_address = ".data/wmt19_en_de/valid.{}".format(src_lan)
