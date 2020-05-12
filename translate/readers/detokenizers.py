@@ -66,13 +66,22 @@ def detokenize(tokenized_list, dp):
     :param dp: the Dataprovider object which contains the dataset information
     :return: a unique detokenized str
     """
-    decoded = detokenizer.detokenize(tokenized_list)
-    if bool(cfg.dataset_is_in_bpe):
-        decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
     if cfg.tgt_tokenizer == "pre_trained":
-        decoded = decoded.replace(" ##", "")
-    for r_pair in replacement_pairs:
-        decoded = decoded.replace(r_pair[0], r_pair[1])
-    return _modify_hyphen_quote_apos(decoded, dp)
+        result = []
+        for token in tokenized_list:
+            if len(result) and token.startswith("##"):
+                result[-1] = result[-1] + token[2:]
+            else:
+                result.append(token)
+    else:
+        result = tokenized_list
+    return detokenizer.detokenize(result)
+    # if bool(cfg.dataset_is_in_bpe):
+    #    decoded = decoded.replace("@@ ", "").replace(" @-@ ", "-")
+    #if cfg.tgt_tokenizer == "pre_trained":
+    #    decoded = decoded.replace(" ##", "")
+    #for r_pair in replacement_pairs:
+    #    decoded = decoded.replace(r_pair[0], r_pair[1])
+    #return _modify_hyphen_quote_apos(decoded, dp)
     # Naive detokenization
     # return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in result]).strip()

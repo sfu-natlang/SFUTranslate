@@ -5,7 +5,7 @@ dataset_name: wmt19_de_en
 dataset_is_in_bpe: true
 lowercase_data: true
 src_tokenizer: pre_trained
-tgt_tokenizer: pre_trained
+tgt_tokenizer: moses
 pad_token: <pad>
 bos_token: <bos>
 eos_token: <eos>

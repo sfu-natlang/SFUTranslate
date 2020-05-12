@@ -4,6 +4,8 @@ Implementation of different tokenizers to be used by the data provider. The pre-
     in each supported language.
 """
 from tokenizers import BertWordPieceTokenizer
+from sacremoses import MosesPunctNormalizer
+from sacremoses import MosesTokenizer
 from requests import get
 import spacy
 import os
@@ -45,6 +47,7 @@ class PreTrainedTokenizer:
             with open(f_name, "wb") as file_:
                 response = get(url)
                 file_.write(response.content)
+        self.mpn = MosesPunctNormalizer()
         self.tokenizer = BertWordPieceTokenizer(f_name, clean_text=clean_text, lowercase=lowercase,
                                                 handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
 
@@ -54,7 +57,8 @@ class PreTrainedTokenizer:
         :param text: one line of text in type of str
         :return a list of tokenized "str"s
         """
-        encoding = self.tokenizer.encode(text, add_special_tokens=False) # results contains "ids", "tokens", and "offsets"
+        encoding = self.tokenizer.encode(self.mpn.normalize(text), add_special_tokens=False)
+        # encoding contains "ids", "tokens", and "offsets"
         return encoding.tokens
 
     def decode(self, encoded_ids_list):
@@ -92,9 +96,10 @@ class SpacyTokenizer:
     """
     def __init__(self, tokeniztion_lang):
         self.tokenizer = spacy.load(tokeniztion_lang)
+        self.mpn = MosesPunctNormalizer()
 
     def tokenize(self, text):
-        return [tok.text for tok in self.tokenizer.tokenizer(text)]
+        return [tok.text for tok in self.tokenizer.tokenizer(self.mpn.normalize(text))]
 
 
 class SplitTokenizer:
@@ -106,6 +111,18 @@ class SplitTokenizer:
         return text.split()
 
 
+class PyMosesTokenizer:
+    """
+    The call to standard moses tokenizer
+    """
+    def __init__(self, lang):
+        self.mpn = MosesPunctNormalizer()
+        self.tokenizer = MosesTokenizer(lang=lang)
+
+    def tokenize(self, text):
+        return self.tokenizer.tokenize(self.mpn.normalize(text))
+
+
 def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
     """
     A stand-alone function which will create and return the proper tokenizer object given requested configs
@@ -113,6 +130,8 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
     print("Loading tokenizer of type {} for {} language".format(tokenizer_name, lang))
     if tokenizer_name == "spacy":
         return SpacyTokenizer(lang)
+    elif tokenizer_name == "moses":
+        return PyMosesTokenizer(lang)
     elif tokenizer_name == "split" or bool(debug_mode):
         return SplitTokenizer()
     elif tokenizer_name == "pre_trained":

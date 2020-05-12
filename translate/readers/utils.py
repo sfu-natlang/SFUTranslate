@@ -95,7 +95,7 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_d
         # TODO support cfg.max_sequence_length / filter_for_max_length
         dev_data = dev_data if dev_data is not None else "valid"
         test_data_list = test_data_list if test_data_list is not None else ["newstest201{}".format(i) for i in range(4, 10)]
-        train_data = 'train.small' if cfg.dataset_name == "wmt19_de_en_small" else "train"
+        train_data = "train"
         if load_train_data:
             train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                  fields=(SRC, TGT), train=train_data,
@@ -108,14 +108,14 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_d
                                           test_list=['{}-ende.bpe'.format(test_data) for test_data in test_data_list])
             train = None
         if dev_data == "valid":
-            src_val_file_address = ".data/wmt19_en_de/valid-original.{}".format(src_lan)
-            tgt_val_file_address = ".data/wmt19_en_de/valid-original.{}".format(tgt_lan)
+            src_val_file_address = ".data/wmt19_en_de/valid.{}".format(src_lan)
+            tgt_val_file_address = ".data/wmt19_en_de/valid.{}".format(tgt_lan)
         else:
-            src_val_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(dev_data, src_lan)
-            tgt_val_file_address = ".data/wmt19_en_de/{}-original-ende.{}".format(dev_data, tgt_lan)
-        src_test_file_address = [".data/wmt19_en_de/{}-original-ende.{}".format(
+            src_val_file_address = ".data/wmt19_en_de/{}-ende.{}".format(dev_data, src_lan)
+            tgt_val_file_address = ".data/wmt19_en_de/{}-ende.{}".format(dev_data, tgt_lan)
+        src_test_file_address = [".data/wmt19_en_de/{}-ende.{}".format(
             test_data, src_lan) for test_data in test_data_list]
-        tgt_test_file_address = [".data/wmt19_en_de/{}-original-ende.{}".format(
+        tgt_test_file_address = [".data/wmt19_en_de/{}-ende.{}".format(
             test_data, tgt_lan) for test_data in test_data_list]
         src_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, src_lan)
         tgt_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, tgt_lan)

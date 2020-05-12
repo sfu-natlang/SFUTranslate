@@ -90,7 +90,7 @@ class WMT19DeEn(datasets.TranslationDataset):
     https://drive.google.com/open?id=1rYNpc2VNXXGINPLd2CZvH3lf_w19O8-r"""
 
     urls = [('https://drive.google.com/uc?export=download&'
-             'id=12jrFuMNQ9Ev6MNf-16a4DG5kK34pZ7rJ', 'wmt19_en_de_n.zip')]
+             'id=1miCyP1Vdoi6QsGoKSWhNgxbPVmSSs3Rt', 'wmt19_en_de_raw.zip')]
     name = 'wmt19_en_de'
     dirname = ''
 
