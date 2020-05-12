@@ -187,15 +187,15 @@ def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_na
         sum(trg_unk_cnt.values())) * 100.0 / sum(trg_cnt.values())))
 
 
-def extract_exclusive_immediate_neighbours(data_file, dtoken="-", file_is_in_bpe=False, consider_intersect_as_well=False):
+def extract_exclusive_immediate_neighbours(data_file, dtoken="-", to_lower=False, consider_intersect_as_well=False):
     """
     given a :param data_file: , this function looks through the tokens of each line and extracts the list of tokens that
       have strictly been seen before or after :param dtoken: but not in a single token with it.
     """
     info = {"inside": {"before": set(), "after": set()}, "separate": {"before": set(), "after": set()}}
     for f_line in open(data_file, "r", encoding="utf-8"):
-        if file_is_in_bpe:  # recover the original sentence
-            f_line = f_line.replace("@@ ", "").replace(" @-@ ", "-").lower()
+        if to_lower:  # recover the original sentence
+            f_line = f_line.lower()
         if dtoken not in f_line:
             continue
         ls = f_line.split()

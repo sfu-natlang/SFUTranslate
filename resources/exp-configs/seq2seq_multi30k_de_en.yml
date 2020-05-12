@@ -2,7 +2,6 @@ debug_mode: false
 src_lang: de
 tgt_lang: en
 dataset_name: multi30k16
-dataset_is_in_bpe: false
 lowercase_data: true
 src_tokenizer: spacy
 tgt_tokenizer: spacy

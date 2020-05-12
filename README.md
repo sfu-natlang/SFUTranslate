@@ -71,7 +71,6 @@ debug_mode: [true/false] if true spacy tokenizer is deactivated and Multi30k dat
 src_lang: the bi-letter language identifier for source langugage
 tgt_lang: the bi-letter language identifier for target langugage
 dataset_name: the name of the torchtext datasetname
-dataset_is_in_bpe: indicates whether the input text files have already be converted to bpe format (which needs recovery for comparison use cases)
 lowercase_data: [true/false] whether the dataset setences need to be lowercased or not
 src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "split"|"spacy"|"pre_trained"] 
 tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "split"|"spacy"|"pre_trained"]

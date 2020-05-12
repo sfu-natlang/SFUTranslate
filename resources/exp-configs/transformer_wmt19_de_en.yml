@@ -2,7 +2,6 @@ debug_mode: false
 src_lang: de
 tgt_lang: en
 dataset_name: wmt19_de_en
-dataset_is_in_bpe: true
 lowercase_data: true
 src_tokenizer: pre_trained
 tgt_tokenizer: moses

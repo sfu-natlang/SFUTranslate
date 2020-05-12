@@ -5,9 +5,11 @@ import os
 from torch import nn
 from torchtext import data
 import sacrebleu
+from sacremoses import MosesDetokenizer
 from configuration import cfg
 from readers.data_provider import DataProvider, src_tokenizer
-from readers.detokenizers import detokenize
+
+detokenizer = MosesDetokenizer(lang=cfg.tgt_lang)
 
 
 def convert_target_batch_back(btch, TGT):
@@ -35,7 +37,7 @@ def convert_target_batch_back(btch, TGT):
     #                  for w in range(s_len) if btch[w, b] not in non_desired__ids]) for b in range(batch_size)]
 
 
-def postprocess_decoded(decoded_sentence, input_sentence, attention_scores, dp):
+def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
     if attention_scores is None:
         result = decoded_sentence.split()
     else:
@@ -53,7 +55,16 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores, dp):
                     result.append(lex)
                     continue
             result.append(tgt_token)
-    return detokenize(result, dp)
+    if cfg.tgt_tokenizer == "pre_trained":
+        temp_result = []
+        for token in result:
+            if len(temp_result) and token.startswith("##"):
+                temp_result[-1] = temp_result[-1] + token[2:]
+            else:
+                temp_result.append(token)
+    else:
+        temp_result = result
+    return detokenizer.detokenize(temp_result)
 
 
 def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str,
@@ -102,7 +113,7 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
                     source_sentence = source_sentence.lower()
                     reference_sentence = reference_sentence.lower()
                 decoded = postprocess_decoded(decoded, source_sentence, max_attention_idcs.select(1, d_id)
-                                              if max_attention_idcs is not None else None, dp)
+                                              if max_attention_idcs is not None else None)
                 all_bleu_score += sacrebleu.corpus_bleu([decoded], [[reference_sentence]]).score
                 if save_decoded_sentences:
                     result_file.write(decoded+"\n")

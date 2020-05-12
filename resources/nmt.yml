@@ -2,7 +2,6 @@ debug_mode: true
 src_lang: de
 tgt_lang: en
 dataset_name: multi30k16
-dataset_is_in_bpe: false
 lowercase_data: true
 src_tokenizer: split
 tgt_tokenizer: split

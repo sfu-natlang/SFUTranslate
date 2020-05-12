@@ -8,11 +8,11 @@ tgt_tokenizer_obj = get_tokenizer_from_configs(cfg.tgt_tokenizer, tgt_lan, cfg.l
 
 
 def src_tokenizer(text):
-    return src_tokenizer_obj.tokenize(text if cfg.src_tokenizer != "pre_trained" or not cfg.dataset_is_in_bpe else text.replace("@@ ", "").replace(" @-@ ", "-"))
+    return src_tokenizer_obj.tokenize(text)
 
 
 def tgt_tokenizer(text):
-    return tgt_tokenizer_obj.tokenize(text if cfg.tgt_tokenizer != "pre_trained" or not cfg.dataset_is_in_bpe else text.replace("@@ ", "").replace(" @-@ ", "-"))
+    return tgt_tokenizer_obj.tokenize(text)
 
 
 global max_src_in_batch, max_tgt_in_batch
@@ -53,8 +53,6 @@ class DataProvider:
             print("Unique tokens in shared ({}-{}) vocabulary: {}".format(src_lan, tgt_lan, len(SRC.vocab)))
         self.TGT = TGT
         self.SRC = SRC
-        self.ei_before_hyphen_list, self.ei_after_hyphen_list = extract_exclusive_immediate_neighbours(
-            self.tgt_train_file_address, "-", cfg.dataset_is_in_bpe)
         if cfg.extract_unk_stats:
             m_unk_token = "\u26F6"
             src_unk_token = m_unk_token
