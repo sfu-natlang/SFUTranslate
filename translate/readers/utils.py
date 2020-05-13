@@ -92,21 +92,26 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_d
         src_train_file_address = ".data/iwslt/de-en/train.de-en.{}".format(src_lan)
         tgt_train_file_address = ".data/iwslt/de-en/train.de-en.{}".format(tgt_lan)
     elif cfg.dataset_name == "wmt19_de_en" or cfg.dataset_name == "wmt19_de_en_small":
-        # TODO support cfg.max_sequence_length / filter_for_max_length
         dev_data = dev_data if dev_data is not None else "valid"
         test_data_list = test_data_list if test_data_list is not None else ["newstest201{}".format(i) for i in range(4, 10)]
         train_data = "train"
-        if load_train_data:
-            train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                                 fields=(SRC, TGT), train=train_data,
-                                                 validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                                                 test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
-        else:
+        if not load_train_data:
             val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                           fields=(SRC, TGT), train=None,
                                           validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
                                           test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
             train = None
+        elif filter_for_max_length:
+            train, val, *test = WMT19DeEn.splits(
+                filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
+                    vars(x)['trg']) <= cfg.max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                fields=(SRC, TGT), train=train_data, validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
+                test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
+        else:
+            train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
+                                                 fields=(SRC, TGT), train=train_data,
+                                                 validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
+                                                 test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
         if dev_data == "valid":
             src_val_file_address = ".data/wmt19_en_de/valid.{}".format(src_lan)
             tgt_val_file_address = ".data/wmt19_en_de/valid.{}".format(tgt_lan)

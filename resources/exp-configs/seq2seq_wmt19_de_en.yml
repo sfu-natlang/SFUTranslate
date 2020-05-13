@@ -10,7 +10,7 @@ bos_token: <bos>
 eos_token: <eos>
 unk_token: <unk>
 propn_token: <propn>
-max_sequence_length: 80
+max_sequence_length: 250
 max_vocab_src: 50000
 min_freq_src: 0
 max_vocab_tgt: 50000

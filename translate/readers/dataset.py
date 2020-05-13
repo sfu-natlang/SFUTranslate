@@ -127,6 +127,7 @@ class WMT19DeEn(datasets.TranslationDataset):
             print("    [torchtext] Loading train examples ...")
         train_data = None if train is None else cls(
             os.path.join(path, train), exts, fields, **kwargs)
+        kwargs['filter_pred'] = None
         print("    [torchtext] Loading validation examples ...")
         val_data = None if validation is None else cls(
             os.path.join(path, validation), exts, fields, **kwargs)
