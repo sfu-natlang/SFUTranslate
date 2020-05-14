@@ -3,6 +3,8 @@ Implementation of different tokenizers to be used by the data provider. The pre-
   the pre-trained vocabulary files distributed by huggingface.tokenizers which are trained over big corpora
     in each supported language.
 """
+import spacy
+from spacy.tokenizer import Tokenizer
 from tokenizers import BertWordPieceTokenizer
 from sacremoses import MosesPunctNormalizer, MosesTokenizer, MosesDetokenizer
 from requests import get
@@ -176,9 +178,61 @@ class PTBertTokenizer:
         # WARNING! this is a one way tokenizer, the detokenized sentences do not necessarily align with the actual tokenized sentences!
         return self.tokenizer.decode(self.tokenizer.convert_tokens_to_ids(tokenized_list))
 
+    @staticmethod
+    def get_default_model_name(lang, lowercase):
+        return PreTrainedTokenizer.get_default_model_name(lang, lowercase)
+
     @property
     def model_name(self):
         return self._model_name_
+
+
+class SpacyTokenizer:
+    """
+    The very basic tokenizer mainly for debugging purposes
+    """
+    def __init__(self, lang):
+        pre_trained_model_name = self.get_default_model_name(lang)
+        self.tokenizer = spacy.load(pre_trained_model_name)
+        self._model_name_ = pre_trained_model_name
+
+    def tokenize(self, text):
+        return [token.text for token in self.tokenizer(text)]
+
+    @staticmethod
+    def detokenize(tokenized_list):
+        # TODO work on this
+        return " ".join(tokenized_list)
+
+    @property
+    def model_name(self):
+        return "Spacy"
+
+    def overwrite_tokenizer_with_split_tokenizer(self):
+        self.tokenizer.tokenizer = Tokenizer(self.tokenizer.vocab)
+
+    @staticmethod
+    def get_default_model_name(lang):
+        if lang == "en":
+            return "en_core_web_lg"
+        elif lang == "de":
+            return "de_core_news_md"
+        elif lang == "fr":
+            return "fr_core_news_md"
+        elif lang == "es":
+            return "es_core_news_md"
+        elif lang == "pt":
+            return "pt_core_news_sm"
+        elif lang == "it":
+            return "it_core_news_sm"
+        elif lang == "nl":
+            return "nl_core_news_sm"
+        elif lang == "el":
+            return "el_core_news_md"
+        elif lang == "lt":
+            return "lt_core_news_sm"
+        else:
+            raise ValueError("No pre-trained spacy tokenizer found for language {}".format(lang))
 
 
 def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
