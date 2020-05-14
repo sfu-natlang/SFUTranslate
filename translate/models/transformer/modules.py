@@ -9,7 +9,7 @@ from models.transformer.utils import clones, attention
 
 
 class MultiHeadedAttention(nn.Module):
-    def __init__(self, h, d_model, dropout=0.1):
+    def __init__(self, h, d_model, dropout=0.1, ling_emb_bridges=None):
         """
         Implements Figure 2 (right) of the paper (https://arxiv.org/pdf/1706.03762.pdf)
         """
@@ -21,8 +21,12 @@ class MultiHeadedAttention(nn.Module):
         self.linears = clones(nn.Linear(d_model, d_model), 4)
         self.attn = None
         self.dropout = nn.Dropout(p=dropout)
+        if ling_emb_bridges is not None:
+            self.ling_emb_bridges = ling_emb_bridges
+        else:
+            self.ling_emb_bridges = nn.ModuleList([])
 
-    def forward(self, query, key, value, mask=None):
+    def forward(self, query, key, value, mask=None, self_attention_key_list=()):
         """Implements Figure 2"""
         if mask is not None:
             # Same mask applied to all h heads.
@@ -32,6 +36,9 @@ class MultiHeadedAttention(nn.Module):
         # 1) Do all the linear projections in batch from d_model => h x d_k
         query, key, value = [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
                              for l, x in zip(self.linears, (query, key, value))]
+
+        for l_ind, (l, x) in enumerate(zip(self.ling_emb_bridges, self_attention_key_list)):
+            key[:, l_ind, :, :] = l(x)
 
         # 2) Apply attention on all the projected vectors in batch.
         x, self.attn = attention(query, key, value, mask=mask, dropout=self.dropout)
@@ -121,11 +128,11 @@ class EncoderLayer(nn.Module):
         self.sublayer = clones(SublayerConnection(size, dropout), 2)
         self.size = size
 
-    def forward(self, x, mask):
+    def forward(self, x, mask, self_attention_key_list=()):
         """
         Follow Figure 1 (left) for connections [https://arxiv.org/pdf/1706.03762.pdf]
         """
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
+        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask, self_attention_key_list))
         return self.sublayer[1](x, self.feed_forward)
 
 

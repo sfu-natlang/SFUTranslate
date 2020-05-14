@@ -6,7 +6,12 @@ from configuration import cfg, device
 from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
-from models.transformer.model import Transformer
+if bool(cfg.embed_src_with_bert) or bool(cfg.embed_src_with_ling_emb):
+    print("Loading Transformer with bert embeddings")
+    from models.transformer.model_bert_emb import Transformer
+else:
+    print("Loading Transformer without bert embeddings")
+    from models.transformer.model import Transformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate

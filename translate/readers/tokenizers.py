@@ -8,6 +8,10 @@ from sacremoses import MosesPunctNormalizer, MosesTokenizer, MosesDetokenizer
 from requests import get
 import os
 
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+from transformers import BertTokenizer
+
 
 class GenericTokenizer:
     """
@@ -21,6 +25,10 @@ class GenericTokenizer:
     def detokenize(tokenized_list):
         # TODO make it work
         return " ".join(tokenized_list)
+
+    @property
+    def model_name(self):
+        return "Generic"
 
 
 class PreTrainedTokenizer(GenericTokenizer):
@@ -50,6 +58,7 @@ class PreTrainedTokenizer(GenericTokenizer):
         Example instantiation: PreTrainedTokenizer("bert-base-uncased", root="../.data")
         """
         pre_trained_model_name = self.get_default_model_name(lang, lowercase)
+        self._model_name_ = pre_trained_model_name
         if not os.path.exists(root):
             os.mkdir(root)
         assert pre_trained_model_name in self.vocab_files, \
@@ -115,6 +124,10 @@ class PreTrainedTokenizer(GenericTokenizer):
             raise ValueError("No pre-trained tokenizer found for language {} in {} mode".format(
                 lang, "lowercased" if lowercase else "cased"))
 
+    @property
+    def model_name(self):
+        return self._model_name_
+
 
 class PyMosesTokenizer(GenericTokenizer):
     """
@@ -139,6 +152,34 @@ class PyMosesTokenizer(GenericTokenizer):
                 temp_result += token + " "
         return self.detokenizer.detokenize(temp_result.strip().split())
 
+    @property
+    def model_name(self):
+        return "Moses"
+
+
+class PTBertTokenizer:
+    """
+    The tokenizer pre-trained tokenizer trained alongside BERT by huggingface
+    """
+    def __init__(self, lang, lowercase=True):
+        # the tokenizer names are the same for BertTokenizer and PreTrainedTokenizer since they have both been distributed by huggingface
+        pre_trained_model_name = PreTrainedTokenizer.get_default_model_name(lang, lowercase)
+        self.tokenizer = BertTokenizer.from_pretrained(pre_trained_model_name)
+        self.mpn = MosesPunctNormalizer()
+        self.detokenizer = MosesDetokenizer(lang=lang)
+        self._model_name_ = pre_trained_model_name
+
+    def tokenize(self, text):
+        return self.tokenizer.tokenize(self.mpn.normalize(text))
+
+    def detokenize(self, tokenized_list):
+        # WARNING! this is a one way tokenizer, the detokenized sentences do not necessarily align with the actual tokenized sentences!
+        return self.tokenizer.decode(self.tokenizer.convert_tokens_to_ids(tokenized_list))
+
+    @property
+    def model_name(self):
+        return self._model_name_
+
 
 def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
     """
@@ -151,5 +192,7 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
         return GenericTokenizer()
     elif tokenizer_name == "pre_trained":
         return PreTrainedTokenizer(lang, lowercase=lowercase_data)
+    elif tokenizer_name == "bert":
+        return PTBertTokenizer(lang, lowercase=lowercase_data)
     else:
         raise ValueError("The requested tokenizer {} does not exist or is not implemented!".format(tokenizer_name))
