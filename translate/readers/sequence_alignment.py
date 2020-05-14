@@ -55,7 +55,7 @@ def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, pri
     The output will have a length equal to the size of :param sequence_1: each index of which indicates the number
       of times the :param sequence_1: element must be copied to equal the length of :param sequence_2: list.
     This algorithm enforces the alignments in a strictly left-to-right order.
-    This algorithm is mainly designed for aligning the outputs of two different tokenizers (e.g. bert and spacy)
+    This algorithm is mainly designed for aligning the outputs of two different tokenizers (e.g. bert and moses)
       on the same input sentence.
     """
     previous_sequence_1_token = None

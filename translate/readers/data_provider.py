@@ -15,6 +15,10 @@ def tgt_tokenizer(text):
     return tgt_tokenizer_obj.tokenize(text)
 
 
+def tgt_detokenizer(tokenized_list):
+    return tgt_tokenizer_obj.detokenize(tokenized_list)
+
+
 global max_src_in_batch, max_tgt_in_batch
 
 

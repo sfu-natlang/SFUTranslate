@@ -72,8 +72,8 @@ src_lang: the bi-letter language identifier for source langugage
 tgt_lang: the bi-letter language identifier for target langugage
 dataset_name: the name of the torchtext datasetname
 lowercase_data: [true/false] whether the dataset setences need to be lowercased or not
-src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "split"|"spacy"|"pre_trained"] 
-tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "split"|"spacy"|"pre_trained"]
+src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "generic"|"moses"|"pre_trained"] 
+tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "generic"|"moses"|"pre_trained"]
 pad_token: special pad token used in data transformation
 bos_token: special begin of sentence token used in data transformation
 eos_token: special end of sentence token used in data transformation

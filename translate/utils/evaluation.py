@@ -5,11 +5,8 @@ import os
 from torch import nn
 from torchtext import data
 import sacrebleu
-from sacremoses import MosesDetokenizer
 from configuration import cfg
-from readers.data_provider import DataProvider, src_tokenizer
-
-detokenizer = MosesDetokenizer(lang=cfg.tgt_lang)
+from readers.data_provider import DataProvider, src_tokenizer, tgt_detokenizer
 
 
 def convert_target_batch_back(btch, TGT):
@@ -55,16 +52,7 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
                     result.append(lex)
                     continue
             result.append(tgt_token)
-    if cfg.tgt_tokenizer == "pre_trained":
-        temp_result = []
-        for token in result:
-            if len(temp_result) and token.startswith("##"):
-                temp_result[-1] = temp_result[-1] + token[2:]
-            else:
-                temp_result.append(token)
-    else:
-        temp_result = result
-    return detokenizer.detokenize(temp_result)
+    return tgt_detokenizer(result)
 
 
 def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str,

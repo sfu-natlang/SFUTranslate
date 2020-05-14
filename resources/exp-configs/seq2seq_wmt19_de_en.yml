@@ -3,8 +3,8 @@ src_lang: de
 tgt_lang: en
 dataset_name: wmt19_de_en
 lowercase_data: true
-src_tokenizer: spacy
-tgt_tokenizer: spacy
+src_tokenizer: moses
+tgt_tokenizer: moses
 pad_token: <pad>
 bos_token: <bos>
 eos_token: <eos>

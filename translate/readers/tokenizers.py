@@ -4,14 +4,26 @@ Implementation of different tokenizers to be used by the data provider. The pre-
     in each supported language.
 """
 from tokenizers import BertWordPieceTokenizer
-from sacremoses import MosesPunctNormalizer
-from sacremoses import MosesTokenizer
+from sacremoses import MosesPunctNormalizer, MosesTokenizer, MosesDetokenizer
 from requests import get
-import spacy
 import os
 
 
-class PreTrainedTokenizer:
+class GenericTokenizer:
+    """
+    The very basic tokenizer mainly for debugging purposes
+    """
+    @staticmethod
+    def tokenize(text):
+        return text.split()
+
+    @staticmethod
+    def detokenize(tokenized_list):
+        # TODO make it work
+        return " ".join(tokenized_list)
+
+
+class PreTrainedTokenizer(GenericTokenizer):
     vocab_files = {
         "bert-base-uncased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased-vocab.txt",
         "bert-large-uncased": "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased-vocab.txt",
@@ -33,10 +45,11 @@ class PreTrainedTokenizer:
         "bert-base-dutch-cased": "https://s3.amazonaws.com/models.huggingface.co/bert/wietsedv/bert-base-dutch-cased/vocab.txt",
     }
 
-    def __init__(self, pre_trained_model_name, root='.data', clean_text=True, handle_chinese_chars=True, strip_accents=True, lowercase=True):
+    def __init__(self, lang, root='.data', clean_text=True, handle_chinese_chars=True, strip_accents=True, lowercase=True):
         """
         Example instantiation: PreTrainedTokenizer("bert-base-uncased", root="../.data")
         """
+        pre_trained_model_name = self.get_default_model_name(lang, lowercase)
         if not os.path.exists(root):
             os.mkdir(root)
         assert pre_trained_model_name in self.vocab_files, \
@@ -47,7 +60,7 @@ class PreTrainedTokenizer:
             with open(f_name, "wb") as file_:
                 response = get(url)
                 file_.write(response.content)
-        self.mpn = MosesPunctNormalizer()
+        self.moses_tkn = PyMosesTokenizer(lang)
         self.tokenizer = BertWordPieceTokenizer(f_name, clean_text=clean_text, lowercase=lowercase,
                                                 handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
 
@@ -57,9 +70,22 @@ class PreTrainedTokenizer:
         :param text: one line of text in type of str
         :return a list of tokenized "str"s
         """
-        encoding = self.tokenizer.encode(self.mpn.normalize(text), add_special_tokens=False)
+        if not len(text.strip()):
+            return [""]
+        # encoding = self.tokenizer.encode(n_text, add_special_tokens=False)
+        encoding = self.tokenizer.encode_tokenized(self.moses_tkn.tokenize(text))
         # encoding contains "ids", "tokens", and "offsets"
         return encoding.tokens
+
+    def detokenize(self, tokenized_list):
+        # TODO make it work
+        temp_result = []
+        for token in tokenized_list:
+            if len(temp_result) and token.startswith("##"):
+                temp_result[-1] = temp_result[-1] + token[2:]
+            else:
+                temp_result.append(token)
+        return self.moses_tkn.detokenize(temp_result)
 
     def decode(self, encoded_ids_list):
         """
@@ -90,37 +116,28 @@ class PreTrainedTokenizer:
                 lang, "lowercased" if lowercase else "cased"))
 
 
-class SpacyTokenizer:
-    """
-    The tokenizer which loads and uses spacy pre-trained language resources
-    """
-    def __init__(self, tokeniztion_lang):
-        self.tokenizer = spacy.load(tokeniztion_lang)
-        self.mpn = MosesPunctNormalizer()
-
-    def tokenize(self, text):
-        return [tok.text for tok in self.tokenizer.tokenizer(self.mpn.normalize(text))]
-
-
-class SplitTokenizer:
-    """
-    The very basic tokenizer mainly for debugging purposes
-    """
-    @staticmethod
-    def tokenize(text):
-        return text.split()
-
-
-class PyMosesTokenizer:
+class PyMosesTokenizer(GenericTokenizer):
     """
     The call to standard moses tokenizer
     """
     def __init__(self, lang):
         self.mpn = MosesPunctNormalizer()
         self.tokenizer = MosesTokenizer(lang=lang)
+        self.detokenizer = MosesDetokenizer(lang=lang)
 
     def tokenize(self, text):
         return self.tokenizer.tokenize(self.mpn.normalize(text))
+
+    def detokenize(self, tokenized_list):
+        temp_result = ""
+        t_list_len = len(tokenized_list)
+        for t_ind, token in enumerate(tokenized_list):
+            apos_cnd = token == "&apos;" and t_ind < t_list_len - 1 and tokenized_list[t_ind + 1] == "s"
+            if apos_cnd or token == "/":
+                temp_result = temp_result.strip() + token
+            else:
+                temp_result += token + " "
+        return self.detokenizer.detokenize(temp_result.strip().split())
 
 
 def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
@@ -128,13 +145,11 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
     A stand-alone function which will create and return the proper tokenizer object given requested configs
     """
     print("Loading tokenizer of type {} for {} language".format(tokenizer_name, lang))
-    if tokenizer_name == "spacy":
-        return SpacyTokenizer(lang)
-    elif tokenizer_name == "moses":
+    if tokenizer_name == "moses":
         return PyMosesTokenizer(lang)
-    elif tokenizer_name == "split" or bool(debug_mode):
-        return SplitTokenizer()
+    elif tokenizer_name == "generic" or bool(debug_mode):
+        return GenericTokenizer()
     elif tokenizer_name == "pre_trained":
-        return PreTrainedTokenizer(PreTrainedTokenizer.get_default_model_name(lang, lowercase_data))
+        return PreTrainedTokenizer(lang, lowercase=lowercase_data)
     else:
         raise ValueError("The requested tokenizer {} does not exist or is not implemented!".format(tokenizer_name))

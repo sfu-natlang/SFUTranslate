@@ -2,7 +2,6 @@ import glob
 import os
 import io
 import codecs
-import spacy
 import xml.etree.ElementTree as ET
 from torchtext import data, datasets
 from configuration import src_lan, tgt_lan, cfg, device
