@@ -65,6 +65,11 @@ lr_decay_threshold: 0.1
 lr_decay_min: 0.00001
 update_freq: 1
 
+ling_emb_data_address: model_address.lang
+augment_input_with_ling_heads: false
+embed_src_with_ling_emb: true
+embed_src_with_bert: false
+
 beam_size: 5
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4

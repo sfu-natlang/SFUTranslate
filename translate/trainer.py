@@ -6,7 +6,7 @@ from configuration import cfg, device
 from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
-if bool(cfg.embed_src_with_bert) or bool(cfg.embed_src_with_ling_emb):
+if bool(cfg.embed_src_with_bert) or bool(cfg.embed_src_with_ling_emb) or bool(cfg.augment_input_with_ling_heads):
     print("Loading Transformer with bert embeddings")
     from models.transformer.model_bert_emb import Transformer
 else:

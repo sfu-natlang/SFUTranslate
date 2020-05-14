@@ -71,7 +71,10 @@ class Transformer(nn.Module):
         self.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
 
         # #################################### BERT RELATED PARAMETERS #################################################
-        self.embed_src_with_ling_emb = bool(cfg.embed_src_with_ling_emb)
+        self.augment_input_with_ling_heads = bool(cfg.augment_input_with_ling_heads)
+        if self.augment_input_with_ling_heads:
+            print("Augmenting Transformer model with linguistic head inputs")
+        self.embed_src_with_ling_emb = False if self.augment_input_with_ling_heads else bool(cfg.embed_src_with_ling_emb)
         if self.embed_src_with_ling_emb:
             print("Augmenting Transformer model with linguistic embeddings module")
         self.embed_src_with_bert = False if self.embed_src_with_ling_emb else bool(cfg.embed_src_with_bert)
@@ -80,12 +83,14 @@ class Transformer(nn.Module):
         self.bert_tokenizer = tgt_tokenizer_obj
         self.bert_lm = None
         self.head_converter = None
+        self.head_converted_to_d_model = None
         self.d_model = d_model
         self.bert_position = c(position)
         if d_model != 768:
             self.bert_bridge = nn.Linear(768, d_model, bias=False)
         else:
             self.bert_bridge = None
+        self.input_gate = nn.Linear(d_model * 2, d_model, bias=True)
         self.number_of_bert_layers = 13
         self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers),
                                                              requires_grad=True)
@@ -138,16 +143,16 @@ class Transformer(nn.Module):
         for p in self.parameters():
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
-        if self.embed_src_with_bert or self.embed_src_with_ling_emb:
+        if self.embed_src_with_bert or self.embed_src_with_ling_emb or self.augment_input_with_ling_heads:
             assert cfg.tgt_tokenizer == "bert", \
                 "data provider should enforce bert tokenizer if bert language model is going to be used here"
             print("Running the init params for bert language model")
             self.bert_lm = BertForMaskedLM.from_pretrained(tgt_tokenizer_obj.model_name, output_hidden_states=True).to(device)
-        if self.embed_src_with_ling_emb:
+        if self.embed_src_with_ling_emb or self.augment_input_with_ling_heads:
             print("Running the init params for ling_emb [src=german]")
             self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.vocab_size), self.src_embed[1]).to(device)
             # ling_emb_data_address = "iwslt_head_conv"
-            ling_emb_data_address = "models/transformer/multi30k_head_conv.de"
+            ling_emb_data_address = cfg.ling_emb_data_address
             so = torch.load(ling_emb_data_address, map_location=lambda storage, loc: storage)
             # features_list = so['features_list']
             self.head_converter = so['head_converters'].to(device)
@@ -156,14 +161,15 @@ class Transformer(nn.Module):
             # self.head_converter.requires_grad = False
             self.bert_weights_for_average_pooling = nn.Parameter(so['bert_weights'].to(device), requires_grad=True)
             ling_emb_key_size = self.head_converter[0].out_features
-            ling_emb_feature_count = 3
+            ling_emb_feature_count = len(self.head_converter) - 1
             if ling_emb_feature_count > 0:
+                self.head_converted_to_d_model = nn.Linear(ling_emb_key_size * ling_emb_feature_count,
+                                                           self.d_model, bias=True).to(device)
+            if self.embed_src_with_ling_emb and ling_emb_feature_count > 0:
                 ling_emb_bridges = clones(nn.Linear(ling_emb_key_size, self.multi_head_d_k), ling_emb_feature_count)
                 c = copy.deepcopy
                 for layer in self.enc_layers:
                     layer.self_attn.ling_emb_bridges = c(ling_emb_bridges).to(device)
-
-
 
     def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
         """
@@ -189,6 +195,9 @@ class Transformer(nn.Module):
             self_attention_key_list = self.get_ling_embed_attention_keys(input_tensor)
         else:
             self_attention_key_list = []
+        if self.augment_input_with_ling_heads:
+            x_prime = self.head_converted_to_d_model(torch.cat(self.get_ling_embed_attention_keys(input_tensor), dim=-1))
+            x = self.input_gate(torch.cat((x_prime, x), dim=-1))
         for layer in self.enc_layers:
             x = layer(x, input_mask, self_attention_key_list)
         return self.enc_norm(x), input_mask
@@ -270,7 +279,7 @@ class Transformer(nn.Module):
 
         # #################################INITIALIZATION OF DECODING PARAMETERS#######################################
         init_ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)
-        nodes = [(init_ys, torch.zeros(batch_size, device=device), torch.zeros(batch_size, device=device).byte())]
+        nodes = [(init_ys, torch.zeros(batch_size, device=device), torch.zeros(batch_size, device=device).bool())]
         final_results = []
 
         for i in range(target_length-1):
