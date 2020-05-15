@@ -19,7 +19,6 @@ class GenericTokenizer:
 
     @staticmethod
     def detokenize(tokenized_list):
-        # TODO make it work
         return " ".join(tokenized_list)
 
 
@@ -60,7 +59,7 @@ class PreTrainedTokenizer(GenericTokenizer):
             with open(f_name, "wb") as file_:
                 response = get(url)
                 file_.write(response.content)
-        self.moses_tkn = PyMosesTokenizer(lang)
+        self.moses_tkn = PyMosesTokenizer(lang, lowercase)
         self.tokenizer = BertWordPieceTokenizer(f_name, clean_text=clean_text, lowercase=lowercase,
                                                 handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
 
@@ -120,13 +119,14 @@ class PyMosesTokenizer(GenericTokenizer):
     """
     The call to standard moses tokenizer
     """
-    def __init__(self, lang):
+    def __init__(self, lang, lowercase):
         self.mpn = MosesPunctNormalizer()
         self.tokenizer = MosesTokenizer(lang=lang)
         self.detokenizer = MosesDetokenizer(lang=lang)
+        self.lowercase = lowercase
 
     def tokenize(self, text):
-        return self.tokenizer.tokenize(self.mpn.normalize(text))
+        return self.tokenizer.tokenize(self.mpn.normalize(text.lower() if self.lowercase else text))
 
     def detokenize(self, tokenized_list):
         temp_result = ""
@@ -146,7 +146,7 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
     """
     print("Loading tokenizer of type {} for {} language".format(tokenizer_name, lang))
     if tokenizer_name == "moses":
-        return PyMosesTokenizer(lang)
+        return PyMosesTokenizer(lang, lowercase_data)
     elif tokenizer_name == "generic" or bool(debug_mode):
         return GenericTokenizer()
     elif tokenizer_name == "pre_trained":
