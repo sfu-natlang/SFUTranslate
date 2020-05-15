@@ -191,13 +191,14 @@ class SpacyTokenizer:
     """
     The very basic tokenizer mainly for debugging purposes
     """
-    def __init__(self, lang):
+    def __init__(self, lang, lowercase):
         pre_trained_model_name = self.get_default_model_name(lang)
         self.tokenizer = spacy.load(pre_trained_model_name)
         self._model_name_ = pre_trained_model_name
+        self.lowercase = lowercase
 
     def tokenize(self, text):
-        return [token.text for token in self.tokenizer(text)]
+        return [token.text for token in self.tokenizer(text.lower() if self.lowercase else text)]
 
     @staticmethod
     def detokenize(tokenized_list):

@@ -125,8 +125,8 @@ def extract_linguistic_features(line, bert_tokenizer, spacy_tokenizer_1, spacy_t
     return result
 
 
-def extract_linguistic_vocabs(data_itr, bert_tokenizer, lang):
-    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang), SpacyTokenizer(lang)
+def extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data):
+    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
     spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
     vocabs = create_empty_linguistic_vocab()
     vocab_cnts = {"pos": Counter(), "tag": Counter(), "shape": Counter(), "ent_type": Counter(),
@@ -150,9 +150,9 @@ def extract_linguistic_vocabs(data_itr, bert_tokenizer, lang):
     return vs
 
 
-def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang):
+def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang, lowercase_data):
     padding_value = 0
-    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang), SpacyTokenizer(lang)
+    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
     spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
     extracted_features = [[] for _ in required_features_list]
     extracted_feature_weights = [[] for _ in required_features_list]
@@ -379,7 +379,7 @@ def mode_0_projection_trainer(data_itr, model_name, bert_tokenizer, epochs, lr, 
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
 
 
-def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, H, lr,
+def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data, H, lr,
                                       scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
                                       save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first"):
     """
@@ -425,7 +425,7 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
             features, feature_weights = map_sentences_to_vocab_ids(
-                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang)
+                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang, lowercase_data)
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
@@ -504,7 +504,7 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
                     'bert_weights': model.bert_weights_for_average_pooling}, save_model_name)
 
 
-def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang,
+def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data,
                                      load_model_name="project_sublayers.pt", resolution_strategy="first", check_result_sanity=False):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".module", map_location=lambda storage, loc: storage)
@@ -527,7 +527,7 @@ def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, lingu
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence), device=device)
                          for input_sentence in input_sentences]
             features, feature_weights = map_sentences_to_vocab_ids(
-                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang)
+                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang, lowercase_data)
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
@@ -634,7 +634,7 @@ def reusable_head_main(running_mode, lang, dataset_address, H=1024, epochs=3, lr
     elif running_mode == 1:
         batch_size = 256
         data_itr = lambda: tqdm(dataset_iterator(dataset_address, batch_size))
-        print(extract_linguistic_vocabs(data_itr, bert_tokenizer, lang))
+        print(extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data))
     elif running_mode == 2:
         if "wmt" in dataset_address:
             smn = "wmt_head_conv." + lang
@@ -645,12 +645,12 @@ def reusable_head_main(running_mode, lang, dataset_address, H=1024, epochs=3, lr
         else:
             raise ValueError("For new datasets you need to set the proper address name")
         data_itr = lambda: tqdm(dataset_iterator(dataset_address, batch_size))
-        ling_vocab = extract_linguistic_vocabs(data_itr, bert_tokenizer, lang)
-        mode_2_project_sub_layers_trainer(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang, H, lr, scheduler_patience_steps,
-                                          scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
+        ling_vocab = extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data)
+        mode_2_project_sub_layers_trainer(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang, lowercase_data, H, lr,
+                                          scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
                                           save_model_name=smn, relative_sizing=False, resolution_strategy=resolution_strategy)
         print("Performing test on the training data ...")
-        mode_2_project_sub_layers_tester(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang,
+        mode_2_project_sub_layers_tester(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang, lowercase_data,
                                          load_model_name=smn, resolution_strategy=resolution_strategy,
                                          check_result_sanity=True)
 
