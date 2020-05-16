@@ -1,9 +1,11 @@
 import sys
+import os
 from collections import Counter
 from pathlib import Path
 from tqdm import tqdm
 from random import random
 import unidecode
+import pickle
 
 from torch import optim
 from torch import nn
@@ -64,14 +66,18 @@ class WordRepresentation:
             return self._predictions[tag][0] + "".join([x[2:] for x in self._predictions[tag][1:]])
 
 
-def dataset_iterator(file_adr, b_size):
+def dataset_iterator(file_adr, b_size, lowercase_data, sentence_length_limit):
     """
     :param file_adr: the address of the train data (e.g. "./.data/multi30k/train.en")
-    :param b_size: teh batch size of the returning sentence batches
+    :param b_size: the batch size of the returning sentence batches
+    :param lowercase_data: the flag indicating whether to lowercase the data
+    :param sentence_length_limit: the maximum sentence length in words
     """
     res = []
     for l in Path(file_adr).open("r"):
-        res.append(l)
+        if len(l.strip().split()) > sentence_length_limit:
+            continue
+        res.append(l.lower() if lowercase_data else l)
         if len(res) == b_size:
             yield res
             del res[:]
@@ -402,17 +408,19 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
     assert weight_ratio > 1
     Hs = [int(weight_ratio * ind) for ind in Hs]
     Hs[-1] += max(0, (H - sum(Hs)))
-
+    print("Loading the pre-trained BertForMaskedLM model: {}".format(model_name))
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     number_of_bert_layers = len(bert_lm.bert.encoder.layer) + 1
     D_in = D_out = bert_lm.bert.pooler.dense.in_features
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)
+    print("Creating the model")
     model = SubLayerED(D_in, Hs, D_out, [len(linguistic_vocab[f]) + 1 for f in required_features_list],
                        number_of_bert_layers, required_features_list, reverse_linguistic_vocab).to(device)
     model.apply(weight_init)
     opt = optim.SGD(model.parameters(), lr=float(lr), momentum=0.9)
     scheduler = ReduceLROnPlateau(opt, mode='min', patience=scheduler_patience_steps, factor=scheduler_decay_factor,
                                   threshold=0.001, verbose=True, min_lr=scheduler_min_lr)
+    print("Starting to train ...")
     for t in range(epochs):
         all_loss = 0.0
         all_tokens_count = 0.0
@@ -621,31 +629,45 @@ def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, lingu
 # ####################################################################################################################################################
 
 
+def get_save_model_name(dataset_address, lang):
+    if "wmt" in dataset_address:
+        smn = "wmt_head_conv." + lang
+    elif "iwslt" in dataset_address:
+        smn = "iwslt_head_conv." + lang
+    elif "multi30k" in dataset_address:
+        smn = "multi30k_head_conv." + lang
+    else:
+        raise ValueError("For new datasets you need to set the proper address name")
+    return smn
+
+
 def reusable_head_main(running_mode, lang, dataset_address, H=1024, epochs=3, lr=0.05, batch_size=32, max_norm=5, scheduler_patience_steps=60,
                        scheduler_min_lr=0.001, scheduler_decay_factor=0.9, features_list=('pos', 'shape', 'tag', 'bis'), lowercase_data=True,
-                       resolution_strategy="first"):  # resolution_strategy = "last"
+                       resolution_strategy="first", sentence_length_limit=100):  # resolution_strategy = "last"
     # TODO support majority voting resolution strategy
-    # TODO extract these prameters based on the number of requested features
+    # TODO extract these parameters based on the number of requested features
+    def data_itr():
+        return tqdm(dataset_iterator(dataset_address, 256 if running_mode == 1 else batch_size, lowercase_data, sentence_length_limit))
     bert_model_name = PTBertTokenizer.get_default_model_name(lang, lowercase_data)
     bert_tokenizer = PTBertTokenizer(lang, lowercase_data)
     if running_mode == 0:
-        data_itr = lambda: tqdm(dataset_iterator(dataset_address, batch_size))
         mode_0_projection_trainer(data_itr, bert_model_name, bert_tokenizer, epochs, lr, H, max_norm)
     elif running_mode == 1:
-        batch_size = 256
-        data_itr = lambda: tqdm(dataset_iterator(dataset_address, batch_size))
-        print(extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data))
-    elif running_mode == 2:
-        if "wmt" in dataset_address:
-            smn = "wmt_head_conv." + lang
-        elif "iwslt" in dataset_address:
-            smn = "iwslt_head_conv." + lang
-        elif "multi30k" in dataset_address:
-            smn = "multi30k_head_conv." + lang
-        else:
-            raise ValueError("For new datasets you need to set the proper address name")
-        data_itr = lambda: tqdm(dataset_iterator(dataset_address, batch_size))
+        print("Starting to create linguistic vocab for for {} language ...".format(lang))
         ling_vocab = extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data)
+        smn = get_save_model_name(dataset_address, lang)
+        print("Linguistic vocab ready, persisting ...")
+        pickle.dump(ling_vocab, open(smn+".vocab.pkl", "wb"), protocol=4)
+        print("Linguistic vocab persisted!\nDone.")
+    elif running_mode == 2:
+        print("Starting to train the reusable heads for {} language ...".format(lang))
+        print("Loaded the pre-created/persisted linguistic vocab dictionary ...")
+        smn = get_save_model_name(dataset_address, lang)
+        vocab_adr = smn+".vocab.pkl"
+        if not os.path.exists(vocab_adr):
+            raise ValueError("linguistic vocab file {} does not exists, please run the script on \"mode 1\" first!".format(vocab_adr))
+        ling_vocab = pickle.load(open(vocab_adr, "rb"), encoding="utf-8")
+        # ling_vocab = extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data)
         mode_2_project_sub_layers_trainer(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang, lowercase_data, H, lr,
                                           scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
                                           save_model_name=smn, relative_sizing=False, resolution_strategy=resolution_strategy)
