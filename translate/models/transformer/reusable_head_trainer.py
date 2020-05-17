@@ -156,10 +156,8 @@ def extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data):
     return vs
 
 
-def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang, lowercase_data):
+def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer):
     padding_value = 0
-    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
-    spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
     extracted_features = [[] for _ in required_features_list]
     extracted_feature_weights = [[] for _ in required_features_list]
     for sent in input_sentences:
@@ -385,9 +383,38 @@ def mode_0_projection_trainer(data_itr, model_name, bert_tokenizer, epochs, lr, 
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}".format(t, all_loss / all_tokens_count))
 
 
+def create_train_report_and_persist_modules(model, save_model_name, all_actual_sw, all_prediction_sw, feature_pred_correct_all,
+                                            feature_pred_corrects, required_features_list, resolution_strategy):
+    print("reporting sub-word-level classification accuracy scores")
+    for idx in range(len(required_features_list)):
+        pred_tag = required_features_list[idx]
+        print('-' * 35 + pred_tag + '-' * 35)
+        # target_names = list(linguistic_vocab[pred_tag].keys())
+        print(classification_report(all_actual_sw[idx], all_prediction_sw[idx], output_dict=True,
+                                    target_names=list(set(all_prediction_sw[idx]+all_actual_sw[idx])))['weighted avg'])
+        print('-' * 75)
+    for ind, feat in enumerate(required_features_list):
+        print("{} sub-word level classification precision [collected]: {:.2f}%".format(
+            feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
+    print("reporting word-level classification accuracy scores")
+    all_actual, all_prediction = merge_subword_labels(all_actual_sw, all_prediction_sw, required_features_list,
+                                                      resolution_strategy=resolution_strategy)
+    for idx in range(len(required_features_list)):
+        pred_tag = required_features_list[idx]
+        print('-' * 35 + pred_tag + '-' * 35)
+        # target_names = list(linguistic_vocab[pred_tag].keys())
+        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
+                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
+        print('-' * 75)
+
+    torch.save({'model': model}, save_model_name+".module")
+    torch.save({'features_list': required_features_list, 'softmax': nn.Softmax(dim=-1), 'head_converters': model.encoders,
+                'bert_weights': model.bert_weights_for_average_pooling}, save_model_name)
+
+
 def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data, H, lr,
                                       scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
-                                      save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first"):
+                                      save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first", report_every=5000):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
     """
@@ -413,6 +440,9 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
     number_of_bert_layers = len(bert_lm.bert.encoder.layer) + 1
     D_in = D_out = bert_lm.bert.pooler.dense.in_features
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)
+    print("Loading Spacy Tokenizers")
+    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
+    spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
     print("Creating the model")
     model = SubLayerED(D_in, Hs, D_out, [len(linguistic_vocab[f]) + 1 for f in required_features_list],
                        number_of_bert_layers, required_features_list, reverse_linguistic_vocab).to(device)
@@ -429,11 +459,11 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
         all_prediction = [[] for _ in required_features_list]
         all_actual = [[] for _ in required_features_list]
         itr = data_itr()
-        for input_sentences in itr:
+        for batch_id, input_sentences in enumerate(itr):
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
             features, feature_weights = map_sentences_to_vocab_ids(
-                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang, lowercase_data)
+                input_sentences, required_features_list, linguistic_vocab,  spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer)
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
@@ -486,30 +516,47 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
                             all_actual[idx].append(actual_label)
                             all_prediction[idx].append(predicted_label)
                         # print(pred_tag, actual_label, actual_bis, predicted_label, predicted_bis, predicted_label == actual_label)
-        print("reporting sub-word-level classification accuracy scores")
+            if batch_id and batch_id % report_every == 0:
+                print("Creating report/persisting trained model ...")
+                create_train_report_and_persist_modules(model, save_model_name, all_actual, all_prediction, feature_pred_correct_all,
+                                                        feature_pred_corrects, required_features_list, resolution_strategy)
+        create_train_report_and_persist_modules(model, save_model_name, all_actual, all_prediction, feature_pred_correct_all,
+                                                feature_pred_corrects, required_features_list, resolution_strategy)
+
+
+def create_test_report(all_loss, all_tokens_count, all_actual_sw, all_prediction_sw, sanity_all_actual, sanity_all_prediction, feature_pred_correct_all,
+                       feature_pred_corrects, required_features_list, check_result_sanity, resolution_strategy):
+    if check_result_sanity:
+        print("reporting sanity classification accuracy scores [the scores are expected be really low!]")
         for idx in range(len(required_features_list)):
             pred_tag = required_features_list[idx]
             print('-' * 35 + pred_tag + '-' * 35)
             # target_names = list(linguistic_vocab[pred_tag].keys())
-            print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                        target_names=list(set(all_prediction[idx]+all_actual[idx]))))
-            print('-' * 75)
-        for ind, feat in enumerate(required_features_list):
-            print("{} sub-word level classification precision [collected]: {:.2f}%".format(
-                feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
-        print("reporting word-level classification accuracy scores")
-        all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list, resolution_strategy=resolution_strategy)
-        for idx in range(len(required_features_list)):
-            pred_tag = required_features_list[idx]
-            print('-' * 35 + pred_tag + '-' * 35)
-            # target_names = list(linguistic_vocab[pred_tag].keys())
-            print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                        target_names=list(set(all_prediction[idx]+all_actual[idx]))))
+            print(classification_report(sanity_all_actual[idx], sanity_all_prediction[idx], output_dict=True,
+                                        target_names=list(set(sanity_all_prediction[idx]+sanity_all_actual[idx])))['weighted avg'])
             print('-' * 75)
 
-        torch.save({'model': model}, save_model_name+".module")
-        torch.save({'features_list': required_features_list, 'softmax': nn.Softmax(dim=-1), 'head_converters': model.encoders,
-                    'bert_weights': model.bert_weights_for_average_pooling}, save_model_name)
+    print("reporting sub-word-level classification accuracy scores")
+    for idx in range(len(required_features_list)):
+        pred_tag = required_features_list[idx]
+        print('-' * 35 + pred_tag + '-' * 35)
+        # target_names = list(linguistic_vocab[pred_tag].keys())
+        print(classification_report(all_actual_sw[idx], all_prediction_sw[idx], output_dict=True,
+                                    target_names=list(set(all_prediction_sw[idx]+all_actual_sw[idx])))['weighted avg'])
+        print('-' * 75)
+    for ind, feat in enumerate(required_features_list):
+        print("{} sub-word level classification precision [collected]: {:.2f}%".format(
+            feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
+    print("reporting word-level classification accuracy scores")
+    all_actual, all_prediction = merge_subword_labels(all_actual_sw, all_prediction_sw, required_features_list, resolution_strategy=resolution_strategy)
+    for idx in range(len(required_features_list)):
+        pred_tag = required_features_list[idx]
+        print('-' * 35 + pred_tag + '-' * 35)
+        # target_names = list(linguistic_vocab[pred_tag].keys())
+        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
+                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
+        print('-' * 75)
+    print(("Average Test Loss: {:.2f}".format(all_loss / all_tokens_count)))
 
 
 def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data,
@@ -526,7 +573,11 @@ def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, lingu
     if check_result_sanity:
         sanity_all_prediction = [[] for _ in required_features_list]
         sanity_all_actual = [[] for _ in required_features_list]
+    else:
+        sanity_all_actual = sanity_all_prediction = None
     itr = data_itr()
+    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
+    spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
     for input_sentences in itr:
         all_tokens.extend([tkn for input_sentence in input_sentences for tkn in bert_tokenizer.tokenize(input_sentence)])
         with torch.no_grad():
@@ -535,7 +586,7 @@ def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, lingu
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence), device=device)
                          for input_sentence in input_sentences]
             features, feature_weights = map_sentences_to_vocab_ids(
-                input_sentences, required_features_list, linguistic_vocab, bert_tokenizer, lang, lowercase_data)
+                input_sentences, required_features_list, linguistic_vocab, spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer)
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
@@ -594,37 +645,8 @@ def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, lingu
                                 if actual_label != '__PAD__':
                                     sanity_all_actual[rf_idx].append(actual_label)
                                     sanity_all_prediction[rf_idx].append(predicted_label)
-    if check_result_sanity:
-        print("reporting sanity classification accuracy scores [the scores are expected be really low!]")
-        for idx in range(len(required_features_list)):
-            pred_tag = required_features_list[idx]
-            print('-' * 35 + pred_tag + '-' * 35)
-            # target_names = list(linguistic_vocab[pred_tag].keys())
-            print(classification_report(sanity_all_actual[idx], sanity_all_prediction[idx], output_dict=True,
-                                        target_names=list(set(sanity_all_prediction[idx]+sanity_all_actual[idx])))['weighted avg'])
-            print('-' * 75)
-
-    print("reporting sub-word-level classification accuracy scores")
-    for idx in range(len(required_features_list)):
-        pred_tag = required_features_list[idx]
-        print('-' * 35 + pred_tag + '-' * 35)
-        # target_names = list(linguistic_vocab[pred_tag].keys())
-        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
-        print('-' * 75)
-    for ind, feat in enumerate(required_features_list):
-        print("{} sub-word level classification precision [collected]: {:.2f}%".format(
-            feat.upper(), float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all))
-    print("reporting word-level classification accuracy scores")
-    all_actual, all_prediction = merge_subword_labels(all_actual, all_prediction, required_features_list, resolution_strategy=resolution_strategy)
-    for idx in range(len(required_features_list)):
-        pred_tag = required_features_list[idx]
-        print('-' * 35 + pred_tag + '-' * 35)
-        # target_names = list(linguistic_vocab[pred_tag].keys())
-        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
-        print('-' * 75)
-    print(("Average Test Loss: {:.2f}".format(all_loss / all_tokens_count)))
+    create_test_report(all_loss, all_tokens_count, all_actual, all_prediction, sanity_all_actual, sanity_all_prediction, feature_pred_correct_all,
+                       feature_pred_corrects, required_features_list, check_result_sanity, resolution_strategy)
 
 # ####################################################################################################################################################
 
@@ -669,7 +691,7 @@ def reusable_head_main(running_mode, lang, dataset_address, H=1024, epochs=3, lr
         ling_vocab = pickle.load(open(vocab_adr, "rb"), encoding="utf-8")
         # ling_vocab = extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data)
         mode_2_project_sub_layers_trainer(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang, lowercase_data, H, lr,
-                                          scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
+                                          scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, report_every=5000,
                                           save_model_name=smn, relative_sizing=False, resolution_strategy=resolution_strategy)
         print("Performing test on the training data ...")
         mode_2_project_sub_layers_tester(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, lang, lowercase_data,
