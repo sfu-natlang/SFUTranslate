@@ -104,9 +104,9 @@ class Transformer(nn.Module):
         # input_sentences = ["This is hassan", "This is hamid"]
         input_sentences = convert_target_batch_back(input_tensor.transpose(0, 1), self.SRC)
         # input_sentences = ["das ist ein arzt"]
-        sequences = [torch.tensor(self.bert_tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
+        sequences = [torch.tensor(self.bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                      for input_sentence in input_sentences]
-        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.pad_token_id)
+        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.tokenizer.pad_token_id)
         input_mask = self.generate_src_mask(input_ids)
         outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # 13 * (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
