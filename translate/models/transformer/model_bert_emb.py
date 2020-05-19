@@ -150,7 +150,8 @@ class Transformer(nn.Module):
             self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         if self.embed_src_with_ling_emb or self.augment_input_with_ling_heads:
             print("Running the init params for ling_emb [src=german]")
-            self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.vocab_size), self.src_embed[1]).to(device)
+            self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.tokenizer.vocab_size),
+                                           self.src_embed[1]).to(device)
             # ling_emb_data_address = "iwslt_head_conv"
             ling_emb_data_address = cfg.ling_emb_data_address
             so = torch.load(ling_emb_data_address, map_location=lambda storage, loc: storage)
