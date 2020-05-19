@@ -11,7 +11,7 @@ from utils.containers import DecodingSearchNode
 from models.transformer.utils import clones, copy, subsequent_mask
 from models.transformer.modules import EncoderLayer, MultiHeadedAttention, PositionwiseFeedForward, PositionalEncoding, \
     LayerNorm, DecoderLayer, Embeddings, Generator
-from readers.data_provider import tgt_tokenizer_obj
+from readers.data_provider import src_tokenizer_obj
 from utils.evaluation import convert_target_batch_back
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -80,7 +80,7 @@ class Transformer(nn.Module):
         self.embed_src_with_bert = False if self.embed_src_with_ling_emb else bool(cfg.embed_src_with_bert)
         if self.embed_src_with_bert:
             print("Augmenting Transformer model with bert embeddings module")
-        self.bert_tokenizer = tgt_tokenizer_obj
+        self.bert_tokenizer = src_tokenizer_obj
         self.bert_lm = None
         self.head_converter = None
         self.head_converted_to_d_model = None
@@ -147,7 +147,7 @@ class Transformer(nn.Module):
             assert cfg.src_tokenizer == "bert", \
                 "data provider should enforce bert tokenizer if bert language model is going to be used here"
             print("Running the init params for bert language model")
-            self.bert_lm = BertForMaskedLM.from_pretrained(tgt_tokenizer_obj.model_name, output_hidden_states=True).to(device)
+            self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         if self.embed_src_with_ling_emb or self.augment_input_with_ling_heads:
             print("Running the init params for ling_emb [src=german]")
             self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.vocab_size), self.src_embed[1]).to(device)
