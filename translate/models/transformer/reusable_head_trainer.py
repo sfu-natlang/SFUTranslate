@@ -507,6 +507,11 @@ def mode_2_project_sub_layers_trainer(data_itr, model_name, bert_tokenizer, ling
                     classes = predictions[b][l]
                     for idx in range(len(required_features_list)):
                         pred_id = int(classes[idx].item()) - 1
+                        if idx >= features.size(0) or b >= features.size(1) or l >= features.size(2):
+                            print("WARNING: skipping access to index out of bounds for a tensor with size "
+                                  "({}, {}, {}) with inices [{}, {}, {}]".format(features.size(0), features.size(1),
+                                                                                 features.size(2), idx, b, l))
+                            continue
                         actual_id = int(features[idx][b][l].item()) - 1
                         predicted_label = reverse_linguistic_vocab[required_features_list[idx]][pred_id] if pred_id > -1 else '__PAD__'
                         actual_label = reverse_linguistic_vocab[required_features_list[idx]][actual_id] if actual_id > -1 else '__PAD__'
