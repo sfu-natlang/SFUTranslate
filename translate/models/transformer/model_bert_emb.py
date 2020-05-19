@@ -144,7 +144,7 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
         if self.embed_src_with_bert or self.embed_src_with_ling_emb or self.augment_input_with_ling_heads:
-            assert cfg.tgt_tokenizer == "bert", \
+            assert cfg.src_tokenizer == "bert", \
                 "data provider should enforce bert tokenizer if bert language model is going to be used here"
             print("Running the init params for bert language model")
             self.bert_lm = BertForMaskedLM.from_pretrained(tgt_tokenizer_obj.model_name, output_hidden_states=True).to(device)
