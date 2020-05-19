@@ -123,10 +123,10 @@ class Transformer(nn.Module):
         """
         # ####################################LOADING THE TRAINED SUB-LAYERS############################################
         input_sentences = convert_target_batch_back(input_tensor.transpose(0, 1), self.SRC)
-        sequences = list(map(lambda x: torch.tensor(self.bert_tokenizer.convert_tokens_to_ids(
-            x.replace(self.SRC.unk_token, self.bert_tokenizer.unk_token).split()), device=device), input_sentences))
+        sequences = list(map(lambda x: torch.tensor(self.bert_tokenizer.tokenizer.convert_tokens_to_ids(
+            x.replace(self.SRC.unk_token, self.bert_tokenizer.tokenizer.unk_token).split()), device=device), input_sentences))
         # ####################################CONVERTING INPUT SEQUENCE TO EMBEDDED BERT################################
-        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.pad_token_id)
+        input_ids = torch.nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=self.bert_tokenizer.tokenizer.pad_token_id)
         outputs = self.bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.unsqueeze(0) for o in outputs], dim=0)
         embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
