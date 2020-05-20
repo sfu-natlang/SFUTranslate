@@ -190,8 +190,7 @@ def extract_word_boundaries(bis_array):
     latest_multipart_word_end = -1
     for idx, bis in enumerate(bis_array):
         if bis == "single":
-            if latest_multipart_word_start != -1:
-                assert latest_multipart_word_end != -1
+            if latest_multipart_word_start != -1 and latest_multipart_word_end != -1:
                 word_boundaries.append((latest_multipart_word_start, latest_multipart_word_end))
             # print("Single token word from [{}-{}]".format(idx, idx+1))
             word_boundaries.append((idx, idx+1))
