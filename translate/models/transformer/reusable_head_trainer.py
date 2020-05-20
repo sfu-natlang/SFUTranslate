@@ -192,14 +192,17 @@ def extract_word_boundaries(bis_array):
         if bis == "single":
             if latest_multipart_word_start != -1 and latest_multipart_word_end != -1:
                 word_boundaries.append((latest_multipart_word_start, latest_multipart_word_end))
+            elif latest_multipart_word_end == -1:
+                print("WARNING: latest_multipart_word_end was not found when the next new word began")
             # print("Single token word from [{}-{}]".format(idx, idx+1))
             word_boundaries.append((idx, idx+1))
             latest_multipart_word_start = -1
             latest_multipart_word_end = -1
         elif bis == "begin":
-            if latest_multipart_word_start != -1:
-                assert latest_multipart_word_end != -1
+            if latest_multipart_word_start != -1 and latest_multipart_word_end != -1:
                 word_boundaries.append((latest_multipart_word_start, latest_multipart_word_end))
+            elif latest_multipart_word_end == -1:
+                print("WARNING: latest_multipart_word_end was not found when the next new word began")
             # print("Starting a new word from {}".format(idx))
             latest_multipart_word_start = idx
             latest_multipart_word_end = -1
