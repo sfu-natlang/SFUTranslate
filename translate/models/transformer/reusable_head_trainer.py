@@ -88,15 +88,16 @@ def create_empty_linguistic_vocab():
     return {"pos": {}, "tag": {}, "shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}, "bis": {}}
 
 
-def extract_linguistic_features(line, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, extract_sentiment=False):
+def extract_linguistic_features(line, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
+                                required_features_list=("pos", "tag", "shape", "ent_type", "ent_iob", "sense", "bis")):
     result = []
     lesk_queries = {"NOUN": 'n', "VERB": 'v', "ADJ": 'a', "ADV": 'r'}
     doc = spacy_tokenizer_1.tokenizer(line)
     spacy_doc = [token.text for token in doc]
     bert_doc = [token for token in bert_tokenizer.tokenize(line)]
     sp_bert_doc = spacy_tokenizer_2.tokenizer(" ".join(bert_doc))
-    spacy_labeled_bert_tokens = [token.text for token in sp_bert_doc]
-    assert len(spacy_labeled_bert_tokens) == len(bert_doc), "{}\n{}".format(spacy_labeled_bert_tokens, bert_doc)
+    # spacy_labeled_bert_tokens = [token.text for token in sp_bert_doc]
+    # assert len(spacy_labeled_bert_tokens) == len(bert_doc), "{}\n{}".format(spacy_labeled_bert_tokens, bert_doc)
     fertilities = extract_monotonic_sequence_to_sequence_alignment(spacy_doc, bert_doc)
     bert_doc_pointer = 0
     for token, fertility in zip(doc, fertilities):
@@ -105,9 +106,12 @@ def extract_linguistic_features(line, bert_tokenizer, spacy_tokenizer_1, spacy_t
         shape = token.shape_
         ent_type = token.ent_type_ if len(token.ent_type_) else "NONE"
         ent_iob = token.ent_iob_ if len(token.ent_type_) else "O"
-        sense_data = lesk(spacy_doc, token.text, lesk_queries[pos] if pos in lesk_queries else "")
-        sense = sense_data.name().split(".")[-1] if sense_data is not None else "none"
-        if extract_sentiment:
+        if "sense" in required_features_list:
+            sense_data = lesk(spacy_doc, token.text, lesk_queries[pos] if pos in lesk_queries else "")
+            sense = sense_data.name().split(".")[-1] if sense_data is not None else "none"
+        else:
+            sense = None
+        if "sentiment" in required_features_list:
             sentiment = 'positive' if TextBlob(token.text).sentiment.polarity > 0.05 else 'negative' \
                 if TextBlob(token.text).sentiment.polarity < -0.05 else 'none'
         else:
@@ -122,7 +126,8 @@ def extract_linguistic_features(line, bert_tokenizer, spacy_tokenizer_1, spacy_t
             else:
                 bis = "inside"
             lfc = linguistic_features.copy()
-            lfc["token"] = bert_doc[bert_doc_pointer]
+            if "token" in required_features_list:
+                lfc["token"] = bert_doc[bert_doc_pointer]
             lfc["shape"] = unidecode.unidecode(sp_bert_doc[bert_doc_pointer].shape_)
             lfc["bis"] = bis
             result.append(lfc)
@@ -163,7 +168,7 @@ def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguist
     for sent in input_sentences:
         sent_extracted_features = [[padding_value] for _ in required_features_list]
         sent_extracted_feature_weights = [[0.] for _ in required_features_list]
-        res = extract_linguistic_features(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2)
+        res = extract_linguistic_features(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list)
         for token_feature in res:
             for ind, elem in enumerate(required_features_list):
                 assert elem in token_feature, "feature {} is required to be extracted!"
