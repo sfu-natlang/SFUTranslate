@@ -161,32 +161,30 @@ def extract_linguistic_vocabs(data_itr, bert_tokenizer, lang, lowercase_data):
     return vs
 
 
-def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer):
-    padding_value = 0
-    extracted_features = [[] for _ in required_features_list]
-    extracted_feature_weights = [[] for _ in required_features_list]
-    for sent in input_sentences:
-        sent_extracted_features = [[padding_value] for _ in required_features_list]
-        sent_extracted_feature_weights = [[0.] for _ in required_features_list]
-        res = extract_linguistic_features(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list)
-        for token_feature in res:
-            for ind, elem in enumerate(required_features_list):
-                assert elem in token_feature, "feature {} is required to be extracted!"
-                feature = token_feature[elem]
-                feature_id = linguistic_vocab[elem][feature][0] + 1  # the first index is <PAD>
-                feature_weight = linguistic_vocab[elem][feature][1]
-                sent_extracted_features[ind].append(feature_id)
-                sent_extracted_feature_weights[ind].append(feature_weight)
-        for ind in range(len(required_features_list)):
-            sent_extracted_features[ind].append(padding_value)
-            sent_extracted_feature_weights[ind].append(0.)  # make sure you don't sum over this one
-            extracted_features[ind].append(torch.tensor(sent_extracted_features[ind], device=device).long())
-            extracted_feature_weights[ind].append(torch.tensor(sent_extracted_feature_weights[ind], device=device).float())
+def extract_features_and_weights(sent, linguistic_vocab, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list, padding_value=0):
+    res = extract_linguistic_features(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list)
+    # the first index is <PAD>
+    sent_extracted_features = [[linguistic_vocab[elem][token_feature[elem]][0] + 1 for token_feature in res] for elem in required_features_list]
+    sent_extracted_feature_weights = [[linguistic_vocab[elem][token_feature[elem]][1] for token_feature in res] for elem in required_features_list]
+    for ind in range(len(required_features_list)):
+        sent_extracted_features[ind].insert(0, padding_value)
+        sent_extracted_feature_weights[ind].insert(0, 0.)
+        sent_extracted_features[ind].append(padding_value)
+        sent_extracted_feature_weights[ind].append(0.)  # make sure you don't sum over this one
+    return [torch.tensor(sent_extracted_features[ind], device=device).long() for ind in range(len(required_features_list))],\
+           [torch.tensor(sent_extracted_feature_weights[ind], device=device).float() for ind in range(len(required_features_list))]
 
-    return [torch.nn.utils.rnn.pad_sequence(extracted_features[ind], batch_first=True, padding_value=padding_value)
-            for ind in range(len(required_features_list))], \
-           [torch.nn.utils.rnn.pad_sequence(extracted_feature_weights[ind], batch_first=True, padding_value=0.)
-            for ind in range(len(required_features_list))]
+
+def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguistic_vocab, spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer,
+                               padding_value=0):
+    # will be a list of #input_sentences size each item a pair of size two and each item of the pair of size len(required_features_list)
+    # len(input_sentences) * 2 * len(required_features_list)
+    extracted_features_and_weights = [extract_features_and_weights(sent, linguistic_vocab, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
+                                                                   required_features_list, padding_value) for sent in input_sentences]
+    return [torch.nn.utils.rnn.pad_sequence([extracted_features_and_weights[sent_id][0][ind]for sent_id in range(len(input_sentences))],
+                                            batch_first=True, padding_value=padding_value) for ind in range(len(required_features_list))], \
+           [torch.nn.utils.rnn.pad_sequence([extracted_features_and_weights[sent_id][1][ind]for sent_id in range(len(input_sentences))],
+                                            batch_first=True, padding_value=0.) for ind in range(len(required_features_list))]
 
 
 def extract_word_boundaries(bis_array):
