@@ -1,6 +1,6 @@
 from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
-from readers.utils import batch_size_fn, get_dataset, collect_unk_stats, MyIterator, extract_exclusive_immediate_neighbours
+from readers.utils import batch_size_fn, get_dataset, collect_unk_stats, MyIterator, MyBucketIterator
 from readers.tokenizers import get_tokenizer_from_configs
 
 src_tokenizer_obj = get_tokenizer_from_configs(cfg.src_tokenizer, src_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
@@ -40,6 +40,12 @@ class DataProvider:
                 src_lan, tgt_lan, SRC, TGT, load_train_data)
         if train is not None:  # for testing you don't need to load train data!
             print("Number of training examples: {}".format(len(train.examples)))
+            if cfg.src_tokenizer == "bert":
+                train.bert_tokenizer = src_tokenizer_obj.tokenizer
+        if cfg.src_tokenizer == "bert":
+            val.bert_tokenizer = src_tokenizer_obj.tokenizer
+            for test in test_list:
+                test.bert_tokenizer = src_tokenizer_obj.tokenizer
         print("Number of validation [set name: {}] examples: {}".format(val.name, len(val.examples)))
         for test in test_list:
             print("Number of testing [set name: {}] examples: {}".format(test.name, len(test.examples)))
@@ -82,10 +88,10 @@ class DataProvider:
             self.size_train = 0
         # the BucketIterator does not reorder the lines in the actual dataset file so we can compare the results of
         # the model by the actual files via reading the test/val file line-by-line skipping empty lines
-        self.val_iter = data.BucketIterator(val, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
+        self.val_iter = MyBucketIterator(val, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
+                                         train=False, shuffle=False, sort=False, sort_within_batch=False)
+        self.test_iters = [MyBucketIterator(test, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
                                             train=False, shuffle=False, sort=False, sort_within_batch=False)
-        self.test_iters = [data.BucketIterator(test, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
-                                               train=False, shuffle=False, sort=False, sort_within_batch=False)
                            for test in test_list]
 
     def replace_fields(self, SRC, TGT):

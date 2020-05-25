@@ -136,6 +136,20 @@ class Transformer(nn.Module):
         keys = [hc(embedded).detach() for hc in self.head_converter[:-1]]  # the last layer contains what we have not considered
         return keys
 
+    def get_ling_embed_attention_keys_from_bert_converted_ids(self, bert_input_sentences):
+        # input_ids_2 = torch.nn.utils.rnn.pad_sequence(list(map(lambda x: torch.tensor(x, device=device), bert_input_sentences)),
+        #                                              batch_first=True, padding_value=self.bert_tokenizer.tokenizer.pad_token_id)
+        input_ids = torch.tensor(bert_input_sentences, device=device)
+        # assert (input_ids == input_ids_2).view(-1).size(0) == (input_ids == input_ids_2).sum().item()
+        outputs = self.bert_lm(input_ids)[1]  # (batch_size * [input_length + 2] * 768)
+        all_layers_embedded = torch.cat([o.unsqueeze(0) for o in outputs], dim=0)
+        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
+                                self.softmax(self.bert_weights_for_average_pooling)) # [:, 1:-1, :]
+        # ##############################################################################################################
+        # len(features_list) * batch_size * max_sequence_length, (H/ (len(features_list) + 1))
+        keys = [hc(embedded).detach() for hc in self.head_converter[:-1]]  # the last layer contains what we have not considered
+        return keys
+
     def init_model_params(self):
         """
         Initialize parameters with Glorot / fan_avg
@@ -149,7 +163,7 @@ class Transformer(nn.Module):
             print("Running the init params for bert language model")
             self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         if self.embed_src_with_ling_emb or self.augment_input_with_ling_heads:
-            print("Running the init params for ling_emb [src=german]")
+            print("Running the init params for ling_emb")
             self.src_embed = nn.Sequential(Embeddings(self.d_model, self.bert_tokenizer.tokenizer.vocab_size),
                                            self.src_embed[1]).to(device)
             # ling_emb_data_address = "iwslt_head_conv"
@@ -172,15 +186,15 @@ class Transformer(nn.Module):
                 for layer in self.enc_layers:
                     layer.self_attn.ling_emb_bridges = c(ling_emb_bridges).to(device)
 
-    def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
+    def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param test_mode: a flag indicating whether the model is allowed to use the target tensor for input feeding
         """
-        return self.decode(input_tensor_with_lengths, output_tensor_with_length, test_mode, beam_size=self.beam_size)
+        return self.decode(input_tensor_with_lengths, output_tensor_with_length, test_mode, beam_size=self.beam_size, **kwargs)
 
-    def encode(self, input_tensor_with_lengths):
+    def encode(self, input_tensor_with_lengths, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         """
@@ -193,17 +207,23 @@ class Transformer(nn.Module):
             x = self.src_embed(input_tensor)
         if self.embed_src_with_ling_emb:
             # TODO pass these keys to the self attention module
-            self_attention_key_list = self.get_ling_embed_attention_keys(input_tensor)
+            if "bert_src" in kwargs and kwargs["bert_src"] is not None:
+                self_attention_key_list = self.get_ling_embed_attention_keys_from_bert_converted_ids(kwargs["bert_src"])
+            else:
+                self_attention_key_list = self.get_ling_embed_attention_keys(input_tensor)
         else:
             self_attention_key_list = []
         if self.augment_input_with_ling_heads:
-            x_prime = self.head_converted_to_d_model(torch.cat(self.get_ling_embed_attention_keys(input_tensor), dim=-1))
+            if "bert_src" in kwargs and kwargs["bert_src"] is not None:
+                x_prime = self.head_converted_to_d_model(torch.cat(self.get_ling_embed_attention_keys_from_bert_converted_ids(kwargs["bert_src"]), dim=-1))
+            else:
+                x_prime = self.head_converted_to_d_model(torch.cat(self.get_ling_embed_attention_keys(input_tensor), dim=-1))
             x = self.input_gate(torch.cat((x_prime, x), dim=-1))
         for layer in self.enc_layers:
             x = layer(x, input_mask, self_attention_key_list)
         return self.enc_norm(x), input_mask
 
-    def decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, beam_size=1):
+    def decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, beam_size=1, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
@@ -218,7 +238,7 @@ class Transformer(nn.Module):
             output_tensor, outputs_lengths = None, None
 
         # #################################CALLING THE ENCODER TO ENCODE THE INPUT BATCH###############################
-        memory, input_mask = self.encode(input_tensor_with_lengths)
+        memory, input_mask = self.encode(input_tensor_with_lengths, **kwargs)
 
         if output_tensor_with_length is not None and not test_mode:
             batch_size = input_tensor_with_lengths[0].size(1)
@@ -240,11 +260,11 @@ class Transformer(nn.Module):
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
             return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), float(norm.item())
         elif self.beam_search_decoding:
-            return self.beam_search_decode(input_tensor_with_lengths, beam_size)
+            return self.beam_search_decode(input_tensor_with_lengths, beam_size, **kwargs)
         else:
-            return self.greedy_decode(input_tensor_with_lengths)
+            return self.greedy_decode(input_tensor_with_lengths, **kwargs)
 
-    def greedy_decode(self, input_tensor_with_lengths):
+    def greedy_decode(self, input_tensor_with_lengths, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         """
@@ -252,7 +272,7 @@ class Transformer(nn.Module):
         input_tensor = input_tensor.transpose(0, 1)
         batch_size, input_sequence_length = input_tensor.size()
         target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
-        memory, src_mask = self.encode(input_tensor_with_lengths)
+        memory, src_mask = self.encode(input_tensor_with_lengths, **kwargs)
         ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)
         for i in range(target_length-1):
             output_tensor, output_mask = ys.clone().detach(), \
@@ -267,7 +287,7 @@ class Transformer(nn.Module):
         max_attention_indices = None
         return ys.transpose(0, 1), max_attention_indices, torch.zeros(1, device=device), 1, 1
 
-    def beam_search_decode(self, input_tensor_with_lengths, beam_size=1):
+    def beam_search_decode(self, input_tensor_with_lengths, beam_size=1, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param beam_size: number of the hypothesis expansions during inference
@@ -276,7 +296,7 @@ class Transformer(nn.Module):
         input_tensor = input_tensor.transpose(0, 1)
         batch_size, input_sequence_length = input_tensor.size()
         target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
-        memory, src_mask = self.encode(input_tensor_with_lengths)
+        memory, src_mask = self.encode(input_tensor_with_lengths, **kwargs)
 
         # #################################INITIALIZATION OF DECODING PARAMETERS#######################################
         init_ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)

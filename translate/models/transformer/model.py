@@ -75,7 +75,7 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
 
-    def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
+    def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)

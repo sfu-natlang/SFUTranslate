@@ -1,4 +1,5 @@
 from torchtext import data, datasets
+from torchtext.data import Batch
 from configuration import cfg, device
 from readers.dataset import IWSLT, WMT19DeEn
 from collections import Counter
@@ -18,6 +19,37 @@ def batch_size_fn(new, count, sofar):
     return max(src_elements, tgt_elements)
 
 
+class MyBucketIterator(data.BucketIterator):
+    def __iter__(self):
+        while True:
+            self.init_epoch()
+            for idx, minibatch in enumerate(self.batches):
+                # fast-forward if loaded from state
+                if self._iterations_this_epoch > idx:
+                    continue
+                self.iterations += 1
+                self._iterations_this_epoch += 1
+                if self.sort_within_batch:
+                    # NOTE: `rnn.pack_padded_sequence` requires that a minibatch
+                    # be sorted by decreasing order, which requires reversing
+                    # relative to typical sort keys
+                    if self.sort:
+                        minibatch.reverse()
+                    else:
+                        minibatch.sort(key=self.sort_key, reverse=True)
+                created_batch = Batch(minibatch, self.dataset, self.device)
+                if cfg.src_tokenizer == "bert":
+                    max_len = max(created_batch.src[1]).item()
+                    bert_input_sentences = [self.dataset.bert_tokenizer.convert_tokens_to_ids(mb.src) +
+                                            [self.dataset.bert_tokenizer.pad_token_id] * (max_len - len(mb.src)) for mb in minibatch]
+                    created_batch.b_src = bert_input_sentences
+                else:
+                    created_batch.b_src = None
+                yield created_batch
+            if not self.repeat:
+                return
+
+
 class MyIterator(data.Iterator):
     """
     The customized torchtext iterator suggested in https://nlp.seas.harvard.edu/2018/04/03/attention.html
@@ -25,6 +57,35 @@ class MyIterator(data.Iterator):
     """
     def __len__(self):
         return 0.0
+
+    def __iter__(self):
+        while True:
+            self.init_epoch()
+            for idx, minibatch in enumerate(self.batches):
+                # fast-forward if loaded from state
+                if self._iterations_this_epoch > idx:
+                    continue
+                self.iterations += 1
+                self._iterations_this_epoch += 1
+                if self.sort_within_batch:
+                    # NOTE: `rnn.pack_padded_sequence` requires that a minibatch
+                    # be sorted by decreasing order, which requires reversing
+                    # relative to typical sort keys
+                    if self.sort:
+                        minibatch.reverse()
+                    else:
+                        minibatch.sort(key=self.sort_key, reverse=True)
+                created_batch = Batch(minibatch, self.dataset, self.device)
+                if cfg.src_tokenizer == "bert":
+                    max_len = max(created_batch.src[1]).item()
+                    bert_input_sentences = [self.dataset.bert_tokenizer.convert_tokens_to_ids(mb.src) +
+                                            [self.dataset.bert_tokenizer.pad_token_id] * (max_len - len(mb.src)) for mb in minibatch]
+                    created_batch.b_src = bert_input_sentences
+                else:
+                    created_batch.b_src = None
+                yield created_batch
+            if not self.repeat:
+                return
 
     def create_batches(self):
         if self.train:

@@ -73,7 +73,7 @@ def main(model_name):
         for ind, instance in enumerate(ds):
             if instance.src[0].size(0) < 2:
                 continue
-            pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg)
+            pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg, bert_src=instance.b_src)
             itm = lss.item()
             all_loss += itm
             all_tokens_count += n_tokens
