@@ -609,8 +609,9 @@ def mode_2_project_sub_layers_tester(data_itr, model_name, bert_tokenizer, lingu
                                                   )] * len(required_features_list)
             for s in range(1, embedded.size(1)-1):
                 x = embedded.select(1, s)
-                features_selected = [f.select(1, s) for f in features]
-                feature_weights_selected = [fw.select(1, s) for fw in feature_weights]
+                # TODO make sure the f.select(1, -1) is a good idea also check why s < f.size(1) might happen (probably padding ?!?).
+                features_selected = [f.select(1, s) if s < f.size(1) else f.select(1, -1) for f in features]
+                feature_weights_selected = [fw.select(1, s) if s < fw.size(1) else fw.select(1, -1) for fw in feature_weights]
                 _, loss, feature_pred_correct, feat_predictions = model(x, features_selected, feature_weights_selected)
                 predictions[s] = feat_predictions
                 if check_result_sanity:
