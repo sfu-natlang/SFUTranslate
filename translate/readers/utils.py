@@ -1,6 +1,6 @@
 from torchtext import data, datasets
 from configuration import cfg, device
-from readers.dataset import IWSLT, WMT19DeEn
+from readers.dataset import IWSLT, WMT19DeEn, Multi30k
 from collections import Counter
 from tqdm import tqdm
 
@@ -49,11 +49,9 @@ def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_d
     if cfg.dataset_name == "multi30k16":
         print("Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]")
         if load_train_data:
-            train, val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                                                    fields=(SRC, TGT))
+            train, val, test = Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT))
         else:
-            val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                                             fields=(SRC, TGT), train=None)
+            val, test = Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), train=None)
             train = None
         val.name = "multi30k.dev"
         test.name = "multi30k.test"

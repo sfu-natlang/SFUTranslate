@@ -7,6 +7,43 @@ from torchtext import data, datasets
 from configuration import src_lan, tgt_lan, cfg, device
 
 
+class Multi30k(datasets.TranslationDataset):
+    """The small-dataset WMT 2017 multimodal task"""
+
+    urls = ['http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_training.tar.gz',
+            'http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_validation.tar.gz',
+            'http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_test2016.tar.gz']
+    name = 'multi30k'
+    dirname = ''
+
+    @classmethod
+    def splits(cls, exts, fields, root='.data',
+               train='train', validation='val', test='test2016', **kwargs):
+        """Create dataset objects for splits of the Multi30k dataset.
+
+        Arguments:
+            exts: A tuple containing the extension to path for each language.
+            fields: A tuple containing the fields that will be used for data
+                in each language.
+            root: Root dataset storage directory. Default is '.data'.
+            train: The prefix of the train data. Default: 'train'.
+            validation: The prefix of the validation data. Default: 'val'.
+            test: The prefix of the test data. Default: 'test'.
+            Remaining keyword arguments: Passed to the splits method of
+                Dataset.
+        """
+
+        if 'path' not in kwargs:
+            expected_folder = os.path.join(root, cls.name)
+            path = expected_folder if os.path.exists(expected_folder) else None
+        else:
+            path = kwargs['path']
+            del kwargs['path']
+
+        return super(Multi30k, cls).splits(
+            exts, fields, path, root, train, validation, test, **kwargs)
+
+
 class IWSLT(datasets.TranslationDataset):
     """Do-over of the original Torchtext IWSLT Library.
     This one just does not apply filter_pred designed for length limiting to the test and dev datasets.
