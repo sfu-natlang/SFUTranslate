@@ -42,6 +42,8 @@ class PreTrainedTokenizer(GenericTokenizer):
         "bert-base-finnish-cased-v1": "https://s3.amazonaws.com/models.huggingface.co/bert/TurkuNLP/bert-base-finnish-cased-v1/vocab.txt",
         "bert-base-finnish-uncased-v1": "https://s3.amazonaws.com/models.huggingface.co/bert/TurkuNLP/bert-base-finnish-uncased-v1/vocab.txt",
         "bert-base-dutch-cased": "https://s3.amazonaws.com/models.huggingface.co/bert/wietsedv/bert-base-dutch-cased/vocab.txt",
+        "moses-pre-tokenized-wmt-uncased-fr": "https://drive.google.com/uc?export=download&id=1kYxOhJh4UshVE_SGYMANjLn_oEB6RMYC",
+        "moses-pre-tokenized-wmt-uncased-en": "https://drive.google.com/uc?export=download&id=1hIURG9eiIXQYCm8cS4vJM3RLVl6UcW32"
     }
 
     def __init__(self, lang, root='.data', clean_text=True, handle_chinese_chars=True, strip_accents=True, lowercase=True):
@@ -54,7 +56,7 @@ class PreTrainedTokenizer(GenericTokenizer):
         assert pre_trained_model_name in self.vocab_files, \
             "The requested pre_trained tokenizer model {} does not exist!".format(pre_trained_model_name)
         url = self.vocab_files[pre_trained_model_name]
-        f_name = root + "/" + os.path.basename(url)
+        f_name = root + "/" + pre_trained_model_name + ".txt"
         if not os.path.exists(f_name):
             with open(f_name, "wb") as file_:
                 response = get(url)
@@ -110,6 +112,8 @@ class PreTrainedTokenizer(GenericTokenizer):
             return "bert-base-finnish-uncased-v1"
         elif lang == "fi" and not lowercase:
             return "bert-base-finnish-cased-v1"
+        elif lang == "fr" and lowercase:
+            return "moses-pre-tokenized-wmt-uncased-fr"
         else:
             raise ValueError("No pre-trained tokenizer found for language {} in {} mode".format(
                 lang, "lowercased" if lowercase else "cased"))
