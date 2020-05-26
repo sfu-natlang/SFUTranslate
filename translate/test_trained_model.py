@@ -14,6 +14,7 @@ def test_trained_model():
     model.beam_search_coverage_penalty_factor = float(cfg.beam_search_coverage_penalty_factor)
     SRC = saved_obj['field_src']
     TGT = saved_obj['field_tgt']
+    print("Model loaded, total number of parameters: {}".format(sum([p.numel() for p in model.parameters()])))
     dp = DataProvider(SRC, TGT, load_train_data=False)
     evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address,
              "VALID.{}".format(dp.val_iter.dataset.name), save_decoded_sentences=True)
