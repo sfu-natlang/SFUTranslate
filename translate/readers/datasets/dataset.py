@@ -26,7 +26,8 @@ class M30k(TranslationDataset):
             raise ValueError("This data set only contains data translated to/from English, French, or German")
         return super(M30k, cls).splits(exts, fields, None, root, train, validation, test_list, **kwargs)
 
-    def prepare_dataset(self, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
+    @staticmethod
+    def prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
         res = ProcessedData()
         print("Loading Multi30k dataset ...")
         if load_train_data:
@@ -108,7 +109,8 @@ class IWSLT(TranslationDataset):
                     if not any(tag in l for tag in xml_tags):
                         fd_txt.write(l.strip() + '\n')
 
-    def prepare_dataset(self, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
+    @staticmethod
+    def prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
         res = ProcessedData()
         if not load_train_data:
             val, *test = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), debug_mode=debug_mode, train=None,
@@ -152,7 +154,8 @@ class WMT19DeEn(TranslationDataset):
             raise ValueError("This data set only contains data translated from German to English or reverse")
         return super(WMT19DeEn, cls).splits(exts, fields, None, root, train, validation, test_list, **kwargs)
 
-    def prepare_dataset(self, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
+    @staticmethod
+    def prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
         res = ProcessedData()
         dev_data = "valid"
         test_data_list = ["newstest201{}".format(i) for i in range(4, 10)]
@@ -213,7 +216,8 @@ class WMT19DeFr(TranslationDataset):
             raise ValueError("This data set only contains data translated from German to French or reverse")
         return super(WMT19DeFr, cls).splits(exts, fields, None, root, train, validation, test_list, **kwargs)
 
-    def prepare_dataset(self, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
+    @staticmethod
+    def prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
         res = ProcessedData()
         dev_data = "valid"
         test_data_list = ['newstest2008', 'newstest2009', 'newstest2010', 'newstest2011', 'newstest2012', 'newstest2013', 'newstest2019',
@@ -249,3 +253,17 @@ class WMT19DeFr(TranslationDataset):
         res.addresses.train.src = ".data/wmt19_de_fr/{}.{}".format(train_data, src_lan)
         res.addresses.train.tgt = ".data/wmt19_de_fr/{}.{}".format(train_data, tgt_lan)
         return res
+
+
+def get_dataset_from_configs(dataset_name, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length=-1,
+                             sentence_count_limit=-1, debug_mode=False):
+    if dataset_name == "multi30k16":
+        return M30k.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)
+    elif dataset_name == "iwslt17_de_en":
+        return IWSLT.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)
+    elif dataset_name == "wmt19_de_en":
+        return WMT19DeEn.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)
+    elif dataset_name == "wmt19_de_fr":
+        return WMT19DeFr.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)
+    else:
+        raise ValueError("A dataset equivalent to the name {} is not implemented!".format(dataset_name))
