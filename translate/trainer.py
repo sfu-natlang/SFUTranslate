@@ -1,3 +1,4 @@
+import os
 import math
 import torch
 from torch import nn
@@ -49,11 +50,13 @@ def main(model_name):
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(dp.SRC, dp.TGT)
     else:
         raise ValueError("Model name {} is not defined.".format(model_name))
-    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
+    if not os.path.exists("../.checkpoints/"):
+        os.mkdir("../.checkpoints/")
+    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, "../.checkpoints/"+cfg.checkpoint_name)
 
     val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
     if bool(cfg.debug_mode):
-        evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, "INIT")
+        evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "INIT")
     best_val_score = 0.0
     assert cfg.update_freq > 0, "update_freq must be a non-negative integer"
     for epoch in range(int(cfg.n_epochs)):
@@ -93,14 +96,14 @@ def main(model_name):
             if ind in val_indices:
                 val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, str(epoch))
                 if val_bleu > best_val_score:
-                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
+                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, "../.checkpoints/"+cfg.checkpoint_name)
                     best_val_score = val_bleu
                 if step_only_at_eval:
                     scheduler.step(val_bleu)
 
     if best_val_score > 0.0:
         print("Loading the best validated model with validation bleu score of {:.2f}".format(best_val_score))
-        saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
+        saved_obj = torch.load("../.checkpoints/"+cfg.checkpoint_name, map_location=lambda storage, loc: storage)
         model = saved_obj['model'].to(device)
         # it might not correctly overwrite the vocabulary objects
         SRC = saved_obj['field_src']

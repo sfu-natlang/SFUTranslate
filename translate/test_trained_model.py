@@ -6,7 +6,7 @@ from utils.evaluation import evaluate
 
 def test_trained_model():
     print("Loading the best trained model")
-    saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
+    saved_obj = torch.load("../.checkpoints/"+cfg.checkpoint_name, map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     model.beam_search_decoding = True
     model.beam_size = int(cfg.beam_size)

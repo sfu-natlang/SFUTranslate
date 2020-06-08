@@ -11,6 +11,7 @@ __pycache__/
 .idea/
 .output/
 .data/
+.checkpoints/
 env/
 build/
 develop-eggs/

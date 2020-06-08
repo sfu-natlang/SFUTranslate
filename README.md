@@ -61,10 +61,10 @@ As of the current version, the `translate` package contains the following sub-pa
 ## What can be put in the config file?
 Here we present a complete schema for the config file containing all possible valid tags that can be put in the config file.
 Please note that you may put some in and remove some from your config file, however, if the config file lacks the configurations 
-that are essential to your task you will face an error indicating that the required configuration value is not presented.
+that are essential to your task you will face an error indicating that the required configuration value is not present.
   In that case, please look at the config file and put the configuration tag with your desired value in it. An example 
-  config file called `nmt.yml` is already put in the `resources` directory so you can modify and use for running the 
-  project. Nevertheless, you can create your own config file as a text file whose name is ending in `.yml` and put your 
+  config file called `nmt.yml` is already put in the `resources` directory. You can modify and use it for running the 
+  project. Nevertheless, you can create your own config file as a text file with a `.yml` extension in the name and put your 
   configurations in it. Here is the configuration schema:
 ```yamlex
 debug_mode: [true/false] if true tokenizer is deactivated and length filter is also applied to validation and test sets
@@ -145,7 +145,7 @@ checkpoint_name: the name of the checkpoint which is being saved/loaded
 
 # Experiment Results
 In this section, we put the experiment results of different models on different datasets. Please check this page regularly as we add our new results below the previously posted ones.
- You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. To use them you can simply put them besides the `trainer.py` script (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
+ You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. To use them you can simply put them in a directory named `.checkpoints` created besides the `translate` package (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
  Each experiment will have a model file (ending in ".pt") in there with the exact same name mentioned in the table below.
  The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
   The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
