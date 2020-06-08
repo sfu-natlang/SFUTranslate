@@ -10,6 +10,18 @@ from models.transformer.model import Transformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
+from timeit import default_timer as timer
+
+
+def print_running_time(t):
+    day = t // (24 * 3600)
+    t = t % (24 * 3600)
+    hour = t // 3600
+    t %= 3600
+    minutes = t // 60
+    t %= 60
+    seconds = t
+    print("Total training execution time: {:.2f} days, {:.2f} hrs, {:.2f} mins, {:.2f} secs".format(day, hour, minutes, seconds))
 
 
 def create_sts_model(SRC, TGT):
@@ -51,7 +63,7 @@ def main(model_name):
         batch_count = 0.0
         all_perp = 0.0
         all_tokens_count = 0.0
-        ds = tqdm(dp.train_iter, total=dp.size_train)
+        ds = tqdm(dp.train_iter, total=dp.size_train,  dynamic_ncols=True)
         optimizer.zero_grad()
         for ind, instance in enumerate(ds):
             if instance.src[0].size(0) < 2:
@@ -98,5 +110,8 @@ def main(model_name):
 
 
 if __name__ == "__main__":
+    start = timer()
     main(cfg.model_name)
+    end = timer()
+    print_running_time(end - start)
 
