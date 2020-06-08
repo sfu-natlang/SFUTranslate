@@ -92,3 +92,4 @@ ENV/
 .ropeproject
 /translate/*.pt
 /translate/models/.data/*/
+/tests/readers/datasets/.data/*/
