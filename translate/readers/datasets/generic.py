@@ -1,6 +1,18 @@
 import os
 import io
+from collections import namedtuple
 from torchtext import data
+
+FileAddress = namedtuple('FileAddress', ['train', 'val', 'tests'])
+BiAddress = namedtuple('BiAddress', ['src', 'tgt'])
+
+
+class ProcessedData:
+    def __init__(self):
+        self.train = None
+        self.val = None
+        self.test_list = None
+        self.addresses = FileAddress(BiAddress('', ''), BiAddress('', ''), BiAddress('', ''))
 
 
 class TranslationDataset(data.Dataset):
@@ -102,3 +114,7 @@ class TranslationDataset(data.Dataset):
     @staticmethod
     def clean(path):
         return
+
+    def prepare_dataset(self, src_lan: str, tgt_lan: str, SRC: data.Field, TGT: data.Field, load_train_data: bool, max_sequence_length: int = -1,
+                        sentence_count_limit: int = -1, debug_mode: bool = False) -> ProcessedData:
+        raise NotImplementedError
