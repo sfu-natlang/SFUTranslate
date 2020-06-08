@@ -256,10 +256,10 @@ class WMT19DeFr(TranslationDataset):
 
 
 def get_dataset_from_configs(dataset_name, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length=-1,
-                             sentence_count_limit=-1, debug_mode=False):
+                             sentence_count_limit=-1, debug_mode=False) -> ProcessedData:
     if dataset_name == "multi30k16":
         return M30k.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)
-    elif dataset_name == "iwslt17_de_en":
+    elif dataset_name == "iwslt17":
         return IWSLT.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)
     elif dataset_name == "wmt19_de_en":
         return WMT19DeEn.prepare_dataset(src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode)

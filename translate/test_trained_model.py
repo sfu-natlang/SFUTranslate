@@ -16,9 +16,9 @@ def test_trained_model():
     TGT = saved_obj['field_tgt']
     print("Model loaded, total number of parameters: {}".format(sum([p.numel() for p in model.parameters()])))
     dp = DataProvider(SRC, TGT, load_train_data=False)
-    evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address,
+    evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt,
              "VALID.{}".format(dp.val_iter.dataset.name), save_decoded_sentences=True)
-    for test_iter, s, t in zip(dp.test_iters, dp.src_test_file_addresses, dp.tgt_test_file_addresses):
+    for test_iter, s, t in zip(dp.test_iters, dp.processed_data.addresses.tests.src, dp.processed_data.addresses.tests.tgt):
         evaluate(test_iter, dp, model, s, t, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True)
 
 

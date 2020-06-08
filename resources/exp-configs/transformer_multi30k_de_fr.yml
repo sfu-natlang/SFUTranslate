@@ -17,6 +17,7 @@ max_vocab_tgt: 50000
 min_freq_tgt: 0
 extract_unk_stats: false
 share_vocabulary: false
+sentence_count_limit: -1
 
 emb_dropout: 0.3
 train_batch_size: 2500

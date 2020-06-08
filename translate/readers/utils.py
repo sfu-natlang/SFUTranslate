@@ -1,6 +1,6 @@
 from torchtext import data, datasets
 from configuration import cfg, device
-from readers.dataset import IWSLT, WMT19DeEn, Multi30k
+from readers.datasets.dataset import M30k, IWSLT, WMT19DeEn, WMT19DeFr
 from collections import Counter
 from tqdm import tqdm
 
@@ -42,91 +42,6 @@ class MyIterator(data.Iterator):
             for b in data.batch(self.data(), self.batch_size,
                                 self.batch_size_fn):
                 self.batches.append(sorted(b, key=self.sort_key))
-
-
-def get_dataset(src_lan, tgt_lan, SRC: data.Field, TGT: data.Field, load_train_data, dev_data=None, test_data_list=None,
-                filter_for_max_length=True):
-    if cfg.dataset_name == "multi30k16":
-        print("Loading Multi30k [MinLen:1;AvgLen:12;MaxLen:40]")
-        if load_train_data:
-            train, val, test = Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT))
-        else:
-            val, test = Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), train=None)
-            train = None
-        val.name = "multi30k.dev"
-        test.name = "multi30k.test"
-        test = [test]
-        src_val_file_address = ".data/multi30k/val.{}".format(src_lan)
-        tgt_val_file_address = ".data/multi30k/val.{}".format(tgt_lan)
-        src_test_file_address = [".data/multi30k/test2016.{}".format(src_lan)]
-        tgt_test_file_address = [".data/multi30k/test2016.{}".format(tgt_lan)]
-        src_train_file_address = ".data/multi30k/train.{}".format(src_lan)
-        tgt_train_file_address = ".data/multi30k/train.{}".format(tgt_lan)
-    elif cfg.dataset_name == "iwslt17_de_en":
-        dev_data = dev_data if dev_data is not None else "dev2010"
-        test_data_list = test_data_list if test_data_list is not None else ["tst201{}".format(i) for i in range(6)]
-        if not load_train_data:
-            val, *test = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT),
-                                      test_list=['IWSLT17.TED.{}'.format(test_data) for test_data in test_data_list],
-                                      validation='IWSLT17.TED.{}'.format(dev_data), debug_mode=bool(cfg.debug_mode),
-                                      train=None)
-            train = None
-        elif filter_for_max_length:
-            train, val, *test = IWSLT.splits(
-                filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
-                    vars(x)['trg']) <= cfg.max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                fields=(SRC, TGT), test_list=['IWSLT17.TED.{}'.format(test_data) for test_data in test_data_list],
-                validation='IWSLT17.TED.{}'.format(dev_data), debug_mode=bool(cfg.debug_mode))
-        else:
-            train, val, *test = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT),
-                                             test_list=['IWSLT17.TED.{}'.format(test_data) for test_data in test_data_list],
-                                             validation='IWSLT17.TED.{}'.format(dev_data), debug_mode=bool(cfg.debug_mode))
-        src_val_file_address = ".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{0}".format(src_lan, tgt_lan, dev_data)
-        tgt_val_file_address = ".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{1}".format(src_lan, tgt_lan, dev_data)
-        src_test_file_address = [".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{0}".format(
-            src_lan, tgt_lan, test_data) for test_data in test_data_list]
-        tgt_test_file_address = [".data/iwslt/de-en/IWSLT17.TED.{2}.de-en.{1}".format(
-            src_lan, tgt_lan, test_data) for test_data in test_data_list]
-        src_train_file_address = ".data/iwslt/de-en/train.de-en.{}".format(src_lan)
-        tgt_train_file_address = ".data/iwslt/de-en/train.de-en.{}".format(tgt_lan)
-    elif cfg.dataset_name == "wmt19_de_en" or cfg.dataset_name == "wmt19_de_en_small":
-        dev_data = dev_data if dev_data is not None else "valid"
-        test_data_list = test_data_list if test_data_list is not None else ["newstest201{}".format(i) for i in range(4, 10)]
-        train_data = "train"
-        if not load_train_data:
-            val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                          fields=(SRC, TGT), train=None,
-                                          validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                                          test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
-            train = None
-        elif filter_for_max_length:
-            train, val, *test = WMT19DeEn.splits(
-                filter_pred=lambda x: len(vars(x)['src']) <= cfg.max_sequence_length and len(
-                    vars(x)['trg']) <= cfg.max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                fields=(SRC, TGT), train=train_data, validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
-        else:
-            train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                                 fields=(SRC, TGT), train=train_data,
-                                                 validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                                                 test_list=['{}-ende'.format(test_data) for test_data in test_data_list])
-        if dev_data == "valid":
-            src_val_file_address = ".data/wmt19_en_de/valid.{}".format(src_lan)
-            tgt_val_file_address = ".data/wmt19_en_de/valid.{}".format(tgt_lan)
-        else:
-            src_val_file_address = ".data/wmt19_en_de/{}-ende.{}".format(dev_data, src_lan)
-            tgt_val_file_address = ".data/wmt19_en_de/{}-ende.{}".format(dev_data, tgt_lan)
-        src_test_file_address = [".data/wmt19_en_de/{}-ende.{}".format(
-            test_data, src_lan) for test_data in test_data_list]
-        tgt_test_file_address = [".data/wmt19_en_de/{}-ende.{}".format(
-            test_data, tgt_lan) for test_data in test_data_list]
-        src_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, src_lan)
-        tgt_train_file_address = ".data/wmt19_en_de/{}.{}".format(train_data, tgt_lan)
-    else:
-        raise ValueError("The dataset {} is not defined in torchtext or SFUTranslate!".format(cfg.dataset_name))
-
-    return train, val, test, src_val_file_address, tgt_val_file_address, src_test_file_address, tgt_test_file_address, \
-        src_train_file_address, tgt_train_file_address
 
 
 def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_name,

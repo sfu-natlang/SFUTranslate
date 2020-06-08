@@ -67,7 +67,7 @@ that are essential to your task you will face an error indicating that the requi
   project. Nevertheless, you can create your own config file as a text file whose name is ending in `.yml` and put your 
   configurations in it. Here is the configuration schema:
 ```yamlex
-debug_mode: [true/false] if true spacy tokenizer is deactivated and Multi30k dataset is automatically loaded
+debug_mode: [true/false] if true tokenizer is deactivated and length filter is also applied to validation and test sets
 src_lang: the bi-letter language identifier for source langugage
 tgt_lang: the bi-letter language identifier for target langugage
 dataset_name: the name of the torchtext datasetname
@@ -85,7 +85,8 @@ min_freq_src: minimum considrable source vocabulary, words with less freqency th
 max_vocab_tgt: maximum size of target side vocabulary
 min_freq_tgt: minimum considrable target vocabulary, words with less freqency than this are replaced with ``unk_token``
 extract_unk_stats: the flag which enables the code to perform type/token analysis on the ratio of <UNK> tokens in the current vocabulary settings
-share_vocabulary: the flag which enables merging the source and target vocabulary into a single object, assigning unique ids to the same token in both source and target space 
+share_vocabulary: the flag which enables merging the source and target vocabulary into a single object, assigning unique ids to the same token in both source and target space
+sentence_count_limit: the maximum number of sentences to be considered from the dataset. it will normally be used when different data fractions are intended to be compared. please note that the actual number of processed sentences can be lower than this number since empty lines are removed from training data. 
 
 model_name: `transformer` or `sts`
 train_batch_size: the average number of words expected to be put in a batch while training [4000 to 5000 seem to be a reasonable defalt]
