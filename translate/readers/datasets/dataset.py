@@ -31,9 +31,11 @@ class M30k(TranslationDataset):
         res = ProcessedData()
         print("Loading Multi30k dataset ...")
         if load_train_data:
-            train, val, *test = M30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT))
+            train, val, *test = M30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT),
+                                            sentence_count_limit=sentence_count_limit)
         else:
-            val, *test = M30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), train=None)
+            val, *test = M30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), train=None,
+                                     sentence_count_limit=sentence_count_limit)
             train = None
         val.name = "multi30k.dev"
         test[0].name = "multi30k.test"
