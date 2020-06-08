@@ -1,6 +1,5 @@
 from torchtext import data, datasets
 from configuration import cfg, device
-from readers.datasets.dataset import M30k, IWSLT, WMT19DeEn, WMT19DeFr
 from collections import Counter
 from tqdm import tqdm
 
