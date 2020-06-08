@@ -30,22 +30,23 @@ class TestDatasetLoaders(unittest.TestCase):
         cls.SRC = data.Field(tokenize=src_tokenizer, lower=True, pad_token="<pad>", unk_token="<unk>", include_lengths=True)
         cls.TGT = data.Field(tokenize=tgt_tokenizer, lower=True, pad_token="<pad>", unk_token="<unk>", init_token="<bos>",
                              eos_token="<eos>", include_lengths=True)
+        cls.root_dir = '../../../.data'
 
     def test_wmt_de_en_loader(self):
         lan_src = 'de'
         lan_tgt = 'en'
         print("Loading {}-{} WMT dataset".format(lan_src, lan_tgt))
-        WMT19DeEn.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT), sentence_count_limit=1000)
+        WMT19DeEn.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT), sentence_count_limit=1000, root=self.root_dir)
         print("Loading {}-{} WMT dataset".format(lan_tgt, lan_src))
-        WMT19DeEn.splits(exts=('.{}'.format(lan_tgt), '.{}'.format(lan_src)), fields=(self.SRC, self.TGT), sentence_count_limit=1000)
+        WMT19DeEn.splits(exts=('.{}'.format(lan_tgt), '.{}'.format(lan_src)), fields=(self.SRC, self.TGT), sentence_count_limit=1000, root=self.root_dir)
 
     def test_wmt_de_fr_loader(self):
         lan_src = 'de'
         lan_tgt = 'fr'
         print("Loading {}-{} WMT dataset".format(lan_src, lan_tgt))
-        WMT19DeFr.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT), sentence_count_limit=1000)
+        WMT19DeFr.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT), sentence_count_limit=1000, root=self.root_dir)
         print("Loading {}-{} WMT dataset".format(lan_tgt, lan_src))
-        WMT19DeFr.splits(exts=('.{}'.format(lan_tgt), '.{}'.format(lan_src)), fields=(self.SRC, self.TGT), sentence_count_limit=1000)
+        WMT19DeFr.splits(exts=('.{}'.format(lan_tgt), '.{}'.format(lan_src)), fields=(self.SRC, self.TGT), sentence_count_limit=1000, root=self.root_dir)
 
     def test_iwslt_loader(self):
         lan_tgt = 'en'
@@ -53,7 +54,7 @@ class TestDatasetLoaders(unittest.TestCase):
             if lan_src == lan_tgt:
                 continue
             print("Loading {}-{} IWSLT dataset".format(lan_src, lan_tgt))
-            IWSLT.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT))
+            IWSLT.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT), root=self.root_dir)
 
     def test_m30k_loader(self):
         for lan_src in self.m30k_languages:
@@ -61,7 +62,7 @@ class TestDatasetLoaders(unittest.TestCase):
                 if lan_src == lan_tgt:
                     continue
                 print("Loading {}-{} M30k dataset".format(lan_src, lan_tgt))
-                M30k.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT))
+                M30k.splits(exts=('.{}'.format(lan_src), '.{}'.format(lan_tgt)), fields=(self.SRC, self.TGT), root=self.root_dir)
 
 
 if __name__ == '__main__':
