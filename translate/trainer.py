@@ -52,7 +52,9 @@ def main(model_name):
         raise ValueError("Model name {} is not defined.".format(model_name))
     if not os.path.exists("../.checkpoints/"):
         os.mkdir("../.checkpoints/")
-    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, "../.checkpoints/"+cfg.checkpoint_name)
+    training_evaluation_results = []
+    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT,
+                'training_evaluation_results': training_evaluation_results}, "../.checkpoints/"+cfg.checkpoint_name)
 
     val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
     if bool(cfg.debug_mode):
@@ -95,8 +97,10 @@ def main(model_name):
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}".format(epoch, all_loss / all_tokens_count))
             if ind in val_indices:
                 val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, str(epoch))
+                training_evaluation_results.append(val_bleu)
                 if val_bleu > best_val_score:
-                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, "../.checkpoints/"+cfg.checkpoint_name)
+                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT, 'training_evaluation_results': training_evaluation_results},
+                               "../.checkpoints/"+cfg.checkpoint_name)
                     best_val_score = val_bleu
                 if step_only_at_eval:
                     scheduler.step(val_bleu)
