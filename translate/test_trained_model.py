@@ -1,3 +1,4 @@
+import time
 import torch
 from configuration import cfg, device
 from readers.data_provider import DataProvider
@@ -19,10 +20,11 @@ def test_trained_model():
     TGT = saved_obj['field_tgt']
     print("Model loaded, total number of parameters: {}".format(sum([p.numel() for p in model.parameters()])))
     dp = DataProvider(SRC, TGT, load_train_data=False)
+    nuance = str(int(time.time()))
     evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt,
-             "VALID.{}".format(dp.val_iter.dataset.name), save_decoded_sentences=True)
+             "VALID.{}".format(dp.val_iter.dataset.name), save_decoded_sentences=True, nuance=nuance)
     for test_iter, s, t in zip(dp.test_iters, dp.processed_data.addresses.tests.src, dp.processed_data.addresses.tests.tgt):
-        evaluate(test_iter, dp, model, s, t, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True)
+        evaluate(test_iter, dp, model, s, t, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True, nuance=nuance)
 
 
 if __name__ == "__main__":
