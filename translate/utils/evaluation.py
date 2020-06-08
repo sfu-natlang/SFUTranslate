@@ -56,7 +56,7 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
 
 
 def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str,
-             eph: str, save_decoded_sentences: bool = False, output_dir: str = '.output'):
+             eph: str, save_decoded_sentences: bool = False, output_dir: str = '../.output'):
     print("Evaluation ....")
     model.eval()
     result_file = None
