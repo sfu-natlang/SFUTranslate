@@ -54,9 +54,8 @@ class TranslationDataset(data.Dataset):
         examples = []
         with io.open(src_path, mode='r', encoding='utf-8') as src_file, \
                 io.open(trg_path, mode='r', encoding='utf-8') as trg_file:
-            sentence_count_limit = -1
-            if "sentence_count_limit" in kwargs and kwargs["sentence_count_limit"] != -1:
-                sentence_count_limit = kwargs["sentence_count_limit"] + 1
+            sentence_count_limit = kwargs["sentence_count_limit"] + 1 if "sentence_count_limit" in kwargs and kwargs["sentence_count_limit"] != -1 else -1
+            if "sentence_count_limit" in kwargs:
                 del kwargs['sentence_count_limit']
             for src_line, trg_line in zip(src_file, trg_file):
                 src_line, trg_line = src_line.strip(), trg_line.strip()
