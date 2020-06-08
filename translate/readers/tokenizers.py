@@ -6,6 +6,8 @@ Implementation of different tokenizers to be used by the data provider. The pre-
 from tokenizers import BertWordPieceTokenizer
 from sacremoses import MosesPunctNormalizer, MosesTokenizer, MosesDetokenizer
 from requests import get
+import spacy
+from spacy.tokenizer import Tokenizer
 import os
 
 
@@ -20,6 +22,10 @@ class GenericTokenizer:
     @staticmethod
     def detokenize(tokenized_list):
         return " ".join(tokenized_list)
+
+    @property
+    def model_name(self):
+        return "Generic"
 
 
 class PreTrainedTokenizer(GenericTokenizer):
@@ -51,6 +57,7 @@ class PreTrainedTokenizer(GenericTokenizer):
         Example instantiation: PreTrainedTokenizer("bert-base-uncased", root="../.data")
         """
         pre_trained_model_name = self.get_default_model_name(lang, lowercase)
+        self._model_name_ = pre_trained_model_name
         if not os.path.exists(root):
             os.mkdir(root)
         assert pre_trained_model_name in self.vocab_files, \
@@ -118,6 +125,10 @@ class PreTrainedTokenizer(GenericTokenizer):
             raise ValueError("No pre-trained tokenizer found for language {} in {} mode".format(
                 lang, "lowercased" if lowercase else "cased"))
 
+    @property
+    def model_name(self):
+        return self._model_name_
+
 
 class PyMosesTokenizer(GenericTokenizer):
     """
@@ -143,6 +154,59 @@ class PyMosesTokenizer(GenericTokenizer):
                 temp_result += token + " "
         return self.detokenizer.detokenize(temp_result.strip().split())
 
+    @property
+    def model_name(self):
+        return "Moses"
+
+
+class SpacyTokenizer:
+    """
+    The very basic tokenizer mainly for debugging purposes
+    """
+    def __init__(self, lang, lowercase):
+        pre_trained_model_name = self.get_default_model_name(lang)
+        self.tokenizer = spacy.load(pre_trained_model_name)
+        self._model_name_ = pre_trained_model_name
+        self.lowercase = lowercase
+
+    def tokenize(self, text):
+        return [token.text for token in self.tokenizer(text.lower() if self.lowercase else text)]
+
+    @staticmethod
+    def detokenize(tokenized_list):
+        # TODO work on this
+        return " ".join(tokenized_list)
+
+    @property
+    def model_name(self):
+        return "Spacy"
+
+    def overwrite_tokenizer_with_split_tokenizer(self):
+        self.tokenizer.tokenizer = Tokenizer(self.tokenizer.vocab)
+
+    @staticmethod
+    def get_default_model_name(lang):
+        if lang == "en":
+            return "en_core_web_lg"
+        elif lang == "de":
+            return "de_core_news_md"
+        elif lang == "fr":
+            return "fr_core_news_md"
+        elif lang == "es":
+            return "es_core_news_md"
+        elif lang == "pt":
+            return "pt_core_news_sm"
+        elif lang == "it":
+            return "it_core_news_sm"
+        elif lang == "nl":
+            return "nl_core_news_sm"
+        elif lang == "el":
+            return "el_core_news_md"
+        elif lang == "lt":
+            return "lt_core_news_sm"
+        else:
+            raise ValueError("No pre-trained spacy tokenizer found for language {}".format(lang))
+
 
 def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
     """
@@ -155,5 +219,7 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
         return GenericTokenizer()
     elif tokenizer_name == "pre_trained":
         return PreTrainedTokenizer(lang, lowercase=lowercase_data)
+    elif tokenizer_name == "spacy":
+        return SpacyTokenizer(lang, lowercase=lowercase_data)
     else:
         raise ValueError("The requested tokenizer {} does not exist or is not implemented!".format(tokenizer_name))
