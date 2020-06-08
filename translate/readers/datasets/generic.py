@@ -3,8 +3,18 @@ import io
 from collections import namedtuple
 from torchtext import data
 
-FileAddress = namedtuple('FileAddress', ['train', 'val', 'tests'])
-BiAddress = namedtuple('BiAddress', ['src', 'tgt'])
+
+class _BiAddress:
+    def __init__(self):
+        self.src = ''
+        self.tgt = ''
+
+
+class FileAddress:
+    def __init__(self):
+        self.train = _BiAddress()
+        self.val = _BiAddress()
+        self.tests = _BiAddress()
 
 
 class ProcessedData:
@@ -12,7 +22,7 @@ class ProcessedData:
         self.train = None
         self.val = None
         self.test_list = None
-        self.addresses = FileAddress(BiAddress('', ''), BiAddress('', ''), BiAddress('', ''))
+        self.addresses = FileAddress()
 
 
 class TranslationDataset(data.Dataset):

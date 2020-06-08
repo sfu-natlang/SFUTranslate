@@ -40,12 +40,12 @@ class M30k(TranslationDataset):
         res.train = train
         res.val = val
         res.test_list = test
-        res.addresses.val.src = ".data/multi30k/val.{}".format(src_lan)
-        res.addresses.val.tgt = ".data/multi30k/val.{}".format(tgt_lan)
-        res.addresses.tests.src = [".data/multi30k/test2016.{}".format(src_lan)]
-        res.addresses.tests.tgt = [".data/multi30k/test2016.{}".format(tgt_lan)]
-        res.addresses.train.src = ".data/multi30k/train.{}".format(src_lan)
-        res.addresses.train.tgt = ".data/multi30k/train.{}".format(tgt_lan)
+        res.addresses.val.src = ".data/m30k/val.{}".format(src_lan)
+        res.addresses.val.tgt = ".data/m30k/val.{}".format(tgt_lan)
+        res.addresses.tests.src = [".data/m30k/test2016.{}".format(src_lan)]
+        res.addresses.tests.tgt = [".data/m30k/test2016.{}".format(tgt_lan)]
+        res.addresses.train.src = ".data/m30k/train.{}".format(src_lan)
+        res.addresses.train.tgt = ".data/m30k/train.{}".format(tgt_lan)
         return res
 
 

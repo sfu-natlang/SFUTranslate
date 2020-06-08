@@ -79,7 +79,7 @@ def main(model_name):
             else:
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}".format(epoch, all_loss / all_tokens_count))
             if ind in val_indices:
-                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, str(epoch))
+                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, str(epoch))
                 if val_bleu > best_val_score:
                     torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
                     best_val_score = val_bleu
@@ -94,7 +94,7 @@ def main(model_name):
         SRC = saved_obj['field_src']
         TGT = saved_obj['field_tgt']
         dp.replace_fields(SRC, TGT)
-    evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, "LAST")
+    evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "LAST")
 
 
 if __name__ == "__main__":
