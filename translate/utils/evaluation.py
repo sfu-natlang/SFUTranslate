@@ -120,7 +120,7 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
         # ind = random.randint(0, len(cpreds)-1)
         average_loss = lall_valid/max(lcount_valid, 1)
         average_bleu = all_bleu_score / max(sent_count, 1)
-        print("E {} ::: Average Loss {:.3f} ::: Average BleuP1 {:.3f}".format(eph, average_loss, average_bleu))
+        print("E {} ::: Average Loss {:.2f} ::: Average BleuP1 {:.2f}".format(eph, average_loss, average_bleu))
     model.train()
     if save_decoded_sentences:
         result_file.close()

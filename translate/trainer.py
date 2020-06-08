@@ -99,7 +99,7 @@ def main(model_name):
                     scheduler.step(val_bleu)
 
     if best_val_score > 0.0:
-        print("Loading the best validated model with validation bleu score of {:.3f}".format(best_val_score))
+        print("Loading the best validated model with validation bleu score of {:.2f}".format(best_val_score))
         saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
         model = saved_obj['model'].to(device)
         # it might not correctly overwrite the vocabulary objects
