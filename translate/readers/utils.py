@@ -1,4 +1,4 @@
-from torchtext import data, datasets
+from torchtext import data
 from configuration import cfg, device
 from collections import Counter
 from tqdm import tqdm
@@ -15,32 +15,6 @@ def batch_size_fn(new, count, sofar):
     src_elements = count * max_src_in_batch
     tgt_elements = count * max_tgt_in_batch
     return max(src_elements, tgt_elements)
-
-
-class MyIterator(data.Iterator):
-    """
-    The customized torchtext iterator suggested in https://nlp.seas.harvard.edu/2018/04/03/attention.html
-    The iterator is meant to speed up the training by token-wise batching
-    """
-    def __len__(self):
-        return 0.0
-
-    def create_batches(self):
-        if self.train:
-            def pool(d, random_shuffler):
-                for p in data.batch(d, self.batch_size * 100):
-                    p_batch = data.batch(
-                        sorted(p, key=self.sort_key),
-                        self.batch_size, self.batch_size_fn)
-                    for b in random_shuffler(list(p_batch)):
-                        yield b
-            self.batches = pool(self.data(), self.random_shuffler)
-
-        else:
-            self.batches = []
-            for b in data.batch(self.data(), self.batch_size,
-                                self.batch_size_fn):
-                self.batches.append(sorted(b, key=self.sort_key))
 
 
 def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_name,

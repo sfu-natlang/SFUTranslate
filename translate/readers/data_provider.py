@@ -1,6 +1,7 @@
 from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
-from readers.utils import batch_size_fn, collect_unk_stats, MyIterator, extract_exclusive_immediate_neighbours
+from readers.utils import batch_size_fn, collect_unk_stats
+from readers.iterators import MyIterator, MyBucketIterator
 from readers.datasets.dataset import get_dataset_from_configs
 from readers.tokenizers import get_tokenizer_from_configs
 
@@ -84,10 +85,10 @@ class DataProvider:
             self.size_train = 0
         # the BucketIterator does not reorder the lines in the actual dataset file so we can compare the results of
         # the model by the actual files via reading the test/val file line-by-line skipping empty lines
-        self.val_iter = data.BucketIterator(processed_data.val, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
+        self.val_iter = MyBucketIterator(processed_data.val, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
+                                         train=False, shuffle=False, sort=False, sort_within_batch=False)
+        self.test_iters = [MyBucketIterator(test, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
                                             train=False, shuffle=False, sort=False, sort_within_batch=False)
-        self.test_iters = [data.BucketIterator(test, batch_size=int(cfg.valid_batch_size), device=device, repeat=False,
-                                               train=False, shuffle=False, sort=False, sort_within_batch=False)
                            for test in processed_data.test_list]
 
     def replace_fields(self, SRC, TGT):
