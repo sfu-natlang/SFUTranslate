@@ -25,7 +25,7 @@ global max_src_in_batch, max_tgt_in_batch
 
 
 class DataProvider:
-    def __init__(self, SRC=None, TGT=None, load_train_data=True):
+    def __init__(self, SRC=None, TGT=None, load_train_data=True, root='../.data'):
         print("Loading the data ...")
         build_vocab = False
         if SRC is None or TGT is None:
@@ -37,7 +37,7 @@ class DataProvider:
             build_vocab = True
         else:
             print("Using the pre-loaded field objects ...")
-        processed_data = get_dataset_from_configs(cfg.dataset_name, src_lan, tgt_lan, SRC, TGT, load_train_data, cfg.max_sequence_length,
+        processed_data = get_dataset_from_configs(root, cfg.dataset_name, src_lan, tgt_lan, SRC, TGT, load_train_data, cfg.max_sequence_length,
                                                   cfg.sentence_count_limit, cfg.debug_mode)
         self.processed_data = processed_data
         if processed_data.train is not None:  # for testing you don't need to load train data!
@@ -63,7 +63,7 @@ class DataProvider:
             m_unk_token = "\u26F6"
             src_unk_token = m_unk_token
             if cfg.dataset_name == "iwslt17":
-                p_d = get_dataset_from_configs(cfg.dataset_name, src_lan, tgt_lan, SRC, TGT, True, -1, cfg.sentence_count_limit, cfg.debug_mode)
+                p_d = get_dataset_from_configs(root, cfg.dataset_name, src_lan, tgt_lan, SRC, TGT, True, -1, cfg.sentence_count_limit, cfg.debug_mode)
                 trn = p_d.train
             else:
                 trn = processed_data.train

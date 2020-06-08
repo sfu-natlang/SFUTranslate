@@ -125,6 +125,6 @@ class TranslationDataset(data.Dataset):
         return
 
     @staticmethod
-    def prepare_dataset(src_lan: str, tgt_lan: str, SRC: data.Field, TGT: data.Field, load_train_data: bool, max_sequence_length: int = -1,
+    def prepare_dataset(root: str, src_lan: str, tgt_lan: str, SRC: data.Field, TGT: data.Field, load_train_data: bool, max_sequence_length: int = -1,
                         sentence_count_limit: int = -1, debug_mode: bool = False) -> ProcessedData:
         raise NotImplementedError
