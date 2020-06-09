@@ -1,3 +1,6 @@
+"""
+This script provides utility functions shared for different parts of aspect_extractor package.
+"""
 from sklearn.metrics import classification_report
 
 
@@ -66,8 +69,8 @@ def extract_word_boundaries(bis_array):
 
 
 def merge_subword_labels(actuals, predictions, required_features_list, tokens=None, resolution_strategy="first"):
-    assert 'subword_position' in required_features_list
-    bis_req_index = required_features_list.index('subword_position')
+    assert "subword_position" in required_features_list
+    bis_req_index = required_features_list.index("subword_position")
     word_boundaries = extract_word_boundaries(actuals[bis_req_index])
     words = [WordRepresentation(actuals, predictions, b, e, required_features_list, tokens) for b, e in word_boundaries]
     predictions = [[] for _ in required_features_list]
