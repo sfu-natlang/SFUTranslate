@@ -1,5 +1,5 @@
 __package__ = "translate.scripts.aspect_vectors"
-__all__ = ["extract_vocab", "main", "module", "tester", "trainer", "ae_utils"]
+__all__ = ["extract_vocab", "aspect_extract_main", "module", "tester", "trainer", "ae_utils"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]
