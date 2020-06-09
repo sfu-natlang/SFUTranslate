@@ -20,7 +20,7 @@ from configuration import cfg, src_lan, tgt_lan
 
 def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../../.checkpoints', batch_size=32, H=1024, epochs=3, lr=0.05, max_norm=5,
                           scheduler_patience_steps=60, scheduler_min_lr=0.001, scheduler_decay_factor=0.9,
-                          features_list=('pos', 'shape', 'tag', 'bis'), resolution_strategy="first"):
+                          features_list=("f_pos", "c_pos", "subword_shape", "subword_position"), resolution_strategy="first"):
     # TODO add these configurations to the config file schema
     print("Starting to train the reusable heads for {} language ...".format(src_lan))
     print("Loaded the pre-created/persisted linguistic vocab dictionary ...")
@@ -28,7 +28,7 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
                      unk_token=cfg.unk_token, include_lengths=True)
     dataset = get_dataset_from_configs(data_root, cfg.dataset_name, src_lan, tgt_lan, SRC, SRC, True, max_sequence_length=-1, sentence_count_limit=-1,
                                        debug_mode=False)
-    smn = checkpoints_root + "/" + dataset.train.name + "_head_conv." + src_lan
+    smn = checkpoints_root + "/" + dataset.train.name + "_aspect_vectors." + src_lan
     vocab_adr = smn+".vocab.pkl"
 
     bert_model_name = PTBertTokenizer.get_default_model_name(src_lan, bool(cfg.lowercase_data))

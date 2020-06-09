@@ -11,20 +11,20 @@ class WordRepresentation:
         for idx in range(len(required_features_list)):
             pred_tag = required_features_list[idx]
             self._actuals[pred_tag] = actuals[idx][begin:end]
-            if pred_tag != "shape" and pred_tag != "bis":
+            if pred_tag != "subword_shape" and pred_tag != "subword_position":
                 assert all(x == self._actuals[pred_tag][0] for x in self._actuals[pred_tag])
             self._predictions[pred_tag] = preds[idx][begin:end]
         if tokens is not None:
             self._tokens = tokens[begin:end]
 
     def get_actual(self, tag):
-        if tag != "shape" or len(self._actuals[tag]) == 1:
+        if tag != "subword_shape" or len(self._actuals[tag]) == 1:
             return self._actuals[tag][0]
         else:
             return self._actuals[tag][0] + "".join([x[2:] for x in self._actuals[tag][1:]])
 
     def get_pred(self, tag, resolution_strategy="first"):
-        if tag != "shape" or len(self._predictions[tag]) == 1:
+        if tag != "subword_shape" or len(self._predictions[tag]) == 1:
             if resolution_strategy == "first":
                 # heuristically returning the prediction of the first token for accuracy calculation
                 return self._predictions[tag][0]
@@ -83,7 +83,7 @@ def merge_subword_labels(actuals, predictions, required_features_list, tokens=No
 
 
 def create_empty_linguistic_vocab():
-    return {"pos": {}, "tag": {}, "shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}, "bis": {}}
+    return {"c_pos": {}, "f_pos": {}, "subword_shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}, "subword_position": {}}
 
 
 def create_reverse_linguistic_vocab(ling_vocab):

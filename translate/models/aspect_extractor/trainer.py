@@ -35,8 +35,8 @@ def create_train_report_and_persist_modules(model, save_model_name, all_actual_s
                                                       resolution_strategy=resolution_strategy)
     print_classification_report(required_features_list, all_actual, all_prediction)
 
-    torch.save({'model': model}, save_model_name+".module")
-    torch.save({'features_list': required_features_list, 'softmax': nn.Softmax(dim=-1), 'head_converters': model.encoders,
+    torch.save({'model': model}, save_model_name+".extractor")
+    torch.save({'features_list': required_features_list, 'softmax': nn.Softmax(dim=-1), 'aspect_vectors': model.encoders,
                 'bert_weights': model.bert_weights_for_average_pooling}, save_model_name)
 
 
@@ -58,6 +58,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
             else:
                 # TODO consider hierarchical encoding of features here
                 Hs.append(1.0)
+    assert len(Hs) > 0
     Hs.append(max(Hs))
     weight_ratio = int(float(H)/sum(Hs))
     assert weight_ratio > 1
@@ -77,7 +78,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
     model.apply(weight_init)
     opt = optim.SGD(model.parameters(), lr=float(lr), momentum=0.9)
     scheduler = ReduceLROnPlateau(opt, mode='min', patience=scheduler_patience_steps, factor=scheduler_decay_factor,
-                                  threshold=0.001, verbose=True, min_lr=scheduler_min_lr)
+                                  threshold=0.001, verbose=False, min_lr=scheduler_min_lr)
     print("Starting to train ...")
     for t in range(epochs):
         all_loss = 0.0

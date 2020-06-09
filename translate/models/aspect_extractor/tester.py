@@ -38,7 +38,7 @@ def create_test_report(all_loss, all_tokens_count, all_actual_sw, all_prediction
 def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data,
                             load_model_name="project_sublayers.pt", resolution_strategy="first", check_result_sanity=False):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
-    saved_obj = torch.load(load_model_name+".module", map_location=lambda storage, loc: storage)
+    saved_obj = torch.load(load_model_name+".extractor", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)
     feature_pred_corrects = [0 for _ in range(len(required_features_list))]

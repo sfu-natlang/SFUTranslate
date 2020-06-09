@@ -25,7 +25,7 @@ class AspectExtractor(torch.nn.Module):
 
         self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(number_of_bert_layers), requires_grad=True)
         self.softmax = nn.Softmax(dim=-1)
-        self.verbose_debug_percentage = 0.0001
+        self.verbose_debug_percentage = 0.0000
         self.features_list = features_list
         self.reverse_linguistic_vocab = reverse_linguistic_vocab
 
