@@ -10,6 +10,14 @@ import spacy
 from spacy.tokenizer import Tokenizer
 import os
 
+try:
+    import warnings
+    warnings.filterwarnings('ignore', category=FutureWarning)
+    from transformers import BertTokenizer
+except ImportError:
+    warnings.warn("transformers package is not available, transformers.BertTokenizer will not be accessible.")
+    BertTokenizer = None
+
 
 class GenericTokenizer:
     """
@@ -157,6 +165,34 @@ class PyMosesTokenizer(GenericTokenizer):
     @property
     def model_name(self):
         return "Moses"
+
+
+class PTBertTokenizer:
+    """
+    The tokenizer pre-trained tokenizer trained alongside BERT by huggingface
+    """
+    def __init__(self, lang, lowercase=True):
+        # the tokenizer names are the same for BertTokenizer and PreTrainedTokenizer since they have both been distributed by huggingface
+        pre_trained_model_name = PreTrainedTokenizer.get_default_model_name(lang, lowercase)
+        self.tokenizer = BertTokenizer.from_pretrained(pre_trained_model_name)
+        self.mpn = MosesPunctNormalizer()
+        self.detokenizer = MosesDetokenizer(lang=lang)
+        self._model_name_ = pre_trained_model_name
+
+    def tokenize(self, text):
+        return self.tokenizer.tokenize(self.mpn.normalize(text))
+
+    def detokenize(self, tokenized_list):
+        # WARNING! this is a one way tokenizer, the detokenized sentences do not necessarily align with the actual tokenized sentences!
+        return self.tokenizer.decode(self.tokenizer.convert_tokens_to_ids(tokenized_list))
+
+    @staticmethod
+    def get_default_model_name(lang, lowercase):
+        return PreTrainedTokenizer.get_default_model_name(lang, lowercase)
+
+    @property
+    def model_name(self):
+        return self._model_name_
 
 
 class SpacyTokenizer:
