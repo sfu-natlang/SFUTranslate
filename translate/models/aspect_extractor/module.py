@@ -1,3 +1,7 @@
+"""
+This is the implementation of Aspect Extractor module with the aspect classification loss, reconstruction loss, and aspect vector similarity loss
+ implemented in its training objective.
+"""
 import torch
 from torch import nn
 

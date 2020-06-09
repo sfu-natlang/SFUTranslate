@@ -99,6 +99,11 @@ def print_classification_report(required_features_list, all_actual, all_predicti
         pred_tag = required_features_list[idx]
         print('-' * 35 + pred_tag + '-' * 35)
         # target_names = list(linguistic_vocab[pred_tag].keys())
-        print(classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
-                                    target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg'])
+        report = classification_report(all_actual[idx], all_prediction[idx], output_dict=True,
+                                       target_names=list(set(all_prediction[idx]+all_actual[idx])))['weighted avg']
+        p = report['precision'] * 100
+        r = report['recall'] * 100
+        f = report['f1-score'] * 100
+        s = report['support']
+        print("Precision: {:.2f}%\tRecall: {:.2f}%\tF1: {:.2f}%\tSupport: {}".format(p, r, f, s))
         print('-' * 75)

@@ -1,3 +1,6 @@
+"""
+This is the trainer function which reads the training data and trains the aspect extractor module.
+"""
 import torch
 from torch import optim
 from torch import nn
@@ -83,6 +86,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
         feature_pred_correct_all = 0.0
         all_prediction = [[] for _ in required_features_list]
         all_actual = [[] for _ in required_features_list]
+        # TODO use the actual dataset object instead of this iterator
         itr = data_itr()
         for batch_id, input_sentences in enumerate(itr):
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)

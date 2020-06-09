@@ -1,3 +1,6 @@
+"""
+This is the test function which looks at the training data and reports the classification results of different trained aspects.
+"""
 import torch
 
 from readers.tokenizers import SpacyTokenizer
@@ -48,6 +51,7 @@ def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_voc
         sanity_all_actual = [[] for _ in required_features_list]
     else:
         sanity_all_actual = sanity_all_prediction = None
+    # TODO use the actual dataset object instead of this iterator
     itr = data_itr()
     spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
     spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()

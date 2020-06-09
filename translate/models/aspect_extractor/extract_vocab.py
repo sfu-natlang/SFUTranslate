@@ -1,3 +1,6 @@
+"""
+The code in this script is intended for running linguistic aspect extraction using pre-trained linguistic models.
+"""
 import unidecode
 import torch
 
@@ -13,8 +16,8 @@ from models.aspect_extractor.ae_utils import create_empty_linguistic_vocab
 from configuration import device
 
 
-def extract_linguistic_features(line, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
-                                required_features_list=("pos", "tag", "shape", "ent_type", "ent_iob", "sense", "bis")):
+def extract_linguistic_aspect_values(line, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
+                                     required_features_list=("pos", "tag", "shape", "ent_type", "ent_iob", "sense", "bis")):
     result = []
     lesk_queries = {"NOUN": 'n', "VERB": 'v', "ADJ": 'a', "ADV": 'r'}
     doc = spacy_tokenizer_1.tokenizer(line)
@@ -70,7 +73,7 @@ def extract_linguistic_vocabs(dataset_instance, bert_tokenizer, lang, lowercase_
     vocab_totals = {"pos": 0., "tag": 0., "shape": 0., "ent_type": 0., "ent_iob": 0., "sense": 0., "sentiment": 0., "bis": 0.}
     for input_sentence in tqdm(dataset_instance):
         sent = " ".join(input_sentence.src)
-        res = extract_linguistic_features(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2)
+        res = extract_linguistic_aspect_values(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2)
         for res_item in res:
             for key in res_item:
                 value = res_item[key]
@@ -100,8 +103,8 @@ def dataset_iterator(dataset_object, b_size):
     yield res
 
 
-def extract_features_and_weights(sent, linguistic_vocab, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list, padding_value=0):
-    res = extract_linguistic_features(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list)
+def extract_aspects_and_weights(sent, linguistic_vocab, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list, padding_value=0):
+    res = extract_linguistic_aspect_values(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2, required_features_list)
     # the first index is <PAD>
     sent_extracted_features = [[linguistic_vocab[elem][token_feature[elem]][0] + 1 for token_feature in res] for elem in required_features_list]
     sent_extracted_feature_weights = [[linguistic_vocab[elem][token_feature[elem]][1] for token_feature in res] for elem in required_features_list]
@@ -118,8 +121,8 @@ def map_sentences_to_vocab_ids(input_sentences, required_features_list, linguist
                                padding_value=0):
     # will be a list of #input_sentences size each item a pair of size two and each item of the pair of size len(required_features_list)
     # len(input_sentences) * 2 * len(required_features_list)
-    extracted_features_and_weights = [extract_features_and_weights(sent, linguistic_vocab, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
-                                                                   required_features_list, padding_value) for sent in input_sentences]
+    extracted_features_and_weights = [extract_aspects_and_weights(sent, linguistic_vocab, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
+                                                                  required_features_list, padding_value) for sent in input_sentences]
     return [torch.nn.utils.rnn.pad_sequence([extracted_features_and_weights[sent_id][0][ind]for sent_id in range(len(input_sentences))],
                                             batch_first=True, padding_value=padding_value) for ind in range(len(required_features_list))], \
            [torch.nn.utils.rnn.pad_sequence([extracted_features_and_weights[sent_id][1][ind]for sent_id in range(len(input_sentences))],

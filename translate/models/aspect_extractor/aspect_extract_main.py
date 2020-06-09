@@ -1,3 +1,8 @@
+"""
+This is the main script which will create the aspect extractor modules. You will need a config file like the config files passed to the other trainer
+ scripts of SFUTranslate to run this script. Once it is done processing the training data (source side of the train data modified in the selected
+  dataset in the config file), the resulting pre-trained module will be stored in the universal checkpoints directory of the project.
+"""
 import os
 import pickle
 
@@ -16,6 +21,7 @@ from configuration import cfg, src_lan, tgt_lan
 def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../../.checkpoints', batch_size=32, H=1024, epochs=3, lr=0.05, max_norm=5,
                           scheduler_patience_steps=60, scheduler_min_lr=0.001, scheduler_decay_factor=0.9,
                           features_list=('pos', 'shape', 'tag', 'bis'), resolution_strategy="first"):
+    # TODO add these configurations to the config file schema
     print("Starting to train the reusable heads for {} language ...".format(src_lan))
     print("Loaded the pre-created/persisted linguistic vocab dictionary ...")
     SRC = data.Field(tokenize=src_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
