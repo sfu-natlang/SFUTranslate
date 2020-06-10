@@ -8,6 +8,7 @@ from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
 from models.transformer.model import Transformer
+from models.aspect_extractor.model import AspectAugmentedTransformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
@@ -32,8 +33,8 @@ def create_sts_model(SRC, TGT):
     return model, optimizer, scheduler, bool(cfg.grad_clip), True
 
 
-def create_transformer_model(SRC, TGT):
-    model = Transformer(SRC, TGT).to(device)
+def create_transformer_model(model_type, SRC, TGT):
+    model = model_type(SRC, TGT).to(device)
     model.init_model_params()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-7, betas=(0.9, 0.98), eps=1e-9)
     model_size = int(cfg.transformer_d_model)
@@ -47,7 +48,9 @@ def main(model_name):
     if model_name == "sts":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_sts_model(dp.SRC, dp.TGT)
     elif model_name == "transformer":
-        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(dp.SRC, dp.TGT)
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(Transformer, dp.SRC, dp.TGT)
+    elif model_name == "aspect_augmented_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(AspectAugmentedTransformer, dp.SRC, dp.TGT)
     else:
         raise ValueError("Model name {} is not defined.".format(model_name))
     if not os.path.exists("../.checkpoints/"):
@@ -73,7 +76,7 @@ def main(model_name):
         for ind, instance in enumerate(ds):
             if instance.src[0].size(0) < 2:
                 continue
-            pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg)
+            pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg, test_mode=False, **instance.data_args)
             itm = lss.item()
             all_loss += itm
             all_tokens_count += n_tokens

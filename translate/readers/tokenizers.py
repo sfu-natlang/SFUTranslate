@@ -257,5 +257,7 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
         return PreTrainedTokenizer(lang, lowercase=lowercase_data)
     elif tokenizer_name == "spacy":
         return SpacyTokenizer(lang, lowercase=lowercase_data)
+    elif tokenizer_name == "bert":
+        return PTBertTokenizer(lang, lowercase=lowercase_data)
     else:
         raise ValueError("The requested tokenizer {} does not exist or is not implemented!".format(tokenizer_name))

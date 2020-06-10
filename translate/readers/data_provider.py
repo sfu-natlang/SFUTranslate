@@ -42,6 +42,10 @@ class DataProvider:
         self.processed_data = processed_data
         if processed_data.train is not None:  # for testing you don't need to load train data!
             print("Number of training examples: {}".format(len(processed_data.train.examples)))
+            processed_data.train.src_tokenizer = src_tokenizer_obj
+        processed_data.val.src_tokenizer = src_tokenizer_obj
+        for test in processed_data.test_list:
+            test.src_tokenizer = src_tokenizer_obj
         print("Number of validation [set name: {}] examples: {}".format(processed_data.val.name, len(processed_data.val.examples)))
         for test in processed_data.test_list:
             print("Number of testing [set name: {}] examples: {}".format(test.name, len(test.examples)))

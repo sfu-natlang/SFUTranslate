@@ -98,7 +98,7 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
         all_bleu_score = 0.0
         sent_count = 0.0
         for valid_instance in data_iter:
-            pred, max_attention_idcs, lss, _, n_tokens = model(valid_instance.src, valid_instance.trg, test_mode=True)
+            pred, max_attention_idcs, lss, _, n_tokens = model(valid_instance.src, valid_instance.trg, test_mode=True, **valid_instance.data_args)
             lall_valid += lss.item()
             lcount_valid += n_tokens
             for d_id, (decoded, model_expected) in enumerate(zip(

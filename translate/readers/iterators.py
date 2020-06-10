@@ -2,6 +2,7 @@
 This file contains the customized torchtext data iterators
 """
 from torchtext import data
+from configuration import cfg
 
 
 class MyIterator(data.Iterator):
@@ -27,7 +28,15 @@ class MyIterator(data.Iterator):
                         minibatch.reverse()
                     else:
                         minibatch.sort(key=self.sort_key, reverse=True)
-                yield data.Batch(minibatch, self.dataset, self.device)
+                created_batch = data.Batch(minibatch, self.dataset, self.device)
+                created_batch.data_args = {}
+                if cfg.augment_input_with_aspect_vectors:  # this flag is an internal flag and is not set through configurations
+                    # This is solely for efficiency purposes, although its not a good idea to combine model logic with input reader!
+                    max_len = max(created_batch.src[1]).item()
+                    bert_input_sentences = [self.dataset.src_tokenizer.tokenizer.convert_tokens_to_ids(mb.src) +
+                                            [self.dataset.src_tokenizer.tokenizer.pad_token_id] * (max_len - len(mb.src)) for mb in minibatch]
+                    created_batch.data_args["bert_src"] = bert_input_sentences
+                yield created_batch
             if not self.repeat:
                 return
 
@@ -65,6 +74,14 @@ class MyBucketIterator(data.BucketIterator):
                         minibatch.reverse()
                     else:
                         minibatch.sort(key=self.sort_key, reverse=True)
-                yield data.Batch(minibatch, self.dataset, self.device)
+                created_batch = data.Batch(minibatch, self.dataset, self.device)
+                created_batch.data_args = {}
+                if cfg.augment_input_with_aspect_vectors:  # this flag is an internal flag and is not set through configurations
+                    # This is solely for efficiency purposes, although its not a good idea to combine model logic with input reader!
+                    max_len = max(created_batch.src[1]).item()
+                    bert_input_sentences = [self.dataset.src_tokenizer.tokenizer.convert_tokens_to_ids(mb.src) +
+                                            [self.dataset.src_tokenizer.tokenizer.pad_token_id] * (max_len - len(mb.src)) for mb in minibatch]
+                    created_batch.data_args["bert_src"] = bert_input_sentences
+                yield created_batch
             if not self.repeat:
                 return
