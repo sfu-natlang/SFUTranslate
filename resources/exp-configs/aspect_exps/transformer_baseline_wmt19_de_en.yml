@@ -3,14 +3,14 @@ src_lang: de
 tgt_lang: en
 dataset_name: wmt19_de_en
 lowercase_data: true
-src_tokenizer: pre_trained
-tgt_tokenizer: moses
+src_tokenizer: bert
+tgt_tokenizer: pre_trained
 pad_token: <pad>
 bos_token: <bos>
 eos_token: <eos>
 unk_token: <unk>
 propn_token: <propn>
-max_sequence_length: 250
+max_sequence_length: 100
 max_vocab_src: 50000
 min_freq_src: 2
 max_vocab_tgt: 50000
@@ -69,4 +69,4 @@ update_freq: 8
 beam_size: 4
 beam_search_length_norm_factor: 0.6
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: transformer_wmt19_de_en.pt
+checkpoint_name: transformer_baseline_wmt19_de_en.pt
