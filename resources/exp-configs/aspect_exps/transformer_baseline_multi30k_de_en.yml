@@ -20,8 +20,8 @@ share_vocabulary: true
 sentence_count_limit: -1
 
 emb_dropout: 0.3
-train_batch_size: 2500
-valid_batch_size: 100
+train_batch_size: 2560
+valid_batch_size: 256
 encoder_emb_size: 250
 encoder_hidden_size: 250
 encoder_layers: 1
@@ -45,7 +45,7 @@ transformer_opt_factor: 1
 transformer_opt_warmup: 2000
 share_all_embeddings: true
 
-maximum_decoding_length: 50
+maximum_decoding_length: 100
 bahdanau_attention: true
 coverage_required: true
 coverage_lambda: 1.0
