@@ -18,7 +18,7 @@ min_freq_tgt: 1
 extract_unk_stats: false
 share_vocabulary: true
 sentence_count_limit: -1
-aspect_vectors_data_address: ../.checkpoints/wmt_aspect_vectors.de
+aspect_vectors_data_address: ../.checkpoints/wmt19_en_de_aspect_vectors.de
 
 emb_dropout: 0.1
 train_batch_size: 4096
