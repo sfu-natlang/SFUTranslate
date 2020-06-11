@@ -45,7 +45,7 @@ transformer_opt_factor: 1
 transformer_opt_warmup: 2000
 share_all_embeddings: true
 
-maximum_decoding_length: 50
+maximum_decoding_length: 100
 bahdanau_attention: true
 coverage_required: true
 coverage_lambda: 1.0
