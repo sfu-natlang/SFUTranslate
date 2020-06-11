@@ -69,4 +69,4 @@ update_freq: 1
 beam_size: 5
 beam_search_length_norm_factor: 0.65
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: transformer_multi30k_de_en.pt
+checkpoint_name: transformer_multi30k_de_fr.pt

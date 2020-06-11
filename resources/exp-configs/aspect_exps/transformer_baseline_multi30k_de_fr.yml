@@ -20,8 +20,8 @@ share_vocabulary: true
 sentence_count_limit: -1
 
 emb_dropout: 0.3
-train_batch_size: 2500
-valid_batch_size: 100
+train_batch_size: 2560
+valid_batch_size: 256
 encoder_emb_size: 250
 encoder_hidden_size: 250
 encoder_layers: 1
@@ -69,4 +69,4 @@ update_freq: 1
 beam_size: 4
 beam_search_length_norm_factor: 0.6
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: transformer_baseline_multi30k_de_en.pt
+checkpoint_name: transformer_baseline_multi30k_de_fr.pt
