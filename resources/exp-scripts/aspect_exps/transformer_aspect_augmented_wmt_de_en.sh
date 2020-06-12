@@ -18,9 +18,11 @@ python -m spacy download de_core_news_md
 cd translate/ || return
 export PYTHONPATH=${PYTHONPATH}:`pwd`
 cd models/aspect_extractor || return
+echo "Starting to prepare aspect vectors, you can check the process progress by running the following command in SFUTranslate/translate directory (however, do not kill this process)"
+echo "    tail -f train_aspect_extractor.log"
 python aspect_extract_main.py ../../../resources/exp-configs/aspect_exps/transformer_aspect_augmented_wmt19_de_en.yml 2>train_aspect_extractor.log >train_aspect_extractor.output
 cd ../../ || return
-echo "Starting to train the model, you can check the training process by running the following command in SFUTranslate/translate directory (however, fo not kill this process)"
+echo "Starting to train the model, you can check the training process by running the following command in SFUTranslate/translate directory (however, do not kill this process)"
 echo "    tail -f train_progress_bars.log"
 python trainer.py ../resources/exp-configs/aspect_exps/transformer_aspect_augmented_wmt19_de_en.yml 2>train_progress_bars.log >train.output
 echo "Starting to test the best trained model, you can find the test results in \"test.output\" in SFUTranslate/translate directory"

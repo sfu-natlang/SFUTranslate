@@ -11,7 +11,7 @@ pip install -c transformers_constraints.txt transformers==2.4.1
 # python -m spacy download en
 # python -m spacy download de
 cd translate/ || return
-echo "Starting to train the model, you can check the training process by running the following command in SFUTranslate/translate directory (however, fo not kill this process)"
+echo "Starting to train the model, you can check the training process by running the following command in SFUTranslate/translate directory (however, do not kill this process)"
 echo "    tail -f train_progress_bars.log"
 python trainer.py ../resources/exp-configs/aspect_exps/transformer_baseline_wmt19_de_en.yml 2>train_progress_bars.log >train.output
 echo "Starting to test the best trained model, you can find the test results in \"test.output\" in SFUTranslate/translate directory"
