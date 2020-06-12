@@ -10,7 +10,6 @@ from torchtext import data
 from tqdm import tqdm
 
 from readers.datasets.dataset import get_dataset_from_configs
-from readers.data_provider import src_tokenizer
 from readers.tokenizers import PTBertTokenizer
 from models.aspect_extractor.extract_vocab import dataset_iterator, extract_linguistic_vocabs
 from models.aspect_extractor.tester import aspect_extractor_tester
@@ -24,7 +23,8 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     # TODO add these configurations to the config file schema
     print("Starting to train the reusable heads for {} language ...".format(src_lan))
     print("Loaded the pre-created/persisted linguistic vocab dictionary ...")
-    SRC = data.Field(tokenize=src_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
+    # the source data are tokenized using a split tokenizer
+    SRC = data.Field(tokenize=None, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
                      unk_token=cfg.unk_token, include_lengths=True)
     dataset = get_dataset_from_configs(data_root, cfg.dataset_name, src_lan, tgt_lan, SRC, SRC, True, max_sequence_length=-1, sentence_count_limit=-1,
                                        debug_mode=False)
