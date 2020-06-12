@@ -37,7 +37,7 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     bert_tokenizer = PTBertTokenizer(src_lan, bool(cfg.lowercase_data))
 
     def data_itr():
-        return tqdm(dataset_iterator(dataset.train, batch_size))
+        return tqdm(dataset_iterator(dataset.train, batch_size), dynamic_ncols=True)
 
     if not os.path.exists(vocab_adr):
         print("Starting to create linguistic vocab for for {} language ...".format(src_lan))

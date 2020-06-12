@@ -11,6 +11,8 @@ pip install -c transformers_constraints.txt transformers==2.4.1
 # python -m spacy download en
 # python -m spacy download de
 cd translate/ || return
+# WARNING change the number of visible GPU if GPU:0 is already allocated
+export CUDA_VISIBLE_DEVICES=0
 echo "Starting to train the model, you can check the training process by running the following command in SFUTranslate/translate directory (however, do not kill this process)"
 echo "    tail -f train_progress_bars.log"
 python trainer.py ../resources/exp-configs/aspect_exps/transformer_baseline_multi30k_de_fr.yml 2>train_progress_bars.log >train.output
