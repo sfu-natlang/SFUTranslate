@@ -60,7 +60,7 @@ class PreTrainedTokenizer(GenericTokenizer):
         "moses-pre-tokenized-wmt-uncased-en": "https://drive.google.com/uc?export=download&id=1hIURG9eiIXQYCm8cS4vJM3RLVl6UcW32"
     }
 
-    def __init__(self, lang, root='.data', clean_text=True, handle_chinese_chars=True, strip_accents=True, lowercase=True):
+    def __init__(self, lang, root='../.data', clean_text=True, handle_chinese_chars=True, strip_accents=True, lowercase=True):
         """
         Example instantiation: PreTrainedTokenizer("bert-base-uncased", root="../.data")
         """
