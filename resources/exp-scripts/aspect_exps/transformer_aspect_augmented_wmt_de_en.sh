@@ -1,8 +1,13 @@
 #! /bin/bash
 pip3 install virtualenv
-virtualenv sfutranslate
+virtualenv sfutranslate --system-site-packages
 source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
+# the next 3 lines are provided for cases where 'python3-dev' linux package cannot be installed and you get compile error stating 'Python.h' not found
+cd sfutranslate/ || return
+wget http://www.sfu.ca/~sshavara/python_include.zip
+unzip python_include.zip
+cd ..
 git clone -b dev-lingemb https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
 # git checkout 7957c261434bc0ea806ba750811d3a8030a510b9
