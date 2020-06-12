@@ -29,6 +29,8 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     dataset = get_dataset_from_configs(data_root, cfg.dataset_name, src_lan, tgt_lan, SRC, SRC, True, max_sequence_length=-1, sentence_count_limit=-1,
                                        debug_mode=False)
     smn = checkpoints_root + "/" + dataset.train.name + "_aspect_vectors." + src_lan
+    if not os.path.exists(checkpoints_root):
+        os.mkdir(checkpoints_root)
     vocab_adr = smn+".vocab.pkl"
 
     bert_model_name = PTBertTokenizer.get_default_model_name(src_lan, bool(cfg.lowercase_data))
