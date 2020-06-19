@@ -21,12 +21,27 @@ class SyntaxInfusedInformationContainer:
         self.bert_tokenizer = bert_tokenizer
         self.features_dict = None
 
+    @staticmethod
+    def _get_dataset_name():
+        # TODO this information should be normally extracted from train.name however since in test mode train is None, we have hard coded it
+        # Data comes from the "name" fields in readers.datasets.dataset classes
+        # In refactoring remove this function and make it the way that data reader gives out the name of the training set even when not loading it!
+        if cfg.dataset_name == "multi30k16":
+            return 'm30k'
+        elif cfg.dataset_name == "iwslt17":
+            return 'iwslt'
+        elif cfg.dataset_name == "wmt19_de_en":
+            return 'wmt19_en_de'
+        elif cfg.dataset_name == "wmt19_de_fr":
+            return 'wmt19_de_fr'
+
     def load_features_dict(self, train, checkpoints_root='../.checkpoints'):
-        smn = checkpoints_root + "/" + train.name + "_aspect_vectors." + src_lan
+        smn = checkpoints_root + "/" + self._get_dataset_name() + "_aspect_vectors." + src_lan
         if not os.path.exists(checkpoints_root):
             os.mkdir(checkpoints_root)
         vocab_adr = smn+".vocab.pkl"
         if not os.path.exists(vocab_adr):
+            assert train is not None, "syntactic vocab does not exists and training data object is empty"
             print("Starting to create linguistic vocab for for {} language ...".format(src_lan))
             ling_vocab = extract_linguistic_vocabs(train, self.bert_tokenizer, src_lan, cfg.lowercase_data)
             print("Linguistic vocab ready, persisting ...")
