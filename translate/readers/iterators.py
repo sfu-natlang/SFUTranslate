@@ -36,6 +36,12 @@ class MyIterator(data.Iterator):
                     bert_input_sentences = [self.dataset.src_tokenizer.tokenizer.convert_tokens_to_ids(mb.src) +
                                             [self.dataset.src_tokenizer.tokenizer.pad_token_id] * (max_len - len(mb.src)) for mb in minibatch]
                     created_batch.data_args["bert_src"] = bert_input_sentences
+                if cfg.augment_input_with_syntax_infusion_vectors:
+                    max_len = max(created_batch.src[1]).item()
+                    syntax_data = [self.dataset.src_tokenizer.syntax_infused_container.convert(
+                        self.dataset.src_tokenizer.detokenize(mb.src), max_len) for mb in minibatch]
+                    for tag in self.dataset.src_tokenizer.syntax_infused_container.features_list:
+                        created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
                 yield created_batch
             if not self.repeat:
                 return
@@ -82,6 +88,12 @@ class MyBucketIterator(data.BucketIterator):
                     bert_input_sentences = [self.dataset.src_tokenizer.tokenizer.convert_tokens_to_ids(mb.src) +
                                             [self.dataset.src_tokenizer.tokenizer.pad_token_id] * (max_len - len(mb.src)) for mb in minibatch]
                     created_batch.data_args["bert_src"] = bert_input_sentences
+                if cfg.augment_input_with_syntax_infusion_vectors:
+                    max_len = max(created_batch.src[1]).item()
+                    syntax_data = [self.dataset.src_tokenizer.syntax_infused_container.convert(
+                        self.dataset.src_tokenizer.detokenize(mb.src), max_len) for mb in minibatch]
+                    for tag in self.dataset.src_tokenizer.syntax_infused_container.features_list:
+                        created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
                 yield created_batch
             if not self.repeat:
                 return

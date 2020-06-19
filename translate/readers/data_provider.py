@@ -1,5 +1,6 @@
 from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
+from models.aspect_extractor.syntax_infused_model import SyntaxInfusedInformationContainer
 from readers.utils import batch_size_fn, collect_unk_stats
 from readers.iterators import MyIterator, MyBucketIterator
 from readers.datasets.dataset import get_dataset_from_configs
@@ -40,6 +41,10 @@ class DataProvider:
         processed_data = get_dataset_from_configs(root, cfg.dataset_name, src_lan, tgt_lan, SRC, TGT, load_train_data, cfg.max_sequence_length,
                                                   cfg.sentence_count_limit, cfg.debug_mode)
         self.processed_data = processed_data
+        if cfg.augment_input_with_syntax_infusion_vectors:
+            syntax_infused_container = SyntaxInfusedInformationContainer(src_tokenizer_obj)
+            syntax_infused_container.load_features_dict(processed_data.train)
+            src_tokenizer_obj.syntax_infused_container = syntax_infused_container
         if processed_data.train is not None:  # for testing you don't need to load train data!
             print("Number of training examples: {}".format(len(processed_data.train.examples)))
             processed_data.train.src_tokenizer = src_tokenizer_obj
