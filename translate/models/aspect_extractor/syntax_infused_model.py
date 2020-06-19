@@ -65,7 +65,7 @@ class SyntaxInfusedSRCEmbedding(nn.Module):
         self.token_embeddings = Embeddings(d_model, src_vocab_len).to(device)
         fd = src_tokenizer_obj.syntax_infused_container.features_dict
         # fd_sizes = {tag: len(fd[tag])for tag in self.features_list}
-        self.syntax_embeddings = [Embeddings(int(d_model/len(self.features_list)), len(fd[tag])).to(device) for tag in self.features_list]
+        self.syntax_embeddings = nn.ModuleList([Embeddings(int(d_model/len(self.features_list)), len(fd[tag])).to(device) for tag in self.features_list])
         self.syntax_embeddings_size = int(d_model/len(self.features_list)) * len(self.features_list)  # could be less than d_model
         self.infused_embedding_to_d_model = nn.Linear(self.syntax_embeddings_size + d_model, d_model, bias=True).to(device)
 
