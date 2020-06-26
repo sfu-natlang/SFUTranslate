@@ -41,7 +41,13 @@ class MyIterator(data.Iterator):
                     syntax_data = [self.dataset.src_tokenizer.syntax_infused_container.convert(
                         self.dataset.src_tokenizer.detokenize(mb.src), max_len) for mb in minibatch]
                     for tag in self.dataset.src_tokenizer.syntax_infused_container.features_list:
-                        created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
+                        actual_max_len = max([len(s[tag]) for s in syntax_data])
+                        if actual_max_len > max_len:
+                            print("WARNING: error in creation of preprocessed data for {}, expected sequence length: {}, actual sequence length: {}, "
+                                  "truncating the sequence in result!".format(tag, max_len, actual_max_len))
+                            created_batch.data_args["si_"+tag] = [s[tag][:max_len] for s in syntax_data]
+                        else:
+                            created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
                 yield created_batch
             if not self.repeat:
                 return
@@ -93,7 +99,13 @@ class MyBucketIterator(data.BucketIterator):
                     syntax_data = [self.dataset.src_tokenizer.syntax_infused_container.convert(
                         self.dataset.src_tokenizer.detokenize(mb.src), max_len) for mb in minibatch]
                     for tag in self.dataset.src_tokenizer.syntax_infused_container.features_list:
-                        created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
+                        actual_max_len = max([len(s[tag]) for s in syntax_data])
+                        if actual_max_len > max_len:
+                            print("WARNING: error in creation of preprocessed data for {}, expected sequence length: {}, actual sequence length: {}, "
+                                  "truncating the sequence in result!".format(tag, max_len, actual_max_len))
+                            created_batch.data_args["si_"+tag] = [s[tag][:max_len] for s in syntax_data]
+                        else:
+                            created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
                 yield created_batch
             if not self.repeat:
                 return
