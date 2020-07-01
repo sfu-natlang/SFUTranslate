@@ -61,10 +61,17 @@ class SyntaxInfusedInformationContainer:
         else:  # Test mode
             return self.features_dict[f]["UNK_TAG"][0]
 
+    @staticmethod
+    def _assure_max_len(vector, max_len):
+        # this is necessary to guarantee the same number of time steps for token embeddings and feature embeddings
+        # it might get a bit noisy if the generated tag sequences are not of the same size, but that's inevitable
+        return vector[:max_len]
+
     def convert(self, sent, max_len):
         assert self.features_dict is not None, "You need to call \"load_features_dict\" first!"
         res = extract_linguistic_aspect_values(sent, self.bert_tokenizer, self.spacy_tokenizer_1, self.spacy_tokenizer_2, self.features_list)
-        return {f: [self._convert_value(f, elem[f]) for elem in res] + [self._pad_tag_id(f)] * (max_len - len(res)) for f in self.features_list}
+        return {f: self._assure_max_len([self._convert_value(f, elem[f]) for elem in res] + [self._pad_tag_id(f)] * (max_len - len(res)), max_len)
+                for f in self.features_list}
 
 
 class SyntaxInfusedSRCEmbedding(nn.Module):

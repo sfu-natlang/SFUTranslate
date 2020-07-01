@@ -42,6 +42,7 @@ class DataProvider:
                                                   cfg.sentence_count_limit, cfg.debug_mode)
         self.processed_data = processed_data
         if cfg.augment_input_with_syntax_infusion_vectors:
+            print("Loading syntax infused tag sets ...")
             syntax_infused_container = SyntaxInfusedInformationContainer(src_tokenizer_obj)
             syntax_infused_container.load_features_dict(processed_data.train)
             src_tokenizer_obj.syntax_infused_container = syntax_infused_container
@@ -87,8 +88,11 @@ class DataProvider:
                 processed_data.train, batch_size=int(cfg.train_batch_size), device=device, repeat=False, train=True,
                 sort_key=lambda x: (len(x.src), len(x.trg)), batch_size_fn=batch_size_fn, shuffle=True,
                 sort_within_batch=lambda x: (len(x.src), len(x.trg)))
-            print("Calculating the number of training batches ...")
-            self.size_train = len([_ for _ in self.train_iter])
+            # print("Calculating the number of training batches ...")
+            # this is inefficient
+            # self.size_train = len([_ for _ in self.train_iter])
+            # replacing it with an upper bound estimate
+            self.size_train = int(processed_data.train.max_side_total_tokens / float(cfg.train_batch_size))
         else:
             self.train_iter = None
             self.size_train = 0

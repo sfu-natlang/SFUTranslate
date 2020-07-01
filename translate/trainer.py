@@ -62,7 +62,6 @@ def main(model_name):
     torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT,
                 'training_evaluation_results': training_evaluation_results}, "../.checkpoints/"+cfg.checkpoint_name)
 
-    val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
     if bool(cfg.debug_mode):
         evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "INIT")
     best_val_score = 0.0
@@ -74,6 +73,9 @@ def main(model_name):
         batch_count = 0.0
         all_perp = 0.0
         all_tokens_count = 0.0
+        if epoch < 2:
+            # after the first iteration it does not need recalculation
+            val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
         ds = tqdm(dp.train_iter, total=dp.size_train,  dynamic_ncols=True)
         optimizer.zero_grad()
         for ind, instance in enumerate(ds):
@@ -110,6 +112,7 @@ def main(model_name):
                     best_val_score = val_bleu
                 if step_only_at_eval:
                     scheduler.step(val_bleu)
+        dp.size_train = ind + 1
 
     if best_val_score > 0.0:
         print("Loading the best validated model with validation bleu score of {:.2f}".format(best_val_score))
