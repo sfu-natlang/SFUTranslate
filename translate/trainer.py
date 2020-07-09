@@ -9,6 +9,7 @@ from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
 from models.transformer.model import Transformer
 from models.aspect_extractor.model import AspectAugmentedTransformer
+from models.aspect_extractor.multi_head_aspect_model import MultiHeadAspectAugmentedTransformer
 from models.aspect_extractor.syntax_infused_model import SyntaxInfusedTransformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
@@ -52,6 +53,8 @@ def main(model_name):
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(Transformer, dp.SRC, dp.TGT)
     elif model_name == "aspect_augmented_transformer":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(AspectAugmentedTransformer, dp.SRC, dp.TGT)
+    elif model_name == "multi_head_aspect_augmented_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(MultiHeadAspectAugmentedTransformer, dp.SRC, dp.TGT)
     elif model_name == "syntax_infused_transformer":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(SyntaxInfusedTransformer, dp.SRC, dp.TGT)
     else:
