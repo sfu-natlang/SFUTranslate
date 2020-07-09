@@ -58,7 +58,7 @@ class TranslationDataset(data.Dataset):
             sentence_count_limit = kwargs["sentence_count_limit"] + 1 if "sentence_count_limit" in kwargs and kwargs["sentence_count_limit"] != -1 else -1
             if "sentence_count_limit" in kwargs:
                 del kwargs['sentence_count_limit']
-            for src_line, trg_line in tqdm(zip(src_file, trg_file)):
+            for src_line, trg_line in tqdm(zip(src_file, trg_file), bar_format="\t\t{n_fmt}{unit} [{elapsed}, {rate_fmt}{postfix}]"):
                 src_line, trg_line = src_line.strip(), trg_line.strip()
                 if src_line != '' and trg_line != '':
                     example = data.Example.fromlist([src_line, trg_line], fields)
