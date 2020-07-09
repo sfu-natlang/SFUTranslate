@@ -34,7 +34,7 @@ decoder_dropout_rate: 0.1
 out_dropout: 0.2
 coverage_dropout: 0.2
 
-model_name: aspect_augmented_transformer
+model_name: multi_head_aspect_augmented_transformer
 transformer_d_model: 512
 transformer_h: 8
 transformer_dropout: 0.1
@@ -70,4 +70,4 @@ update_freq: 8
 beam_size: 4
 beam_search_length_norm_factor: 0.6
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: transformer_aspect_augmented_wmt19_de_en.pt
+checkpoint_name: transformer_multi_head_aspect_augmented_wmt19_de_en.pt
