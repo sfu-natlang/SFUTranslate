@@ -9,7 +9,7 @@ from configuration import cfg, device
 from models.transformer.model import Transformer
 from readers.data_provider import src_tokenizer_obj
 from models.transformer.utils import clones, attention
-from models.transformer.modules import SublayerConnection
+from models.transformer.modules import SublayerConnection, Embeddings, PositionalEncoding
 
 try:
     import warnings
@@ -111,6 +111,10 @@ class MultiHeadAspectAugmentedTransformer(Transformer):
     def __init__(self, SRC: data.Field, TGT: data.Field):
         super(MultiHeadAspectAugmentedTransformer, self).__init__(SRC, TGT)
         self.multi_head_aspect_integration_layer = MultiHeadAspectAugmentationLayer()
+        self.src_embed = Embeddings(self.multi_head_aspect_integration_layer.d_model, len(SRC.vocab))
+        dropout = float(cfg.transformer_dropout)
+        max_len = int(cfg.transformer_max_len)
+        self.positional_encoding = PositionalEncoding(self.multi_head_aspect_integration_layer.d_model, dropout, max_len)
         print("Multi-head aspect augmented transformer model created ...")
 
     def init_model_params(self):
@@ -126,6 +130,7 @@ class MultiHeadAspectAugmentedTransformer(Transformer):
         input_mask = self.generate_src_mask(input_tensor)
         x = self.src_embed(input_tensor)
         x = self.multi_head_aspect_integration_layer(x, input_mask, **kwargs)
+        x = self.positional_encoding(x)
         for layer in self.enc_layers:
             x = layer(x, input_mask)
         return self.enc_norm(x), input_mask, input_tensor
