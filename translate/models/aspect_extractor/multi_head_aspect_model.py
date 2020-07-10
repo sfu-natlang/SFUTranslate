@@ -108,13 +108,15 @@ class MultiHeadAspectAugmentationLayer(nn.Module):
 
 
 class MultiHeadAspectAugmentedTransformer(Transformer):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: data.Field, TGT: data.Field, integrate_before_pe=False):
         super(MultiHeadAspectAugmentedTransformer, self).__init__(SRC, TGT)
         self.multi_head_aspect_integration_layer = MultiHeadAspectAugmentationLayer()
-        self.src_embed = Embeddings(self.multi_head_aspect_integration_layer.d_model, len(SRC.vocab))
-        dropout = float(cfg.transformer_dropout)
-        max_len = int(cfg.transformer_max_len)
-        self.positional_encoding = PositionalEncoding(self.multi_head_aspect_integration_layer.d_model, dropout, max_len)
+        self.integrate_before_pe = integrate_before_pe
+        if self.integrate_before_pe:
+            self.src_embed = Embeddings(self.multi_head_aspect_integration_layer.d_model, len(SRC.vocab))
+            dropout = float(cfg.transformer_dropout)
+            max_len = int(cfg.transformer_max_len)
+            self.positional_encoding = PositionalEncoding(self.multi_head_aspect_integration_layer.d_model, dropout, max_len)
         print("Multi-head aspect augmented transformer model created ...")
 
     def init_model_params(self):
@@ -130,7 +132,8 @@ class MultiHeadAspectAugmentedTransformer(Transformer):
         input_mask = self.generate_src_mask(input_tensor)
         x = self.src_embed(input_tensor)
         x = self.multi_head_aspect_integration_layer(x, input_mask, **kwargs)
-        x = self.positional_encoding(x)
+        if self.integrate_before_pe:
+            x = self.positional_encoding(x)
         for layer in self.enc_layers:
             x = layer(x, input_mask)
         return self.enc_norm(x), input_mask, input_tensor
