@@ -41,7 +41,7 @@ def create_train_report_and_persist_modules(model, save_model_name, all_actual_s
 
 
 def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data, H, lr,
-                             scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm,
+                             scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, no_improvement_tolerance=5000,
                              save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first", report_every=5000):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
@@ -80,7 +80,12 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
     scheduler = ReduceLROnPlateau(opt, mode='min', patience=scheduler_patience_steps, factor=scheduler_decay_factor,
                                   threshold=0.001, verbose=False, min_lr=scheduler_min_lr)
     print("Starting to train ...")
+    break_condition = False
     for t in range(epochs):
+        if break_condition:
+            print("Minimum {} batches have been observed without any accuracy improvements in classifiers, ending the training ...".format(
+                no_improvement_tolerance))
+            break
         all_loss = 0.0
         all_tokens_count = 0.0
         feature_pred_corrects = [0 for _ in range(len(required_features_list))]
@@ -89,6 +94,8 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
         all_actual = [[] for _ in required_features_list]
         # TODO use the actual dataset object instead of this iterator
         itr = data_itr()
+        tolerance_counts = [0 for _ in required_features_list]
+        tolerance_bests = [0.0 for _ in required_features_list]
         for batch_id, input_sentences in enumerate(itr):
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
@@ -130,6 +137,18 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                                                                / feature_pred_correct_all) for ind, feat in enumerate(required_features_list)]
                 itr.set_description("Epoch: {}, Average Loss: {:.2f}, [{}]".format(t, all_loss / all_tokens_count,
                                                                                    "; ".join(_classification_report_)))
+            # if model has not had any improvements in any of the classifier scores after {no_improvement_tolerance} batches, the training will stop.
+            for ind, feat in enumerate(required_features_list):
+                feat_score = float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all
+                if tolerance_bests[ind] < feat_score:
+                    tolerance_bests[ind] = feat_score
+                    tolerance_counts[ind] = 0
+                else:
+                    tolerance_counts[ind] = tolerance_counts[ind] + 1
+            break_condition = sum([1 if tolerance_counts[ind] >= no_improvement_tolerance else 0 for ind, feat in enumerate(
+                required_features_list)]) == len(required_features_list)
+            if break_condition:
+                break
             scheduler.step(all_loss / all_tokens_count)
             predictions = predictions.transpose(0, 1)
             for b in range(predictions.size(0)):
@@ -157,6 +176,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                                                         feature_pred_corrects, required_features_list, resolution_strategy)
         create_train_report_and_persist_modules(model, save_model_name, all_actual, all_prediction, feature_pred_correct_all,
                                                 feature_pred_corrects, required_features_list, resolution_strategy)
+    print("Training done.")
 
 
 

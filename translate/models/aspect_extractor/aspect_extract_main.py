@@ -18,7 +18,7 @@ from configuration import cfg, src_lan, tgt_lan
 
 
 def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../../.checkpoints', batch_size=32, H=1024, epochs=3, lr=0.05, max_norm=5,
-                          scheduler_patience_steps=60, scheduler_min_lr=0.001, scheduler_decay_factor=0.9,
+                          scheduler_patience_steps=60, scheduler_min_lr=0.001, scheduler_decay_factor=0.9, no_improvement_tolerance=5000,
                           features_list=("f_pos", "c_pos", "subword_shape", "subword_position"), resolution_strategy="first"):
     # TODO add these configurations to the config file schema
     print("Starting to train the reusable heads for {} language ...".format(src_lan))
@@ -48,7 +48,8 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     ling_vocab = pickle.load(open(vocab_adr, "rb"), encoding="utf-8")
     aspect_extractor_trainer(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data), H, lr,
                              scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, report_every=5000,
-                             save_model_name=smn, relative_sizing=False, resolution_strategy=resolution_strategy)
+                             no_improvement_tolerance=no_improvement_tolerance, save_model_name=smn, relative_sizing=False,
+                             resolution_strategy=resolution_strategy)
     print("Performing test on the training data ...")
     aspect_extractor_tester(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data),
                             load_model_name=smn, resolution_strategy=resolution_strategy, check_result_sanity=True)
