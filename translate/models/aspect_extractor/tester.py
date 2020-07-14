@@ -97,13 +97,14 @@ def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_voc
                     for idx in range(len(required_features_list)):
                         pred_id = int(classes[idx].item()) - 1
                         if idx >= len(features) or b >= features[idx].size(0) or l >= features[idx].size(1):
-                            print("WARNING: skipping access to index out of bounds for a tensor with size "
-                                  "({}, {}, {}) with indices [{}, {}, {}]".format(len(features), features[idx].size(0),
-                                                                                  features[idx].size(1), idx, b, l))
+                            # print("WARNING: skipping access to index out of bounds for a tensor with size "
+                            #      "({}, {}, {}) with indices [{}, {}, {}]".format(len(features), features[idx].size(0),
+                            #                                                      features[idx].size(1), idx, b, l))
                             continue
+                        desired_linguistic_set = reverse_linguistic_vocab[required_features_list[idx]]
                         actual_id = int(features[idx][b][l].item()) - 1
-                        predicted_label = reverse_linguistic_vocab[required_features_list[idx]][pred_id] if pred_id > -1 else '__PAD__'
-                        actual_label = reverse_linguistic_vocab[required_features_list[idx]][actual_id] if actual_id > -1 else '__PAD__'
+                        predicted_label = desired_linguistic_set[pred_id] if pred_id > -1 else '__PAD__'
+                        actual_label = desired_linguistic_set[actual_id] if actual_id > -1 else '__PAD__'
                         if actual_label != '__PAD__':
                             all_actual[idx].append(actual_label)
                             all_prediction[idx].append(predicted_label)
@@ -121,15 +122,16 @@ def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_voc
                                     idx += 1
                                 pred_id = int(classes[idx].item()) - 1
                                 if idx >= len(features) or b >= features[rf_idx].size(0) or l >= features[rf_idx].size(1):
-                                    print("WARNING: skipping access to index out of bounds for a tensor with size "
-                                          "({}, {}, {}) with indices [{}, {}, {}]".format(len(features), features[idx].size(0),
-                                                                                          features[idx].size(1), idx, b, l))
+                                    # print("WARNING: skipping access to index out of bounds for a tensor with size "
+                                    #      "({}, {}, {}) with indices [{}, {}, {}]".format(len(features), features[idx].size(0),
+                                    #                                                      features[idx].size(1), idx, b, l))
+                                    continue
+                                desired_linguistic_set = reverse_linguistic_vocab[required_features_list[rf_idx]]
+                                if len(desired_linguistic_set) <= pred_id:  # should not happen!
                                     continue
                                 actual_id = int(features[rf_idx][b][l].item()) - 1
-                                predicted_label = reverse_linguistic_vocab[required_features_list[rf_idx]][pred_id] \
-                                    if pred_id > -1 else '__PAD__'
-                                actual_label = reverse_linguistic_vocab[required_features_list[rf_idx]][actual_id] \
-                                    if actual_id > -1 else '__PAD__'
+                                predicted_label = desired_linguistic_set[pred_id] if pred_id > -1 else '__PAD__'
+                                actual_label = desired_linguistic_set[actual_id] if actual_id > -1 else '__PAD__'
                                 if actual_label != '__PAD__':
                                     sanity_all_actual[rf_idx].append(actual_label)
                                     sanity_all_prediction[rf_idx].append(predicted_label)
