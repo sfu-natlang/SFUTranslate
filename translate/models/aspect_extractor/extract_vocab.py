@@ -17,7 +17,7 @@ from configuration import device
 
 
 def extract_linguistic_aspect_values(line, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2,
-                                     required_features_list=("c_pos", "f_pos", "subword_shape", "ent_type", "ent_iob", "sense", "subword_position")):
+                                     required_features_list=("c_pos", "f_pos", "subword_shape", "ent_type", "ent_iob", "sense", "subword_position", "dependency_tag")):
     result = []
     lesk_queries = {"NOUN": 'n', "VERB": 'v', "ADJ": 'a', "ADV": 'r'}
     doc = spacy_tokenizer_1.tokenizer(line)
@@ -31,6 +31,7 @@ def extract_linguistic_aspect_values(line, bert_tokenizer, spacy_tokenizer_1, sp
     for token, fertility in zip(doc, fertilities):
         pos = token.pos_
         tag = token.tag_ if len(token.tag_) else "NONE"
+        dep = token.dep_ if len(token.dep_) else "NONE"
         shape = token.shape_
         ent_type = token.ent_type_ if len(token.ent_type_) else "NONE"
         ent_iob = token.ent_iob_ if len(token.ent_type_) else "O"
@@ -45,7 +46,7 @@ def extract_linguistic_aspect_values(line, bert_tokenizer, spacy_tokenizer_1, sp
         else:
             sentiment = "none"
         linguistic_features = {"c_pos": pos, "f_pos": tag, "subword_shape": unidecode.unidecode(shape), "ent_type": ent_type,
-                               "ent_iob": ent_iob, "sense": sense, "sentiment": sentiment}
+                               "ent_iob": ent_iob, "sense": sense, "sentiment": sentiment, "dependency_tag": dep}
         for f_index in range(fertility):
             if fertility == 1:
                 bis = "single"
@@ -69,8 +70,9 @@ def extract_linguistic_vocabs(dataset_instance, bert_tokenizer, lang, lowercase_
     spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
     vocabs = create_empty_linguistic_vocab()
     vocab_cnts = {"c_pos": Counter(), "f_pos": Counter(), "subword_shape": Counter(), "ent_type": Counter(),
-                  "ent_iob": Counter(), "sense": Counter(), "sentiment": Counter(), "subword_position": Counter()}
-    vocab_totals = {"c_pos": 0., "f_pos": 0., "subword_shape": 0., "ent_type": 0., "ent_iob": 0., "sense": 0., "sentiment": 0., "subword_position":0.}
+                  "ent_iob": Counter(), "sense": Counter(), "sentiment": Counter(), "subword_position": Counter(), "dependency_tag": Counter()}
+    vocab_totals = {"c_pos": 0., "f_pos": 0., "subword_shape": 0., "ent_type": 0., "ent_iob": 0., "sense": 0., "sentiment": 0.,
+                    "subword_position": 0., "dependency_tag": 0.}
     for input_sentence in tqdm(dataset_instance):
         sent = " ".join(input_sentence.src)
         res = extract_linguistic_aspect_values(sent, bert_tokenizer, spacy_tokenizer_1, spacy_tokenizer_2)

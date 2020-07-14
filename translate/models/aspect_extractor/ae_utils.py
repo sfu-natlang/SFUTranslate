@@ -86,7 +86,7 @@ def merge_subword_labels(actuals, predictions, required_features_list, tokens=No
 
 
 def create_empty_linguistic_vocab():
-    return {"c_pos": {}, "f_pos": {}, "subword_shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}, "subword_position": {}}
+    return {"c_pos": {}, "f_pos": {}, "subword_shape": {}, "ent_type": {}, "ent_iob": {}, "sense": {}, "sentiment": {}, "subword_position": {}, "dependency_tag": {}}
 
 
 def create_reverse_linguistic_vocab(ling_vocab):
