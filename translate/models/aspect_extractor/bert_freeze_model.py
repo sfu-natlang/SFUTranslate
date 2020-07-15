@@ -34,10 +34,16 @@ class BertEmbeddingIntegration(nn.Module):
         self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         self.number_of_bert_layers = len(self.bert_lm.bert.encoder.layer) + 1
         self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers), requires_grad=True).to(device)
+        for p in self.bert_weights_for_average_pooling:
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
         # TODO if final output size if not equal to self.d_model convert it back to self.d_model space using self.output_bridge
         lm_hidden_size = self.bert_lm.bert.pooler.dense.in_features
         if self.d_model != lm_hidden_size:
             self.output_bridge = nn.Linear(lm_hidden_size, self.d_model).to(device)
+            for p in self.output_bridge.parameters():
+                if p.dim() > 1:
+                    nn.init.xavier_uniform_(p)
 
     def forward(self, **kwargs):
         """
@@ -53,7 +59,8 @@ class BertEmbeddingIntegration(nn.Module):
         input_ids = torch.tensor(bert_input_sentences, device=device)
         outputs = self.bert_lm(input_ids)[1]  # (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
-        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0), self.softmax(self.bert_weights_for_average_pooling))  # [:, 1:-1, :]
+        # TODO "self.bert_weights_for_average_pooling.to(device)" should not be done each time.
+        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0), self.softmax(self.bert_weights_for_average_pooling.to(device)))  # [:, 1:-1, :]
         if self.output_bridge is not None:
             embedded = self.output_bridge(embedded)
         return embedded
