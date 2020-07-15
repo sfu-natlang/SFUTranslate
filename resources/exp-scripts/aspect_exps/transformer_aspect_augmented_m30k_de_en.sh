@@ -20,7 +20,7 @@ export PYTHONPATH=${PYTHONPATH}:`pwd`
 # WARNING change the number of visible GPU if GPU:0 is already allocated
 export CUDA_VISIBLE_DEVICES=0
 cd models/aspects || return
-echo "Starting to prepare aspect vectors, you can check the process progress by running the following command in SFUTranslate/translate directory (however, do not kill this process)"
+echo "Starting to prepare aspect vectors, you can check the process progress by running the following command in SFUTranslate/translate/models/aspects directory (however, do not kill this process)"
 echo "    tail -f train_aspect_extractor.log"
 python aspect_extract_main.py ../../../resources/exp-configs/aspect_exps/transformer_aspect_augmented_multi30k_de_en.yml 2>train_aspect_extractor.log >train_aspect_extractor.output
 cd ../../ || return
