@@ -30,9 +30,9 @@ with open(config_file, 'r') as yml_file:
     cfg = DotConfig(yaml.safe_load(yml_file))
     src_lan = cfg.src_lang
     tgt_lan = cfg.tgt_lang
-    cfg.augment_input_with_aspect_vectors = "aspect_augmented_transformer" in cfg.model_name
-    if cfg.augment_input_with_aspect_vectors:
-        assert cfg.src_tokenizer == "bert", "Aspect Augmented Transformer model should enforce bert tokenizer"
+    cfg.augment_input_with_bert_src_vectors = "aspect_augmented_transformer" in cfg.model_name or cfg.model_name == "bert_freeze_input_transformer"
+    if cfg.augment_input_with_bert_src_vectors:
+        assert cfg.src_tokenizer == "bert", "Using \"bert_src\" vectors must enforce bert tokenizer!"
     cfg.augment_input_with_syntax_infusion_vectors = cfg.model_name == "syntax_infused_transformer"
     if cfg.augment_input_with_syntax_infusion_vectors:  # This is for the sake of comparability to "Aspect Augmented Transformer"
         assert cfg.src_tokenizer == "bert", "Syntax Infused Transformer model should enforce bert tokenizer in source side"

@@ -11,6 +11,7 @@ from models.transformer.model import Transformer
 from models.aspect_extractor.model import AspectAugmentedTransformer
 from models.aspect_extractor.multi_head_aspect_model import MultiHeadAspectAugmentedTransformer
 from models.aspect_extractor.syntax_infused_model import SyntaxInfusedTransformer
+from models.aspect_extractor.bert_freeze_model import BertFreezeTransformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
@@ -57,6 +58,8 @@ def main(model_name):
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(MultiHeadAspectAugmentedTransformer, dp.SRC, dp.TGT)
     elif model_name == "syntax_infused_transformer":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(SyntaxInfusedTransformer, dp.SRC, dp.TGT)
+    elif model_name == "bert_freeze_input_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(BertFreezeTransformer, dp.SRC, dp.TGT)
     else:
         raise ValueError("Model name {} is not defined.".format(model_name))
     if not os.path.exists("../.checkpoints/"):
