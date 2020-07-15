@@ -11,9 +11,9 @@ from tqdm import tqdm
 
 from readers.datasets.dataset import get_dataset_from_configs
 from readers.tokenizers import PTBertTokenizer
-from models.aspect_extractor.extract_vocab import dataset_iterator, extract_linguistic_vocabs
-from models.aspect_extractor.tester import aspect_extractor_tester
-from models.aspect_extractor.trainer import aspect_extractor_trainer
+from models.aspects.extract_vocab import dataset_iterator, extract_linguistic_vocabs
+from models.aspects.tester import aspect_extractor_tester
+from models.aspects.trainer import aspect_extractor_trainer
 from configuration import cfg, src_lan, tgt_lan
 
 

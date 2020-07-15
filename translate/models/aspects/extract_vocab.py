@@ -12,7 +12,7 @@ from nltk.wsd import lesk
 
 from readers.tokenizers import SpacyTokenizer
 from readers.sequence_alignment import extract_monotonic_sequence_to_sequence_alignment
-from models.aspect_extractor.ae_utils import create_empty_linguistic_vocab
+from models.aspects.ae_utils import create_empty_linguistic_vocab
 from configuration import device
 
 

@@ -8,10 +8,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from readers.tokenizers import SpacyTokenizer
 from configuration import device
-from models.aspect_extractor.module import AspectExtractor
+from models.aspects.module import AspectExtractor
 
-from models.aspect_extractor.extract_vocab import map_sentences_to_vocab_ids
-from models.aspect_extractor.ae_utils import merge_subword_labels, create_reverse_linguistic_vocab, print_classification_report
+from models.aspects.extract_vocab import map_sentences_to_vocab_ids
+from models.aspects.ae_utils import merge_subword_labels, create_reverse_linguistic_vocab, print_classification_report
 from utils.init_nn import weight_init
 
 try:

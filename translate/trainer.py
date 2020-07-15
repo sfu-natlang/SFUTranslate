@@ -8,10 +8,7 @@ from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
 from models.transformer.model import Transformer
-from models.aspect_extractor.model import AspectAugmentedTransformer
-from models.aspect_extractor.multi_head_aspect_model import MultiHeadAspectAugmentedTransformer
-from models.aspect_extractor.syntax_infused_model import SyntaxInfusedTransformer
-from models.aspect_extractor.bert_freeze_model import BertFreezeTransformer
+from models.aspects.model import AspectAugmentedTransformer, MultiHeadAspectAugmentedTransformer, SyntaxInfusedTransformer, BertFreezeTransformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate

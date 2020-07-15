@@ -4,8 +4,8 @@ This is the test function which looks at the training data and reports the class
 import torch
 
 from readers.tokenizers import SpacyTokenizer
-from models.aspect_extractor.extract_vocab import map_sentences_to_vocab_ids
-from models.aspect_extractor.ae_utils import merge_subword_labels, create_reverse_linguistic_vocab, print_classification_report
+from models.aspects.extract_vocab import map_sentences_to_vocab_ids
+from models.aspects.ae_utils import merge_subword_labels, create_reverse_linguistic_vocab, print_classification_report
 from configuration import device
 
 try:
