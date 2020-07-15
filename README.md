@@ -3,7 +3,7 @@
 <h1 align="center"> SFUTranslate </h1>
 <br/><br/>
 
-This is an academic machine translation toolkit, in which the main focus has been towards readability and changeability.
+This is an academic machine translation toolkit, in which the focus has been towards readability and changeability.
 We also have tried to make the algorithms as fast as possible, but please let us know if you have any suggestions or
 concerns regarding the toolkit. To get familiar with what you can do and how you can do it please read through this documentation.
 
@@ -13,12 +13,12 @@ To run the code you will need python 3.5+ and PyTorch 1.1+.
 
 To get started, we start with the project structure. In the highest level of the project, there are two main directories:
 
-- `resurces`: All the necessary resources for the project are supposed to be loaded from the `SFUTranslate/resources` directory.
+- `resources`: All the necessary resources for the project are expected to be loaded from the `SFUTranslate/resources` directory.
 Please refrain from putting the resources anywhere else if you are planing to make a pull request.
  
-- `translate`: All the source code files are placed under `SFUTranslate/translate` directory.
+- `translate`: All the source code files are under `SFUTranslate/translate` directory.
 If you are using an IDE to debug or run the code, don't forget to mark this directory as your sources directory.
-Otherwise you will need to have the address of `SFUTranslate/translate` directory in your `$PATH` environment variable to be able to run the code.
+Otherwise, you will need to have the address of `SFUTranslate/translate` directory in your `$PATH` environment variable to be able to run the code.
 Another way of running the code would be to run `cd /path/to/SFUTranslate/translate && python trainer.py <path/to/config.yml>`. 
 To test the trained model on the test set, you may use the `test_trained_model` script 
 (e.g. `cd /path/to/SFUTranslate/translate && python test_trained_model.py <path/to/config.yml>`). 
@@ -26,34 +26,49 @@ To test the trained model on the test set, you may use the `test_trained_model` 
 The next sections will help you get more familiar with the code flow and training different models.
 
 ## Code Structure
-As stated earlier, the source codes are placed in the `translate` directory (i.e. `/path/to/SFUTranslate/translate/`). 
+As stated earlier, the source code files are in the `translate` directory (i.e. `/path/to/SFUTranslate/translate/`). 
 
-The general structure of the modules is depicted in the following figure.
+The following figure depicts the general structure of the modules.
 
 <img src="docs/SFUTranslate.svg?sanitize=True"/>
 
 As of the current version, the `translate` package contains the following sub-packages and classes.
   - `models`
-    + `general`   
-    + `sts`
+    + `general`  
+    + `aspects` the package containing implementations of aspect-augmented nmt model and its baselines  
+        - `ae_utils`
+        - `aspect_extract_main`
+        - `extract_vocab`
         - `model`
-    + `transformer`
+        - `module`
+        - `tester`
+        - `trainer`
+    + `sts` the package containing the implementation of the attentional sequence-to-sequence model using RNNs
+        - `model`
+    + `transformer` the package containing the implementation of vanilla transformer model
         - `model`
         - `modules`
         - `optim`
         - `utils`
-  - `readers`
-    + `data_provider`   
+  - `readers` the data read/preprocess methods and classes are placed in this package
     + `datasets`
+        - `generic`
+        - `dataset`
+    + `data_provider`   
+    + `iterators`
+    + `sequence_alignment`
+    + `tokenizers`
     + `utils`
-  - `utils`
+  - `scripts` the package containing all the dangling scripts in the toolkit
+    + `create_pretrained_tokenizer_vocabulary`
+    + `extract_common_vocab`
+  - `utils` the package containing the utility functions used in the toolkit 
     + `containers`   
     + `evaluation`
     + `init_nn`
     + `optimizers`
-  - `configuration`
-  - `extract_common_vocab`
-  - `test_trained_model`
+  - `configuration` the class in charge of reading the config file and providing its content inside an easily accessible configuration object (`cfg`).
+  - `test_trained_model` the test script which loads an already trained model (pointed from the config file) and runs the beam search on it.
   - `trainer` the main script which loads the config file, creates the model and runs the training process. 
   You may want to start looking into this script first, to get familiar with what can be done using this toolkit.
   
@@ -89,7 +104,7 @@ share_vocabulary: the flag which enables merging the source and target vocabular
 sentence_count_limit: the maximum number of sentences to be considered from the trainset. it will normally be used when different data fractions are intended to be compared. please note that the actual number of processed sentences can be lower than this number since empty lines are removed from training data. 
 aspect_vectors_data_address: the address of the pre-trained aspect vector extractors. You don't need to set any value for it if your model is not "aspect_augmented_transformer". 
 
-model_name: `transformer` or `sts`
+model_name: `sts` or `transformer` [also "aspect_augmented_transformer", "multi_head_aspect_augmented_transformer", "syntax_infused_transformer", and "bert_freeze_input_transformer"]
 train_batch_size: the average number of words expected to be put in a batch while training [4000 to 5000 seem to be a reasonable defalt]
 valid_batch_size: the average number of words expected to be put in a batch while testing [you dont need big numbers in this case]
 maximum_decoding_length: maximum valid decoding length

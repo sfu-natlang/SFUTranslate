@@ -1,5 +1,5 @@
 __package__ = "translate.scripts"
-__all__ = ["create_pretrained_tokenizer_vocabulary"]
+__all__ = ["create_pretrained_tokenizer_vocabulary", "extract_common_vocab"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]
