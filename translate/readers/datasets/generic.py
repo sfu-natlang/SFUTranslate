@@ -1,3 +1,7 @@
+"""
+The modified version of TranslationDataset class from torchtext.Dataset which allows for
+    limiting the data load to fractions of data and collecting raw data stats
+"""
 import os
 import io
 from tqdm import tqdm

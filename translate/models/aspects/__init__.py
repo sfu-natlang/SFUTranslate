@@ -1,4 +1,4 @@
-__package__ = "translate.scripts.aspect_vectors"
+__package__ = "translate.models.aspects"
 __all__ = ["ae_utils", "aspect_extract_main", "extract_vocab", "model", "module", "tester", "trainer"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"

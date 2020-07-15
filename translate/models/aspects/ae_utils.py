@@ -1,5 +1,5 @@
 """
-This script provides utility functions shared for different parts of aspect_extractor package.
+This script provides utility functions shared for different parts of aspects package.
 """
 from sklearn.metrics import classification_report
 

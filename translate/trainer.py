@@ -1,3 +1,7 @@
+"""
+The universal main script of the translation training process in SFUTranslate. If you have implemented new models
+    please add them to the if-block in main() function so they can be loaded using configuration files.
+"""
 import os
 import math
 import torch
