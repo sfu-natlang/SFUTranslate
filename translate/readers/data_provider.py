@@ -1,6 +1,6 @@
 from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
-from models.aspects.module import SyntaxInfusedInformationContainer
+from models.aspects.containers import SyntaxInfusedInformationContainer
 from readers.utils import batch_size_fn, collect_unk_stats
 from readers.iterators import MyIterator, MyBucketIterator
 from readers.datasets.dataset import get_dataset_from_configs
