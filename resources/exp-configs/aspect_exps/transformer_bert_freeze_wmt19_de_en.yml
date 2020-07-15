@@ -70,4 +70,4 @@ update_freq: 8
 beam_size: 4
 beam_search_length_norm_factor: 0.6
 beam_search_coverage_penalty_factor: 0.4
-checkpoint_name: transformer_aspect_augmented_wmt19_de_en.pt
+checkpoint_name: transformer_bert_freeze_wmt19_de_en.pt
