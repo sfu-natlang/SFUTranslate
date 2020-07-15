@@ -1,6 +1,6 @@
 #! /bin/bash
 pip3 install virtualenv
-virtualenv sfutranslate
+virtualenv sfutranslate --system-site-packages
 source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
 # the next 3 lines are provided for cases where 'python3-dev' linux package cannot be installed and you get compile error stating 'Python.h' not found
