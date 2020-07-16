@@ -206,7 +206,8 @@ functionality and classes.
 - [`spaCy`](https://spacy.io/) the pre-processing toolkit used for normalization and tokenization of `English`, `German`
 , `Spanish`, `Portuguese`, `French`, `Italian`, and `Dutch`. However, to make the library able to process each of the 
 languages you will need to download its resources for spaCy using the following lines (you should simply copy the 
-download line and past it into the command line to get executed).
+download line and past it into the command line to get executed). 
+You don't have to use spacy as `readers.tokenizers` providers a number of different tokenizers you can choose among.
 ```commandline
 python -m spacy download en
 python -m spacy download de
@@ -217,8 +218,17 @@ python -m spacy download it
 python -m spacy download nl
 ```
 
-- [`subword_nmt`](https://github.com/rsennrich/subword-nmt) the implementation of the bye-pair encoding from the paper
-[Neural Machine Translation of Rare Words with Subword Units](http://www.aclweb.org/anthology/P16-1162) used for providing the Byte-Pair level granularity.
+- [`unidecode`](https://github.com/avian2/unidecode) the library used for transliteration of unicode text into ascii (in `readers.sequence-alignment`) script.
+
+- [`tokenizers`](https://github.com/huggingface/tokenizers) the tokenizer library providing state-of-the-art word-piece tokenization and pre-training models for both sub-word and word-piece.
+
+- [`textblob`](https://textblob.readthedocs.io/en/dev/) the library used for sentiment analysis feature extraction in `models.aspects.extract_vocab`.
+
+- [`nltk`](https://www.nltk.org/) the provider of lesk algorithm implementation for word-sense feature extraction in `models.aspects.extract_vocab`.
+
+- [`scikit-learn`](https://scikit-learn.org/stable/index.html) the classification metrics/report provider library for aspect extractor
+
+- [`numpy`](https://numpy.org/) the library used to create temporary tensors on cpu before copy to torch and gpu.
 
 - Utility libraries \[`tqdm` and `xml`\] the libraries that provide simple utility functionality.
 
