@@ -12,7 +12,7 @@ class TestMosesTokenizer(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.maxDiff = 1300
-        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../translate/.data/wmt19_en_de/'))
+        data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.data/wmt19_en_de/'))
         if not os.path.exists(data_dir):
             raise ValueError("The WMT validation data is not accessible under {}".format(data_dir))
         cls.moses_exception_sentences = {

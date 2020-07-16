@@ -1,5 +1,5 @@
 __package__ = "tests.readers"
-__all__ = ["tokenizers_test"]
+__all__ = ["tokenizers_test", "datasets"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

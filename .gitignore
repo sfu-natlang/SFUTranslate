@@ -9,8 +9,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 .idea/
-translate/.data/
-translate/.output/
+.output/
+.data/
+.checkpoints/
 env/
 build/
 develop-eggs/
@@ -91,4 +92,3 @@ ENV/
 # Rope project settings
 .ropeproject
 /translate/*.pt
-/translate/models/.data/*/

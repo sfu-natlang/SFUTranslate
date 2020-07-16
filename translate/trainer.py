@@ -1,3 +1,8 @@
+"""
+The universal main script of the translation training process in SFUTranslate. If you have implemented new models
+    please add them to the if-block in main() function so they can be loaded using configuration files.
+"""
+import os
 import math
 import torch
 from torch import nn
@@ -7,9 +12,22 @@ from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
 from models.sts.model import STS
 from models.transformer.model import Transformer
+from models.aspects.model import AspectAugmentedTransformer, MultiHeadAspectAugmentedTransformer, SyntaxInfusedTransformer, BertFreezeTransformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
+from timeit import default_timer as timer
+
+
+def print_running_time(t):
+    day = t // (24 * 3600)
+    t = t % (24 * 3600)
+    hour = t // 3600
+    t %= 3600
+    minutes = t // 60
+    t %= 60
+    seconds = t
+    print("Total training execution time: {:.2f} days, {:.2f} hrs, {:.2f} mins, {:.2f} secs".format(day, hour, minutes, seconds))
 
 
 def create_sts_model(SRC, TGT):
@@ -19,8 +37,8 @@ def create_sts_model(SRC, TGT):
     return model, optimizer, scheduler, bool(cfg.grad_clip), True
 
 
-def create_transformer_model(SRC, TGT):
-    model = Transformer(SRC, TGT).to(device)
+def create_transformer_model(model_type, SRC, TGT):
+    model = model_type(SRC, TGT).to(device)
     model.init_model_params()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-7, betas=(0.9, 0.98), eps=1e-9)
     model_size = int(cfg.transformer_d_model)
@@ -34,14 +52,25 @@ def main(model_name):
     if model_name == "sts":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_sts_model(dp.SRC, dp.TGT)
     elif model_name == "transformer":
-        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(dp.SRC, dp.TGT)
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(Transformer, dp.SRC, dp.TGT)
+    elif model_name == "aspect_augmented_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(AspectAugmentedTransformer, dp.SRC, dp.TGT)
+    elif model_name == "multi_head_aspect_augmented_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(MultiHeadAspectAugmentedTransformer, dp.SRC, dp.TGT)
+    elif model_name == "syntax_infused_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(SyntaxInfusedTransformer, dp.SRC, dp.TGT)
+    elif model_name == "bert_freeze_input_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(BertFreezeTransformer, dp.SRC, dp.TGT)
     else:
         raise ValueError("Model name {} is not defined.".format(model_name))
-    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
+    if not os.path.exists("../.checkpoints/"):
+        os.mkdir("../.checkpoints/")
+    training_evaluation_results = []
+    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT,
+                'training_evaluation_results': training_evaluation_results}, "../.checkpoints/"+cfg.checkpoint_name)
 
-    val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
     if bool(cfg.debug_mode):
-        evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, "INIT")
+        evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "INIT")
     best_val_score = 0.0
     assert cfg.update_freq > 0, "update_freq must be a non-negative integer"
     for epoch in range(int(cfg.n_epochs)):
@@ -51,12 +80,15 @@ def main(model_name):
         batch_count = 0.0
         all_perp = 0.0
         all_tokens_count = 0.0
-        ds = tqdm(dp.train_iter, total=dp.size_train)
+        if epoch < 2:
+            # after the first iteration it does not need recalculation
+            val_indices = [int(dp.size_train * x / float(cfg.val_slices)) for x in range(1, int(cfg.val_slices))]
+        ds = tqdm(dp.train_iter, total=dp.size_train,  dynamic_ncols=True)
         optimizer.zero_grad()
         for ind, instance in enumerate(ds):
             if instance.src[0].size(0) < 2:
                 continue
-            pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg)
+            pred, _, lss, decoded_length, n_tokens = model(instance.src, instance.trg, test_mode=False, **instance.data_args)
             itm = lss.item()
             all_loss += itm
             all_tokens_count += n_tokens
@@ -79,24 +111,30 @@ def main(model_name):
             else:
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}".format(epoch, all_loss / all_tokens_count))
             if ind in val_indices:
-                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, str(epoch))
+                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, str(epoch))
+                training_evaluation_results.append(val_bleu)
                 if val_bleu > best_val_score:
-                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT}, cfg.checkpoint_name)
+                    torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT, 'training_evaluation_results': training_evaluation_results},
+                               "../.checkpoints/"+cfg.checkpoint_name)
                     best_val_score = val_bleu
                 if step_only_at_eval:
                     scheduler.step(val_bleu)
+        dp.size_train = ind + 1
 
     if best_val_score > 0.0:
-        print("Loading the best validated model with validation bleu score of {:.3f}".format(best_val_score))
-        saved_obj = torch.load(cfg.checkpoint_name, map_location=lambda storage, loc: storage)
+        print("Loading the best validated model with validation bleu score of {:.2f}".format(best_val_score))
+        saved_obj = torch.load("../.checkpoints/"+cfg.checkpoint_name, map_location=lambda storage, loc: storage)
         model = saved_obj['model'].to(device)
         # it might not correctly overwrite the vocabulary objects
         SRC = saved_obj['field_src']
         TGT = saved_obj['field_tgt']
         dp.replace_fields(SRC, TGT)
-    evaluate(dp.val_iter, dp, model, dp.src_val_file_address, dp.tgt_val_file_address, "LAST")
+    evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "LAST")
 
 
 if __name__ == "__main__":
+    start = timer()
     main(cfg.model_name)
+    end = timer()
+    print_running_time(end - start)
 

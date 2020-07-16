@@ -2,7 +2,7 @@ import codecs
 import sys
 import spacy
 from torchtext import data, datasets
-from readers.dataset import IWSLT
+from readers.datasets.dataset import IWSLT
 
 dataset_name = sys.argv[1]
 src_lan, tgt_lan = sys.argv[2], sys.argv[3]

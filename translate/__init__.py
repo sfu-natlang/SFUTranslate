@@ -1,5 +1,5 @@
 __package__ = "translate"
-__all__ = ["models", "readers", "utils", "configuration", "trainer", "test_trained_model", "extract_common_vocab"]
+__all__ = ["models", "readers", "scripts", "utils", "configuration", "trainer", "test_trained_model"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

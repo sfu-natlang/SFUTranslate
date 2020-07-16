@@ -3,22 +3,22 @@
 <h1 align="center"> SFUTranslate </h1>
 <br/><br/>
 
-This is an academic machine translation toolkit, in which the main focus has been towards readability and changeability.
+This is an academic machine translation toolkit, in which the focus has been towards readability and changeability.
 We also have tried to make the algorithms as fast as possible, but please let us know if you have any suggestions or
 concerns regarding the toolkit. To get familiar with what you can do and how you can do it please read through this documentation.
 
-To run the code you will need python 3.5+ and PyTorch 1.1+.
+To run the code you will need python 3.5+ (tested on v3.5.2) and PyTorch 1.4+.
 
 # Getting Started
 
 To get started, we start with the project structure. In the highest level of the project, there are two main directories:
 
-- `resurces`: All the necessary resources for the project are supposed to be loaded from the `SFUTranslate/resources` directory.
+- `resources`: All the necessary resources for the project are expected to be loaded from the `SFUTranslate/resources` directory.
 Please refrain from putting the resources anywhere else if you are planing to make a pull request.
  
-- `translate`: All the source code files are placed under `SFUTranslate/translate` directory.
+- `translate`: All the source code files are under `SFUTranslate/translate` directory.
 If you are using an IDE to debug or run the code, don't forget to mark this directory as your sources directory.
-Otherwise you will need to have the address of `SFUTranslate/translate` directory in your `$PATH` environment variable to be able to run the code.
+Otherwise, you will need to have the address of `SFUTranslate/translate` directory in your `$PATH` environment variable to be able to run the code.
 Another way of running the code would be to run `cd /path/to/SFUTranslate/translate && python trainer.py <path/to/config.yml>`. 
 To test the trained model on the test set, you may use the `test_trained_model` script 
 (e.g. `cd /path/to/SFUTranslate/translate && python test_trained_model.py <path/to/config.yml>`). 
@@ -26,34 +26,49 @@ To test the trained model on the test set, you may use the `test_trained_model` 
 The next sections will help you get more familiar with the code flow and training different models.
 
 ## Code Structure
-As stated earlier, the source codes are placed in the `translate` directory (i.e. `/path/to/SFUTranslate/translate/`). 
+As stated earlier, the source code files are in the `translate` directory (i.e. `/path/to/SFUTranslate/translate/`). 
 
-The general structure of the modules is depicted in the following figure.
+The following figure depicts the general structure of the modules.
 
 <img src="docs/SFUTranslate.svg?sanitize=True"/>
 
 As of the current version, the `translate` package contains the following sub-packages and classes.
   - `models`
-    + `general`   
-    + `sts`
+    + `general`  
+    + `aspects` the package containing implementations of aspect-augmented nmt model and its baselines  
+        - `ae_utils`
+        - `aspect_extract_main`
+        - `extract_vocab`
         - `model`
-    + `transformer`
+        - `module`
+        - `tester`
+        - `trainer`
+    + `sts` the package containing the implementation of the attentional sequence-to-sequence model using RNNs
+        - `model`
+    + `transformer` the package containing the implementation of vanilla transformer model
         - `model`
         - `modules`
         - `optim`
         - `utils`
-  - `readers`
-    + `data_provider`   
+  - `readers` the data read/preprocess methods and classes are placed in this package
     + `datasets`
+        - `generic`
+        - `dataset`
+    + `data_provider`   
+    + `iterators`
+    + `sequence_alignment`
+    + `tokenizers`
     + `utils`
-  - `utils`
+  - `scripts` the package containing all the dangling scripts in the toolkit
+    + `create_pretrained_tokenizer_vocabulary`
+    + `extract_common_vocab`
+  - `utils` the package containing the utility functions used in the toolkit 
     + `containers`   
     + `evaluation`
     + `init_nn`
     + `optimizers`
-  - `configuration`
-  - `extract_common_vocab`
-  - `test_trained_model`
+  - `configuration` the class in charge of reading the config file and providing its content inside an easily accessible configuration object (`cfg`).
+  - `test_trained_model` the test script which loads an already trained model (pointed from the config file) and runs the beam search on it.
   - `trainer` the main script which loads the config file, creates the model and runs the training process. 
   You may want to start looking into this script first, to get familiar with what can be done using this toolkit.
   
@@ -61,19 +76,19 @@ As of the current version, the `translate` package contains the following sub-pa
 ## What can be put in the config file?
 Here we present a complete schema for the config file containing all possible valid tags that can be put in the config file.
 Please note that you may put some in and remove some from your config file, however, if the config file lacks the configurations 
-that are essential to your task you will face an error indicating that the required configuration value is not presented.
+that are essential to your task you will face an error indicating that the required configuration value is not present.
   In that case, please look at the config file and put the configuration tag with your desired value in it. An example 
-  config file called `nmt.yml` is already put in the `resources` directory so you can modify and use for running the 
-  project. Nevertheless, you can create your own config file as a text file whose name is ending in `.yml` and put your 
+  config file called `nmt.yml` is already put in the `resources` directory. You can modify and use it for running the 
+  project. Nevertheless, you can create your own config file as a text file with a `.yml` extension in the name and put your 
   configurations in it. Here is the configuration schema:
 ```yamlex
-debug_mode: [true/false] if true spacy tokenizer is deactivated and Multi30k dataset is automatically loaded
+debug_mode: [true/false] if true tokenizer is deactivated and length filter is also applied to validation and test sets
 src_lang: the bi-letter language identifier for source langugage
 tgt_lang: the bi-letter language identifier for target langugage
-dataset_name: the name of the torchtext datasetname
+dataset_name: the name of the torchtext datasetname [currently supported: "multi30k16", "iwslt17", "wmt19_de_en", "wmt19_de_fr"]
 lowercase_data: [true/false] whether the dataset setences need to be lowercased or not
-src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "generic"|"moses"|"pre_trained"] 
-tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "generic"|"moses"|"pre_trained"]
+src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "generic"|"moses"|"pre_trained"|"spacy"|"bert"] 
+tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "generic"|"moses"|"pre_trained"|"spacy"|"bert"]
 pad_token: special pad token used in data transformation
 bos_token: special begin of sentence token used in data transformation
 eos_token: special end of sentence token used in data transformation
@@ -85,9 +100,11 @@ min_freq_src: minimum considrable source vocabulary, words with less freqency th
 max_vocab_tgt: maximum size of target side vocabulary
 min_freq_tgt: minimum considrable target vocabulary, words with less freqency than this are replaced with ``unk_token``
 extract_unk_stats: the flag which enables the code to perform type/token analysis on the ratio of <UNK> tokens in the current vocabulary settings
-share_vocabulary: the flag which enables merging the source and target vocabulary into a single object, assigning unique ids to the same token in both source and target space 
+share_vocabulary: the flag which enables merging the source and target vocabulary into a single object, assigning unique ids to the same token in both source and target space
+sentence_count_limit: the maximum number of sentences to be considered from the trainset. it will normally be used when different data fractions are intended to be compared. please note that the actual number of processed sentences can be lower than this number since empty lines are removed from training data. 
+aspect_vectors_data_address: the address of the pre-trained aspect vector extractors. You don't need to set any value for it if your model is not "aspect_augmented_transformer". 
 
-model_name: `transformer` or `sts`
+model_name: `sts` or `transformer` [also "aspect_augmented_transformer", "multi_head_aspect_augmented_transformer", "syntax_infused_transformer", and "bert_freeze_input_transformer"]
 train_batch_size: the average number of words expected to be put in a batch while training [4000 to 5000 seem to be a reasonable defalt]
 valid_batch_size: the average number of words expected to be put in a batch while testing [you dont need big numbers in this case]
 maximum_decoding_length: maximum valid decoding length
@@ -144,7 +161,7 @@ checkpoint_name: the name of the checkpoint which is being saved/loaded
 
 # Experiment Results
 In this section, we put the experiment results of different models on different datasets. Please check this page regularly as we add our new results below the previously posted ones.
- You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. To use them you can simply put them besides the `trainer.py` script (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
+ You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. To use them you can simply put them in a directory named `.checkpoints` created besides the `translate` package (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
  Each experiment will have a model file (ending in ".pt") in there with the exact same name mentioned in the table below.
  The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
   The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
@@ -189,7 +206,8 @@ functionality and classes.
 - [`spaCy`](https://spacy.io/) the pre-processing toolkit used for normalization and tokenization of `English`, `German`
 , `Spanish`, `Portuguese`, `French`, `Italian`, and `Dutch`. However, to make the library able to process each of the 
 languages you will need to download its resources for spaCy using the following lines (you should simply copy the 
-download line and past it into the command line to get executed).
+download line and past it into the command line to get executed). 
+You don't have to use spacy as `readers.tokenizers` providers a number of different tokenizers you can choose among.
 ```commandline
 python -m spacy download en
 python -m spacy download de
@@ -200,8 +218,19 @@ python -m spacy download it
 python -m spacy download nl
 ```
 
-- [`subword_nmt`](https://github.com/rsennrich/subword-nmt) the implementation of the bye-pair encoding from the paper
-[Neural Machine Translation of Rare Words with Subword Units](http://www.aclweb.org/anthology/P16-1162) used for providing the Byte-Pair level granularity.
+- [`transformers`](https://github.com/huggingface/transformers) the library providing pre-trained bert and bert-tokenizer models. 
+
+- [`unidecode`](https://github.com/avian2/unidecode) the library used for transliteration of unicode text into ascii (in `readers.sequence-alignment`) script.
+
+- [`tokenizers`](https://github.com/huggingface/tokenizers) the tokenizer library providing state-of-the-art word-piece tokenization and pre-training models for both sub-word and word-piece.
+
+- [`textblob`](https://textblob.readthedocs.io/en/dev/) the library used for sentiment analysis feature extraction in `models.aspects.extract_vocab`.
+
+- [`nltk`](https://www.nltk.org/) the provider of lesk algorithm implementation for word-sense feature extraction in `models.aspects.extract_vocab`.
+
+- [`scikit-learn`](https://scikit-learn.org/stable/index.html) the classification metrics/report provider library for aspect extractor
+
+- [`numpy`](https://numpy.org/) the library used to create temporary tensors on cpu before copy to torch and gpu.
 
 - Utility libraries \[`tqdm` and `xml`\] the libraries that provide simple utility functionality.
 

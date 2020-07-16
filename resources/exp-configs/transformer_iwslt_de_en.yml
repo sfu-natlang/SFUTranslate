@@ -1,7 +1,7 @@
 debug_mode: false
 src_lang: de
 tgt_lang: en
-dataset_name: iwslt17_de_en
+dataset_name: iwslt17
 lowercase_data: true
 src_tokenizer: moses
 tgt_tokenizer: moses
@@ -17,6 +17,7 @@ max_vocab_tgt: 50000
 min_freq_tgt: 1
 extract_unk_stats: false
 share_vocabulary: false
+sentence_count_limit: -1
 
 emb_dropout: 0.3
 train_batch_size: 4096

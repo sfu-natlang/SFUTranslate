@@ -48,7 +48,7 @@ def find_token_index_in_list(sequence_1, tokens_doc, check_lowercased_doc_tokens
     return inds
 
 
-def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, print_alignments=False, level=0):
+def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, print_alignments=False, level=0, verbose=False):
     """
     This function receives two lists of string tokens expected to be monotonically pseudo-aligned,
       and returns the alignment fertility values from :param sequence_1: to :param sequence_2:.
@@ -164,7 +164,7 @@ def extract_monotonic_sequence_to_sequence_alignment(sequence_1, sequence_2, pri
             for b_f in range(fertility):
                 print("{} --> {}".format(src_token, sequence_2[sequence_2_ind + b_f]))
             sequence_2_ind += fertility
-    if not level and sum(fertilities) != len(sequence_2):
+    if verbose and not level and sum(fertilities) != len(sequence_2):
         try:
             print("Warning one sentence is not aligned properly:\n{}\n{}\n{}\n{}".format(
                 sequence_1, sequence_2, sum(fertilities), len(sequence_2)))

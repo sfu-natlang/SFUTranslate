@@ -75,27 +75,27 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
 
-    def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False):
+    def forward(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param test_mode: a flag indicating whether the model is allowed to use the target tensor for input feeding
         """
-        return self.decode(input_tensor_with_lengths, output_tensor_with_length, test_mode, beam_size=self.beam_size)
+        return self.decode(input_tensor_with_lengths, output_tensor_with_length, test_mode, beam_size=self.beam_size, **kwargs)
 
-    def encode(self, input_tensor_with_lengths):
+    def encode(self, input_tensor_with_lengths, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         """
-        input_tensor, input_lengths = input_tensor_with_lengths
+        input_tensor, _ = input_tensor_with_lengths
         input_tensor = input_tensor.transpose(0, 1)
         input_mask = self.generate_src_mask(input_tensor)
         x = self.src_embed(input_tensor)
         for layer in self.enc_layers:
             x = layer(x, input_mask)
-        return self.enc_norm(x), input_mask
+        return self.enc_norm(x), input_mask, input_tensor
 
-    def decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, beam_size=1):
+    def decode(self, input_tensor_with_lengths, output_tensor_with_length=None, test_mode=False, beam_size=1, **kwargs):
         """
         :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
         :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
@@ -110,7 +110,10 @@ class Transformer(nn.Module):
             output_tensor, outputs_lengths = None, None
 
         # #################################CALLING THE ENCODER TO ENCODE THE INPUT BATCH###############################
-        memory, input_mask = self.encode(input_tensor_with_lengths)
+        memory, input_mask, input_tensor = self.encode(input_tensor_with_lengths, **kwargs)
+        batch_size, input_sequence_length = input_tensor.size()
+        target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
+        ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)
 
         if output_tensor_with_length is not None and not test_mode:
             batch_size = input_tensor_with_lengths[0].size(1)
@@ -132,46 +135,28 @@ class Transformer(nn.Module):
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
             return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), float(norm.item())
         elif self.beam_search_decoding:
-            return self.beam_search_decode(input_tensor_with_lengths, beam_size)
+            return self.beam_search_decode(memory, input_mask, input_tensor, ys, batch_size, target_length, beam_size, **kwargs)
         else:
-            return self.greedy_decode(input_tensor_with_lengths)
+            return self.greedy_decode(memory, input_mask, input_tensor, ys, batch_size, target_length, **kwargs)
 
-    def greedy_decode(self, input_tensor_with_lengths):
-        """
-        :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
-        """
-        input_tensor, input_lengths = input_tensor_with_lengths
-        input_tensor = input_tensor.transpose(0, 1)
-        batch_size, input_sequence_length = input_tensor.size()
-        target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
-        memory, src_mask = self.encode(input_tensor_with_lengths)
-        ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)
+    def extract_output_probabilities(self, ys, memory, src_mask, input_tensor):
+        output_tensor, output_mask = ys.clone().detach(), subsequent_mask(ys.size(1)).type_as(input_tensor.data).clone().detach()
+        x = self.tgt_embed(output_tensor)
+        for layer in self.dec_layers:
+            x = layer(x, memory, src_mask, output_mask)
+        out = self.dec_norm(x)
+        prob = self.generator(out[:, -1])
+        return prob
+
+    def greedy_decode(self, memory, src_mask, input_tensor, ys, batch_size, target_length, **kwargs):
         for i in range(target_length-1):
-            output_tensor, output_mask = ys.clone().detach(), \
-                                              subsequent_mask(ys.size(1)).type_as(input_tensor.data).clone().detach()
-            x = self.tgt_embed(output_tensor)
-            for layer in self.dec_layers:
-                x = layer(x, memory, src_mask, output_mask)
-            out = self.dec_norm(x)
-            prob = self.generator(out[:, -1])
+            prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
             _, next_word = torch.max(prob, dim=1)
             ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
         max_attention_indices = None
         return ys.transpose(0, 1), max_attention_indices, torch.zeros(1, device=device), 1, 1
 
-    def beam_search_decode(self, input_tensor_with_lengths, beam_size=1):
-        """
-        :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
-        :param beam_size: number of the hypothesis expansions during inference
-        """
-        input_tensor, input_lengths = input_tensor_with_lengths
-        input_tensor = input_tensor.transpose(0, 1)
-        batch_size, input_sequence_length = input_tensor.size()
-        target_length = min(int(cfg.maximum_decoding_length * 1.1), input_sequence_length * 2)
-        memory, src_mask = self.encode(input_tensor_with_lengths)
-
-        # #################################INITIALIZATION OF DECODING PARAMETERS#######################################
-        init_ys = torch.ones(batch_size, 1).fill_(self.TGT.vocab.stoi[cfg.bos_token]).type_as(input_tensor.data)
+    def beam_search_decode(self, memory, src_mask, input_tensor, init_ys, batch_size, target_length, beam_size=1, **kwargs):
         nodes = [(init_ys, torch.zeros(batch_size, device=device), torch.zeros(batch_size, device=device).bool())]
         final_results = []
 
@@ -183,13 +168,7 @@ class Transformer(nn.Module):
             all_lm_scores = torch.zeros(batch_size, len(nodes) * k, device=device).float()
             # iterating over all the available hypotheses to expand the beams
             for n_id, (ys, lm_scores, eos_predicted) in enumerate(nodes):
-                output_tensor, output_mask = ys.clone().detach(), \
-                                             subsequent_mask(ys.size(1)).type_as(input_tensor.data).clone().detach()
-                x = self.tgt_embed(output_tensor)
-                for layer in self.dec_layers:
-                    x = layer(x, memory, src_mask, output_mask)
-                out = self.dec_norm(x)
-                prob = self.generator(out[:, -1])
+                prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
                 k_values, k_indices = torch.topk(prob, dim=1, k=k)
                 for beam_index in range(k):
                     overall_index = n_id * k + beam_index

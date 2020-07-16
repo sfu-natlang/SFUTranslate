@@ -56,15 +56,22 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
 
 
 def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str,
-             eph: str, save_decoded_sentences: bool = False, output_dir: str = '.output'):
-    print("Evaluation ....")
+             eph: str, save_decoded_sentences: bool = False, output_dir: str = '../.output', nuance: str = '0000000000'):
+    if not save_decoded_sentences:
+        print("Evaluation ....")
     model.eval()
     result_file = None
+    cp_name = cfg.checkpoint_name
+    if cp_name.endswith(".pt"):
+        cp_name = cp_name[:-3]
+    cp_name += "_" + nuance
     if save_decoded_sentences:
-        print("Storing decoding results for {}".format(data_iter.dataset.name))
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
-        output_path = os.path.join(output_dir, data_iter.dataset.name)
+        if not os.path.exists(os.path.join(output_dir, cp_name)):
+            os.mkdir(os.path.join(output_dir, cp_name))
+        output_path = os.path.join(output_dir, cp_name, data_iter.dataset.name)
+        print("Storing decoding results for {} in {}".format(data_iter.dataset.name, os.path.abspath(output_path)))
         result_file = open(output_path, "w", encoding='utf-8')
 
     def _get_next_line(file_1_iter, file_2_iter):
@@ -91,7 +98,7 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
         all_bleu_score = 0.0
         sent_count = 0.0
         for valid_instance in data_iter:
-            pred, max_attention_idcs, lss, _, n_tokens = model(valid_instance.src, valid_instance.trg, test_mode=True)
+            pred, max_attention_idcs, lss, _, n_tokens = model(valid_instance.src, valid_instance.trg, test_mode=True, **valid_instance.data_args)
             lall_valid += lss.item()
             lcount_valid += n_tokens
             for d_id, (decoded, model_expected) in enumerate(zip(
@@ -106,21 +113,19 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
                 if save_decoded_sentences:
                     result_file.write(decoded+"\n")
                 sent_count += 1.0
-                if not random_sample_created and random.random() < 0.01:
+                if not save_decoded_sentences and not random_sample_created and random.random() < 0.01:
                     random_sample_created = True
                     try:
                         print("Sample Inp't: {}\nSample Pred : {}\nModel Expc'd: {}\nSample Act'l: {}".format(
                             source_sentence, decoded, model_expected, reference_sentence))
                     except UnicodeEncodeError:  # some sentences in the raw file might not be nicely formatted!
                         random_sample_created = False
-        # valid_instance = next(iter(val_iter))
-        # pred, _, _, _ = model(valid_instance.src, valid_instance.trg)
-        # cpreds = convert_target_batch_back(pred)
-        # cactuals = convert_target_batch_back(valid_instance.trg[0])
-        # ind = random.randint(0, len(cpreds)-1)
         average_loss = lall_valid/max(lcount_valid, 1)
         average_bleu = all_bleu_score / max(sent_count, 1)
-        print("E {} ::: Average Loss {:.3f} ::: Average BleuP1 {:.3f}".format(eph, average_loss, average_bleu))
+        if average_loss > 0.0:
+            print("E {} ::: Average Loss {:.2f} ::: Average BleuP1 {:.2f}".format(eph, average_loss, average_bleu))
+        else:
+            print("E {} ::: Average BleuP1 {:.2f}".format(eph, average_bleu))
     model.train()
     if save_decoded_sentences:
         result_file.close()

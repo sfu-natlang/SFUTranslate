@@ -17,6 +17,7 @@ max_vocab_tgt: 3000
 min_freq_tgt: 0
 extract_unk_stats: false
 share_vocabulary: false
+sentence_count_limit: -1
 
 model_name: sts
 emb_dropout: 0.3
