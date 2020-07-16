@@ -85,10 +85,10 @@ that are essential to your task you will face an error indicating that the requi
 debug_mode: [true/false] if true tokenizer is deactivated and length filter is also applied to validation and test sets
 src_lang: the bi-letter language identifier for source langugage
 tgt_lang: the bi-letter language identifier for target langugage
-dataset_name: the name of the torchtext datasetname
+dataset_name: the name of the torchtext datasetname [currently supported: "multi30k16", "iwslt17", "wmt19_de_en", "wmt19_de_fr"]
 lowercase_data: [true/false] whether the dataset setences need to be lowercased or not
-src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "generic"|"moses"|"pre_trained"] 
-tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "generic"|"moses"|"pre_trained"]
+src_tokenizer: the tokenizer to be used for the source side of parallel data [possible values: "generic"|"moses"|"pre_trained"|"spacy"|"bert"] 
+tgt_tokenizer: the tokenizer to be used for the target side of parallel data [possible values: "generic"|"moses"|"pre_trained"|"spacy"|"bert"]
 pad_token: special pad token used in data transformation
 bos_token: special begin of sentence token used in data transformation
 eos_token: special end of sentence token used in data transformation
@@ -217,6 +217,8 @@ python -m spacy download fr
 python -m spacy download it
 python -m spacy download nl
 ```
+
+- [`transformers`](https://github.com/huggingface/transformers) the library providing pre-trained bert and bert-tokenizer models. 
 
 - [`unidecode`](https://github.com/avian2/unidecode) the library used for transliteration of unicode text into ascii (in `readers.sequence-alignment`) script.
 
