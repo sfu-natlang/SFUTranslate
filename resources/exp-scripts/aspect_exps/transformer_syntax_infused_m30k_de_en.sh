@@ -13,8 +13,8 @@ cd SFUTranslate/ || return
 # git checkout 7957c261434bc0ea806ba750811d3a8030a510b9
 python setup.py install
 pip install -c transformers_constraints.txt transformers==2.4.1
-# python -m spacy download en
-# python -m spacy download de
+# python -m spacy download en_core_web_lg
+python -m spacy download de_core_news_md
 cd translate/ || return
 # WARNING change the number of visible GPU if GPU:0 is already allocated
 export CUDA_VISIBLE_DEVICES=0
