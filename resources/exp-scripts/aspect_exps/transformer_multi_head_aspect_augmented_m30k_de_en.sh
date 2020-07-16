@@ -8,7 +8,7 @@ cd sfutranslate/ || return
 wget http://www.sfu.ca/~sshavara/python_include.zip
 unzip python_include.zip
 cd ..
-git clone -b dev-lingemb https://github.com/sfu-natlang/SFUTranslate.git
+git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
 # git checkout 7957c261434bc0ea806ba750811d3a8030a510b9
 python setup.py install
