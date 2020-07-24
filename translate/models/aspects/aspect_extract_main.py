@@ -57,4 +57,5 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
 
 if __name__ == '__main__':
     # TODO put this list in config file
-    aspect_vector_trainer(features_list=("f_pos", "c_pos", "subword_shape", "subword_position"))
+    aspect_vector_trainer(features_list=("f_pos", "c_pos", "subword_shape", "subword_position"),  # , "dependency_tag", "ent_type"),
+                          no_improvement_tolerance=500)

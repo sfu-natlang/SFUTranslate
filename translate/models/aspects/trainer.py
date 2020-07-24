@@ -139,7 +139,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                                                                                    "; ".join(_classification_report_)))
             # if model has not had any improvements in any of the classifier scores after {no_improvement_tolerance} batches, the training will stop.
             for ind, feat in enumerate(required_features_list):
-                feat_score = float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all
+                feat_score = round(float(feature_pred_corrects[ind] * 100) / feature_pred_correct_all, 3)
                 if tolerance_bests[ind] < feat_score:
                     tolerance_bests[ind] = feat_score
                     tolerance_counts[ind] = 0
