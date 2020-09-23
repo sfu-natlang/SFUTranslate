@@ -10,7 +10,7 @@ unzip python_include.zip
 cd ..
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout 3c68cbbdeb19ac16a377ed3e10e15ecd8174617a
+git checkout 0902a607cb9a8186b153f7300b6ddf443dc0c894
 python setup.py install
 pip install -c transformers_constraints.txt transformers==2.4.1
 # python -m spacy download en_core_web_lg
