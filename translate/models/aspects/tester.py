@@ -66,6 +66,8 @@ def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_voc
                 input_sentences, required_features_list, linguistic_vocab, spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer)
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
+            if input_ids.size(1) > bert_lm.config.max_position_embeddings:
+                continue
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
             all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
             embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
