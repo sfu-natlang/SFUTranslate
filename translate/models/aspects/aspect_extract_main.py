@@ -36,8 +36,11 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     bert_model_name = PTBertTokenizer.get_default_model_name(src_lan, bool(cfg.lowercase_data))
     bert_tokenizer = PTBertTokenizer(src_lan, bool(cfg.lowercase_data))
 
-    def data_itr():
+    def train_data_itr():
         return tqdm(dataset_iterator(dataset.train, batch_size), dynamic_ncols=True)
+
+    def dev_data_itr():
+        return tqdm(dataset_iterator(dataset.val, batch_size * 3), dynamic_ncols=True)
 
     if not os.path.exists(vocab_adr):
         print("Starting to create linguistic vocab for for {} language ...".format(src_lan))
@@ -46,16 +49,16 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
         pickle.dump(ling_vocab, open(vocab_adr, "wb"), protocol=4)
         print("Linguistic vocab persisted!\nDone.")
     ling_vocab = pickle.load(open(vocab_adr, "rb"), encoding="utf-8")
-    aspect_extractor_trainer(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data), H, lr,
+    aspect_extractor_trainer(train_data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data), H, lr,
                              scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, report_every=5000,
                              no_improvement_tolerance=no_improvement_tolerance, save_model_name=smn, relative_sizing=False,
                              resolution_strategy=resolution_strategy)
-    print("Performing test on the training data ...")
-    aspect_extractor_tester(data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data),
+    print("Performing test on the validation data ...")
+    aspect_extractor_tester(dev_data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data),
                             load_model_name=smn, resolution_strategy=resolution_strategy, check_result_sanity=True)
 
 
 if __name__ == '__main__':
     # TODO put this list in config file
     aspect_vector_trainer(features_list=("f_pos", "c_pos", "subword_shape", "subword_position"),  # , "dependency_tag", "ent_type"),
-                          no_improvement_tolerance=500)
+                          no_improvement_tolerance=30)

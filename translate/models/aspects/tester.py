@@ -137,5 +137,6 @@ def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_voc
                                 if actual_label != '__PAD__':
                                     sanity_all_actual[rf_idx].append(actual_label)
                                     sanity_all_prediction[rf_idx].append(predicted_label)
+    # TODO if size of all_actual[idx] > 20M or size of all_prediction[idx] > 20M this will fail!
     create_test_report(all_loss, all_tokens_count, all_actual, all_prediction, sanity_all_actual, sanity_all_prediction, feature_pred_correct_all,
                        feature_pred_corrects, required_features_list, check_result_sanity, resolution_strategy)

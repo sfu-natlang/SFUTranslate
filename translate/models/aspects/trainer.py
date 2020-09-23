@@ -176,6 +176,10 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                 print("Creating report/persisting trained model ...")
                 create_train_report_and_persist_modules(model, save_model_name, all_actual, all_prediction, feature_pred_correct_all,
                                                         feature_pred_corrects, required_features_list, resolution_strategy)
+                print("Cleaning up the collected actual/prediction labels [done due to prevent application getting killed for memory limits]")
+                for idx in range(len(required_features_list)):
+                    del all_actual[idx][:]
+                    del all_prediction[idx][:]
         create_train_report_and_persist_modules(model, save_model_name, all_actual, all_prediction, feature_pred_correct_all,
                                                 feature_pred_corrects, required_features_list, resolution_strategy)
     print("Training done.")
