@@ -22,7 +22,7 @@ aspect_vectors_data_address: ../.checkpoints/iwslt_aspect_vectors.de
 
 emb_dropout: 0.3
 train_batch_size: 4096
-valid_batch_size: 4096
+valid_batch_size: 256
 encoder_emb_size: 600
 encoder_hidden_size: 600
 encoder_layers: 1
