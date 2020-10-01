@@ -89,7 +89,7 @@ class PreTrainedTokenizer(GenericTokenizer):
         if not len(text.strip()):
             return [""]
         # encoding = self.tokenizer.encode(n_text, add_special_tokens=False)
-        encoding = self.tokenizer.encode_tokenized(self.moses_tkn.tokenize(text))
+        encoding = self.tokenizer.encode(self.moses_tkn.tokenize(text), is_pretokenized=True, add_special_tokens=False)
         # encoding contains "ids", "tokens", and "offsets"
         return encoding.tokens
 

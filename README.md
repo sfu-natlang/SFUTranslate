@@ -7,7 +7,7 @@ This is an academic machine translation toolkit, in which the focus has been tow
 We also have tried to make the algorithms as fast as possible, but please let us know if you have any suggestions or
 concerns regarding the toolkit. To get familiar with what you can do and how you can do it please read through this documentation.
 
-To run the code you will need python 3.5+ (tested on v3.5.2) and PyTorch 1.4+.
+To run the code you will need python 3.8+ (tested on v3.8.2) and PyTorch 1.6+.
 
 # Getting Started
 
