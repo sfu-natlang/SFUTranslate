@@ -178,7 +178,7 @@ class Transformer(nn.Module):
             temp_next_nodes = []
             # creating the next k hypotheses
             for beam_index in range(k):
-                node_ids = k_indices[:, beam_index] / k
+                node_ids = k_indices[:, beam_index] // k
                 node_ids = list(node_ids.cpu().numpy())  # list of size batch_size
                 pred_ids = list(k_indices[:, beam_index].cpu().numpy())
                 lm_score = k_values[:, beam_index]
