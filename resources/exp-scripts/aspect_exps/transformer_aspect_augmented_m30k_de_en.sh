@@ -1,4 +1,13 @@
 #! /bin/bash
+# wget https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tgz
+# tar zxvf Python-3.8.2.tgz
+# cd Python-3.8.2
+# ./configure --prefix=`pwd`
+# make
+# make install
+# cd ..
+# Python-3.8.2/bin/python3.8 -m pip install virtualenv
+# Python-3.8.2/bin/virtualenv -p Python-3.8.2/bin/python3.8 sfutranslate
 pip3 install virtualenv
 virtualenv sfutranslate --system-site-packages
 source sfutranslate/bin/activate
