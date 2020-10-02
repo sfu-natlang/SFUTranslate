@@ -67,7 +67,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
     print("Loading the pre-trained BertForMaskedLM model: {}".format(model_name))
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     number_of_bert_layers = len(bert_lm.bert.encoder.layer) + 1
-    D_in = D_out = bert_lm.bert.pooler.dense.in_features
+    D_in = D_out = bert_lm.bert.config.hidden_size
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)
     print("Loading Spacy Tokenizers")
     spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
@@ -107,8 +107,11 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                 continue
             outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
             all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
-            embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
-                                    model.softmax(model.bert_weights_for_average_pooling))
+            maxes = torch.max(model.bert_weights_for_average_pooling, dim=-1, keepdim=True)[0]
+            x_exp = torch.exp(model.bert_weights_for_average_pooling-maxes)
+            x_exp_sum = torch.sum(x_exp, dim=-1, keepdim=True)
+            output_custom = x_exp/x_exp_sum
+            embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0), output_custom)
             # sequence_length, batch_size, len(feats)
             predictions = torch.zeros(embedded.size(1), embedded.size(0), len(required_features_list))
             for s in range(1, embedded.size(1)-1):
