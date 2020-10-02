@@ -211,7 +211,7 @@ class Transformer(nn.Module):
             best_tokens = None
             for node in final_results:
                 tokens = node[0][b_ind]
-                eos_ind = (tokens == self.TGT.vocab.stoi[cfg.eos_token]).nonzero().view(-1)
+                eos_ind = torch.nonzero(torch.eq(tokens, self.TGT.vocab.stoi[cfg.eos_token]), as_tuple=False).view(-1)
                 if eos_ind.size(0):
                     tsize = eos_ind[0].item()
                 else:
