@@ -355,7 +355,7 @@ class BertEmbeddingIntegration(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
         # TODO if final output size if not equal to self.d_model convert it back to self.d_model space using self.output_bridge
-        lm_hidden_size = self.bert_lm.bert.pooler.dense.in_features
+        lm_hidden_size = self.bert_lm.bert.config.hidden_size
         if self.d_model != lm_hidden_size:
             self.output_bridge = nn.Linear(lm_hidden_size, self.d_model).to(device)
             for p in self.output_bridge.parameters():
