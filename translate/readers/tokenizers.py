@@ -9,6 +9,7 @@ from requests import get
 import spacy
 from spacy.tokenizer import Tokenizer
 import os
+import string
 
 try:
     import warnings
@@ -224,6 +225,7 @@ class PyMosesTokenizer(GenericTokenizer):
         self.tokenizer = MosesTokenizer(lang=lang)
         self.detokenizer = MosesDetokenizer(lang=lang)
         self.lowercase = lowercase
+        self.lang = lang
 
     def tokenize(self, text):
         return self.tokenizer.tokenize(self.mpn.normalize(text.lower() if self.lowercase else text))
@@ -237,7 +239,10 @@ class PyMosesTokenizer(GenericTokenizer):
                 temp_result = temp_result.strip() + token
             else:
                 temp_result += token + " "
-        return self.detokenizer.detokenize(temp_result.strip().split())
+        f_result = self.detokenizer.detokenize(temp_result.strip().split())
+        if len(f_result) > 3 and f_result[-3] in string.punctuation and f_result[-2] == " " and f_result[-1] == "\"":
+            f_result = f_result[:-2] + f_result[-1]
+        return f_result
 
     @property
     def model_name(self):
