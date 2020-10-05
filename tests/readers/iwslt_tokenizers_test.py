@@ -100,7 +100,8 @@ class TestMosesTokenizer(unittest.TestCase):
                     recovered = s.detokenize(tokens)
                     expected = sent.lower() if lowercase else sent
                     expected = " ".join([x for x in expected.split() if x])
-                    expected = expected.replace("„", "\"").replace("“", "\"").replace("–", "-")
+                    if lang == "de":
+                        expected = expected.replace("„", "\"").replace("“", "\"").replace("–", "-")
                     if unidecode.unidecode(sent) == sent:
                         self.assertEqual(expected, recovered)
                     else:

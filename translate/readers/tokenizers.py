@@ -126,6 +126,8 @@ class PreTrainedTokenizer(GenericTokenizer):
                 token = token.replace("&apos;", "\'")
             if self.lang == "fr" and len(token) > 1 and token[1:] == "&apos;":
                 token = token.replace("&apos;", "\'")
+            elif self.lang == "fr" and "qu&apos;" in token:
+                token = token.replace("&apos;", "\'")
             sub_ts = [token]
             for mid_sign in self.mid_tokens:
                 sub_ts = self.tokenize_token(sub_ts, mid_sign)
