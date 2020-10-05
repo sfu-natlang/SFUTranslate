@@ -101,7 +101,19 @@ class TestMosesTokenizer(unittest.TestCase):
                     if unidecode.unidecode(sent) == sent:
                         self.assertEqual(sent.lower() if lowercase else sent, recovered)
                     else:
-                        self.assertEqual(sent.lower() if lowercase else unidecode.unidecode(sent), unidecode.unidecode(recovered))
+                        self.assertEqual(unidecode.unidecode(sent.lower()) if lowercase else unidecode.unidecode(sent), unidecode.unidecode(recovered))
+
+    def test_french_pretrained_tokenizer(self):
+        lang = "fr"
+        lowercase = True
+        s = PreTrainedTokenizer(lang, lowercase=lowercase)
+        for sent in ["Monsieur le Président, ce qui s'est déroulé ces derniers mois dans les îles Fidji semblait inspiré d'un feuilleton de l'après-midi."]:
+            tokens = s.tokenize(sent)
+            recovered = s.detokenize(tokens)
+            if unidecode.unidecode(sent) == sent:
+                self.assertEqual(sent.lower() if lowercase else sent, recovered)
+            else:
+                self.assertEqual(unidecode.unidecode(sent.lower()) if lowercase else unidecode.unidecode(sent), unidecode.unidecode(recovered))
 
 
 if __name__ == '__main__':

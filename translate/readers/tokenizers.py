@@ -81,6 +81,7 @@ class PreTrainedTokenizer(GenericTokenizer):
                                                 handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
         self.mid_tokens = {".": "&middot;", "-": "&hyphen;", "\'": "&midapos;", ",": "&midcma;", " ": "&finspace;"}
         self.reverse_mid_tokens = {v: k for k, v in self.mid_tokens.items()}
+        self.lang = lang
 
     def get_tokenized_sub_tokens(self, token, mid_sign):
         result = []
@@ -92,7 +93,7 @@ class PreTrainedTokenizer(GenericTokenizer):
             for sub_token in sub_tokens[:-1]:
                 result.append(sub_token)
                 result.append(self.mid_tokens[mid_sign])
-            if len(sub_tokens[-1]):
+            if len(sub_tokens[-1]) or (mid_sign == '\'' and self.lang == "fr"):
                 result.append(sub_tokens[-1])
             else:  # case like "p.m." where the last token is empty
                 result.append(self.mid_tokens[" "])
@@ -121,6 +122,8 @@ class PreTrainedTokenizer(GenericTokenizer):
         tokens = []
         for token in self.moses_tkn.tokenize(text):
             if token.startswith("&apos;") and token != "&apos;":
+                token = token.replace("&apos;", "\'")
+            if self.lang == "fr" and len(token) > 1 and token[1:] == "&apos;":
                 token = token.replace("&apos;", "\'")
             sub_ts = [token]
             for mid_sign in self.mid_tokens:
