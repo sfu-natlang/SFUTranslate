@@ -59,7 +59,7 @@ class TestMosesTokenizer(unittest.TestCase):
             "en":
                 [],
             "de":
-                []
+                ["Mein Favorit ist der in der Mitte -- MP3-Player-, Nasenhaar-Trimmer und Crème-Brûlée-Flambierer."]
         }
         cls.valid_sentences = {}
         for lang in ["en", "de"]:
@@ -102,10 +102,7 @@ class TestMosesTokenizer(unittest.TestCase):
                     expected = " ".join([x for x in expected.split() if x])
                     if lang == "de":
                         expected = expected.replace("„", "\"").replace("“", "\"").replace("–", "-")
-                    if unidecode.unidecode(sent) == sent:
-                        self.assertEqual(expected, recovered)
-                    else:
-                        self.assertEqual(unidecode.unidecode(expected), unidecode.unidecode(recovered))
+                    self.assertEqual(expected, recovered)
 
     def test_french_pretrained_tokenizer(self):
         lang = "fr"
