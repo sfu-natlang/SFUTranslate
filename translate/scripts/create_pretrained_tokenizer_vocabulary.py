@@ -40,4 +40,4 @@ if __name__ == '__main__':
     print("Starting to train ...")
     tokenizer.train(files=train_data, vocab_size=vocab_size, show_progress=True, min_frequency=min_frequency, special_tokens=spt)
     # Save files to disk
-    tokenizer.save("./moses-pre-tokenized-wmt-uncased-{}.json".format(lang), True)
+    tokenizer.save_model(".", "moses-pre-tokenized-wmt-uncased-{}".format(lang))
