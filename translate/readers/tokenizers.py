@@ -81,7 +81,7 @@ class PreTrainedTokenizer(GenericTokenizer):
         self.moses_tkn = PyMosesTokenizer(lang, lowercase)
         self.tokenizer = BertWordPieceTokenizer(f_name, clean_text=clean_text, lowercase=lowercase,
                                                 handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
-        self.mid_tokens = {".": "&middot;", "-": "&hyphen;", "\'": "&midapos;", ",": "&midcma;", " ": "&finspace;"}
+        self.mid_tokens = {".": "&md;", "-": "&hp;", "\'": "&ma;", ",": "&mc;", " ": "&fs;"}
         self.reverse_mid_tokens = {v: k for k, v in self.mid_tokens.items()}
         self.lang = lang
 
