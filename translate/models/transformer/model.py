@@ -129,10 +129,10 @@ class Transformer(nn.Module):
             norm = (y != self.TGT.vocab.stoi[cfg.pad_token]).data.sum()
             x = self.generator(out)
             loss = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
-            max_attention_indices = None
             for i in range(x.size(1)-1):
                 _, next_word = torch.max(x.select(1, i), dim=1)
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
+            max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
             return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), float(norm.item())
         elif self.beam_search_decoding:
             return self.beam_search_decode(memory, input_mask, input_tensor, ys, batch_size, target_length, beam_size, **kwargs)
@@ -153,7 +153,7 @@ class Transformer(nn.Module):
             prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
             _, next_word = torch.max(prob, dim=1)
             ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
-        max_attention_indices = None
+        max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
         return ys.transpose(0, 1), max_attention_indices, torch.zeros(1, device=device), 1, 1
 
     def beam_search_decode(self, memory, src_mask, input_tensor, init_ys, batch_size, target_length, beam_size=1, **kwargs):
@@ -223,8 +223,26 @@ class Transformer(nn.Module):
                     best_score = lms
                     best_tokens = tokens
             result[:best_tokens[1:].size(0), b_ind] = best_tokens[1:]
-        max_attention_indices = None
+        max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
         return result, max_attention_indices, torch.zeros(1, device=device), 1, 1
+
+    def compute_maximum_attention_indices(self, target_length, batch_size):
+        """
+        This function looks into the latest computed attention values in the transformer model
+         and returns their aggregated votes as the final attention votes
+        """
+        # model.enc_layers[layer].self_attn.attn[batch_id][0, h].data # encoder attention
+        # model.dec_layers[layer].self_attn.attn[batch_id][0, h].data[:len(tgt_sent), :len(tgt_sent)] #  decoder self layer
+        # model.dec_layers[layer].src_attn.attn[batch_id][0, h].data[:len(tgt_sent), :len(sent)] # decoder src layer
+        # TODO find a better way of aggregation for attention scores
+        max_attention_indices = torch.zeros(target_length, batch_size, device=device)
+        for b_id in range(batch_size):
+            temp_attention_accumulation = torch.zeros(self.dec_layers[0].src_attn.attn[0][0].size(), device=device)
+            for decoder_layer_id in range(len(self.dec_layers)):
+                for head_index in range(int(cfg.transformer_h)):
+                    temp_attention_accumulation += self.dec_layers[decoder_layer_id].src_attn.attn[b_id][head_index]  # should be len_src * len_tgt
+            max_attention_indices[:self.dec_layers[0].src_attn.attn[0][0].size(1), b_id] = temp_attention_accumulation.max(0)[1]
+        return max_attention_indices.detach()
 
     def generate_src_mask(self, input_tensor):
         """
