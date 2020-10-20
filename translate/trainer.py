@@ -10,6 +10,7 @@ from tqdm import tqdm
 from configuration import cfg, device
 from readers.data_provider import DataProvider
 from utils.optimizers import get_a_new_optimizer
+from models.copy.model import CopyModel
 from models.sts.model import STS
 from models.transformer.model import Transformer
 from models.aspects.model import AspectAugmentedTransformer, MultiHeadAspectAugmentedTransformer, SyntaxInfusedTransformer, BertFreezeTransformer
@@ -33,6 +34,12 @@ def print_running_time(t):
 def create_sts_model(SRC, TGT):
     model = STS(SRC, TGT).to(device)
     model.apply(weight_init)
+    optimizer, scheduler = get_a_new_optimizer(cfg.init_optim, cfg.init_learning_rate, model.parameters())
+    return model, optimizer, scheduler, bool(cfg.grad_clip), True
+
+
+def create_copy_model(SRC, TGT):
+    model = CopyModel(SRC, TGT).to(device)
     optimizer, scheduler = get_a_new_optimizer(cfg.init_optim, cfg.init_learning_rate, model.parameters())
     return model, optimizer, scheduler, bool(cfg.grad_clip), True
 
@@ -61,6 +68,8 @@ def main(model_name):
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(SyntaxInfusedTransformer, dp.SRC, dp.TGT)
     elif model_name == "bert_freeze_input_transformer":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(BertFreezeTransformer, dp.SRC, dp.TGT)
+    elif model_name == "copy":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_copy_model(dp.SRC, dp.TGT)
     else:
         raise ValueError("Model name {} is not defined.".format(model_name))
     if not os.path.exists("../.checkpoints/"):
