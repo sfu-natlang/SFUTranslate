@@ -6,8 +6,8 @@ from readers.iterators import MyIterator, MyBucketIterator
 from readers.datasets.dataset import get_dataset_from_configs
 from readers.tokenizers import get_tokenizer_from_configs
 
-src_tokenizer_obj = get_tokenizer_from_configs(cfg.src_tokenizer, src_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode), is_src=True)
-tgt_tokenizer_obj = get_tokenizer_from_configs(cfg.tgt_tokenizer, tgt_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode), is_src=False)
+src_tokenizer_obj = get_tokenizer_from_configs(cfg.src_tokenizer, src_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
+tgt_tokenizer_obj = get_tokenizer_from_configs(cfg.tgt_tokenizer, tgt_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
 
 
 def src_tokenizer(text):

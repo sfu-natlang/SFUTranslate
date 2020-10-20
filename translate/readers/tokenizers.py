@@ -62,11 +62,11 @@ class PreTrainedTokenizer(GenericTokenizer):
         "moses-pre-tokenized-paracrawl-uncased-accented-de": "https://drive.google.com/uc?export=download&id=15EKdo2IXyyfZvrpOEwtx4KgeeL6Ot-Gi"
     }
 
-    def __init__(self, lang, root='../.data', clean_text=False, handle_chinese_chars=True, strip_accents=False, lowercase=True, is_src=True):
+    def __init__(self, lang, root='../.data', clean_text=False, handle_chinese_chars=True, strip_accents=False, lowercase=True):
         """
         Example instantiation: PreTrainedTokenizer("bert-base-uncased", root="../.data")
         """
-        pre_trained_model_name = self.get_default_model_name(lang, lowercase, is_src)
+        pre_trained_model_name = self.get_default_model_name(lang, lowercase)
         self._model_name_ = pre_trained_model_name
         if not os.path.exists(root):
             os.mkdir(root)
@@ -193,15 +193,13 @@ class PreTrainedTokenizer(GenericTokenizer):
         return decoded
 
     @staticmethod
-    def get_default_model_name(lang, lowercase, is_src=True):
+    def get_default_model_name(lang, lowercase):
         if lang == "en" and lowercase:
             return "bert-base-uncased"
         elif lang == "en" and not lowercase:
             return "bert-base-cased"
         elif lang == "zh":
             return "bert-base-chinese"
-        elif lang == "de" and lowercase and not is_src:
-            return "moses-pre-tokenized-paracrawl-uncased-accented-de"
         elif lang == "de" and lowercase:
             return "bert-base-german-dbmdz-uncased"
         elif lang == "de" and not lowercase:
@@ -331,7 +329,7 @@ class SpacyTokenizer:
             raise ValueError("No pre-trained spacy tokenizer found for language {}".format(lang))
 
 
-def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False, is_src=True):
+def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=False):
     """
     A stand-alone function which will create and return the proper tokenizer object given requested configs
     """
@@ -341,7 +339,7 @@ def get_tokenizer_from_configs(tokenizer_name, lang, lowercase_data, debug_mode=
     elif tokenizer_name == "generic" or bool(debug_mode):
         return GenericTokenizer()
     elif tokenizer_name == "pre_trained":
-        return PreTrainedTokenizer(lang, lowercase=lowercase_data, is_src=is_src)
+        return PreTrainedTokenizer(lang, lowercase=lowercase_data)
     elif tokenizer_name == "spacy":
         return SpacyTokenizer(lang, lowercase=lowercase_data)
     elif tokenizer_name == "bert":

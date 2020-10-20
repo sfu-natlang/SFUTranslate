@@ -93,7 +93,7 @@ class TestMosesTokenizer(unittest.TestCase):
     def test_pre_trained_tokenizer(self):
         for lang in self.valid_sentences:
             lowercase = False  # lowercasing makes much more [UNK]s
-            s = PreTrainedTokenizer(lang, lowercase=lowercase, is_src=False)
+            s = PreTrainedTokenizer(lang, lowercase=lowercase)
             for sent in self.valid_sentences[lang]:
                 if sent not in self.moses_exception_sentences[lang] and sent not in self.pre_trained_exception_sentences[lang]:
                     tokens = s.tokenize(sent)
