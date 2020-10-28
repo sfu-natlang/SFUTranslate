@@ -168,10 +168,10 @@ checkpoint_name: the name of the checkpoint which is being saved/loaded
 ```
 
 # Aspect Augmented NMT Experiment Results
-In this section, we report the results of our Aspect Integrated NMT results along with the replicated baseline results. 
+In this section, we report the results of our Aspect Integrated NMT model along with the replicated baseline models. 
 You can run our experiments using the standalone scripts in `resources/exp-scripts/aspect_exps`. 
 The source code for Aspect Augmented NMT along with the replicated baselines is implemented in `translate/models/aspects`.
-In the results tables:
+In the result tables:
 
 - \#param represents the number of trainable parameters (size of BERT model parameters \[110.5M\] has not been added to the model size for the aspect augmented and bert-freeze models since BERT is not trained in these settings).
 - runtime is the total time the training script has ran and includes time taken for creating the model, reading the data and iterating over the instances for all the epochs.
