@@ -9,7 +9,7 @@ cd ..
 Python-3.5.2/bin/python3.5 -m pip install virtualenv
 Python-3.5.2/bin/virtualenv -p Python-3.5.2/bin/python3.5 sfutranslate
 source sfutranslate/bin/activate
-export PYTHONPATH=sfutranslate/lib/python3.8/site-packages
+export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
 git checkout 7957c261434bc0ea806ba750811d3a8030a510b9
