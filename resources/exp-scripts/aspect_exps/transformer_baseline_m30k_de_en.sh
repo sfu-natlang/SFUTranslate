@@ -12,7 +12,7 @@ source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.8/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout 0000000000000000000000000000000000000000
+git checkout a83e0db441e6fdb62dfd693e070cc5005ee85327
 python setup.py install
 cd translate/ || return
 # WARNING change the number of visible GPU if GPU:0 is already allocated

@@ -12,7 +12,7 @@ source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.8/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout 0000000000000000000000000000000000000000
+git checkout a83e0db441e6fdb62dfd693e070cc5005ee85327
 python setup.py install
 # python -m spacy download en_core_web_lg
 python -m spacy download de_core_news_md
