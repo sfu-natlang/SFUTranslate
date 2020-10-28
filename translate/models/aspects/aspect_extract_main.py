@@ -15,6 +15,10 @@ from models.aspects.extract_vocab import dataset_iterator, extract_linguistic_vo
 from models.aspects.tester import aspect_extractor_tester
 from models.aspects.trainer import aspect_extractor_trainer
 from configuration import cfg, src_lan, tgt_lan
+# To avoid the annoying UserWarnings of torchtext
+# Remove this once the next version of torchtext is available
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../../.checkpoints', batch_size=32, H=1024, epochs=3, lr=0.05, max_norm=5,
