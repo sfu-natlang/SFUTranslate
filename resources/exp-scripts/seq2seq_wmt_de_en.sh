@@ -1,18 +1,18 @@
 #! /bin/bash
-wget https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tgz
-tar zxvf Python-3.8.2.tgz
-cd Python-3.8.2
+wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz
+tar zxvf Python-3.5.2.tgz
+cd Python-3.5.2
 ./configure --prefix=`pwd`
 make
 make install
 cd ..
-Python-3.8.2/bin/python3.8 -m pip install virtualenv
-Python-3.8.2/bin/virtualenv -p Python-3.8.2/bin/python3.8 sfutranslate
+Python-3.5.2/bin/python3.5 -m pip install virtualenv
+Python-3.5.2/bin/virtualenv -p Python-3.5.2/bin/python3.5 sfutranslate
 source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.8/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout 0000000000000000000000000000000000000000
+git checkout 7957c261434bc0ea806ba750811d3a8030a510b9
 python setup.py install
 python -m spacy download en
 python -m spacy download de
