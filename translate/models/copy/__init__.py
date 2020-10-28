@@ -1,5 +1,5 @@
-__package__ = "tests.readers"
-__all__ = ["tokenizers_test", "iwslt_tokenizers_test", "m30k_tokenizers_test", "datasets"]
+__package__ = "translate.models.copy"
+__all__ = ["model"]
 __author__ = "Hassan S. Shavarani"
 __copyright__ = "Copyright 2019, SFUTranslate Project"
 __credits__ = ["Hassan S. Shavarani"]

@@ -18,7 +18,7 @@ class MosesPreTokenizer:
 
 if __name__ == '__main__':
     lang = 'fr'
-    clean_text = True
+    clean_text = False
     handle_chinese_chars = True
     strip_accents = False
     lowercase = True
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     print("Starting to train ...")
     tokenizer.train(files=train_data, vocab_size=vocab_size, show_progress=True, min_frequency=min_frequency, special_tokens=spt)
     # Save files to disk
-    tokenizer.save(".", "moses-pre-tokenized-wmt-uncased-{}".format(lang))
+    tokenizer.save_model(".", "moses-pre-tokenized-wmt-uncased-{}".format(lang))

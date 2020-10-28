@@ -4,6 +4,7 @@ import sys
 import os
 import unittest
 from readers.tokenizers import PreTrainedTokenizer, PyMosesTokenizer, GenericTokenizer
+import unidecode
 
 
 class TestMosesTokenizer(unittest.TestCase):
@@ -26,7 +27,13 @@ class TestMosesTokenizer(unittest.TestCase):
                 ["i2Theme 1.2 is designed by N. Design Studio, customized by MangoOrange ™, sponsored by Best Web Hosting and Web hosting Deals.",
                  "\"And features built into the path of 憶回 newborn neurons in the adult brain.",
                  "※ Mighty AdSense has a similar function as a plug-in.",
-                 "the report (A5-0020/2001) by Mr Gasòliba i Böhm, on behalf of the Committee on Economic and Monetary Affairs, on the impact of liberalisation and the process of economic reform on the European Union's economic growth."
+                 "the report (A5-0020/2001) by Mr Gasòliba i Böhm, on behalf of the Committee on Economic and Monetary Affairs, on the impact of liberalisation and the process of economic reform on the European Union's economic growth.",
+
+                 "To search for a specific package, use eix -e packagename.",
+                 "-marca HP -3 gigas memoria RAM -320 gigas disco duro -Rotulación Light scribe -Cámara web -Pantalla ancha de 17 pulgadas..",
+                 "What John Connolly's bluntness reflected was America's ability--and willingness--to export its economic problems by driving down the dollar's value while scapegoating countries opposed to that strategy.",
+
+                 "Among subjects of the Russian Federation the list of leaders on number of registration of domains in zone RU has a little changed: St.-Petersburg many long years confidently occupying the second line in this rating, Moscow Region for the first time has pressed.",
                  ],
             "de":
                 [
@@ -40,7 +47,18 @@ class TestMosesTokenizer(unittest.TestCase):
                     "Ihr GPS-Gerät verfügt aber nur über 20 Unterspeicher á 500 Punkte.",
                     "※ Mighty AdSense hat eine ähnliche Funktion als Plug-in.",
                     "Information Гјber Anwendung des Apparates \"Uro-Biofon\" bei Behandlung der Kranken mit geschlechtlich Гјbertragenen Infektionen.",
-                    "ist eine internationale Főderation von Ingenieuren Beratern, die 1913 gegrűndet wurde und die aus 66 Landsverbänden besteht, derer Mitglieder ethische Vorschrifte von FIDIC beachten."
+                    "ist eine internationale Főderation von Ingenieuren Beratern, die 1913 gegrűndet wurde und die aus 66 Landsverbänden besteht, derer Mitglieder ethische Vorschrifte von FIDIC beachten.",
+
+                    "Private Dienstleister sind andererseits für Unternehmen, die für MwSt.-Zwecke registriert sind, attraktiver, obwohl der Gesamtpreis höher liegen kann. Der Kunde kann die Mehrwertsteuer zurückerstattet bekommen, was die Nettokosten für das Unternehmen reduziert.",
+                    "Wir haben unlängst einen Brief von einer Person erhalten, die versucht hatte, eine Rechtsvorschrift durchzusetzen. Die Person, vorher proeuropäisch eingestellt, war derartig empört über die gesamte europäische Einrichtung, dass sie jetzt eine antieuropäische Partei unterstützt.---",
+                    "Lassen Sie uns hoffen, dass die Kommission neue Wege und konkrete Vorschläge erforschen kann, damit sie den EFF nutzen kann, um den am stärksten betroffenen Teilen der Flotte zu helfen, nämlichen den kleinen und handwerklichen Küstenfischern, sowie denen, die von weit abgelegenen Häfen aus auf Fang fahren.--",
+                    "Das begrenzte Territorium erfordert überdies große Anstrengungen, um die natürliche Umgebung zu schützen, und hat zur Folge, daß diese Regionen von bestimmten Problemen wie den Fluktuationen des Luft- und Seeverkehrs, der unregelmäßigen Versorgung mit wichtigen Produkten, den Problemen bei der Trinkwasserversorgung, der Abwasserklärung und der Abfallentsorgung und -verwertung besonders betroffen sind.",
+                    "Die dritte Sitzung des RI-Zentralvorstands für 2007/08 fand vom 22.-25. Januar 2008 in Evanston, Illinois (USA) statt.",
+                    "Um nach einem Paket mit einem festen Namen zu suchen, gebraucht man eix -e packagename.",
+                    "Es reichen schon einige wenige Spermien aus, um mit Hilfe des ICSI -Ver-fahrens gute Ergebnisse bei der Befruchtung zu erzielen.",
+                    "July 27--When Yahoo bought Jordan-based Maktoob.com in August 2009 for a reported $85 million, it barely made a ripple in U.S. technology circles.",
+                    "Nachdem Du den Text gespeichert hast, kannst Du auswählen, in welcher Schriftfarbe und -art er gedruckt werden soll."
+
                 ]
         }
         cls.valid_sentences = {}
@@ -81,6 +99,18 @@ class TestMosesTokenizer(unittest.TestCase):
                     tokens = s.tokenize(sent)
                     recovered = s.detokenize(tokens)
                     self.assertEqual(sent.lower() if lowercase else sent, recovered)
+
+    def test_french_pretrained_tokenizer(self):
+        lang = "fr"
+        lowercase = True
+        s = PreTrainedTokenizer(lang, lowercase=lowercase)
+        for sent in ["Monsieur le Président, ce qui s'est déroulé ces derniers mois dans les îles Fidji semblait inspiré d'un feuilleton de l'après-midi."]:
+            tokens = s.tokenize(sent)
+            recovered = s.detokenize(tokens)
+            if unidecode.unidecode(sent) == sent:
+                self.assertEqual(sent.lower() if lowercase else sent, recovered)
+            else:
+                self.assertEqual(unidecode.unidecode(sent.lower()) if lowercase else unidecode.unidecode(sent), unidecode.unidecode(recovered))
 
 
 if __name__ == '__main__':

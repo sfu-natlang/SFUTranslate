@@ -9,6 +9,7 @@ from requests import get
 import spacy
 from spacy.tokenizer import Tokenizer
 import os
+import string
 
 try:
     import warnings
@@ -57,10 +58,11 @@ class PreTrainedTokenizer(GenericTokenizer):
         "bert-base-finnish-uncased-v1": "https://s3.amazonaws.com/models.huggingface.co/bert/TurkuNLP/bert-base-finnish-uncased-v1/vocab.txt",
         "bert-base-dutch-cased": "https://s3.amazonaws.com/models.huggingface.co/bert/wietsedv/bert-base-dutch-cased/vocab.txt",
         "moses-pre-tokenized-wmt-uncased-fr": "https://drive.google.com/uc?export=download&id=1kYxOhJh4UshVE_SGYMANjLn_oEB6RMYC",
-        "moses-pre-tokenized-wmt-uncased-en": "https://drive.google.com/uc?export=download&id=1hIURG9eiIXQYCm8cS4vJM3RLVl6UcW32"
+        "moses-pre-tokenized-wmt-uncased-en": "https://drive.google.com/uc?export=download&id=1hIURG9eiIXQYCm8cS4vJM3RLVl6UcW32",
+        "moses-pre-tokenized-paracrawl-uncased-accented-de": "https://drive.google.com/uc?export=download&id=15EKdo2IXyyfZvrpOEwtx4KgeeL6Ot-Gi"
     }
 
-    def __init__(self, lang, root='../.data', clean_text=True, handle_chinese_chars=True, strip_accents=True, lowercase=True):
+    def __init__(self, lang, root='../.data', clean_text=False, handle_chinese_chars=True, strip_accents=False, lowercase=True):
         """
         Example instantiation: PreTrainedTokenizer("bert-base-uncased", root="../.data")
         """
@@ -79,6 +81,37 @@ class PreTrainedTokenizer(GenericTokenizer):
         self.moses_tkn = PyMosesTokenizer(lang, lowercase)
         self.tokenizer = BertWordPieceTokenizer(f_name, clean_text=clean_text, lowercase=lowercase,
                                                 handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
+        self.mid_tokens = {".": "&md;", "-": "&hp;", "\'": "&ma;", ",": "&mc;", " ": "&fs;"}
+        self.reverse_mid_tokens = {v: k for k, v in self.mid_tokens.items()}
+        self.lang = lang
+
+    def get_tokenized_sub_tokens(self, token, mid_sign):
+        result = []
+        if mid_sign in self.mid_tokens:
+            sub_tokens = token.split(mid_sign)
+            assert len(sub_tokens) > 1
+            if not len("".join(sub_tokens)):
+                result.append(self.mid_tokens[" "])
+            for sub_token in sub_tokens[:-1]:
+                result.append(sub_token)
+                result.append(self.mid_tokens[mid_sign])
+            if len(sub_tokens[-1]) or (mid_sign == '\'' and self.lang == "fr"):
+                result.append(sub_tokens[-1])
+            else:  # case like "p.m." where the last token is empty
+                result.append(self.mid_tokens[" "])
+        else:
+            result.append(token)
+        return result
+
+    def tokenize_token(self, tokens, mid_sign):
+        res = []
+        for token in tokens:
+            if len(token) > 1 and mid_sign in token:
+                for sub_token in self.get_tokenized_sub_tokens(token, mid_sign):
+                    res.append(sub_token)
+            else:
+                res.append(token)
+        return res
 
     def tokenize(self, text):
         """
@@ -88,19 +121,67 @@ class PreTrainedTokenizer(GenericTokenizer):
         """
         if not len(text.strip()):
             return [""]
+        tokens = []
+        for token in self.moses_tkn.tokenize(text):
+            if token.startswith("&apos;") and token != "&apos;":
+                token = token.replace("&apos;", "\'")
+            if self.lang == "fr" and len(token) > 1 and token[1:] == "&apos;":
+                token = token.replace("&apos;", "\'")
+            elif self.lang == "fr" and "qu&apos;" in token:
+                token = token.replace("&apos;", "\'")
+            sub_ts = [token]
+            for mid_sign in self.mid_tokens:
+                sub_ts = self.tokenize_token(sub_ts, mid_sign)
+            for sub_token in sub_ts:
+                tokens.append(sub_token)
         # encoding = self.tokenizer.encode(n_text, add_special_tokens=False)
-        encoding = self.tokenizer.encode_tokenized(self.moses_tkn.tokenize(text))
+        encoding = self.tokenizer.encode(tokens, is_pretokenized=True, add_special_tokens=False)
         # encoding contains "ids", "tokens", and "offsets"
         return encoding.tokens
 
     def detokenize(self, tokenized_list):
-        # TODO make it work
+        # TODO make it work on more test examples
         temp_result = []
+        # Merging sub-tokens
         for token in tokenized_list:
             if len(temp_result) and token.startswith("##"):
                 temp_result[-1] = temp_result[-1] + token[2:]
             else:
                 temp_result.append(token)
+        result = []
+        index = 0
+        t_len = len(temp_result)
+        # merging & tokens for moses decoder
+        while index < t_len:
+            if temp_result[index] == "&" and index < t_len - 2 and temp_result[index + 2] == ";":
+                result.append("".join(temp_result[index:index+3]))
+                index += 3
+            elif temp_result[index] == "&" and index < t_len - 3 and temp_result[index + 3] == ";":
+                result.append("".join(temp_result[index:index+4]))
+                index += 4
+            else:
+                result.append(temp_result[index])
+                index += 1
+        del temp_result[:]
+        index = 0
+        t_len = len(result)
+        # merging &hyphen; tokens for moses decoder
+        while index < t_len:
+            if result[index] in self.reverse_mid_tokens:
+                if not len(temp_result):
+                    temp_result.append("")
+                if index + 1 < t_len and result[index+1] in self.reverse_mid_tokens:  # final dot in "p.m."
+                    temp_result[-1] += self.reverse_mid_tokens[result[index]] + self.reverse_mid_tokens[result[index+1]]
+                    index += 2
+                elif index + 1 < t_len:  # middle dot in "p.m."
+                    temp_result[-1] += self.reverse_mid_tokens[result[index]] + result[index+1]
+                    index += 2
+                else:  # any thing else"
+                    temp_result[-1] += self.reverse_mid_tokens[result[index]]
+                    index += 1
+            else:
+                temp_result.append(result[index])
+                index += 1
         return self.moses_tkn.detokenize(temp_result)
 
     def decode(self, encoded_ids_list):
@@ -147,6 +228,7 @@ class PyMosesTokenizer(GenericTokenizer):
         self.tokenizer = MosesTokenizer(lang=lang)
         self.detokenizer = MosesDetokenizer(lang=lang)
         self.lowercase = lowercase
+        self.lang = lang
 
     def tokenize(self, text):
         return self.tokenizer.tokenize(self.mpn.normalize(text.lower() if self.lowercase else text))
@@ -160,7 +242,10 @@ class PyMosesTokenizer(GenericTokenizer):
                 temp_result = temp_result.strip() + token
             else:
                 temp_result += token + " "
-        return self.detokenizer.detokenize(temp_result.strip().split())
+        f_result = self.detokenizer.detokenize(temp_result.strip().split())
+        if len(f_result) > 3 and f_result[-3] in string.punctuation and f_result[-2] == " " and f_result[-1] == "\"":
+            f_result = f_result[:-2] + f_result[-1]
+        return f_result
 
     @property
     def model_name(self):

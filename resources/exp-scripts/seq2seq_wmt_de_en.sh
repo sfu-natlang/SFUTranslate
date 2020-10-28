@@ -1,6 +1,13 @@
 #! /bin/bash
-pip3 install virtualenv
-virtualenv sfutranslate --system-site-packages
+wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz
+tar zxvf Python-3.5.2.tgz
+cd Python-3.5.2
+./configure --prefix=`pwd`
+make
+make install
+cd ..
+Python-3.5.2/bin/python3.5 -m pip install virtualenv
+Python-3.5.2/bin/virtualenv -p Python-3.5.2/bin/python3.5 sfutranslate
 source sfutranslate/bin/activate
 export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
