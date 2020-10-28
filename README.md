@@ -11,7 +11,7 @@ To run the code you will need python 3.8+ (tested on v3.8.2) and PyTorch 1.6+.
 
 # Getting Started
 
-To get started, we start with the project structure. In the highest level of the project, there are two main directories:
+To get started, we start with the project structure. In the highest level of the project, there are three main directories:
 
 - `resources`: All the necessary resources for the project are expected to be loaded from the `SFUTranslate/resources` directory.
 Please refrain from putting the resources anywhere else if you are planing to make a pull request.
@@ -20,8 +20,13 @@ Please refrain from putting the resources anywhere else if you are planing to ma
 If you are using an IDE to debug or run the code, don't forget to mark this directory as your sources directory.
 Otherwise, you will need to have the address of `SFUTranslate/translate` directory in your `$PATH` environment variable to be able to run the code.
 Another way of running the code would be to run `cd /path/to/SFUTranslate/translate && python trainer.py <path/to/config.yml>`. 
-To test the trained model on the test set, you may use the `test_trained_model` script 
-(e.g. `cd /path/to/SFUTranslate/translate && python test_trained_model.py <path/to/config.yml>`). 
+To test the trained model on the test set(s), you may use the `test_trained_model` script 
+(e.g. `cd /path/to/SFUTranslate/translate && python test_trained_model.py <path/to/config.yml>`).
+The last way of using the toolkit is to run the standalone experiment scripts in `resources/exp-scripts` directory. 
+Please note that the scripts will start by downloading and setting up an independent python environment, and they don't need your interaction while running.
+
+- `tests`: All the source code for unit test cases for different modules of the toolkit.
+If you are using an IDE to debug or run the code, don't forget to mark this directory as your test sources directory.
  
 The next sections will help you get more familiar with the code flow and training different models.
 
@@ -38,12 +43,15 @@ As of the current version, the `translate` package contains the following sub-pa
     + `aspects` the package containing implementations of aspect-augmented nmt model and its baselines  
         - `ae_utils`
         - `aspect_extract_main`
+        - `containers`
         - `extract_vocab`
         - `model`
         - `module`
         - `tester`
         - `trainer`
     + `sts` the package containing the implementation of the attentional sequence-to-sequence model using RNNs
+        - `model`
+    + `copy` the package containing the implementation of a simple copy model which only tokenizes and then detokenizes the input to produce the output.
         - `model`
     + `transformer` the package containing the implementation of vanilla transformer model
         - `model`
@@ -159,12 +167,60 @@ beam_search_coverage_penalty_factor: the coverage penalty factor in beam search 
 checkpoint_name: the name of the checkpoint which is being saved/loaded  
 ```
 
-# Experiment Results
-In this section, we put the experiment results of different models on different datasets. Please check this page regularly as we add our new results below the previously posted ones.
- You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. To use them you can simply put them in a directory named `.checkpoints` created besides the `translate` package (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
- Each experiment will have a model file (ending in ".pt") in there with the exact same name mentioned in the table below.
- The dataset with which the model has been trained is put in a folder besides the model with the exact same name as the model.
-  The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
+# Aspect Augmented NMT Experiment Results
+In this section, we report the results of our Aspect Integrated NMT results along with the replicated baseline results. 
+You can run our experiments using the standalone scripts in `resources/exp-scripts/aspect_exps`. 
+The source code for Aspect Augmented NMT along with the replicated baselines is implemented in `translate/models/aspects`.
+In the results tables:
+
+- \#param represents the number of trainable parameters (size of BERT model parameters \[110.5M\] has not been added to the model size for the aspect augmented and bert-freeze models since BERT is not trained in these settings).
+- runtime is the total time the training script has ran and includes time taken for creating the model, reading the data and iterating over the instances for all the epochs.
+- We have used a single GeForce GTX 1080 GPU for M30k experiments and a single Titan RTX GPU for IWSLT and WMT experiments.
+
+## M30k German to English
+|                                        | val    | test2016 | \#param | runtime |
+|----------------------------------------|--------|----------|---------|---------|
+| Vaswani et al\. 2017                   | 38\.00 | 37\.25   | 9\.5 M  | 84 min  |
+| Sundararaman et al\. 2019              | 38\.96 | 36\.82   | 13\.9 M | 514 min |
+| Clinchant et al\. 2019 \(bert freeze\) | 38\.76 | 37\.72   | 9\.1 M  | 99 min  |
+| Aspect Augmented \+M30k asp\. vectors  | **39\.82** | 38\.36   | 10\.1 M | 104 min |
+| Aspect Augmented \+WMT asp\. vectors   | 38\.97 | **39\.28**   | 10\.1 M | 102 min |
+
+## M30k German to French
+|                                        | val    | test2016 | \#param | runtime |
+|----------------------------------------|--------|----------|---------|---------|
+| Vaswani et al\. 2017                   | 31\.01 | 30\.27   | 9\.4 M  | 93 min  |
+| Sundararaman et al\. 2019              | 33\.02 | 32\.99   | 13\.6 M | 504 min |
+| Clinchant et al\. 2019 \(bert freeze\) | 33\.71 | 32\.85   | 9\.0 M  | 104 min |
+| Aspect Augmented \+M30k asp\. vectors  | 34\.11 | 33\.90   | 9\.9 M  | 108 min |
+| Aspect Augmented \+WMT asp\. vectors   | **34\.90** | **33\.94**   | 9\.9 M  | 118 min |
+
+## IWSLT17 German to English
+|                                        | dev2010        | tst2010        | tst2011        | tst2012        | tst2013        | tst2014        | tst2015        | \#param | runtime  |
+|----------------------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|---------|----------|
+| Vaswani et al\. 2017                   | 29\.57         | 29\.72         | 31\.82         | 28\.93         | 30\.94         | 26\.21         | 26\.80         | 18\.4 M | 172 min  |
+| Sundararaman et al\. 2019              | 30\.93         | 31\.49         | 32\.82         | 29\.64         | 31\.79         | 27\.51         | 27\.47         | 28\.9 M | 1418 min |
+| Clinchant et al\. 2019 \(bert freeze\) | 30\.79         | 31\.03         | 33\.30         | 30\.00         | 31\.50         | 27\.12         | 26\.97         | 18\.0 M | 212 min  |
+| Aspect Augmented \+IWSLT asp\. vectors | 30\.54         | 31\.18         | 33\.87         | 30\.09         | 31\.58         | 27\.94         | 28\.15         | 18\.9 M | 214 min  |
+| Aspect Augmented \+WMT asp\. vectors   | **32\.60**     | **32\.77**     | **34\.73**     | **30\.71**     | **32\.71**     | **28\.19**     | **28\.28**     | 18\.9 M | 211 min  |
+
+## WMT14 German to English
+|                                        | wmt\_val        | newstest2014   | newstest2015   | newstest2016   | newstest2017   | newstest2018   | newstest2019   | \#param | runtime |
+|----------------------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|---------|---------|
+| Vaswani et al\. 2017                   | 28\.94         | 27\.19         | 27\.45         | 31\.90         | 28\.09         | 33\.97         | 30\.43         | 68\.7 M | 35 h    |
+| Sundararaman et al\. 2019              | 29\.12         | 27\.33         | 27\.35         | **32\.49**     | 28\.36         | 34\.72         | 31\.12         | 93\.8 M | 258 h   |
+| Clinchant et al\. 2019 \(bert freeze\) | 28\.65         | 27\.14         | 27\.35         | 31\.15         | 27\.75         | 34\.07         | 31\.04         | 69\.1 M | 33 h    |
+| Aspect Augmented \+WMT asp\. vectors   | **29\.16**     | **28\.01**     | **28\.42**     | 32\.04         | **28\.85**     | **35\.35**     | **31\.83**     | 70\.3 M | 46 h    |
+
+
+# Older Experiment Results
+In this section, we put the experiment results of different models on different datasets. 
+Please check this page regularly as we add our new results below the previously posted ones.
+You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. 
+To use them you can simply put them in a directory named `.checkpoints` created besides the `translate` package (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
+Each experiment will have a model file (ending in ".pt") in there with the exact same name mentioned in the table below.
+The dataset with which the model has been trained will be automatically downloaded.
+The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
 
 |                                      Experiment Name                                      	|                                      Replication Script                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	| Model File         |                      More Info                      	|
 |:-----------------------------------------------------------------------------------------:	|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------: |:------------------:	|:---------------------------------------------------:	|
