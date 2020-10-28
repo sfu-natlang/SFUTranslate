@@ -3,6 +3,10 @@ import torch
 from configuration import cfg, device
 from readers.data_provider import DataProvider
 from utils.evaluation import evaluate
+# To avoid the annoying UserWarnings of torchtext
+# Remove this once the next version of torchtext is available
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def test_trained_model():

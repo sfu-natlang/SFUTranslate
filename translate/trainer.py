@@ -18,6 +18,10 @@ from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
 from timeit import default_timer as timer
+# To avoid the annoying UserWarnings of torchtext
+# Remove this once the next version of torchtext is available
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def print_running_time(t):
