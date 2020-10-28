@@ -1,20 +1,19 @@
 #! /bin/bash
-pip3 install virtualenv
-virtualenv sfutranslate --system-site-packages
-source sfutranslate/bin/activate
-export PYTHONPATH=sfutranslate/lib/python3.5/site-packages
-# the next 3 lines are provided for cases where 'python3-dev' linux package cannot be installed and you get compile error stating 'Python.h' not found
-cd sfutranslate/ || return
-wget http://www.sfu.ca/~sshavara/python_include.zip
-unzip python_include.zip
+wget https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tgz
+tar zxvf Python-3.8.2.tgz
+cd Python-3.8.2
+./configure --prefix=`pwd`
+make
+make install
 cd ..
+Python-3.8.2/bin/python3.8 -m pip install virtualenv
+Python-3.8.2/bin/virtualenv -p Python-3.8.2/bin/python3.8 sfutranslate
+source sfutranslate/bin/activate
+export PYTHONPATH=sfutranslate/lib/python3.8/site-packages
 git clone -b master https://github.com/sfu-natlang/SFUTranslate.git
 cd SFUTranslate/ || return
-git checkout 0902a607cb9a8186b153f7300b6ddf443dc0c894
+git checkout 0000000000000000000000000000000000000000
 python setup.py install
-pip install -c transformers_constraints.txt transformers==2.4.1
-# python -m spacy download en
-# python -m spacy download de
 cd translate/ || return
 # WARNING change the number of visible GPU if GPU:0 is already allocated
 export CUDA_VISIBLE_DEVICES=0
