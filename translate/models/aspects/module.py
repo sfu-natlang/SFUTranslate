@@ -39,6 +39,9 @@ class AspectExtractor(torch.nn.Module):
         self.decoder = nn.Linear(sum(Hs), D_out)
         self.feature_classifiers = nn.ModuleList([nn.Linear(h, o) for h, o in zip(Hs[:-1], feature_sizes)])
 
+        self.uniqueness_bridges = nn.ModuleList([nn.ModuleList([nn.Linear(other_aspect_h, class_feature_size)
+                                                                if i != j else None for j, other_aspect_h in enumerate(Hs[:-1])])
+                                                 for i, class_feature_size in enumerate(feature_sizes)])
         self.loss_fn = torch.nn.MSELoss(reduction='sum')
         self.class_loss_fn = nn.CrossEntropyLoss(ignore_index=padding_index, reduction='none')
         self.pair_distance = nn.PairwiseDistance(p=2)
@@ -122,9 +125,28 @@ class AspectExtractor(torch.nn.Module):
             loss += l_true / true_pred.view(-1).size(0) + l_fake / fake_pred.view(-1).size(0)
         return y_pred, loss, feature_pred_correct, feat_predictions
 
+    def uniqueness_forward(self, x, features, feature_weights):
+        encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
+        loss = torch.zeros((1, 1), device=device)
+        for class_id in range(len(self.encoders)-1):
+            ling_classes = [self.uniqueness_bridges[class_id][i](encoded[i]) for i in range(len(self.encoders)-1) if i != class_id]
+            for lc in ling_classes:
+                mask = (feature_weights[class_id] != 0.).float()
+                c_loss = self.class_loss_fn(lc, features[class_id])
+                w = feature_weights[class_id]
+                final_c_loss = (c_loss * mask) / (w+1e-32)
+                loss += final_c_loss.sum()
+        return loss
+
     def sanity_test(self, x, class_id):
         encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
         ling_classes = [self.feature_classifiers[class_id](encoded[i]) for i in range(len(self.encoders)-1) if i != class_id]
+        feat_predictions = torch.cat([lc.argmax(dim=-1).unsqueeze(0) for lc in ling_classes], dim=0).t()
+        return feat_predictions
+
+    def sanity_test2(self, x, class_id):
+        encoded = [self.encoders[i](x) for i in range(len(self.encoders))]
+        ling_classes = [self.uniqueness_bridges[class_id][i](encoded[i]) for i in range(len(self.encoders)-1) if i != class_id]
         feat_predictions = torch.cat([lc.argmax(dim=-1).unsqueeze(0) for lc in ling_classes], dim=0).t()
         return feat_predictions
 

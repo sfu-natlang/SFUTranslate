@@ -40,6 +40,74 @@ def create_train_report_and_persist_modules(model, save_model_name, all_actual_s
                 'bert_weights': model.bert_weights_for_average_pooling}, save_model_name)
 
 
+def aspect_extractor_sanity_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data, max_norm, H, lr, load_model_name, relative_sizing=False):
+    print("WARNING! you should not run this with big datasets as it does not check for stopping criteria !!!")
+    Hs = []
+    for rfl in required_features_list:
+        if rfl in linguistic_vocab:
+            if relative_sizing:
+                print("This might not be supported in the multi-head implementation")
+                Hs.append(len(linguistic_vocab[rfl]))
+            else:
+                # TODO consider hierarchical encoding of features here
+                Hs.append(1.0)
+    assert len(Hs) > 0
+    Hs.append(max(Hs))
+    weight_ratio = int(float(H)/sum(Hs))
+    assert weight_ratio > 1
+    Hs = [int(weight_ratio * ind) for ind in Hs]
+    Hs[-1] += max(0, (H - sum(Hs)))
+    print("Loading the pre-trained BertForMaskedLM model: {}".format(model_name))
+    bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    saved_obj = torch.load(load_model_name+".extractor", map_location=lambda storage, loc: storage)
+    model = saved_obj['model'].to(device)
+    model.uniqueness_bridges = nn.ModuleList([nn.ModuleList([nn.Linear(other_aspect_h, class_feature_size)
+                                                             if i != j else None for j, other_aspect_h in enumerate(Hs[:-1])])
+                                              for i, class_feature_size in enumerate([len(linguistic_vocab[f]) + 1 for f in required_features_list])]).to(device)
+    model.uniqueness_bridges.apply(weight_init)
+    print("Loading Spacy Tokenizers")
+    spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
+    spacy_tokenizer_2.overwrite_tokenizer_with_split_tokenizer()
+    opt = optim.SGD(model.uniqueness_bridges.parameters(), lr=float(lr), momentum=0.9)
+    itr = data_itr()
+    print("Training ...")
+    for batch_id, input_sentences in enumerate(itr):
+        sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
+                     for input_sentence in input_sentences]
+        features, feature_weights = map_sentences_to_vocab_ids(
+            input_sentences, required_features_list, linguistic_vocab,  spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer)
+        input_ids = torch.nn.utils.rnn.pad_sequence(
+            sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
+        if input_ids.size(1) > bert_lm.config.max_position_embeddings:
+            continue
+        outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+        all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
+        maxes = torch.max(model.bert_weights_for_average_pooling, dim=-1, keepdim=True)[0]
+        x_exp = torch.exp(model.bert_weights_for_average_pooling-maxes)
+        x_exp_sum = torch.sum(x_exp, dim=-1, keepdim=True)
+        output_custom = x_exp/x_exp_sum
+        embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0), output_custom)
+        for s in range(1, embedded.size(1)-1):
+            x = embedded.select(1, s)
+            features_selected = []
+            feature_weights_selected = []
+            permitted_to_continue = True
+            for f, fw in zip(features, feature_weights):
+                if s < f.size(1):
+                    features_selected.append(f.select(1, s))
+                    feature_weights_selected.append(fw.select(1, s))
+                else:
+                    permitted_to_continue = False
+            if not permitted_to_continue:
+                continue
+            loss = model.uniqueness_forward(x, features_selected, feature_weights_selected)
+            model.zero_grad()
+            loss.backward(retain_graph=True)
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+            opt.step()
+    torch.save({'model': model}, load_model_name+".extractor")
+
+
 def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data, H, lr,
                              scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, no_improvement_tolerance=5000,
                              save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first", report_every=5000):

@@ -13,7 +13,7 @@ from readers.datasets.dataset import get_dataset_from_configs
 from readers.tokenizers import PTBertTokenizer
 from models.aspects.extract_vocab import dataset_iterator, extract_linguistic_vocabs
 from models.aspects.tester import aspect_extractor_tester
-from models.aspects.trainer import aspect_extractor_trainer
+from models.aspects.trainer import aspect_extractor_trainer  # , aspect_extractor_sanity_trainer
 from configuration import cfg, src_lan, tgt_lan
 # To avoid the annoying UserWarnings of torchtext
 # Remove this once the next version of torchtext is available
@@ -57,6 +57,9 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
                              scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, report_every=5000,
                              no_improvement_tolerance=no_improvement_tolerance, save_model_name=smn, relative_sizing=False,
                              resolution_strategy=resolution_strategy)
+    # print("Training sanity check heads ...")
+    # aspect_extractor_sanity_trainer(train_data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data),
+    #                                 max_norm, H, lr, smn)
     print("Performing test on the validation data ...")
     aspect_extractor_tester(dev_data_itr, bert_model_name, bert_tokenizer, ling_vocab, features_list, src_lan, bool(cfg.lowercase_data),
                             load_model_name=smn, resolution_strategy=resolution_strategy, check_result_sanity=True)

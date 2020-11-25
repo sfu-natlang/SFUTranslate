@@ -36,7 +36,8 @@ def create_test_report(all_loss, all_tokens_count, all_actual_sw, all_prediction
 
 
 def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data,
-                            load_model_name="generic_aspect_vectors.pt", resolution_strategy="first", check_result_sanity=False):
+                            load_model_name="generic_aspect_vectors.pt", resolution_strategy="first", check_result_sanity=False,
+                            check_with_trained_sanity_heads=False):
     bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".extractor", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
@@ -85,7 +86,10 @@ def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_voc
                 predictions[s] = feat_predictions
                 if check_result_sanity:
                     for sanity_ind in range(len(required_features_list)):
-                        sanity_predictions[sanity_ind][s] = model.sanity_test(x, sanity_ind)
+                        if not check_with_trained_sanity_heads:
+                            sanity_predictions[sanity_ind][s] = model.sanity_test(x, sanity_ind)
+                        else:
+                            sanity_predictions[sanity_ind][s] = model.sanity_test2(x, sanity_ind)
                 for ind, score in enumerate(feature_pred_correct):
                     feature_pred_corrects[ind] += score.sum().item()
                 feature_pred_correct_all += feature_pred_correct[0].size(0)
