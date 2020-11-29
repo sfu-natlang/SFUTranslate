@@ -9,6 +9,28 @@ from configuration import cfg
 from readers.data_provider import DataProvider, src_tokenizer, tgt_detokenizer
 
 
+def convert_to_sgml(file_name_to_be_converted, dataset_name, is_ref, src_lang, tgt_lang):
+    """
+    This function can be used to convert a text file (one sentence per line) to SGML format required for mteval-v14.pl
+    Any source/reference dev/test file can be converted to SGML format using this function
+    :param file_name_to_be_converted: the name of created evaluation file
+    :param dataset_name: can be WMT19 or IWSLT17 or M30k or ...
+    :param is_ref: a boolean flag showing whether :param eval_file_name: is from reference type or from source type
+    :param src_lang: source language
+    :param tgt_lang: target language
+    """
+    with open(file_name_to_be_converted + ".sgm", "w", encoding="utf-8") as out:
+        out.write("""<{}set setid="{}" srclang="any"{}>\n<doc sysid="{}" docid="00000" genre="dataset" origlang="{}">\n<p>\n""".format(
+            "ref" if is_ref else "src", dataset_name, " trglang=\"{}\"".format(tgt_lang) if is_ref else "", dataset_name, src_lang))
+        with open(file_name_to_be_converted, "r", encoding="utf-8") as inp:
+            for ind, line in enumerate(inp):
+                if not len(line.strip()):
+                    out.write("<seg id=\"{}\">{}</seg>\n".format(ind+1, "Empty"))
+                else:
+                    out.write("<seg id=\"{}\">{}</seg>\n".format(ind+1, line.strip()))
+        out.write("""</p></doc>\n</{}set>""".format("ref" if is_ref else "src"))
+
+
 def convert_target_batch_back(btch, TGT):
     """
     :param btch: seq_length, batch_size
