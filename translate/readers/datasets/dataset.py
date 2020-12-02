@@ -13,15 +13,14 @@ from readers.datasets.generic import TranslationDataset, ProcessedData
 class M30k(TranslationDataset):
     """The small-dataset in WMT 2017 multimodal task [MinLen:1;AvgLen:12;MaxLen:40]"""
 
-    urls = ['http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_training.tar.gz',
-            'http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_validation.tar.gz',
-            'http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_test2016.tar.gz']
+    urls = [('https://drive.google.com/uc?export=download&'
+             'id=1qJEyZnF6heNvcJtw-t3YbQ4U_t8IJSGb', 'M30k2018.zip')]
     name = 'm30k'
     dirname = ''
 
     @classmethod
-    def splits(cls, exts, fields, root='.data',
-               train='train', validation='val', test_list=('test2016',), **kwargs):
+    def splits(cls, exts, fields, root='.data', train='train', validation='val',
+               test_list=('test_2016_flickr', 'test_2017_flickr', 'test_2018_flickr', 'test_2017_mscoco'), **kwargs):
         if exts[0][1:] not in ['fr', 'en', 'de'] or exts[1][1:] not in ['fr', 'en', 'de']:
             raise ValueError("This data set only contains data translated to/from English, French, or German")
         return super(M30k, cls).splits(exts, fields, None, root, train, validation, test_list, **kwargs)
@@ -29,6 +28,7 @@ class M30k(TranslationDataset):
     @staticmethod
     def prepare_dataset(root, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
         res = ProcessedData()
+        test_data_list = ['test_2016_flickr', 'test_2017_flickr', 'test_2018_flickr', 'test_2017_mscoco']
         print("Loading Multi30k dataset ...")
         if load_train_data:
             train, val, *test = M30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT),
@@ -38,14 +38,13 @@ class M30k(TranslationDataset):
                                      sentence_count_limit=sentence_count_limit, root=root)
             train = None
         val.name = "multi30k.dev"
-        test[0].name = "multi30k.test"
         res.train = train
         res.val = val
         res.test_list = test
         res.addresses.val.src = "{}/m30k/val.{}".format(root, src_lan)
         res.addresses.val.tgt = "{}/m30k/val.{}".format(root, tgt_lan)
-        res.addresses.tests.src = ["{}/m30k/test2016.{}".format(root, src_lan)]
-        res.addresses.tests.tgt = ["{}/m30k/test2016.{}".format(root, tgt_lan)]
+        res.addresses.tests.src = ["{}/m30k/{}.{}".format(root, d_set, src_lan) for d_set in test_data_list]
+        res.addresses.tests.tgt = ["{}/m30k/{}.{}".format(root, d_set, tgt_lan) for d_set in test_data_list]
         res.addresses.train.src = "{}/m30k/train.{}".format(root, src_lan)
         res.addresses.train.tgt = "{}/m30k/train.{}".format(root, tgt_lan)
         return res
