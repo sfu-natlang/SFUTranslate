@@ -170,14 +170,15 @@ class WMT19DeEn(TranslationDataset):
     """The WMT 2019 English-German dataset. The download and data preparation script is enclosed in the dataset folder"""
 
     urls = [('https://drive.google.com/uc?export=download&'
-             'id=1miCyP1Vdoi6QsGoKSWhNgxbPVmSSs3Rt', 'wmt19_en_de_raw.zip')]
+             'id=1miCyP1Vdoi6QsGoKSWhNgxbPVmSSs3Rt', 'wmt19_en_de_raw.zip'),
+            ('https://drive.google.com/uc?export=download&'
+             'id=1QCKsqqZrCq4u7VNr0WzsRJeEpUK5l6Do', 'wmt20_dev_de_en_preprocessed.tgz')]
     name = 'wmt19_en_de'
     dirname = ''
 
     @classmethod
     def splits(cls, exts, fields, root='.data', train='train', validation='valid',
-               test_list=('newstest2014-ende', 'newstest2015-ende', 'newstest2016-ende',
-                          'newstest2017-ende', 'newstest2018-ende', 'newstest2019-ende'), **kwargs):
+               test_list=('newstest2014', 'newstest2015', 'newstest2016', 'newstest2017', 'newstest2018', 'newstest2019'), **kwargs):
         if exts[0][1:] not in ['en', 'de'] or exts[1][1:] not in ['en', 'de']:
             raise ValueError("This data set only contains data translated from German to English or reverse")
         return super(WMT19DeEn, cls).splits(exts, fields, None, root, train, validation, test_list, **kwargs)
@@ -185,28 +186,23 @@ class WMT19DeEn(TranslationDataset):
     @staticmethod
     def prepare_dataset(root, src_lan, tgt_lan, SRC, TGT, load_train_data, max_sequence_length, sentence_count_limit, debug_mode) -> ProcessedData:
         res = ProcessedData()
-        dev_data = "valid"
-        test_data_list = ["newstest201{}".format(i) for i in range(4, 10)]
+        dev_data = "newssyscomb2009"
+        test_data_list = ["newstest2008", "newstest2009"] + ["newstest201{}".format(i) for i in range(0, 10)] + ["newstest2020", "newstestB2020"]
         train_data = "train"
         if not load_train_data:
-            val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                          fields=(SRC, TGT), train=None,
-                                          validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                                          test_list=['{}-ende'.format(test_data) for test_data in test_data_list],
+            val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), train=None,
+                                          validation="valid" if dev_data == "valid" else dev_data, test_list=test_data_list,
                                           sentence_count_limit=sentence_count_limit, root=root)
             train = None
         elif max_sequence_length > 1:
             train, val, *test = WMT19DeEn.splits(
                 filter_pred=lambda x: len(vars(x)['src']) <= max_sequence_length and len(
                     vars(x)['trg']) <= max_sequence_length, exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                fields=(SRC, TGT), train=train_data, validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                test_list=['{}-ende'.format(test_data) for test_data in test_data_list],
-                sentence_count_limit=sentence_count_limit, root=root)
+                fields=(SRC, TGT), train=train_data, validation="valid" if dev_data == "valid" else dev_data,
+                test_list=test_data_list, sentence_count_limit=sentence_count_limit, root=root)
         else:
-            train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
-                                                 fields=(SRC, TGT), train=train_data,
-                                                 validation="valid" if dev_data == "valid" else '{}-ende'.format(dev_data),
-                                                 test_list=['{}-ende'.format(test_data) for test_data in test_data_list],
+            train, val, *test = WMT19DeEn.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT), train=train_data,
+                                                 validation="valid" if dev_data == "valid" else dev_data, test_list=test_data_list,
                                                  sentence_count_limit=sentence_count_limit, root=root)
         res.train = train
         res.val = val
@@ -215,22 +211,18 @@ class WMT19DeEn(TranslationDataset):
         if dev_data == "valid":
             res.addresses.val.src = "{}/wmt19_en_de/valid.{}".format(root, src_lan)
             res.addresses.val.tgt = "{}/wmt19_en_de/valid.{}".format(root, tgt_lan)
-            # TODO fill out this part
+            # TODO fill out this part if you want to use this dataset!
             res.addresses.val.src_sgm = None
             res.addresses.val.tgt_sgm = None
         else:
-            res.addresses.val.src = "{}/wmt19_en_de/{}-ende.{}".format(root, dev_data, src_lan)
-            res.addresses.val.tgt = "{}/wmt19_en_de/{}-ende.{}".format(root, dev_data, tgt_lan)
-            # TODO fill out this part
-            res.addresses.val.src_sgm = None
-            res.addresses.val.tgt_sgm = None
-        res.addresses.tests.src = ["{}/wmt19_en_de/{}-ende.{}".format(
-            root, test_data, src_lan) for test_data in test_data_list]
-        res.addresses.tests.tgt = ["{}/wmt19_en_de/{}-ende.{}".format(
-            root, test_data, tgt_lan) for test_data in test_data_list]
-        # TODO fill out this part
-        res.addresses.tests.src_sgm = None
-        res.addresses.tests.tgt_sgm = None
+            res.addresses.val.src = "{}/wmt19_en_de/{}.{}".format(root, dev_data, src_lan)
+            res.addresses.val.tgt = "{}/wmt19_en_de/{}.{}".format(root, dev_data, tgt_lan)
+            res.addresses.val.src_sgm = "{}/wmt19_en_de/{}-src.{}.sgm".format(root, dev_data, src_lan)
+            res.addresses.val.tgt_sgm = "{}/wmt19_en_de/{}-ref.{}.sgm".format(root, dev_data, tgt_lan)
+        res.addresses.tests.src = ["{}/wmt19_en_de/{}.{}".format(root, test_data, src_lan) for test_data in test_data_list]
+        res.addresses.tests.tgt = ["{}/wmt19_en_de/{}.{}".format(root, test_data, tgt_lan) for test_data in test_data_list]
+        res.addresses.tests.src_sgm = ["{}/wmt19_en_de/{}-src.{}.sgm".format(root, test_data, src_lan) for test_data in test_data_list]
+        res.addresses.tests.tgt_sgm = ["{}/wmt19_en_de/{}-ref.{}.sgm".format(root, test_data, tgt_lan) for test_data in test_data_list]
         res.addresses.train.src = "{}/wmt19_en_de/{}.{}".format(root, train_data, src_lan)
         res.addresses.train.tgt = "{}/wmt19_en_de/{}.{}".format(root, train_data, tgt_lan)
 
