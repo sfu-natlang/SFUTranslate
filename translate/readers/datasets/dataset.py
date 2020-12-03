@@ -45,6 +45,10 @@ class M30k(TranslationDataset):
         res.addresses.val.tgt = "{}/m30k/val.{}".format(root, tgt_lan)
         res.addresses.tests.src = ["{}/m30k/{}.{}".format(root, d_set, src_lan) for d_set in test_data_list]
         res.addresses.tests.tgt = ["{}/m30k/{}.{}".format(root, d_set, tgt_lan) for d_set in test_data_list]
+        res.addresses.val.src_sgm = "{}/m30k/val.{}-{}.{}.sgm".format(root, src_lan, tgt_lan, src_lan)
+        res.addresses.val.tgt_sgm = "{}/m30k/val.{}-{}.{}.sgm".format(root, src_lan, tgt_lan, tgt_lan)
+        res.addresses.tests.src_sgm = ["{}/m30k/{}.{}-{}.{}.sgm".format(root, d_set, src_lan, tgt_lan, src_lan) for d_set in test_data_list]
+        res.addresses.tests.tgt_sgm = ["{}/m30k/{}.{}-{}.{}.sgm".format(root, d_set, src_lan, tgt_lan, tgt_lan) for d_set in test_data_list]
         res.addresses.train.src = "{}/m30k/train.{}".format(root, src_lan)
         res.addresses.train.tgt = "{}/m30k/train.{}".format(root, tgt_lan)
         return res

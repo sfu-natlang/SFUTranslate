@@ -5,6 +5,8 @@
 
 use warnings;
 use strict;
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
 
 my ($language,$src,$system) = @ARGV;
 die("wrapping frame not found ($src)") unless -e $src;

@@ -5,6 +5,8 @@ use strict;
 use utf8;
 use Encode;
 use XML::Twig;
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
 use Sort::Naturally;
 
 binmode STDOUT, ":utf8";
