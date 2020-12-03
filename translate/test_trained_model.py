@@ -26,9 +26,11 @@ def test_trained_model():
     dp = DataProvider(SRC, TGT, load_train_data=False)
     nuance = str(int(time.time()))
     evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt,
+             dp.processed_data.addresses.val.src_sgm, dp.processed_data.addresses.val.tgt_sgm,
              "VALID.{}".format(dp.val_iter.dataset.name), save_decoded_sentences=True, nuance=nuance)
-    for test_iter, s, t in zip(dp.test_iters, dp.processed_data.addresses.tests.src, dp.processed_data.addresses.tests.tgt):
-        evaluate(test_iter, dp, model, s, t, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True, nuance=nuance)
+    for test_iter, s, t, s_sgm, t_sgm in zip(dp.test_iters, dp.processed_data.addresses.tests.src, dp.processed_data.addresses.tests.tgt,
+                                             dp.processed_data.addresses.tests.src_sgm, dp.processed_data.addresses.tests.tgt_sgm):
+        evaluate(test_iter, dp, model, s, t, s_sgm, t_sgm, "TEST.{}".format(test_iter.dataset.name), save_decoded_sentences=True, nuance=nuance)
 
 
 if __name__ == "__main__":

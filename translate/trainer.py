@@ -83,7 +83,7 @@ def main(model_name):
                 'training_evaluation_results': training_evaluation_results}, "../.checkpoints/"+cfg.checkpoint_name)
 
     if bool(cfg.debug_mode):
-        evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "INIT")
+        evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "", "", "INIT")
     best_val_score = 0.0
     assert cfg.update_freq > 0, "update_freq must be a non-negative integer"
     for epoch in range(int(cfg.n_epochs)):
@@ -124,7 +124,8 @@ def main(model_name):
             else:
                 ds.set_description("Epoch: {}, Average Loss: {:.2f}".format(epoch, all_loss / all_tokens_count))
             if ind in val_indices:
-                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, str(epoch))
+                val_l, val_bleu = evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "", "",
+                                           str(epoch))
                 training_evaluation_results.append(val_bleu)
                 if val_bleu > best_val_score:
                     torch.save({'model': model, 'field_src': dp.SRC, 'field_tgt': dp.TGT, 'training_evaluation_results': training_evaluation_results},
@@ -142,7 +143,7 @@ def main(model_name):
         SRC = saved_obj['field_src']
         TGT = saved_obj['field_tgt']
         dp.replace_fields(SRC, TGT)
-    evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "LAST")
+    evaluate(dp.val_iter, dp, model, dp.processed_data.addresses.val.src, dp.processed_data.addresses.val.tgt, "", "", "LAST")
 
 
 if __name__ == "__main__":

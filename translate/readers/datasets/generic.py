@@ -26,6 +26,7 @@ class ProcessedData:
         self.train = None
         self.val = None
         self.test_list = None
+        self.target_language = None
         self.addresses = FileAddress()
 
 

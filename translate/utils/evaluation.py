@@ -2,6 +2,7 @@ import string
 import random
 import torch
 import os
+import subprocess
 from torch import nn
 from torchtext import data
 import sacrebleu
@@ -77,7 +78,7 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
     return tgt_detokenizer(result)
 
 
-def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str,
+def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str, src_sgm: str, gold_tgt_sgm: str,
              eph: str, save_decoded_sentences: bool = False, output_dir: str = '../.output', nuance: str = '0000000000'):
     if not save_decoded_sentences:
         print("Evaluation ....")
@@ -145,11 +146,31 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
         average_loss = lall_valid/max(lcount_valid, 1)
         average_bleu = all_bleu_score / max(sent_count, 1)
         if average_loss > 0.0:
-            print("E {} ::: Average Loss {:.2f} ::: Average BleuP1 {:.2f}".format(eph, average_loss, average_bleu))
+            print("E {} ::: Average Loss {:.2f} ::: Average BleuP1 [C04-1072] {:.2f}".format(eph, average_loss, average_bleu))
         else:
-            print("E {} ::: Average BleuP1 {:.2f}".format(eph, average_bleu))
+            print("E {} ::: Average BleuP1 [C04-1072] {:.2f}".format(eph, average_bleu))
     model.train()
     if save_decoded_sentences:
         result_file.close()
+        # TODO perform recasing here if lowercased!
+        recased_path = output_path
+        p = subprocess.Popen(["perl", "./scripts/wrap-xml.perl", dp.processed_data.target_language, src_sgm, cp_name[:-3]],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        with open(recased_path, "r", encoding='utf-8') as reacsed:
+            p.stdin.write(reacsed.read().encode('utf-8'))
+            p.stdin.close()
+            with open(recased_path+".sgm", "w", encoding='utf-8') as reacsed_sgm:
+                the_output = p.stdout.read()
+                reacsed_sgm.write(the_output.decode('utf-8'))
+        if bool(cfg.lowercase_data):
+            mteval = subprocess.check_output(
+                ["perl", "scripts/mteval-v14.pl", "-r", gold_tgt_sgm, "-s", src_sgm, "-t", recased_path+".sgm"]).decode('utf-8')
+        else:
+            mteval = subprocess.check_output(
+                ["perl", "scripts/mteval-v14.pl", "-r", gold_tgt_sgm, "-s", src_sgm, "-t", recased_path+".sgm", "-c"]).decode('utf-8')
+        score_line = mteval.split("\n")[9].split(" ")
+        nist_score = float(score_line[3])
+        bleu_score = float(score_line[8]) * 100
+        print("E {} ::: BLEU Score [mteval] {:.2f} ::: NIST Score [mteval] {:.2f}".format(eph, bleu_score, nist_score))
     return average_loss, average_bleu
 

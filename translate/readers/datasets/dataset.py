@@ -41,6 +41,7 @@ class M30k(TranslationDataset):
         res.train = train
         res.val = val
         res.test_list = test
+        res.target_language = tgt_lan
         res.addresses.val.src = "{}/m30k/val.{}".format(root, src_lan)
         res.addresses.val.tgt = "{}/m30k/val.{}".format(root, tgt_lan)
         res.addresses.tests.src = ["{}/m30k/{}.{}".format(root, d_set, src_lan) for d_set in test_data_list]
@@ -132,11 +133,33 @@ class IWSLT(TranslationDataset):
         res.train = train
         res.val = val
         res.test_list = test
+        if tgt_lan == "en":
+            res.target_language = "english"
+        elif tgt_lan == "de":
+            res.target_language = "german"
+        elif tgt_lan == "fr":
+            res.target_language = "french"
+        elif tgt_lan == "ar":
+            res.target_language = "arabic"
+        elif tgt_lan == "ja":
+            res.target_language = "japanese"
+        elif tgt_lan == "ko":
+            res.target_language = "korean"
+        elif tgt_lan == "zh":
+            res.target_language = "chinese"
+        else:
+            raise ValueError("target language {} not supported".format(tgt_lan))
         res.addresses.val.src = "{2}/iwslt/{0}-{1}/IWSLT17.TED.dev2010.de-en.{0}".format(src_lan, tgt_lan, root)
         res.addresses.val.tgt = "{2}/iwslt/{0}-{1}/IWSLT17.TED.dev2010.de-en.{1}".format(src_lan, tgt_lan, root)
         res.addresses.tests.src = ["{3}/iwslt/{0}-{1}/IWSLT17.TED.{2}.de-en.{0}".format(
             src_lan, tgt_lan, test_data, root) for test_data in ["tst201{}".format(i) for i in range(6)]]
         res.addresses.tests.tgt = ["{3}/iwslt/{0}-{1}/IWSLT17.TED.{2}.de-en.{1}".format(
+            src_lan, tgt_lan, test_data, root) for test_data in ["tst201{}".format(i) for i in range(6)]]
+        res.addresses.val.src_sgm = "{2}/iwslt/{0}-{1}/IWSLT17.TED.dev2010.de-en.{0}.xml".format(src_lan, tgt_lan, root)
+        res.addresses.val.tgt_sgm = "{2}/iwslt/{0}-{1}/IWSLT17.TED.dev2010.de-en.{1}.xml".format(src_lan, tgt_lan, root)
+        res.addresses.tests.src_sgm = ["{3}/iwslt/{0}-{1}/IWSLT17.TED.{2}.de-en.{0}.xml".format(
+            src_lan, tgt_lan, test_data, root) for test_data in ["tst201{}".format(i) for i in range(6)]]
+        res.addresses.tests.tgt_sgm = ["{3}/iwslt/{0}-{1}/IWSLT17.TED.{2}.de-en.{1}.xml".format(
             src_lan, tgt_lan, test_data, root) for test_data in ["tst201{}".format(i) for i in range(6)]]
         res.addresses.train.src = "{2}/iwslt/{0}-{1}/train.de-en.{0}".format(src_lan, tgt_lan, root)
         res.addresses.train.tgt = "{2}/iwslt/{0}-{1}/train.de-en.{1}".format(src_lan, tgt_lan, root)
@@ -188,16 +211,26 @@ class WMT19DeEn(TranslationDataset):
         res.train = train
         res.val = val
         res.test_list = test
+        res.target_language = tgt_lan
         if dev_data == "valid":
             res.addresses.val.src = "{}/wmt19_en_de/valid.{}".format(root, src_lan)
             res.addresses.val.tgt = "{}/wmt19_en_de/valid.{}".format(root, tgt_lan)
+            # TODO fill out this part
+            res.addresses.val.src_sgm = None
+            res.addresses.val.tgt_sgm = None
         else:
             res.addresses.val.src = "{}/wmt19_en_de/{}-ende.{}".format(root, dev_data, src_lan)
             res.addresses.val.tgt = "{}/wmt19_en_de/{}-ende.{}".format(root, dev_data, tgt_lan)
+            # TODO fill out this part
+            res.addresses.val.src_sgm = None
+            res.addresses.val.tgt_sgm = None
         res.addresses.tests.src = ["{}/wmt19_en_de/{}-ende.{}".format(
             root, test_data, src_lan) for test_data in test_data_list]
         res.addresses.tests.tgt = ["{}/wmt19_en_de/{}-ende.{}".format(
             root, test_data, tgt_lan) for test_data in test_data_list]
+        # TODO fill out this part
+        res.addresses.tests.src_sgm = None
+        res.addresses.tests.tgt_sgm = None
         res.addresses.train.src = "{}/wmt19_en_de/{}.{}".format(root, train_data, src_lan)
         res.addresses.train.tgt = "{}/wmt19_en_de/{}.{}".format(root, train_data, tgt_lan)
 
@@ -248,13 +281,22 @@ class WMT19DeFr(TranslationDataset):
         if dev_data == "valid":
             res.addresses.val.src = "{}/wmt19_de_fr/valid.{}".format(root, src_lan)
             res.addresses.val.tgt = "{}/wmt19_de_fr/valid.{}".format(root, tgt_lan)
+            # TODO fill out this part
+            res.addresses.val.src_sgm = None
+            res.addresses.val.tgt_sgm = None
         else:
             res.addresses.val.src = "{}/wmt19_de_fr/{}-defr.{}".format(root, dev_data, src_lan)
             res.addresses.val.tgt = "{}/wmt19_de_fr/{}-defr.{}".format(root, dev_data, tgt_lan)
+            # TODO fill out this part
+            res.addresses.val.src_sgm = None
+            res.addresses.val.tgt_sgm = None
         res.addresses.tests.src = ["{}/wmt19_de_fr/{}-defr.{}".format(
             root, test_data, src_lan) for test_data in test_data_list]
         res.addresses.tests.tgt = ["{}/wmt19_de_fr/{}-defr.{}".format(
             root, test_data, tgt_lan) for test_data in test_data_list]
+        # TODO fill out this part
+        res.addresses.tests.src_sgm = None
+        res.addresses.tests.tgt_sgm = None
         res.addresses.train.src = "{}/wmt19_de_fr/{}.{}".format(root, train_data, src_lan)
         res.addresses.train.tgt = "{}/wmt19_de_fr/{}.{}".format(root, train_data, tgt_lan)
         return res
