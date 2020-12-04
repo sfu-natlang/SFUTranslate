@@ -2,6 +2,7 @@
 This file is the implementation of the tranformer encoder decoder model based on The Annotated Transformer
 (https://www.aclweb.org/anthology/W18-2509/)
 """
+import sys
 import torch
 from torch import nn
 from torchtext import data
@@ -132,7 +133,11 @@ class Transformer(nn.Module):
             for i in range(x.size(1)-1):
                 _, next_word = torch.max(x.select(1, i), dim=1)
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
-            max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
+            try:
+                max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
+            except RuntimeError as e:
+                print(e, file=sys.stderr)
+                max_attention_indices = None
             return ys.transpose(0, 1), max_attention_indices, loss, x.size(1), float(norm.item())
         elif self.beam_search_decoding:
             return self.beam_search_decode(memory, input_mask, input_tensor, ys, batch_size, target_length, beam_size, **kwargs)
@@ -153,7 +158,11 @@ class Transformer(nn.Module):
             prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
             _, next_word = torch.max(prob, dim=1)
             ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
-        max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
+        try:
+            max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
+        except RuntimeError as e:
+            print(e, file=sys.stderr)
+            max_attention_indices = None
         return ys.transpose(0, 1), max_attention_indices, torch.zeros(1, device=device), 1, 1
 
     def beam_search_decode(self, memory, src_mask, input_tensor, init_ys, batch_size, target_length, beam_size=1, **kwargs):
@@ -223,7 +232,11 @@ class Transformer(nn.Module):
                     best_score = lms
                     best_tokens = tokens
             result[:best_tokens[1:].size(0), b_ind] = best_tokens[1:]
-        max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
+        try:
+            max_attention_indices = self.compute_maximum_attention_indices(target_length, batch_size)
+        except RuntimeError as e:
+            print(e, file=sys.stderr)
+            max_attention_indices = None
         return result, max_attention_indices, torch.zeros(1, device=device), 1, 1
 
     def compute_maximum_attention_indices(self, target_length, batch_size):
