@@ -220,7 +220,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                     tolerance_counts[ind] = tolerance_counts[ind] + 1
             break_condition = sum([1 if tolerance_counts[ind] >= no_improvement_tolerance else 0 for ind, feat in enumerate(
                 required_features_list)]) == len(required_features_list)
-            if break_condition:
+            if break_condition and no_improvement_tolerance > 0:
                 break
             scheduler.step(all_loss / all_tokens_count)
             predictions = predictions.transpose(0, 1)

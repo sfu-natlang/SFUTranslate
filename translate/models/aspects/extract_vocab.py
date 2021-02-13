@@ -90,14 +90,17 @@ def extract_linguistic_vocabs(dataset_instance, bert_tokenizer, lang, lowercase_
     return vs
 
 
-def dataset_iterator(dataset_object, b_size):
+def dataset_iterator(dataset_object, b_size, max_sequence_length=50):
     """
     :param dataset_object: an instance of classes extending readers.datasets.generic.TranslationDataset
     :param b_size: the batch size of the returning sentence batches
+    :param max_sequence_length: the maximum sequence of sentences to be considered for training the aspect vectors
     """
     res = []
     for tokenized_src_tgt in dataset_object:
         src_tokens = tokenized_src_tgt.src
+        if len(src_tokens) > max_sequence_length:
+            continue
         res.append(" ".join(src_tokens))
         if len(res) == b_size:
             yield res
