@@ -63,7 +63,20 @@ class IWSLT(TranslationDataset):
     """
 
     # base_url = 'https://wit3.fbk.eu/archive/2016-01//texts/{}/{}/{}.tgz'
-    base_url = 'https://wit3.fbk.eu/archive/2017-01-trnted/texts/{}/{}/{}.tgz'
+    base_urls = {
+        'ar-en': ('https://drive.google.com/uc?export=download&id=1W-dFXLwObUWAdsPbDM6EKPdTYxqTA9hm', 'ar-en.tgz'),
+        'de-en': ('https://drive.google.com/uc?export=download&id=1_YztpgqGo_qjv35R0K7smqY1vsF0M3Hj', 'de-en.tgz'),
+        'fr-en': ('https://drive.google.com/uc?export=download&id=1Cp1Y5n4GcaLkiWOlly7IgUt7OcQCZIZJ', 'fr-en.tgz'),
+        'ja-en': ('https://drive.google.com/uc?export=download&id=1MEgiBpQSYuEBYbreBoM9zNGQghDJiIF3', 'ja-en.tgz'),
+        'ko-en': ('https://drive.google.com/uc?export=download&id=1RKyYCKzobtIVlJTZN7zw0HfjbVK_y4mz', 'ko-en.tgz'),
+        'zh-en': ('https://drive.google.com/uc?export=download&id=11W8iy9SnBdB2QJqCvsqVy3OkMtVshN6j', 'zh-en.tgz'),
+        'en-ar': ('https://drive.google.com/uc?export=download&id=1SkBW7U8z8QgpEKLCmSJyo67idrwsV1Hf', 'en-ar.tgz'),
+        'en-de': ('https://drive.google.com/uc?export=download&id=19GXmBrUrwQQxNVHL3yHkAsoIvlUbxdKc', 'en-de.tgz'),
+        'en-fr': ('https://drive.google.com/uc?export=download&id=1vA3oXkUZUqA8xzSU7IitAbJMF4hUmqPX', 'en-fr.tgz'),
+        'en-ja': ('https://drive.google.com/uc?export=download&id=1wex32t_nbbDrmxHn0mAdNOMlk4yRpvnq', 'en-ja.tgz'),
+        'en-ko': ('https://drive.google.com/uc?export=download&id=1mhuUMxFLi-TNwdAEvBaKF1RauvTBIzK4', 'en-ko.tgz'),
+        'en-zh': ('https://drive.google.com/uc?export=download&id=1eYY9-MCi0GmjDwfuzibyV9UcCqnBzLOR', 'en-zh.tgz')
+    }
     name = 'iwslt'
     base_dirname = '{}-{}'
 
@@ -82,7 +95,7 @@ class IWSLT(TranslationDataset):
             raise ValueError("This data set only contains data translated to/from English "
                              "when the other side is in [Arabic, German, French, Japanese, Korean, and Chinese]")
         cls.dirname = cls.base_dirname.format(exts[0][1:], exts[1][1:])
-        cls.urls = [cls.base_url.format(exts[0][1:], exts[1][1:], cls.dirname)]
+        cls.urls = [cls.base_urls[cls.dirname]]
         path = os.path.join(root, cls.name, cls.dirname)
         if train is not None:
             train = '.'.join([train, cls.dirname])
