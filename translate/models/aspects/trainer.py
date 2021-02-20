@@ -167,8 +167,11 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
         for batch_id, input_sentences in enumerate(itr):
             sequences = [torch.tensor(bert_tokenizer.tokenizer.encode(input_sentence, add_special_tokens=True), device=device)
                          for input_sentence in input_sentences]
-            features, feature_weights = map_sentences_to_vocab_ids(
-                input_sentences, required_features_list, linguistic_vocab,  spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer)
+            try:
+                features, feature_weights = map_sentences_to_vocab_ids(
+                    input_sentences, required_features_list, linguistic_vocab,  spacy_tokenizer_1, spacy_tokenizer_2, bert_tokenizer)
+            except IndexError:  # in case padding error happened in map_sentences_to_vocab_ids do not break the process
+                continue
             input_ids = torch.nn.utils.rnn.pad_sequence(
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             if input_ids.size(1) > bert_lm.config.max_position_embeddings:
