@@ -110,7 +110,7 @@ def aspect_extractor_sanity_trainer(data_itr, model_name, bert_tokenizer, lingui
 
 def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data, H, lr,
                              scheduler_patience_steps, scheduler_decay_factor, scheduler_min_lr, epochs, max_norm, no_improvement_tolerance=5000,
-                             save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first", report_every=5000):
+                             save_model_name="project_sublayers.pt", relative_sizing=False, resolution_strategy="first", report_every=5000, max_training_patience_count=1000):
     """
     Implementation of the sub-layer model trainer which pre-trains the transformer heads using the BERT vectors.
     """
@@ -149,10 +149,16 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                                   threshold=0.001, verbose=False, min_lr=scheduler_min_lr)
     print("Starting to train ...")
     break_condition = False
+    best_batch_avg_loss = float("inf")
+    training_patience_count = 0
     for t in range(epochs):
         if break_condition:
             print("Minimum {} batches have been observed without any accuracy improvements in classifiers, ending the training ...".format(
                 no_improvement_tolerance))
+            break
+        if training_patience_count > max_training_patience_count and no_improvement_tolerance < 1:
+            print("{} batches have been observed without any loss improvements in classifiers, ending the training ...".format(
+                training_patience_count))
             break
         all_loss = 0.0
         all_tokens_count = 0.0
@@ -246,7 +252,16 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                             all_actual[idx].append(actual_label)
                             all_prediction[idx].append(predicted_label)
                         # print(pred_tag, actual_label, actual_bis, predicted_label, predicted_bis, predicted_label == actual_label)
-            if batch_id and batch_id % report_every == 0:
+            current_batch_avg_loss = all_loss / all_tokens_count
+            evaluate_and_persist = False
+            time_to_evaluate = batch_id and batch_id % report_every == 0
+            if time_to_evaluate and current_batch_avg_loss < best_batch_avg_loss:
+                best_batch_avg_loss = current_batch_avg_loss
+                evaluate_and_persist = True
+                training_patience_count = 0
+            elif time_to_evaluate:
+                training_patience_count += 1
+            if evaluate_and_persist:
                 print("Creating report/persisting trained model ...")
                 create_train_report_and_persist_modules(model, save_model_name, all_actual, all_prediction, feature_pred_correct_all,
                                                         feature_pred_corrects, required_features_list, resolution_strategy)
