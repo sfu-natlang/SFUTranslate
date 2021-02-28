@@ -9,9 +9,12 @@ concerns regarding the toolkit. To get familiar with what you can do and how you
 
 To run the code you will need python 3.8+ (tested on v3.8.2) and PyTorch 1.6+.
 
+**This is the library that contains the implementation for our EACL 2021 paper "Better Neural Machine Translation by Extracting Linguistic Information from BERT"**. 
+For updated aspect-augmented translation results and acquiring aspect vectors please look down this document. 
+
 # Getting Started
 
-To get started, we start with the project structure. In the highest level of the project, there are three main directories:
+We start with the project structure. In the highest level of the project, there are four main directories:
 
 - `resources`: All the necessary resources for the project are expected to be loaded from the `SFUTranslate/resources` directory.
 Please refrain from putting the resources anywhere else if you are planing to make a pull request.
@@ -27,6 +30,8 @@ Please note that the scripts will start by downloading and setting up an indepen
 
 - `tests`: All the source code for unit test cases for different modules of the toolkit.
 If you are using an IDE to debug or run the code, don't forget to mark this directory as your test sources directory.
+  
+- `docs`: Containing documentation related files.
  
 The next sections will help you get more familiar with the code flow and training different models.
 
@@ -39,7 +44,7 @@ The following figure depicts the general structure of the modules.
 
 As of the current version, the `translate` package contains the following sub-packages and classes.
   - `models`
-    + `general`  
+    + `general` providing a general wireframe for a new `NMTModel` instance.
     + `aspects` the package containing implementations of aspect-augmented nmt model and its baselines  
         - `ae_utils`
         - `aspect_extract_main`
@@ -57,6 +62,7 @@ As of the current version, the `translate` package contains the following sub-pa
         - `model`
         - `modules`
         - `optim`
+        - `torch_model`
         - `utils`
   - `readers` the data read/preprocess methods and classes are placed in this package
     + `datasets`
@@ -70,6 +76,8 @@ As of the current version, the `translate` package contains the following sub-pa
   - `scripts` the package containing all the dangling scripts in the toolkit
     + `create_pretrained_tokenizer_vocabulary`
     + `extract_common_vocab`
+    + `mteval-v14.pl` (its required dependencies are placed besides it in `Sort` directory)
+    + `wrap-xml.perl`
   - `utils` the package containing the utility functions used in the toolkit 
     + `containers`   
     + `evaluation`
@@ -82,13 +90,13 @@ As of the current version, the `translate` package contains the following sub-pa
   
 
 ## What can be put in the config file?
-Here we present a complete schema for the config file containing all possible valid tags that can be put in the config file.
-Please note that you may put some in and remove some from your config file, however, if the config file lacks the configurations 
+Here we present a complete schema for the config file containing all possible valid tags that can be put in it.
+Please note that you may put some in and remove some from your config file, however, if it lacks the configurations 
 that are essential to your task you will face an error indicating that the required configuration value is not present.
-  In that case, please look at the config file and put the configuration tag with your desired value in it. An example 
-  config file called `nmt.yml` is already put in the `resources` directory. You can modify and use it for running the 
-  project. Nevertheless, you can create your own config file as a text file with a `.yml` extension in the name and put your 
-  configurations in it. Here is the configuration schema:
+In that case, please look at the config file and put the configuration tag with your desired value in it. 
+An example config file called `nmt.yml` is already put in the `resources` directory. You can modify and use it for running the project. 
+Nevertheless, you can create your own config file as a text file with a `.yml` extension in the name and put your configurations in it. 
+Here is the configuration schema:
 ```yamlex
 debug_mode: [true/false] if true tokenizer is deactivated and length filter is also applied to validation and test sets
 src_lang: the bi-letter language identifier for source langugage
@@ -169,6 +177,7 @@ checkpoint_name: the name of the checkpoint which is being saved/loaded
 
 # Aspect Augmented NMT Experiment Results
 In this section, we report the results of our Aspect Integrated NMT model along with the replicated baseline models. 
+The results here are the same as what was reported in the paper. 
 You can run our experiments using the standalone scripts in `resources/exp-scripts/aspect_exps`. 
 The source code for Aspect Augmented NMT along with the replicated baselines is implemented in `translate/models/aspects`.
 In the result tables:
@@ -176,60 +185,107 @@ In the result tables:
 - \#param represents the number of trainable parameters (size of BERT model parameters \[110.5M\] has not been added to the model size for the aspect augmented and bert-freeze models since BERT is not trained in these settings).
 - runtime is the total time the training script has ran and includes time taken for creating the model, reading the data and iterating over the instances for all the epochs.
 - We have used a single GeForce GTX 1080 GPU for M30k experiments and a single Titan RTX GPU for IWSLT and WMT experiments.
-
+- The following results are created by lower-casing, translation, and true-casing afterwards. 
+  The cased aspect-augmneted experiment results are also available and although we have not reported them in the paper, you can find them in the last table.
+- All the experiment results are calculated using `mteval-v14.pl` script.
 ## M30k German to English
 |                                        | val    | test2016 | \#param | runtime |
 |----------------------------------------|--------|----------|---------|---------|
-| Vaswani et al\. 2017                   | 38\.00 | 37\.25   | 9\.5 M  | 84 min  |
-| Sundararaman et al\. 2019              | 38\.96 | 36\.82   | 13\.9 M | 514 min |
-| Clinchant et al\. 2019 \(bert freeze\) | 38\.76 | 37\.72   | 9\.1 M  | 99 min  |
-| Aspect Augmented \+M30k asp\. vectors  | **39\.82** | 38\.36   | 10\.1 M | 104 min |
-| Aspect Augmented \+WMT asp\. vectors   | 38\.97 | **39\.28**   | 10\.1 M | 102 min |
+| Vaswani et al\. 2017                   | 39\.63 | 38\.25   | 9\.5 M  | 84 min  |
+| Sundararaman et al\. 2019              | 40\.03 | 38\.32   | 13\.9 M | 514 min |
+| Clinchant et al\. 2019 \(bert freeze\) | 40\.07 | 39\.73   | 9\.1 M  | 99 min  |
+| Aspect Augmented \+M30k asp\. vectors  | **40\.47** | 40\.19   | 10\.1 M | 104 min |
+| Aspect Augmented \+WMT asp\. vectors   | 38\.72 | **41\.53**   | 10\.1 M | 102 min |
 
 ## M30k German to French
 |                                        | val    | test2016 | \#param | runtime |
 |----------------------------------------|--------|----------|---------|---------|
-| Vaswani et al\. 2017                   | 31\.01 | 30\.27   | 9\.4 M  | 93 min  |
-| Sundararaman et al\. 2019              | 33\.02 | 32\.99   | 13\.6 M | 504 min |
-| Clinchant et al\. 2019 \(bert freeze\) | 33\.71 | 32\.85   | 9\.0 M  | 104 min |
-| Aspect Augmented \+M30k asp\. vectors  | 34\.11 | 33\.90   | 9\.9 M  | 108 min |
-| Aspect Augmented \+WMT asp\. vectors   | **34\.90** | **33\.94**   | 9\.9 M  | 118 min |
+| Vaswani et al\. 2017                   | 31\.07 | 30\.29   | 9\.4 M  | 93 min  |
+| Sundararaman et al\. 2019              | 32\.55 | 32\.71   | 13\.6 M | 504 min |
+| Clinchant et al\. 2019 \(bert freeze\) | 33\.83 | 33\.15   | 9\.0 M  | 104 min |
+| Aspect Augmented \+M30k asp\. vectors  | 34\.45 | **34\.42**   | 9\.9 M  | 108 min |
+| Aspect Augmented \+WMT asp\. vectors   | **34\.73** | 34\.28   | 9\.9 M  | 118 min |
 
 ## IWSLT17 German to English
 |                                        | dev2010        | tst2010        | tst2011        | tst2012        | tst2013        | tst2014        | tst2015        | \#param | runtime  |
 |----------------------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|---------|----------|
-| Vaswani et al\. 2017                   | 29\.57         | 29\.72         | 31\.82         | 28\.93         | 30\.94         | 26\.21         | 26\.80         | 18\.4 M | 172 min  |
-| Sundararaman et al\. 2019              | 30\.93         | 31\.49         | 32\.82         | 29\.64         | 31\.79         | 27\.51         | 27\.47         | 28\.9 M | 1418 min |
-| Clinchant et al\. 2019 \(bert freeze\) | 30\.79         | 31\.03         | 33\.30         | 30\.00         | 31\.50         | 27\.12         | 26\.97         | 18\.0 M | 212 min  |
-| Aspect Augmented \+IWSLT asp\. vectors | 30\.54         | 31\.18         | 33\.87         | 30\.09         | 31\.58         | 27\.94         | 28\.15         | 18\.9 M | 214 min  |
-| Aspect Augmented \+WMT asp\. vectors   | **32\.60**     | **32\.77**     | **34\.73**     | **30\.71**     | **32\.71**     | **28\.19**     | **28\.28**     | 18\.9 M | 211 min  |
+| Vaswani et al\. 2017                   | 27\.69         | 27\.93         | 31\.88         | 28\.15         | 29\.59         | 25\.66         | 26\.76         | 18\.4 M | 172 min  |
+| Sundararaman et al\. 2019              | 29\.53         | 29\.67         | 33\.11         | 29\.42         | 30\.89         | 27\.09         | 27\.78         | 28\.9 M | 1418 min |
+| Clinchant et al\. 2019 \(bert freeze\) | 30\.31         | 30\.00         | 34\.20         | 30\.04         | 31\.26         | 27\.50         | 27\.88         | 18\.0 M | 212 min  |
+| Aspect Augmented \+IWSLT asp\. vectors | 29\.03         | 29\.17         | 33\.42         | 29\.58         | 30\.63         | 26\.86         | 27\.83         | 18\.9 M | 214 min  |
+| Aspect Augmented \+WMT asp\. vectors   | **31\.22**     | **30\.82**     | **34\.79**     | **30\.29**     | **32\.34**     | **27\.71**     | **28\.40**     | 18\.9 M | 211 min  |
 
 ## WMT14 German to English
 |                                        | wmt\_val        | newstest2014   | newstest2015   | newstest2016   | newstest2017   | newstest2018   | newstest2019   | \#param | runtime |
 |----------------------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|---------|---------|
-| Vaswani et al\. 2017                   | 28\.94         | 27\.19         | 27\.45         | 31\.90         | 28\.09         | 33\.97         | 30\.43         | 68\.7 M | 35 h    |
-| Sundararaman et al\. 2019              | 29\.12         | 27\.33         | 27\.35         | **32\.49**     | 28\.36         | 34\.72         | 31\.12         | 93\.8 M | 258 h   |
-| Clinchant et al\. 2019 \(bert freeze\) | 28\.65         | 27\.14         | 27\.35         | 31\.15         | 27\.75         | 34\.07         | 31\.04         | 69\.1 M | 33 h    |
-| Aspect Augmented \+WMT asp\. vectors   | **29\.16**     | **28\.01**     | **28\.42**     | 32\.04         | **28\.85**     | **35\.35**     | **31\.83**     | 70\.3 M | 46 h    |
+| Vaswani et al\. 2017                   | 28\.96         | 26\.91         | 26\.91         | 31\.42         | 28\.07         | 33\.56         | 29\.77         | 68\.7 M | 35 h    |
+| Sundararaman et al\. 2019              | 28\.56         | 27\.80         | 26\.93         | 30\.44         | 28\.63         | 33\.87         | 30\.48         | 93\.8 M | 258 h   |
+| Clinchant et al\. 2019 \(bert freeze\) | 28\.63         | 27\.54         | 27\.15         | 31\.69         | 28\.30         | 33\.89         | **31\.48**     | 69\.1 M | 33 h    |
+| Aspect Augmented \+WMT asp\. vectors   | **28\.98**     | **28\.05**     | **27\.58**     | **32\.29**     | **29\.07**     | **34\.74**     | **31\.48**     | 70\.3 M | 46 h    |
+
+# \[Updated\] Cased Aspect Augmented NMT Experiment Results
+As we suggested earlier, we have also trained aspect-augmented translation models using cased data, however, the results were not ready in time to put in the paper. 
+This section reports the cased aspect-augmented translation results. 
+
+## Configuration and loading pre-trained aspect extractor modules
+To put more emphasis, we have used the tag `lowercase_data: false` in the config files when training aspect vectors and 
+translation models and this is now the default in all configuration files under `exp-configs/aspect_exps`.   
+We are also releasing only this set of German aspect vectors (trained with cased data) to be used in other tasks.
+To replicate our experiments, please click on the dataset name on the first column of each table and download the linked aspect extractor module
+(the pre-trained aspect extractor module will be used in `models.aspects.model.AspectAugmentedTransformer` class and 
+you can take a look at it for better understanding).
+Once downloaded, put the pre-trained aspect extractor module in `.checkpoints` directory (if it doesn't exist create it) besides the `translate` and `resources` directories.
+Now point the `aspect_vectors_data_address` tag in the config file of your desired experiment to the aspect extractor module
+(e.g. `aspect_vectors_data_address: ../.checkpoints/aspect_extractor.de`) and run the trainer with the modified config file.
+
+## Updated results
+We retrain aspect extractors using cased data. First, lets look at the cased classification f-1 scores on the same aspect tag set (in word-level).
+
+| Dataset | CPOS | FPOS | WSH  | #Tokens |
+|---------|------|------|------|---------|
+| M30k    |98\.87|98\.21|99\.34|12822    |
+| IWSLT   |97\.79|96\.68|98\.71|16760    |
+| WMT     |94\.59|94\.28|88\.74|50666    |
+
+Also, lets look at the sub-word level classification f-1 scores.
+
+| Dataset | CPOS | FPOS | WSH  | SWP  | #Tokens |
+|---------|------|------|------|------|---------|
+| M30k    |98\.13|97\.34|99\.44|99\.86|15836    |
+| IWSLT   |96\.78|95\.47|98\.87|99\.70|19559    |
+| WMT     |91\.96|91\.49|89\.03|97\.70|63259    |
+
+Now, we report both cased Bleu and NIST scores from `mteval-v14.pl` for the cased aspect-augmented NMT experiment.
+
+| German to English           | val            | test_2016_flickr | test_2017_flickr | test_2018_flickr | test_2017_mscoco |
+|-----------------------------|----------------|------------------|------------------|------------------|------------------|
+| [Using M30k aspect vectors](resources/aspect-extractors/cased-m30k-aspect-extractors.de)   | 41\.82 / 7\.88 | 41\.48 / 7\.98   | 38\.07 / 7\.33   | 33\.40 / 6\.97   | 30\.50 / 6\.21   |
+
+| German to English           | dev2010        | tst2010        | tst2011        | tst2012        | tst2013        | tst2014        | tst2015        |
+|-----------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|
+| [Using IWSLT aspect vectors](resources/aspect-extractors/cased-iwslt-aspect-extractors.de)  | 32\.84 / 7\.53   | 32\.14 / 7\.45 | 35\.88 / 7.87  | 31\.33 / 7\.41 | 33\.83 / 7\.51 | 29\.14 / 7\.01 | 30\.30 / 7\.04 |
 
 
-# Older Experiment Results
-In this section, we put the experiment results of different models on different datasets. 
-Please check this page regularly as we add our new results below the previously posted ones.
-You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models`. 
+| German to English           | wmt\_val       | newstest2014   | newstest2015   | newstest2016   | newstest2017   | newstest2018   | newstest2019   | newstest2020 | newstestB2020 |
+|-----------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|--------------|---------------|
+| [Using WMT aspect vectors](resources/aspect-extractors/cased-wmt-aspect-extractors.de)    |29\.74 / 7\.19  |29\.58 / 7.69   |29\.56 / 7\.55  |34\.38 / 8\.33  | 30\.83 / 7\.84 |36\.75 / 8\.73  |31\.51 / 7\.62  |18\.70 / 4\.14| 18\.21 / 4\.17|
+
+# Older Experiment Configurations
+In this section, we put the experiment configurations of different models on different datasets.
+You can pick the pre-trained models the result of which are posted here from the hyperlinks of the `Pretrained Models` (**the models are currently removed as they are pretty outdated!**). 
 To use them you can simply put them in a directory named `.checkpoints` created besides the `translate` package (if it is a zipped file, unzip it there) and point the `checkpoint_name` in the configuration file to the downloaded pre-trained model. 
 Each experiment will have a model file (ending in ".pt") in there with the exact same name mentioned in the table below.
 The dataset with which the model has been trained will be automatically downloaded.
 The configuration file with which the model was configured, can be downloaded by clicking on the experiment name link (first column of the table).
 
-|                                      Experiment Name                                      	|                                      Replication Script                                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset |    Language    	| Bleu Score (dev/test)	| Model File         |                      More Info                      	|
-|:-----------------------------------------------------------------------------------------:	|:-----------------------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:-----------: |:--------------:	|:--------------------------: |:------------------:	|:---------------------------------------------------:	|
-|         [seq2seq_multi30k_de_en](resources/exp-configs/seq2seq_multi30k_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_multi30k_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           33.504 / 33.840           | [Pretrained Model](https://drive.google.com/open?id=16UOg06bq4swoOEQ_xBMStZJDjtXSAgCN)	| lowercased - tokenized with SpaCy - &#124;V&#124;=3000	|
-|         [transformer_multi30k_de_en](resources/exp-configs/transformer_multi30k_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/transformer_multi30k_de_en.sh)         	|   Transformer   	|  Translation 	|  Multi30k2016 |           multi30k/val; multi30k/test2016   	| [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	|           34.652 / 34.727          | [Pretrained Model](https://drive.google.com/open?id=1XzSRtQzLwLADNtWsR3nC1uldUjLO0YL0)	| lowercased - tokenized with SpaCy - &#124;V&#124;=3000	|
-|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_iwslt_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           26.438 / \[26.226; 28.378; 25.208; 27.523; 23.219; 23.604\]         | [Pretrained Model](https://drive.google.com/open?id=1GquqMA_EJvdQLisT4-hByv1SygVeQQ9Z) 	| lowercased - tokenized with SpaCy	|
-|         [transformer_iwslt_de_en](resources/exp-configs/transformer_iwslt_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/transformer_iwslt_de_en.sh)         	|   Transformer   	|  Translation 	|  IWSLT2017 |           dev2010; tst201\[0-5\]   	| [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	|           27.515 / \[28.184; 30.316; 26.905; 29.206; 24.313; 25.267\]       | [Pretrained Model](https://drive.google.com/open?id=1TB9PrlnqgtOodx4C0H2BQuk4nk7ZNd0_)   	| lowercased - tokenized with SpaCy	|
-|         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt19_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_wmt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  WMT19 |           valid (1% of train data); newstest201\[4-9\]   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           28.487 / \[21.046; 21.767; 25.274; 22.337; 26.566; 24.261\]          | [Pretrained Model](https://drive.google.com/open?id=1-nTRXGNrLdBATRvXdfRNz5h7f5OP6f2S)	| lowercased - bpe tokenized \[40000 tokens\]|
-|         [transformer_wmt_de_en](resources/exp-configs/transformer_wmt19_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/transformer_wmt_de_en.sh)         	|   Transformer   	|  Translation 	|  WMT19 |           valid (1% of train data); newstest201\[4-9\]   	| [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           27.208 / \[20.408; 21.034; 24.078; 21.317; 25.098; 23.304\]          | [Pretrained Model](https://drive.google.com/open?id=1dSrib2mF7k2LxZLcmE74RlLPqVB9E8lo)	| lowercased - bpe tokenized \[40000 tokens\]|
+|                                      Experiment Name                                      	|                                      Replication Script                      	|    Model    	|     Task     	|   Dataset   	|   Devset/Testset                               |    Language    	                                                                                | Bleu Score (dev/test)	| Model File |   More Info  |
+|:-----------------------------------------------------------------------------------------:	|:----------------------------------------------------------------------------:	|:-----------:	|:------------:	|:-----------:	|:---------------------------------------------: |:-----------------------------------------------------------------------------------------------:	|:--------------------: |:---------: |:--------:	|
+|         [seq2seq_multi30k_de_en](resources/exp-configs/seq2seq_multi30k_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/seq2seq_multi30k_de_en.sh)       |   Seq2Seq   	|  Translation 	|  Multi30k2016 | multi30k/val; multi30k/test2016   	         | [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	            |           -           |            |          -	|
+|         [transformer_multi30k_de_en](resources/exp-configs/transformer_multi30k_de_en.yml)    |         [replicate.sh](resources/exp-scripts/transformer_multi30k_de_en.sh)   |   Transformer |  Translation 	|  Multi30k2016 | multi30k/val; multi30k/test2016                | [German2English](http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz) 	            |           -           |            |          -	|
+|         [seq2seq_iwslt_de_en](resources/exp-configs/seq2seq_iwslt_de_en.yml)         	        |         [replicate.sh](resources/exp-scripts/seq2seq_iwslt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  IWSLT2017    | dev2010; tst201\[0-5\]   	                     | [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	            |           -           |            |          -	|
+|         [transformer_iwslt_de_en](resources/exp-configs/transformer_iwslt_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/transformer_iwslt_de_en.sh)      |   Transformer |  Translation 	|  IWSLT2017    | dev2010; tst201\[0-5\]   	                     | [German2English](https://wit3.fbk.eu/archive/2017-01-trnted/texts/de/en/de-en.tgz) 	            |           -           |            |          -	|
+|         [seq2seq_wmt_de_en](resources/exp-configs/seq2seq_wmt19_de_en.yml)         	        |         [replicate.sh](resources/exp-scripts/seq2seq_wmt_de_en.sh)         	|   Seq2Seq   	|  Translation 	|  WMT19        | valid (1% of train data); newstest201\[4-9\]   | [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           -           |            |          -	|
+|         [transformer_wmt_de_en](resources/exp-configs/transformer_wmt19_de_en.yml)         	|         [replicate.sh](resources/exp-scripts/transformer_wmt_de_en.sh)        |   Transformer |  Translation 	|  WMT19        | valid (1% of train data); newstest201\[4-9\]   | [German2English](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) 	|           -           |            |          -   |
 
 ## How to replicate our results?
 Second column of the provided results table contains the replication scripts for each experiment 
