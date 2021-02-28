@@ -168,7 +168,7 @@ class AspectIntegration(nn.Module):
         self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         # self.number_of_bert_layers = len(self.bert_lm.bert.encoder.layer) + 1
         # self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers), requires_grad=True)
-        print("Running the init params for aspect_vectors")
+        print("Running the init params for aspect_vectors: {}".format(cfg.aspect_vectors_data_address))
         try:
             so = torch.load(cfg.aspect_vectors_data_address, map_location=lambda storage, loc: storage)
         except KeyError:
