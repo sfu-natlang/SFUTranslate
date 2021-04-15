@@ -118,7 +118,8 @@ min_freq_tgt: minimum considrable target vocabulary, words with less freqency th
 extract_unk_stats: the flag which enables the code to perform type/token analysis on the ratio of <UNK> tokens in the current vocabulary settings
 share_vocabulary: the flag which enables merging the source and target vocabulary into a single object, assigning unique ids to the same token in both source and target space
 sentence_count_limit: the maximum number of sentences to be considered from the trainset. it will normally be used when different data fractions are intended to be compared. please note that the actual number of processed sentences can be lower than this number since empty lines are removed from training data. 
-aspect_vectors_data_address: the address of the pre-trained aspect vector extractors. You don't need to set any value for it if your model is not "aspect_augmented_transformer". 
+aspect_vectors_data_address: the address of the pre-trained aspect vector extractors. You don't need to set any value for it if your model is not "aspect_augmented_transformer".
+bilingual_dictionary_address: the address of the extracted bilingual dictionary used for dictionary fusion model 
 
 model_name: `sts` or `transformer` [also "aspect_augmented_transformer", "multi_head_aspect_augmented_transformer", "syntax_infused_transformer", and "bert_freeze_input_transformer"]
 train_batch_size: the average number of words expected to be put in a batch while training [4000 to 5000 seem to be a reasonable defalt]

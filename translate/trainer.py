@@ -14,6 +14,7 @@ from models.copy.model import CopyModel
 from models.sts.model import STS
 from models.transformer.model import Transformer
 from models.aspects.model import AspectAugmentedTransformer, MultiHeadAspectAugmentedTransformer, SyntaxInfusedTransformer, BertFreezeTransformer
+from models.fusion.model import DictionaryFusionTransformer
 from models.transformer.optim import TransformerScheduler
 from utils.init_nn import weight_init
 from utils.evaluation import evaluate
@@ -72,6 +73,8 @@ def main(model_name):
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(SyntaxInfusedTransformer, dp.SRC, dp.TGT)
     elif model_name == "bert_freeze_input_transformer":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(BertFreezeTransformer, dp.SRC, dp.TGT)
+    elif model_name == "dictionary_fusion_transformer":
+        model, optimizer, scheduler, grad_clip, step_only_at_eval = create_transformer_model(DictionaryFusionTransformer, dp.SRC, dp.TGT)
     elif model_name == "copy":
         model, optimizer, scheduler, grad_clip, step_only_at_eval = create_copy_model(dp.SRC, dp.TGT)
     else:

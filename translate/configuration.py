@@ -1,3 +1,4 @@
+import os
 import sys
 import re
 import torch
@@ -36,4 +37,31 @@ with open(config_file, 'r') as yml_file:
     cfg.augment_input_with_syntax_infusion_vectors = cfg.model_name == "syntax_infused_transformer"
     if cfg.augment_input_with_syntax_infusion_vectors:  # This is for the sake of comparability to "Aspect Augmented Transformer"
         assert cfg.src_tokenizer == "bert", "Syntax Infused Transformer model should enforce bert tokenizer in source side"
+    # The idea from https://arxiv.org/pdf/1909.07907v1.pdf
+    cfg.augment_input_with_bilingual_dict = cfg.model_name == "dictionary_fusion_transformer"
+    if cfg.augment_input_with_bilingual_dict:
+        print("Loading up the bilingual dictionary (assuming source in the first column) ...")
+        if not os.path.isfile(cfg.bilingual_dictionary_address):
+            print("The bilingual dictionary file does not exist, exiting ...")
+            exit()
+        bilingual_dictionary_raw = open(cfg.bilingual_dictionary_address, "r", encoding="utf-8").readlines()
+        cfg.bilingual_dictionary = dict()
+        for line in bilingual_dictionary_raw:
+            s, t, c = line.strip().split("\t")
+            if s not in cfg.bilingual_dictionary:
+                cfg.bilingual_dictionary[s] = ([], [])
+            if t in cfg.bilingual_dictionary[s][0]:
+                raise ValueError("Duplicate key value occurrence ({}, {})".format(s, t))
+            o = cfg.bilingual_dictionary[s]
+            o = (o[0] + [t], o[1] + [int(c)])
+            cfg.bilingual_dictionary[s] = o
+
+        def lex(_d, _s, _t):
+            if _s == _t:
+                return 1.0
+            elif _s in _d and _t in _d[_s][0]:
+                _i = _d[_s][0].index(_t)
+                return _d[_s][1][_i] / sum(_d[_s][1])
+            return 0.0
+        cfg.lex = lex
 
