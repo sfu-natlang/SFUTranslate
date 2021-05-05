@@ -91,19 +91,16 @@ class DictionaryFusionTransformer(Transformer):
             beta = nn.functional.softmax(score, dim=1)
 
             # Loss computation
-            lex_x = p_gen * x  # batch_size, ou_seq_len, tgt_vocab_size
-            p_lex = 1 - p_gen  # dimension: batch_size, ou_seq_len, 1
             local_lex = [np.array(item) for item in kwargs['bilingual_dict']]
             local_lex = [np.pad(item, ((0, in_seq_len - item.shape[0]), (0, ou_seq_len - item.shape[1])), 'constant', constant_values=(0, 0)) for item in local_lex]
 
             local_lex = torch.tensor([item.tolist() for item in local_lex]).to(device)
             local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1)
-            p_lex = p_lex * local_lex
-            lex_x = lex_x + p_lex
+            lex_x = p_gen * x + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, 18291).to(device)
 
             loss_lex = self.criterion(lex_x.contiguous().view(-1, lex_x.size(-1)), y.contiguous().view(-1))
             loss_dec = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
-            loss = (loss_lex + loss_dec) / 2
+            loss = (loss_dec + loss_lex) / 2
 
             # ########################### End Jetic's stuff ############################################################
 
