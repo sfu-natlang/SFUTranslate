@@ -4,7 +4,11 @@ import torch
 import os
 import subprocess
 from torch import nn
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 import sacrebleu
 from configuration import cfg
 from readers.data_provider import DataProvider, src_tokenizer, tgt_detokenizer
@@ -173,4 +177,3 @@ def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module,
         bleu_score = float(score_line[8]) * 100
         print("E {} ::: BLEU Score [mteval] {:.2f} ::: NIST Score [mteval] {:.2f}".format(eph, bleu_score, nist_score))
     return average_loss, average_bleu
-

@@ -1,7 +1,11 @@
 import codecs
 import sys
 import spacy
-from torchtext import data, datasets
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data, datasets
+else:
+    from torchtext import data, datasets
 from readers.datasets.dataset import IWSLT
 
 dataset_name = sys.argv[1]

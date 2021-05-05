@@ -4,7 +4,11 @@ This file is intended for testing the process regardless of the model accuracy.
 """
 import torch
 import torch.nn as nn
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from models.general import NMTModel
 from configuration import device
 

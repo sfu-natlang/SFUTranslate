@@ -1,4 +1,8 @@
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
 from models.aspects.containers import SyntaxInfusedInformationContainer
 from readers.utils import batch_size_fn, collect_unk_stats
@@ -107,17 +111,3 @@ class DataProvider:
     def replace_fields(self, SRC, TGT):
         self.SRC = SRC
         self.TGT = TGT
-
-
-
-
-
-
-
-
-
-
-
-
-
-

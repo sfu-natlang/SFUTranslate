@@ -6,7 +6,11 @@ This is the main script which will create the aspect extractor modules. You will
 import os
 import pickle
 
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from tqdm import tqdm
 
 from readers.datasets.dataset import get_dataset_from_configs

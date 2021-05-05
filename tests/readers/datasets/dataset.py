@@ -3,7 +3,11 @@
 import sys
 import os
 import unittest
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 
 from readers.datasets.dataset import M30k, IWSLT, WMT19DeEn, WMT19DeFr
 

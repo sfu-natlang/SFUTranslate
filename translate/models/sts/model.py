@@ -4,7 +4,11 @@ This file is an implementation of vanilla attentional sequence to sequence model
 import math
 import torch
 from torch import nn
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from configuration import cfg, device
 from utils.containers import DecodingSearchNode

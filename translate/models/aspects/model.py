@@ -13,7 +13,11 @@ This file contains the implementation of different extensions of vanilla Transfo
         Our implementation does not just initialize the encoder embedding layer with bert parameters but rather actively embeds each sentence with
             bert and feeds the acquired bert embeddings as input to the encoder layers of Transformer.
 """
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 
 from configuration import cfg, device
 from models.aspects.module import AspectIntegration, MultiHeadAspectAugmentationLayer, SyntaxInfusedSRCEmbedding, BertEmbeddingIntegration

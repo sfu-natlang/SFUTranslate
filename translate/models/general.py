@@ -3,7 +3,11 @@ This file is a guide on how to start to write a new model which is supposed to w
 """
 import torch
 from torch import nn
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from configuration import cfg, device
 from utils.containers import DecodingSearchNode
 

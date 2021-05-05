@@ -1,4 +1,8 @@
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from configuration import cfg, device
 from collections import Counter
 from tqdm import tqdm

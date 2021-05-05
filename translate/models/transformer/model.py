@@ -5,7 +5,11 @@ This file is the implementation of the tranformer encoder decoder model based on
 import sys
 import torch
 from torch import nn
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from configuration import cfg, device
 from models.transformer.optim import LabelSmoothing
 from utils.containers import DecodingSearchNode
@@ -130,7 +134,7 @@ class Transformer(nn.Module):
             norm = (y != self.TGT.vocab.stoi[cfg.pad_token]).data.sum()
             x = self.generator(out)
             loss = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
-            for i in range(x.size(1)-1):
+            for i in range(x.size(1) - 1):
                 _, next_word = torch.max(x.select(1, i), dim=1)
                 ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
             try:
@@ -154,7 +158,7 @@ class Transformer(nn.Module):
         return prob
 
     def greedy_decode(self, memory, src_mask, input_tensor, ys, batch_size, target_length, **kwargs):
-        for i in range(target_length-1):
+        for i in range(target_length - 1):
             prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
             _, next_word = torch.max(prob, dim=1)
             ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
@@ -169,7 +173,7 @@ class Transformer(nn.Module):
         nodes = [(init_ys, torch.zeros(batch_size, device=device), torch.zeros(batch_size, device=device).bool())]
         final_results = []
 
-        for i in range(target_length-1):
+        for i in range(target_length - 1):
             k = beam_size - len(final_results)
             if k < 1:
                 break

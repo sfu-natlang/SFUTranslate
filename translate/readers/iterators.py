@@ -1,7 +1,11 @@
 """
 This file contains the customized torchtext data iterators
 """
-from torchtext import data
+import torchtext
+if torchtext.__version__.startswith('0.9'):
+    from torchtext.legacy import data
+else:
+    from torchtext import data
 from configuration import cfg
 
 
