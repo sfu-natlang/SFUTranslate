@@ -96,8 +96,8 @@ class DictionaryFusionTransformer(Transformer):
             local_lex = [np.array(item) for item in kwargs['bilingual_dict']]
             local_lex = [np.pad(item, ((0, in_seq_len - item.shape[0]), (0, ou_seq_len - item.shape[1])), 'constant', constant_values=(0, 0)) for item in local_lex]
 
-            local_lex = torch.tensor([item.tolist() for item in local_lex])
-            local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1).to(device)
+            local_lex = torch.tensor([item.tolist() for item in local_lex]).to(device)
+            local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1)
             p_lex = p_lex * local_lex
             lex_x = lex_x + p_lex
 
