@@ -18,6 +18,7 @@ class DictionaryFusionTransformer(Transformer):
         super(DictionaryFusionTransformer, self).__init__(SRC, TGT)
         d_model = int(cfg.transformer_d_model)
         self.PG_L1 = nn.Linear(d_model, 1)
+        self.PG_sigmoid = nn.Sigmoid()
 
         self.PG_V2 = nn.Linear(d_model, 1)
         self.PG_W = nn.Linear(d_model, d_model)
@@ -81,7 +82,7 @@ class DictionaryFusionTransformer(Transformer):
             in_seq_len = memory.size()[1]
             ou_seq_len = out.size()[1]
 
-            p_gen = torch.sigmoid(self.PG_L1(out))
+            p_gen = self.PG_sigmoid(self.PG_L1(out))
             # dimension: batch_size, ou_seq_len, 1
 
             # score[i][j] = V * tanh(W * h_enc[i] + U * h_dec[i])
@@ -99,11 +100,12 @@ class DictionaryFusionTransformer(Transformer):
 
             local_lex = torch.tensor([item.tolist() for item in local_lex]).to(device)
             local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1)
-            lex_x = p_gen * x #  + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, 18291).to(device)
+            lex_x = p_gen * x + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, 18291).to(device)
+            # print(p_gen[0])
 
             loss_lex = self.criterion(lex_x.contiguous().view(-1, lex_x.size(-1)), y.contiguous().view(-1))
             loss_dec = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
-            loss = loss_lex
+            loss = loss_lex + loss_dec
 
             # ########################### End Jetic's stuff ############################################################
 
