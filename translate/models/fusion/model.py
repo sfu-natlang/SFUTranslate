@@ -83,20 +83,21 @@ class DictionaryFusionTransformer(Transformer):
 
             # score[i][j] = V * tanh(W * h_enc[i] + U * h_dec[i])
             # beta = softmax(score)
-            h_enc = torch.reshape(self.PG_W(memory), (batch_size, in_seq_len, 1, d_model))
-            h_dec = torch.reshape(self.PG_U(out), (batch_size, 1, ou_seq_len, d_model))
+            h_enc = self.PG_W(memory).view(batch_size, in_seq_len, 1, d_model)
+            h_dec = self.PG_U(out).view(batch_size, 1, ou_seq_len, d_model)
             h_enc = h_enc.repeat(1, 1, ou_seq_len, 1)
             h_dec = h_dec.repeat(1, in_seq_len, 1, 1)
-            score = self.PG_V2(torch.tanh(h_enc + h_dec)).reshape(batch_size, in_seq_len, ou_seq_len)
+            score = self.PG_V2(torch.tanh(h_enc + h_dec)).view(batch_size, in_seq_len, ou_seq_len)
             beta = nn.functional.softmax(score, dim=1)
 
             # Loss computation
             lex_x = p_gen * x  # batch_size, ou_seq_len, tgt_vocab_size
-            p_lex = torch.ones([batch_size, ou_seq_len, 1]) - p_gen  # dimension: batch_size, outputs_lengths, 1
-            local_lex = [np.sum(np.array(item), axis=0) for item in kwargs['bilingual_dict']]
-            local_lex = [np.pad(item, (0, ou_seq_len - item.size), 'constant', constant_values=(0, 0)) for item in local_lex]
-            local_lex = [list(item) for item in local_lex]
-            local_lex = torch.tensor(local_lex).reshape(batch_size, ou_seq_len, 1)
+            p_lex = torch.ones([batch_size, ou_seq_len, 1]) - p_gen  # dimension: batch_size, ou_seq_len, 1
+            local_lex = [np.array(item) for item in kwargs['bilingual_dict']]
+            local_lex = [np.pad(item, ((0, in_seq_len - item.shape[0]), (0, ou_seq_len - item.shape[1])), 'constant', constant_values=(0, 0)) for item in local_lex]
+
+            local_lex = torch.tensor([item.tolist() for item in local_lex])
+            local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1)
             p_lex = p_lex * local_lex
             lex_x = lex_x + p_lex
 
