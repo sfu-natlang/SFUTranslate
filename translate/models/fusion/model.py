@@ -92,7 +92,7 @@ class DictionaryFusionTransformer(Transformer):
 
             # Loss computation
             lex_x = p_gen * x  # batch_size, ou_seq_len, tgt_vocab_size
-            p_lex = torch.ones([batch_size, ou_seq_len, 1]) - p_gen  # dimension: batch_size, ou_seq_len, 1
+            p_lex = 1 - p_gen  # dimension: batch_size, ou_seq_len, 1
             local_lex = [np.array(item) for item in kwargs['bilingual_dict']]
             local_lex = [np.pad(item, ((0, in_seq_len - item.shape[0]), (0, ou_seq_len - item.shape[1])), 'constant', constant_values=(0, 0)) for item in local_lex]
 
