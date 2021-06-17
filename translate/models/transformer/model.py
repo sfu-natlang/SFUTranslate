@@ -148,7 +148,7 @@ class Transformer(nn.Module):
         else:
             return self.greedy_decode(memory, input_mask, input_tensor, ys, batch_size, target_length, **kwargs)
 
-    def extract_output_probabilities(self, ys, memory, src_mask, input_tensor):
+    def extract_output_probabilities(self, ys, memory, src_mask, input_tensor, **kwargs):
         output_tensor, output_mask = ys.clone().detach(), subsequent_mask(ys.size(1)).type_as(input_tensor.data).clone().detach()
         x = self.tgt_embed(output_tensor)
         for layer in self.dec_layers:
@@ -159,7 +159,7 @@ class Transformer(nn.Module):
 
     def greedy_decode(self, memory, src_mask, input_tensor, ys, batch_size, target_length, **kwargs):
         for i in range(target_length - 1):
-            prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
+            prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor, **kwargs)
             _, next_word = torch.max(prob, dim=1)
             ys = torch.cat([ys, next_word.view(batch_size, 1)], dim=1)
         try:
@@ -181,7 +181,7 @@ class Transformer(nn.Module):
             all_lm_scores = torch.zeros(batch_size, len(nodes) * k, device=device).float()
             # iterating over all the available hypotheses to expand the beams
             for n_id, (ys, lm_scores, eos_predicted) in enumerate(nodes):
-                prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor)
+                prob = self.extract_output_probabilities(ys, memory, src_mask, input_tensor, **kwargs)
                 k_values, k_indices = torch.topk(prob, dim=1, k=k)
                 for beam_index in range(k):
                     overall_index = n_id * k + beam_index

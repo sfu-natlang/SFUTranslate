@@ -102,6 +102,10 @@ class MyBucketIterator(data.BucketIterator):
                         self.dataset.src_tokenizer.detokenize(mb.src), max_len) for mb in minibatch]
                     for tag in self.dataset.src_tokenizer.syntax_infused_container.features_list:
                         created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
+                if cfg.augment_input_with_bilingual_dict:
+                    created_batch.data_args["bilingual_dict"] = [
+                        [[cfg.lex(cfg.bilingual_dictionary, src_token, trg_token) for trg_token in mb.trg]
+                         for src_token in mb.src] for mb in minibatch]
                 yield created_batch
             if not self.repeat:
                 return
