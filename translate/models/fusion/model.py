@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import torch
 import torchtext
@@ -9,6 +10,7 @@ from torch import nn
 
 from configuration import cfg, device
 from models.transformer.model import Transformer
+from models.transformer.utils import subsequent_mask
 
 import IPython
 DEBUG_JETIC = False
@@ -134,32 +136,38 @@ class DictionaryFusionTransformer(Transformer):
         else:
             return self.greedy_decode(memory, input_mask, input_tensor, ys, batch_size, target_length, **kwargs)
 
+    def extract_output_probabilities(self, ys, memory, src_mask, input_tensor, **kwargs):
+        output_tensor, output_mask = ys.clone().detach(), subsequent_mask(ys.size(1)).type_as(input_tensor.data).clone().detach()
+        batch_size, input_sequence_length = input_tensor.size()
+        d_model = int(cfg.transformer_d_model)
+        x = self.tgt_embed(output_tensor)
+        for layer in self.dec_layers:
+            x = layer(x, memory, src_mask, output_mask)
+        out = self.dec_norm(x)
+        out = out[:, -1]
+        prob = self.generator(out)
+        p_gen = self.PG_sigmoid(self.PG_L1(out))
+        # ######################################## calculating the copy probabilities
+        in_seq_len = memory.size()[1]
 
-'''
-    def forward(self,
-                input_tensor_with_lengths,
-                output_tensor_with_length=None,
-                test_mode=False,
-                **kwargs):
-        """
-        :param input_tensor_with_lengths: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
-        :param output_tensor_with_length: tuple(max_seq_length * batch_size, batch_size: actual sequence lengths)
-        :param test_mode: a flag indicating whether the model is allowed to use the target tensor for input feeding
-        :return decoding_initializer_result_tensor (output of softmax),
-                decoding_initializer_max_attention_indices (can be None),
-                decoding_initializer_cumulative_loss,
-                decoding_initializer_loss_size,
-                batch_tokens_count
-        """
-        if not test_mode:
-            bilingual_dict = kwargs['bilingual_dict']
-            # Size: batch_size, max_seq_length,
-            IPython.embed()
-            # TODO use the bilingual dict in here
-            # You may want to convert 'bilingual_dict' into a torch tensor
-        return self.decode(input_tensor_with_lengths,
-                           output_tensor_with_length,
-                           test_mode,
-                           beam_size=self.beam_size,
-                           **kwargs)
-'''
+        h_enc = self.PG_W(memory).view(batch_size, in_seq_len, 1, d_model)
+        h_dec = self.PG_U(out).view(batch_size, 1, 1, d_model)
+        # h_enc = h_enc.repeat(1, 1, 1, 1)
+        h_dec = h_dec.repeat(1, in_seq_len, 1, 1)
+        score = self.PG_V2(torch.tanh(h_enc + h_dec)).view(batch_size, in_seq_len, 1)
+        beta = nn.functional.softmax(score, dim=1)
+        assert 'bilingual_dict' in kwargs
+        max_cols = max([len(row) for batch in kwargs['bilingual_dict'] for row in batch])
+        max_rows = max([len(batch) for batch in kwargs['bilingual_dict']])
+
+        am_beta = torch.argmax(beta, dim=1)  # batch * max_cols
+
+        local_lex = [[row + [0] * (max_cols - len(row)) for row in batch] for batch in kwargs['bilingual_dict']] # batch is stc_len * tgt_len
+        local_lex = torch.tensor([batch + [[0] * (max_cols)] * (max_rows - len(batch)) for batch in local_lex]).to(device)
+
+        candidate = torch.argmax(torch.stack(
+            [local_lex[i][am_beta[i]].unsqueeze(0) for i in range(batch_size)], dim=0).to(device), dim=-1)
+
+        one_h = torch.nn.functional.one_hot(candidate.view(-1), len(self.TGT.vocab)).float().to(device)
+
+        return torch.where(p_gen.repeat(1, len(self.TGT.vocab)) > 0.5, prob, one_h)
