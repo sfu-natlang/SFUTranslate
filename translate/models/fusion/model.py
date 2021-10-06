@@ -11,7 +11,7 @@ from configuration import cfg, device
 from models.transformer.model import Transformer
 
 import IPython
-
+DEBUG_JETIC = False
 
 class DictionaryFusionTransformer(Transformer):
     def __init__(self, SRC: data.Field, TGT: data.Field):
@@ -72,7 +72,7 @@ class DictionaryFusionTransformer(Transformer):
             # reference index
             norm = (y != self.TGT.vocab.stoi[cfg.pad_token]).data.sum()
             # number of non-padded tokens in the reference
-            x = self.generator(out)  # batch_size, output_tensor_size-1, tgt_vocab_size
+            x = self.generator.forward_no_log(out)  # batch_size, output_tensor_size-1, tgt_vocab_size
 
             # ########################### Jetic's PG stuff #############################################################
             # ########################### Based on LexN1M6 #############################################################
@@ -83,6 +83,8 @@ class DictionaryFusionTransformer(Transformer):
             ou_seq_len = out.size()[1]
 
             p_gen = self.PG_sigmoid(self.PG_L1(out))
+            if DEBUG_JETIC:
+                print("p_gen[0]", p_gen[0])
             # dimension: batch_size, ou_seq_len, 1
 
             # score[i][j] = V * tanh(W * h_enc[i] + U * h_dec[i])
@@ -93,18 +95,27 @@ class DictionaryFusionTransformer(Transformer):
             h_dec = h_dec.repeat(1, in_seq_len, 1, 1)
             score = self.PG_V2(torch.tanh(h_enc + h_dec)).view(batch_size, in_seq_len, ou_seq_len)
             beta = nn.functional.softmax(score, dim=1)
+            if DEBUG_JETIC:
+                print("beta[0, :, 2]", beta[0, :, 2])
 
             # Loss computation
             local_lex = [np.array(item) for item in kwargs['bilingual_dict']]
             local_lex = [np.pad(item, ((0, in_seq_len - item.shape[0]), (0, ou_seq_len - item.shape[1])), 'constant', constant_values=(0, 0)) for item in local_lex]
 
             local_lex = torch.tensor([item.tolist() for item in local_lex]).to(device)
+            if DEBUG_JETIC:
+                print("local_lex[0, :, 2]", local_lex[0, :, 2])
             local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1)
-            lex_x = p_gen * x + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, 18291).to(device)
-            # print(p_gen[0])
+            if DEBUG_JETIC:
+                print("local_lex[0, 2]", local_lex[0, 2])
+            if DEBUG_JETIC:
+                print("y[0][2]", y[0][2])
+            if DEBUG_JETIC:
+                print("x[0][2]", x[0][2])
+            lex_x = torch.log(p_gen * x + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, 18291)).to(device)
 
             loss_lex = self.criterion(lex_x.contiguous().view(-1, lex_x.size(-1)), y.contiguous().view(-1))
-            loss_dec = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
+            loss_dec = self.criterion(torch.log(x).contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
             loss = loss_lex + loss_dec
 
             # ########################### End Jetic's stuff ############################################################

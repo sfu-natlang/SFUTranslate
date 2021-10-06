@@ -171,3 +171,6 @@ class Generator(nn.Module):
 
     def forward(self, x):
         return F.log_softmax(self.proj(x), dim=-1)
+
+    def forward_no_log(self, x):
+        return F.softmax(self.proj(x), dim=-1)
