@@ -15,6 +15,7 @@ from models.transformer.utils import subsequent_mask
 import IPython
 DEBUG_JETIC = False
 
+
 class DictionaryFusionTransformer(Transformer):
     def __init__(self, SRC: data.Field, TGT: data.Field):
         super(DictionaryFusionTransformer, self).__init__(SRC, TGT)
@@ -162,7 +163,7 @@ class DictionaryFusionTransformer(Transformer):
 
         am_beta = torch.argmax(beta, dim=1)  # batch * max_cols
 
-        local_lex = [[row + [0] * (max_cols - len(row)) for row in batch] for batch in kwargs['bilingual_dict']] # batch is stc_len * tgt_len
+        local_lex = [[row + [0] * (max_cols - len(row)) for row in batch] for batch in kwargs['bilingual_dict']]  # batch is stc_len * tgt_len
         local_lex = torch.tensor([batch + [[0] * (max_cols)] * (max_rows - len(batch)) for batch in local_lex]).to(device)
 
         candidate = torch.argmax(torch.stack(
