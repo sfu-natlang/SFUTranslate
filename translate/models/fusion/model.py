@@ -102,7 +102,7 @@ class DictionaryFusionTransformer(Transformer):
 
             local_lex = torch.tensor([item.tolist() for item in local_lex]).to(device)
             local_lex = torch.sum((local_lex * beta), dim=1).view(batch_size, ou_seq_len, 1)
-            lex_x = torch.log(p_gen * x + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, 18291)).to(device)
+            lex_x = torch.log(p_gen * x + (1 - p_gen) * local_lex * torch.nn.functional.one_hot(y, len(self.TGT.vocab))).to(device)
 
             loss_lex = self.criterion(lex_x.contiguous().view(-1, lex_x.size(-1)), y.contiguous().view(-1))
             loss_dec = self.criterion(torch.log(x).contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))
