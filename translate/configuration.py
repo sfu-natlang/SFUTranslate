@@ -5,6 +5,7 @@ import torch
 import yaml
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+small_val = 0.0000000000000000000000001
 match = re.match(r"(\d\.\d\.\d)(.*)", torch.__version__)
 torch_major_version, torch_minor_version, torch_patch_version = map(int, match.group(1).split("."))
 if not torch_major_version >= 1 or not torch_minor_version >= 1:
@@ -29,6 +30,7 @@ class DotConfig:
 
 with open(config_file, 'r') as yml_file:
     cfg = DotConfig(yaml.safe_load(yml_file))
+    cfg.small_val = small_val
     src_lan = cfg.src_lang
     tgt_lan = cfg.tgt_lang
     cfg.augment_input_with_bert_src_vectors = "aspect_augmented_transformer" in cfg.model_name or cfg.model_name == "bert_freeze_input_transformer"

@@ -48,7 +48,7 @@ class MyIterator(data.Iterator):
                         created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
                 if cfg.augment_input_with_bilingual_dict:
                     created_batch.data_args["bilingual_dict"] = [
-                        [[cfg.lex(cfg.bilingual_dictionary, src_token, trg_token) for trg_token in mb.trg]
+                        [[cfg.lex(cfg.bilingual_dictionary, src_token.lower(), trg_token.lower()) for trg_token in mb.trg]
                          for src_token in mb.src] for mb in minibatch]
                 yield created_batch
             if not self.repeat:
@@ -104,8 +104,28 @@ class MyBucketIterator(data.BucketIterator):
                         created_batch.data_args["si_"+tag] = [s[tag] for s in syntax_data]
                 if cfg.augment_input_with_bilingual_dict:
                     created_batch.data_args["bilingual_dict"] = [
-                        [[cfg.lex(cfg.bilingual_dictionary, src_token, trg_token) for trg_token in mb.trg]
+                        [[cfg.lex(cfg.bilingual_dictionary, src_token.lower(), trg_token.lower()) for trg_token in mb.trg]
                          for src_token in mb.src] for mb in minibatch]
+
+                    mapping = self.dataset.fields['src'].vocab.stoi
+                    def get_tgt_one_hot(src_word):
+                        lex = {}
+                        if src_word.lower() in cfg.bilingual_dictionary:
+                            lex = cfg.bilingual_dictionary[src_word.lower()]
+                            lex = dict(zip(lex[0], lex[1]))
+                        if src_word.lower() not in lex:
+                            lex[src_word.lower()] = 1
+                        result = [cfg.small_val] * len(self.dataset.fields["trg"].vocab)
+                        for key in lex:
+                            # result[mapping[key]] = lex[key] / sum(lex.values())
+                            result[mapping[key]] = 1
+
+                        return result
+
+                    max_len = max(created_batch.src[1]).item()
+                    tgt_vocab_size = len(self.dataset.fields["trg"].vocab)
+                    pad = [cfg.small_val] * tgt_vocab_size
+                    created_batch.data_args["src_dict_2vec"] = [[get_tgt_one_hot(src_token) for src_token in mb.src] +  (max_len-len(mb.src)) * [pad] for mb in minibatch]
                 yield created_batch
             if not self.repeat:
                 return

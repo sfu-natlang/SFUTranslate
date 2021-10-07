@@ -157,18 +157,18 @@ class DictionaryFusionTransformer(Transformer):
         h_dec = h_dec.repeat(1, in_seq_len, 1, 1)
         score = self.PG_V2(torch.tanh(h_enc + h_dec)).view(batch_size, in_seq_len, 1)
         beta = nn.functional.softmax(score, dim=1)
-        assert 'bilingual_dict' in kwargs
-        max_cols = max([len(row) for batch in kwargs['bilingual_dict'] for row in batch])
-        max_rows = max([len(batch) for batch in kwargs['bilingual_dict']])
+        am_beta = torch.argmax(beta, dim=1)  # batch * max_coln (which is 1)
+        # print("am_beta", am_beta.size())
 
-        am_beta = torch.argmax(beta, dim=1)  # batch * max_cols
+        # ##################### Getting mapping for source words, and convert to tgt_vocab sized vectors
+        src2vec = kwargs['src_dict_2vec']
+        # src2vec = torch.tensor(src2vec).to(device)
 
-        local_lex = [[row + [0] * (max_cols - len(row)) for row in batch] for batch in kwargs['bilingual_dict']]  # batch is stc_len * tgt_len
-        local_lex = torch.tensor([batch + [[0] * (max_cols)] * (max_rows - len(batch)) for batch in local_lex]).to(device)
+        one_h = torch.tensor([src2vec[i][am_beta.view(-1)[i]] for i in range(am_beta.size(0))])
+        one_h = one_h.to(device)
 
-        candidate = torch.argmax(torch.stack(
-            [local_lex[i][am_beta[i]].unsqueeze(0) for i in range(batch_size)], dim=0).to(device), dim=-1)
-
-        one_h = torch.nn.functional.one_hot(candidate.view(-1), len(self.TGT.vocab)).float().to(device)
+        # one_h = src2vec[am_beta.view(-1).repeat(1,src2vec.size(1),1)]
+        one_h = one_h * prob
 
         return torch.where(p_gen.repeat(1, len(self.TGT.vocab)) > 0.5, prob, one_h)
+
