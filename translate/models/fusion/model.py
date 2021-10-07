@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import torch
 import torchtext
-if torchtext.__version__.startswith('0.9'):
+if torchtext.__version__.startswith('0.9') or torchtext.__version__.startswith('0.10'):
     from torchtext.legacy import data
 else:
     from torchtext import data

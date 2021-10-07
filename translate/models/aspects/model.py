@@ -14,7 +14,7 @@ This file contains the implementation of different extensions of vanilla Transfo
             bert and feeds the acquired bert embeddings as input to the encoder layers of Transformer.
 """
 import torchtext
-if torchtext.__version__.startswith('0.9'):
+if torchtext.__version__.startswith('0.9') or torchtext.__version__.startswith('0.10'):
     from torchtext.legacy import data
 else:
     from torchtext import data

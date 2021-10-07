@@ -5,7 +5,7 @@ import os
 import subprocess
 from torch import nn
 import torchtext
-if torchtext.__version__.startswith('0.9'):
+if torchtext.__version__.startswith('0.9') or torchtext.__version__.startswith('0.10'):
     from torchtext.legacy import data
 else:
     from torchtext import data

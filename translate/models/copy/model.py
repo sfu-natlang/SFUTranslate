@@ -5,7 +5,7 @@ This file is intended for testing the process regardless of the model accuracy.
 import torch
 import torch.nn as nn
 import torchtext
-if torchtext.__version__.startswith('0.9'):
+if torchtext.__version__.startswith('0.9') or torchtext.__version__.startswith('0.10'):
     from torchtext.legacy import data
 else:
     from torchtext import data
