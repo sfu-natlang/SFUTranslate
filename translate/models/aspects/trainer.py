@@ -134,8 +134,8 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
     Hs[-1] += max(0, (H - sum(Hs)))
     print("Loading the pre-trained AutoModelForMaskedLM model: {}".format(model_name))
     bert_lm = AutoModelForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
-    number_of_bert_layers = len(bert_lm.bert.encoder.layer) + 1
-    D_in = D_out = bert_lm.bert.config.hidden_size
+    number_of_bert_layers = bert_lm.config.num_hidden_layers + 1
+    D_in = D_out = bert_lm.config.hidden_size
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)
     print("Loading Spacy Tokenizers")
     spacy_tokenizer_1, spacy_tokenizer_2 = SpacyTokenizer(lang, lowercase_data), SpacyTokenizer(lang, lowercase_data)
