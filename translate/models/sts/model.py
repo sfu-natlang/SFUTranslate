@@ -4,14 +4,14 @@ This file is an implementation of vanilla attentional sequence to sequence model
 import math
 import torch
 from torch import nn
-from torchtext import data
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from configuration import cfg, device
 from utils.containers import DecodingSearchNode
+from readers.data.field import Field
 
 
 class STS(nn.Module):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         """
         :param SRC: the trained torchtext.data.Field object containing the source side vocabulary
         :param TGT: the trained torchtext.data.Field object containing the target side vocabulary

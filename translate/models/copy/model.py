@@ -4,13 +4,13 @@ This file is intended for testing the process regardless of the model accuracy.
 """
 import torch
 import torch.nn as nn
-from torchtext import data
 from models.general import NMTModel
 from configuration import device
+from readers.data.field import Field
 
 
 class CopyModel(NMTModel):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         """
         :param SRC: the trained torchtext.data.Field object containing the source side vocabulary
         :param TGT: the trained torchtext.data.Field object containing the target side vocabulary

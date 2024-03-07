@@ -5,17 +5,17 @@ This file is the implementation of the tranformer encoder decoder model based on
 import sys
 import torch
 from torch import nn
-from torchtext import data
 from configuration import cfg, device
 from models.transformer.optim import LabelSmoothing
 from utils.containers import DecodingSearchNode
 from models.transformer.utils import clones, copy, subsequent_mask
 from models.transformer.modules import EncoderLayer, MultiHeadedAttention, PositionwiseFeedForward, PositionalEncoding, \
     LayerNorm, DecoderLayer, Embeddings, Generator
+from readers.data.field import Field
 
 
 class Transformer(nn.Module):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         """
         :param SRC: the trained torchtext.data.Field object containing the source side vocabulary
         :param TGT: the trained torchtext.data.Field object containing the target side vocabulary

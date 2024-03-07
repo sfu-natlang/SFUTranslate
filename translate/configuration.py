@@ -4,11 +4,14 @@ import torch
 import yaml
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-match = re.match(r"(\d\.\d\.\d)(.*)", torch.__version__)
-torch_major_version, torch_minor_version, torch_patch_version = map(int, match.group(1).split("."))
-if not torch_major_version >= 1 or not torch_minor_version >= 1:
-    # pack_padded_sequence forces the batches to be sorted in older versions which makes validation sloppy
-    raise ValueError("You need pytorch 1.1.0+ to run this code")
+match = re.match(r"(\d+)\.(\d+)\.(\d+)", torch.__version__)
+if match:
+    torch_major_version, torch_minor_version, torch_patch_version = map(int, match.groups())
+    if not torch_major_version >= 1 or not torch_minor_version >= 1:
+        # pack_padded_sequence forces the batches to be sorted in older versions which makes validation sloppy
+        raise ValueError("You need pytorch 1.1.0+ to run this code")
+else:
+    raise ValueError("Could not parse torch version: " + torch.__version__)
 if len(sys.argv) < 2:
     print("run the application with <config_file>")
     exit()

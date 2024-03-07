@@ -1,10 +1,10 @@
-from torchtext import data
 from configuration import src_lan, tgt_lan, cfg, device
 from models.aspects.containers import SyntaxInfusedInformationContainer
 from readers.utils import batch_size_fn, collect_unk_stats
 from readers.iterators import MyIterator, MyBucketIterator
 from readers.datasets.dataset import get_dataset_from_configs
 from readers.tokenizers import get_tokenizer_from_configs
+from readers.data.field import Field
 
 src_tokenizer_obj = get_tokenizer_from_configs(cfg.src_tokenizer, src_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
 tgt_tokenizer_obj = get_tokenizer_from_configs(cfg.tgt_tokenizer, tgt_lan, cfg.lowercase_data, debug_mode=bool(cfg.debug_mode))
@@ -31,9 +31,9 @@ class DataProvider:
         build_vocab = False
         if SRC is None or TGT is None:
             print("Creating the source and target field objects ...")
-            SRC = data.Field(tokenize=src_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
+            SRC = Field(tokenize=src_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
                              unk_token=cfg.unk_token, include_lengths=True)
-            TGT = data.Field(tokenize=tgt_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
+            TGT = Field(tokenize=tgt_tokenizer, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
                              unk_token=cfg.unk_token, init_token=cfg.bos_token, eos_token=cfg.eos_token, include_lengths=True)
             build_vocab = True
         else:

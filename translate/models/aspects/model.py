@@ -13,16 +13,16 @@ This file contains the implementation of different extensions of vanilla Transfo
         Our implementation does not just initialize the encoder embedding layer with bert parameters but rather actively embeds each sentence with
             bert and feeds the acquired bert embeddings as input to the encoder layers of Transformer.
 """
-from torchtext import data
 
 from configuration import cfg, device
 from models.aspects.module import AspectIntegration, MultiHeadAspectAugmentationLayer, SyntaxInfusedSRCEmbedding, BertEmbeddingIntegration
 from models.transformer.model import Transformer
 from models.transformer.modules import Embeddings, PositionalEncoding
+from readers.data.field import Field
 
 
 class AspectAugmentedTransformer(Transformer):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         super(AspectAugmentedTransformer, self).__init__(SRC, TGT)
         d_model = int(cfg.transformer_d_model)
         self.integration_module = AspectIntegration(d_model)
@@ -45,7 +45,7 @@ class AspectAugmentedTransformer(Transformer):
 
 
 class MultiHeadAspectAugmentedTransformer(Transformer):
-    def __init__(self, SRC: data.Field, TGT: data.Field, integrate_before_pe=False, use_left_over_vector=False, value_from_token_embedding=False):
+    def __init__(self, SRC: Field, TGT: Field, integrate_before_pe=False, use_left_over_vector=False, value_from_token_embedding=False):
         super(MultiHeadAspectAugmentedTransformer, self).__init__(SRC, TGT)
         self.multi_head_aspect_integration_layer = MultiHeadAspectAugmentationLayer(use_left_over_vector, value_from_token_embedding)
         self.integrate_before_pe = integrate_before_pe
@@ -79,7 +79,7 @@ class MultiHeadAspectAugmentedTransformer(Transformer):
 
 
 class SyntaxInfusedTransformer(Transformer):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         super(SyntaxInfusedTransformer, self).__init__(SRC, TGT)
         # TODO features_dict from SyntaxInfusedInformationContainer for test mode
         self.src_embed = SyntaxInfusedSRCEmbedding(len(SRC.vocab)).to(device)
@@ -101,7 +101,7 @@ class SyntaxInfusedTransformer(Transformer):
 
 
 class BertFreezeTransformer(Transformer):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         super(BertFreezeTransformer, self).__init__(SRC, TGT)
         d_model = int(cfg.transformer_d_model)
         dropout = float(cfg.transformer_dropout)

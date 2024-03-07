@@ -5,7 +5,10 @@ The modified version of TranslationDataset class from torchtext.Dataset which al
 import os
 import io
 from tqdm import tqdm
-from torchtext import data
+from ..data.dataset import Dataset
+from ..data.utils import interleave_keys
+from ..data.example import Example
+from ..data.field import Field
 
 
 class _BiAddress:
@@ -30,7 +33,7 @@ class ProcessedData:
         self.addresses = FileAddress()
 
 
-class TranslationDataset(data.Dataset):
+class TranslationDataset(Dataset):
     """
     Redefines a dataset for machine translation.
     The file is copied from torchtext and modified to provide dataset related nice torchtext features,
@@ -39,7 +42,7 @@ class TranslationDataset(data.Dataset):
 
     @staticmethod
     def sort_key(ex):
-        return data.interleave_keys(len(ex.src), len(ex.trg))
+        return interleave_keys(len(ex.src), len(ex.trg))
 
     def __init__(self, path, exts, fields, **kwargs):
         """Create a TranslationDataset given paths and fields.
@@ -66,7 +69,7 @@ class TranslationDataset(data.Dataset):
             for src_line, trg_line in tqdm(zip(src_file, trg_file), bar_format="\t\t{n_fmt}{unit} [{elapsed}, {rate_fmt}{postfix}]"):
                 src_line, trg_line = src_line.strip(), trg_line.strip()
                 if src_line != '' and trg_line != '':
-                    example = data.Example.fromlist([src_line, trg_line], fields)
+                    example = Example.fromlist([src_line, trg_line], fields)
                     examples.append(example)
                     self.max_side_total_tokens += max(len(example.src), len(example.trg))
                 sentence_count_limit -= 1
@@ -132,6 +135,6 @@ class TranslationDataset(data.Dataset):
         return
 
     @staticmethod
-    def prepare_dataset(root: str, src_lan: str, tgt_lan: str, SRC: data.Field, TGT: data.Field, load_train_data: bool, max_sequence_length: int = -1,
+    def prepare_dataset(root: str, src_lan: str, tgt_lan: str, SRC: Field, TGT: Field, load_train_data: bool, max_sequence_length: int = -1,
                         sentence_count_limit: int = -1, debug_mode: bool = False) -> ProcessedData:
         raise NotImplementedError

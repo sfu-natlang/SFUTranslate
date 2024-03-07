@@ -4,10 +4,10 @@ import torch
 import os
 import subprocess
 from torch import nn
-from torchtext import data
 import sacrebleu
 from configuration import cfg
 from readers.data_provider import DataProvider, src_tokenizer, tgt_detokenizer
+from readers.iterators import MyBucketIterator
 
 
 def convert_to_sgml(file_name_to_be_converted, dataset_name, is_ref, src_lang, tgt_lang):
@@ -78,7 +78,7 @@ def postprocess_decoded(decoded_sentence, input_sentence, attention_scores):
     return tgt_detokenizer(result)
 
 
-def evaluate(data_iter: data.BucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str, src_sgm: str, gold_tgt_sgm: str,
+def evaluate(data_iter: MyBucketIterator, dp: DataProvider, model: nn.Module, src_file: str, gold_tgt_file: str, src_sgm: str, gold_tgt_sgm: str,
              eph: str, save_decoded_sentences: bool = False, output_dir: str = '../.output', nuance: str = '0000000000'):
     if not save_decoded_sentences:
         print("Evaluation ....")
