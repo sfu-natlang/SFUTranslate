@@ -1,8 +1,9 @@
 import codecs
 import sys
 import spacy
-from torchtext import data, datasets
+#from torch/text import data, datasets
 from readers.datasets.dataset import IWSLT
+from readers.data.field import Field
 
 dataset_name = sys.argv[1]
 src_lan, tgt_lan = sys.argv[2], sys.argv[3]
@@ -21,16 +22,18 @@ def tgt_tokenizer(text):
 if __name__ == '__main__':
     print("Loading the data ...")
 
-    SRC = data.Field(tokenize=src_tokenizer, lower=True, pad_token='<pad>', unk_token='<unk>',
+    SRC = Field(tokenize=src_tokenizer, lower=True, pad_token='<pad>', unk_token='<unk>',
                      init_token='<bos>', eos_token='<eos>', include_lengths=True)
-    TGT = data.Field(tokenize=tgt_tokenizer, lower=True, pad_token='<pad>', unk_token='<unk>',
+    TGT = Field(tokenize=tgt_tokenizer, lower=True, pad_token='<pad>', unk_token='<unk>',
                      init_token='<bos>', eos_token='<eos>', include_lengths=True)
     if dataset_name == "multi30k16":
+        # TODO fix this to import datasets without dependence to torchtext
         train, val, test = datasets.translation.Multi30k.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                                 fields=(SRC, TGT))
     elif dataset_name == "iwslt17":
         train, val, *test_list = IWSLT.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)), fields=(SRC, TGT))
     elif dataset_name == "wmt14":
+        # TODO fix this to import datasets without dependence to torchtext
         train, val, test_single = datasets.WMT14.splits(exts=('.{}'.format(src_lan), '.{}'.format(tgt_lan)),
                                                         fields=(SRC, TGT), train='train.tok.clean.bpe.32000')
         test_list = [test_single]

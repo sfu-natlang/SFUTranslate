@@ -3,9 +3,9 @@
 import sys
 import os
 import unittest
-from torchtext import data
 
 from readers.datasets.dataset import M30k, IWSLT, WMT19DeEn, WMT19DeFr
+from readers.data.field import Field
 
 
 def src_tokenizer(text):
@@ -27,8 +27,8 @@ class TestDatasetLoaders(unittest.TestCase):
         #    raise ValueError("The data directory is not accessible under {}".format(data_dir))
         cls.m30k_languages = ['fr', 'en', 'de']
         cls.iwslt_languages = ['ar', 'de', 'fr', 'ja', 'ko', 'zh']
-        cls.SRC = data.Field(tokenize=src_tokenizer, lower=True, pad_token="<pad>", unk_token="<unk>", include_lengths=True)
-        cls.TGT = data.Field(tokenize=tgt_tokenizer, lower=True, pad_token="<pad>", unk_token="<unk>", init_token="<bos>",
+        cls.SRC = Field(tokenize=src_tokenizer, lower=True, pad_token="<pad>", unk_token="<unk>", include_lengths=True)
+        cls.TGT = Field(tokenize=tgt_tokenizer, lower=True, pad_token="<pad>", unk_token="<unk>", init_token="<bos>",
                              eos_token="<eos>", include_lengths=True)
         cls.root_dir = '../../../.data'
 

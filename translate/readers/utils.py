@@ -1,7 +1,7 @@
-from torchtext import data
 from configuration import cfg, device
 from collections import Counter
 from tqdm import tqdm
+from readers.iterators import MyBucketIterator
 
 
 def batch_size_fn(new, count, sofar):
@@ -29,7 +29,7 @@ def collect_unk_stats(SRC, TGT, src_tokenizer, tgt_tokenizer, dt_raw, dataset_na
             if not len(l1) or not len(l2):
                 continue
             yield l1, l2
-    dt_iter = data.BucketIterator(dt_raw, batch_size=1, device=device, repeat=False, train=False, shuffle=False,
+    dt_iter = MyBucketIterator(dt_raw, batch_size=1, device=device, repeat=False, train=False, shuffle=False,
                                   sort=False, sort_within_batch=False)
     # BucketIterator will ignore the lines one side of which is an empty line
     to_lower = bool(cfg.lowercase_data)

@@ -3,12 +3,12 @@ This file is the implementation of the transformer encoder decoder model using n
 """
 import torch
 from torch import nn
-from torchtext import data
 from configuration import cfg, device
 from models.transformer.optim import LabelSmoothing
 from models.transformer.utils import copy
 from models.transformer.modules import Embeddings, Generator
 import math
+from readers.data.field import Field
 
 
 class PositionalEncoding(nn.Module):
@@ -37,7 +37,7 @@ class PositionalEncoding(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, SRC: data.Field, TGT: data.Field):
+    def __init__(self, SRC: Field, TGT: Field):
         """
         :param SRC: the trained torchtext.data.Field object containing the source side vocabulary
         :param TGT: the trained torchtext.data.Field object containing the target side vocabulary

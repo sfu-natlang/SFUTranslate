@@ -6,7 +6,6 @@ This is the main script which will create the aspect extractor modules. You will
 import os
 import pickle
 
-from torchtext import data
 from tqdm import tqdm
 
 from readers.datasets.dataset import get_dataset_from_configs
@@ -15,6 +14,7 @@ from models.aspects.extract_vocab import dataset_iterator, extract_linguistic_vo
 from models.aspects.tester import aspect_extractor_tester
 from models.aspects.trainer import aspect_extractor_trainer  # , aspect_extractor_sanity_trainer
 from configuration import cfg, src_lan, tgt_lan
+from readers.data.field import Field
 # To avoid the annoying UserWarnings of torchtext
 # Remove this once the next version of torchtext is available
 import warnings
@@ -28,7 +28,7 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     print("Starting to train the reusable heads for {} language ...".format(src_lan))
     print("Loaded the pre-created/persisted linguistic vocab dictionary ...")
     # the source data are tokenized using a split tokenizer
-    SRC = data.Field(tokenize=None, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
+    SRC = Field(tokenize=None, lower=bool(cfg.lowercase_data), pad_token=cfg.pad_token,
                      unk_token=cfg.unk_token, include_lengths=True)
     dataset = get_dataset_from_configs(data_root, cfg.dataset_name, src_lan, tgt_lan, SRC, SRC, True, max_sequence_length=-1, sentence_count_limit=-1,
                                        debug_mode=False)
