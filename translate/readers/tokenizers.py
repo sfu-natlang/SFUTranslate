@@ -3,7 +3,7 @@ Implementation of different tokenizers to be used by the data provider. The pre-
   the pre-trained vocabulary files distributed by huggingface.tokenizers which are trained over big corpora
     in each supported language.
 """
-from tokenizers import BertWordPieceTokenizer
+# from tokenizers import BertWordPieceTokenizer
 from sacremoses import MosesPunctNormalizer, MosesTokenizer, MosesDetokenizer
 from requests import get
 import spacy
@@ -14,10 +14,10 @@ import string
 try:
     import warnings
     warnings.filterwarnings('ignore', category=FutureWarning)
-    from transformers import BertTokenizer
+    from transformers import AutoTokenizer
 except ImportError:
     warnings.warn("transformers package is not available, transformers.BertTokenizer will not be accessible.")
-    BertTokenizer = None
+    AutoTokenizer = None
 
 
 class GenericTokenizer:
@@ -79,8 +79,9 @@ class PreTrainedTokenizer(GenericTokenizer):
                 response = get(url)
                 file_.write(response.content)
         self.moses_tkn = PyMosesTokenizer(lang, lowercase)
-        self.tokenizer = BertWordPieceTokenizer(f_name, clean_text=clean_text, lowercase=lowercase,
-                                                handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            pre_trained_model_name, clean_text=clean_text, lowercase=lowercase,
+            handle_chinese_chars=handle_chinese_chars, strip_accents=strip_accents)
         self.mid_tokens = {".": "&md;", "-": "&hp;", "\'": "&ma;", ",": "&mc;", " ": "&fs;"}
         self.reverse_mid_tokens = {v: k for k, v in self.mid_tokens.items()}
         self.lang = lang
@@ -135,9 +136,9 @@ class PreTrainedTokenizer(GenericTokenizer):
             for sub_token in sub_ts:
                 tokens.append(sub_token)
         # encoding = self.tokenizer.encode(n_text, add_special_tokens=False)
-        encoding = self.tokenizer.encode(tokens, is_pretokenized=True, add_special_tokens=False)
-        # encoding contains "ids", "tokens", and "offsets"
-        return encoding.tokens
+        raise ValueError('BertWordPieceTokenizer does not exist anymore! update this line with AutoTokenizer')
+        # encoding = self.tokenizer.encode(tokens, is_pretokenized=True, add_special_tokens=False)
+        # return encoding.tokens
 
     def detokenize(self, tokenized_list):
         # TODO make it work on more test examples
@@ -189,8 +190,9 @@ class PreTrainedTokenizer(GenericTokenizer):
         :param encoded_ids_list: list of int ids
         :return a decoded str
         """
-        decoded = self.tokenizer.decode(encoded_ids_list)
-        return decoded
+        raise ValueError('BertWordPieceTokenizer does not exist anymore! update this line with AutoTokenizer')
+        # decoded = self.tokenizer.decode(encoded_ids_list)
+        # return decoded
 
     @staticmethod
     def get_default_model_name(lang, lowercase):
@@ -259,7 +261,7 @@ class PTBertTokenizer:
     def __init__(self, lang, lowercase=True):
         # the tokenizer names are the same for BertTokenizer and PreTrainedTokenizer since they have both been distributed by huggingface
         pre_trained_model_name = PreTrainedTokenizer.get_default_model_name(lang, lowercase)
-        self.tokenizer = BertTokenizer.from_pretrained(pre_trained_model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(pre_trained_model_name)
         self.mpn = MosesPunctNormalizer()
         self.detokenizer = MosesDetokenizer(lang=lang)
         self._model_name_ = pre_trained_model_name

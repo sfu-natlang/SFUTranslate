@@ -11,10 +11,10 @@ from configuration import device
 try:
     import warnings
     warnings.filterwarnings('ignore', category=FutureWarning)
-    from transformers import BertForMaskedLM
+    from transformers import AutoModelForMaskedLM
 except ImportError:
-    warnings.warn("transformers package is not available, transformers.BertForMaskedLM will not be accessible.")
-    BertForMaskedLM = None
+    warnings.warn("transformers package is not available, transformers.AutoModelForMaskedLM will not be accessible.")
+    AutoModelForMaskedLM = None
 
 
 def create_test_report(all_loss, all_tokens_count, all_actual_sw, all_prediction_sw, sanity_all_actual, sanity_all_prediction, feature_pred_correct_all,
@@ -38,7 +38,7 @@ def create_test_report(all_loss, all_tokens_count, all_actual_sw, all_prediction
 def aspect_extractor_tester(data_itr, model_name, bert_tokenizer, linguistic_vocab, required_features_list, lang, lowercase_data,
                             load_model_name="generic_aspect_vectors.pt", resolution_strategy="first", check_result_sanity=False,
                             check_with_trained_sanity_heads=False):
-    bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    bert_lm = AutoModelForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".extractor", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)

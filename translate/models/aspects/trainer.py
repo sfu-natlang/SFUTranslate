@@ -17,10 +17,10 @@ from utils.init_nn import weight_init
 try:
     import warnings
     warnings.filterwarnings('ignore', category=FutureWarning)
-    from transformers import BertForMaskedLM
+    from transformers import AutoModelForMaskedLM
 except ImportError:
-    warnings.warn("transformers package is not available, transformers.BertForMaskedLM will not be accessible.")
-    BertForMaskedLM = None
+    warnings.warn("transformers package is not available, transformers.AutoModelForMaskedLM will not be accessible.")
+    AutoModelForMaskedLM = None
 
 
 def create_train_report_and_persist_modules(model, save_model_name, all_actual_sw, all_prediction_sw, feature_pred_correct_all,
@@ -57,8 +57,8 @@ def aspect_extractor_sanity_trainer(data_itr, model_name, bert_tokenizer, lingui
     assert weight_ratio > 1
     Hs = [int(weight_ratio * ind) for ind in Hs]
     Hs[-1] += max(0, (H - sum(Hs)))
-    print("Loading the pre-trained BertForMaskedLM model: {}".format(model_name))
-    bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    print("Loading the pre-trained AutoModelForMaskedLM model: {}".format(model_name))
+    bert_lm = AutoModelForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     saved_obj = torch.load(load_model_name+".extractor", map_location=lambda storage, loc: storage)
     model = saved_obj['model'].to(device)
     model.uniqueness_bridges = nn.ModuleList([nn.ModuleList([nn.Linear(other_aspect_h, class_feature_size)
@@ -80,7 +80,7 @@ def aspect_extractor_sanity_trainer(data_itr, model_name, bert_tokenizer, lingui
             sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
         if input_ids.size(1) > bert_lm.config.max_position_embeddings:
             continue
-        outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+        outputs = bert_lm(input_ids).hidden_states  # (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
         maxes = torch.max(model.bert_weights_for_average_pooling, dim=-1, keepdim=True)[0]
         x_exp = torch.exp(model.bert_weights_for_average_pooling-maxes)
@@ -132,8 +132,8 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
     assert weight_ratio > 1
     Hs = [int(weight_ratio * ind) for ind in Hs]
     Hs[-1] += max(0, (H - sum(Hs)))
-    print("Loading the pre-trained BertForMaskedLM model: {}".format(model_name))
-    bert_lm = BertForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
+    print("Loading the pre-trained AutoModelForMaskedLM model: {}".format(model_name))
+    bert_lm = AutoModelForMaskedLM.from_pretrained(model_name, output_hidden_states=True).to(device)
     number_of_bert_layers = len(bert_lm.bert.encoder.layer) + 1
     D_in = D_out = bert_lm.bert.config.hidden_size
     reverse_linguistic_vocab = create_reverse_linguistic_vocab(linguistic_vocab)
@@ -182,7 +182,7 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             if input_ids.size(1) > bert_lm.config.max_position_embeddings:
                 continue
-            outputs = bert_lm(input_ids, masked_lm_labels=input_ids)[2]  # (batch_size * [input_length + 2] * 768)
+            outputs = bert_lm(input_ids).hidden_states  # (batch_size * [input_length + 2] * 768)
             all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
             maxes = torch.max(model.bert_weights_for_average_pooling, dim=-1, keepdim=True)[0]
             x_exp = torch.exp(model.bert_weights_for_average_pooling-maxes)

@@ -24,10 +24,10 @@ from models.transformer.utils import clones, attention
 try:
     import warnings
     warnings.filterwarnings('ignore', category=FutureWarning)
-    from transformers import BertForMaskedLM
+    from transformers import AutoModelForMaskedLM
 except ImportError:
-    warnings.warn("transformers package is not available, transformers.BertForMaskedLM will not be accessible.")
-    BertForMaskedLM = None
+    warnings.warn("transformers package is not available, transformers.AutoModelForMaskedLM will not be accessible.")
+    AutoModelForMaskedLM = None
 
 
 class AspectExtractor(torch.nn.Module):
@@ -165,7 +165,7 @@ class AspectIntegration(nn.Module):
 
     def init_model_params(self):
         print("Running the init params for BERT language model")
-        self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
+        self.bert_lm = AutoModelForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         # self.number_of_bert_layers = len(self.bert_lm.bert.encoder.layer) + 1
         # self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers), requires_grad=True)
         print("Running the init params for aspect_vectors: {}".format(cfg.aspect_vectors_data_address))
@@ -280,7 +280,7 @@ class MultiHeadAspectAugmentationLayer(nn.Module):
 
     def init_model_params(self):
         print("Running the init params for BERT language model")
-        self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
+        self.bert_lm = AutoModelForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         # self.number_of_bert_layers = len(self.bert_lm.bert.encoder.layer) + 1
         # self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers), requires_grad=True)
         print("Running the init params for aspect_vectors")
@@ -370,7 +370,7 @@ class BertEmbeddingIntegration(nn.Module):
 
     def init_model_params(self):
         print("Running the init params for BERT language model")
-        self.bert_lm = BertForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
+        self.bert_lm = AutoModelForMaskedLM.from_pretrained(src_tokenizer_obj.model_name, output_hidden_states=True).to(device)
         self.number_of_bert_layers = len(self.bert_lm.bert.encoder.layer) + 1
         self.bert_weights_for_average_pooling = nn.Parameter(torch.zeros(self.number_of_bert_layers), requires_grad=True).to(device)
         for p in self.bert_weights_for_average_pooling:
