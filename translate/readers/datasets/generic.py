@@ -113,16 +113,16 @@ class TranslationDataset(Dataset):
             if not os.path.exists(os.path.join(path, train) + exts[0]):
                 print("cleaning path data ...")
                 cls.clean(path)
-            print("    [torchtext] Loading train examples ...")
+            print("    [torch/text] Loading train examples ...")
         train_data = None if train is None else cls(os.path.join(path, train), exts, fields, **kwargs)
         if "filter_pred" in kwargs and not debug_mode:
             del kwargs['filter_pred']
         if "sentence_count_limit" in kwargs:
             del kwargs['sentence_count_limit']
-        print("    [torchtext] Loading validation examples ...")
+        print("    [torch/text] Loading validation examples ...")
         val_data = None if validation is None else cls(os.path.join(path, validation), exts, fields, **kwargs)
         val_data.name = validation
-        print("    [torchtext] Loading test examples ...")
+        print("    [torch/text] Loading test examples ...")
         test_data_list = [None if test is None else cls(os.path.join(path, test), exts, fields, **kwargs) for test in test_list]
         if len(test_list):
             for d, n in zip(test_data_list, test_list):
