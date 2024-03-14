@@ -197,9 +197,11 @@ class PreTrainedTokenizer(GenericTokenizer):
     @staticmethod
     def get_default_model_name(lang, lowercase):
         if lang == "en" and lowercase:
-            return "bert-base-uncased"
+            # return "bert-base-uncased"
+            return "roberta-base"
         elif lang == "en" and not lowercase:
-            return "bert-base-cased"
+            # return "bert-base-cased"
+            return "roberta-base"
         elif lang == "zh":
             return "bert-base-chinese"
         elif lang == "de" and lowercase:
@@ -212,6 +214,8 @@ class PreTrainedTokenizer(GenericTokenizer):
             return "bert-base-finnish-cased-v1"
         elif lang == "fr" and lowercase:
             return "moses-pre-tokenized-wmt-uncased-fr"
+        elif lang == 'fr' and not lowercase:
+            return 'dbmdz/bert-base-french-europeana-cased'
         else:
             raise ValueError("No pre-trained tokenizer found for language {} in {} mode".format(
                 lang, "lowercased" if lowercase else "cased"))
