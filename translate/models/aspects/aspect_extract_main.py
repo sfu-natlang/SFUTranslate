@@ -46,9 +46,14 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
     def dev_data_itr():
         return tqdm(dataset_iterator(dataset.val, batch_size * 3), dynamic_ncols=True)
 
+    def train_dev_itr():
+        for d in [dataset.train, dataset.val]:
+            for instance in d:
+                yield instance
+
     if not os.path.exists(vocab_adr):
         print("Starting to create linguistic vocab for for {} language ...".format(src_lan))
-        ling_vocab = extract_linguistic_vocabs(dataset.train, bert_tokenizer, src_lan, cfg.lowercase_data)
+        ling_vocab = extract_linguistic_vocabs(train_dev_itr(), bert_tokenizer, src_lan, cfg.lowercase_data)
         print("Linguistic vocab ready, persisting ...")
         pickle.dump(ling_vocab, open(vocab_adr, "wb"), protocol=4)
         print("Linguistic vocab persisted!\nDone.")
@@ -68,4 +73,4 @@ def aspect_vector_trainer(data_root='../../../.data', checkpoints_root='../../..
 if __name__ == '__main__':
     # TODO put this list in config file
     aspect_vector_trainer(features_list=("f_pos", "c_pos", "subword_shape", "subword_position"),  # , "dependency_tag", "ent_type"),
-                          no_improvement_tolerance=-1)
+                          no_improvement_tolerance=5000)
