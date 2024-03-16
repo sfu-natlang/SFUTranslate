@@ -182,7 +182,8 @@ def aspect_extractor_trainer(data_itr, model_name, bert_tokenizer, linguistic_vo
                 sequences, batch_first=True, padding_value=bert_tokenizer.tokenizer.pad_token_id)
             if input_ids.size(1) > bert_lm.config.max_position_embeddings:
                 continue
-            outputs = bert_lm(input_ids).hidden_states  # (batch_size * [input_length + 2] * 768)
+            attn_mask = (input_ids != bert_tokenizer.tokenizer.pad_token_id).long()
+            outputs = bert_lm(input_ids, attention_mask=attn_mask).hidden_states  # (batch_size * [input_length + 2] * 768)
             all_layers_embedded = torch.cat([o.detach().unsqueeze(0) for o in outputs], dim=0)
             maxes = torch.max(model.bert_weights_for_average_pooling, dim=-1, keepdim=True)[0]
             x_exp = torch.exp(model.bert_weights_for_average_pooling-maxes)

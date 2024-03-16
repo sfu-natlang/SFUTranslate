@@ -196,7 +196,8 @@ class AspectIntegration(nn.Module):
 
     def get_ling_embed_attention_keys_from_bert_converted_ids(self, bert_input_sentences):
         input_ids = torch.tensor(bert_input_sentences, device=device)
-        outputs = self.bert_lm(input_ids)[1]  # (batch_size * [input_length + 2] * 768)
+        attn_mask = (input_ids != src_tokenizer_obj.tokenizer.pad_token_id).long()
+        outputs = self.bert_lm(input_ids,  attention_mask=attn_mask)[1]  # (batch_size * [input_length + 2] * 768)
         all_layers_embedded = torch.cat([o.unsqueeze(0) for o in outputs], dim=0)
         embedded = torch.matmul(all_layers_embedded.permute(1, 2, 3, 0),
                                 self.softmax(self.bert_weights_for_average_pooling))  # [:, 1:-1, :]
